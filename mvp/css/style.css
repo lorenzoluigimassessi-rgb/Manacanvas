@@ -627,11 +627,28 @@ body {
 
 .scroll-top.visible { display: flex; }
 
+.mobile-sort-wrap { display: none; }
+
 /* Responsive */
 @media (max-width: 768px) {
   .header-row-1 { padding: 0.8rem 1.2rem; gap: 0.8rem; }
   .header-row-2 { padding: 0.5rem 1.2rem; flex-wrap: wrap; gap: 0.5rem; }
   .row2-right { display: none; }
+  .mobile-sort-wrap { margin-left: auto; }
+  .mobile-sort-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-sort-btn.active { border-color: var(--text-primary); color: var(--text-primary); }
   .header h1 { font-size: 1.1rem; letter-spacing: 2px; }
   .search-container { max-width: none; }
   .search-bar { min-height: 40px; }

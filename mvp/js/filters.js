@@ -51,8 +51,6 @@ function toggleSort() {
   const label = sortOrder === "asc" ? "Oldest First" : "Newest First";
   document.getElementById("sortBtn").textContent = `${label} ⇅`;
   document.getElementById("sortBtn").classList.toggle("active", sortOrder === "desc");
-  const mobileBtn = document.getElementById("mobileSortBtn");
-  if (mobileBtn) { mobileBtn.textContent = `⇅ ${label}`; mobileBtn.classList.toggle("active", sortOrder === "desc"); }
   loadInitialGrid();
 }
 
@@ -61,8 +59,7 @@ function toggleViewDropdown() {
   if (viewDropdownOpen) { closeViewDropdown(); return; }
   closeDropdown();
   viewDropdownOpen = true;
-  const isMobile = window.innerWidth <= 768;
-  const container = isMobile ? document.getElementById("mobileViewBtn").parentElement : document.getElementById("row2Right");
+  const container = document.getElementById("row2Right");
   const dropdown = document.createElement("div");
   dropdown.className = "view-dropdown";
   dropdown.id = "viewDropdown";

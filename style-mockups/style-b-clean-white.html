@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ManaCanvas — Style B: Clean White Canvas</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f8f8f8; color: #333; font-family: 'Helvetica Neue', sans-serif; min-height: 100vh; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 2rem; background: #fff; border-bottom: 1px solid #eee; }
+    .header h1 { font-size: 1.3rem; font-weight: 600; color: #111; }
+    .filters { display: flex; gap: 0.5rem; }
+    .filters select { background: #fff; color: #333; border: 1px solid #ddd; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; }
+    .grid { columns: 3; column-gap: 1rem; padding: 2rem; }
+    @media (max-width: 900px) { .grid { columns: 2; } }
+    @media (max-width: 600px) { .grid { columns: 1; } }
+    .card { break-inside: avoid; margin-bottom: 1rem; border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: box-shadow 0.2s, transform 0.2s; cursor: pointer; }
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.12); transform: translateY(-2px); }
+    .card img { width: 100%; display: block; }
+    .card .meta { padding: 0.7rem 0.9rem; }
+    .card .name { font-size: 0.9rem; font-weight: 500; color: #111; }
+    .card .artist { font-size: 0.8rem; color: #888; margin-top: 0.15rem; }
+    .label { text-align: center; padding: 2rem; font-size: 0.9rem; color: #aaa; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>ManaCanvas</h1>
+    <div class="filters">
+      <select><option>All Artists</option><option>Seb McKinnon</option><option>Magali Villeneuve</option></select>
+      <select><option>All Creatures</option><option>Dragon</option><option>Angel</option><option>Demon</option></select>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <img src="https://cards.scryfall.io/art_crop/front/a/a/aab13e40-4c4a-4f0c-9f5f-4b5e32f40a18.jpg?1682720865" alt="Art">
+      <div class="meta"><div class="name">Atraxa, Grand Unifier</div><div class="artist">Marta Nael</div></div>
+    </div>
+    <div class="card">
+      <img src="https://cards.scryfall.io/art_crop/front/5/6/56c8f82d-d5f1-4797-a861-d2b0a56a68b4.jpg?1682718752" alt="Art">
+      <div class="meta"><div class="name">Elesh Norn</div><div class="artist">Magali Villeneuve</div></div>
+    </div>
+    <div class="card">
+      <img src="https://cards.scryfall.io/art_crop/front/c/c/cc4e5765-190e-4a93-a9c3-8f3c02e748f0.jpg?1682718320" alt="Art">
+      <div class="meta"><div class="name">Sheoldred</div><div class="artist">Chris Rahn</div></div>
+    </div>
+    <div class="card">
+      <img src="https://cards.scryfall.io/art_crop/front/1/8/18a2bdc8-b705-4eb5-b3a5-ff2e2ab8f312.jpg?1674421628" alt="Art">
+      <div class="meta"><div class="name">Omnath, Locus of All</div><div class="artist">Chase Stone</div></div>
+    </div>
+    <div class="card">
+      <img src="https://cards.scryfall.io/art_crop/front/b/e/be8b1acf-dd87-42bf-ad89-bd1ef9cce48c.jpg?1674421762" alt="Art">
+      <div class="meta"><div class="name">Phyrexian Vindicator</div><div class="artist">Lie Setiawan</div></div>
+    </div>
+    <div class="card">
+      <img src="https://cards.scryfall.io/art_crop/front/3/6/36b4fda4-23b8-4172-8ebe-f3e5765e4a90.jpg?1682718088" alt="Art">
+      <div class="meta"><div class="name">Vorinclex</div><div class="artist">Daarken</div></div>
+    </div>
+  </div>
+  <div class="label">Style B — Clean White Canvas · Masonry layout with metadata below</div>
+</body>
+</html>

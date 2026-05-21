@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ManaCanvas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="welcome"></div>
+  <div id="appShell" style="display:none;">
+    <header class="header">
+      <div class="header-row-1">
+        <h1 onclick="showWelcome()" style="cursor:pointer;">MANACANVAS</h1>
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-bar" id="searchBar" placeholder="Search card, artist, creature...">
+          <span class="search-clear" id="searchClear" style="display:none;">✕</span>
+          <div class="search-suggestions" id="searchSuggestions" style="display:none;"></div>
+        </div>
+      </div>
+      <div class="header-row-2">
+        <div class="filters" id="filters"></div>
+        <div id="chipBar"></div>
+        <div class="row2-right" id="row2Right"></div>
+      </div>
+    </header>
+    <main class="grid" id="grid"></main>
+    <div class="loading-more" id="loader" style="display:none;">Loading more artwork...</div>
+    <div id="lightbox"></div>
+    <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+  </div>
+
+  <script src="js/welcome.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/lightbox.js"></script>
+</body>
+</html>

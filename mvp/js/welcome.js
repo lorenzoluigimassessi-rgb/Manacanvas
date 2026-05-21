@@ -36,6 +36,9 @@ async function renderWelcome() {
         <p class="welcome-subtitle">Discover 30 years of Magic: The Gathering artwork</p>
         <button class="welcome-cta" onclick="startBrowse()">Start Browsing →</button>
       </div>
+      <footer class="site-footer welcome-footer">
+        <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images © Wizards of the Coast.</p>
+      </footer>
     </div>
   `;
 }

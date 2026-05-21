@@ -34,7 +34,7 @@ async function initFilters() {
   try {
     const res = await fetch("https://api.scryfall.com/sets");
     const json = await res.json();
-    setList = (json.data || []).filter(s => s.set_type === "expansion" || s.set_type === "core" || s.set_type === "draft_innovation").map(s => ({ code: s.code, name: s.name }));
+    setList = (json.data || []).filter(s => s.set_type === "expansion" || s.set_type === "core" || s.set_type === "draft_innovation").map(s => ({ code: s.code, name: s.name, icon: s.icon_svg_uri }));
   } catch (e) { setList = []; }
 
   document.addEventListener("click", () => { closeDropdown(); closeViewDropdown(); });
@@ -180,7 +180,7 @@ function renderSetList(query) {
   const q = query.toLowerCase();
   const filtered = q ? setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 50) : setList.slice(0, 50);
   if (!filtered.length) { list.innerHTML = `<div class="dropdown-item" style="cursor:default;">No sets found</div>`; return; }
-  list.innerHTML = filtered.map(s => `<div class="dropdown-item" data-value="${s.code}">${s.name}</div>`).join("");
+  list.innerHTML = filtered.map(s => `<div class="dropdown-item" data-value="${s.code}"><img class="set-icon" src="${s.icon}" alt="">${s.name}</div>`).join("");
   list.querySelectorAll(".dropdown-item").forEach(item => item.addEventListener("click", () => selectSet(item.dataset.value, item.textContent)));
 }
 

@@ -634,7 +634,7 @@ body {
   .header-row-1 { padding: 0.8rem 1.2rem; gap: 0.8rem; }
   .header-row-2 { padding: 0.5rem 1.2rem; flex-wrap: wrap; gap: 0.5rem; }
   .row2-right { display: none; }
-  .mobile-sort-wrap { margin-left: auto; }
+  .mobile-sort-wrap { margin-left: auto; display: flex; gap: 0.4rem; }
   .mobile-sort-btn {
     background: transparent;
     border: 1px solid var(--border);
@@ -647,7 +647,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: inherit;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
   }
+  .mobile-sort-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); }
   .mobile-sort-btn.active { border-color: var(--text-primary); color: var(--text-primary); }
   .header h1 { font-size: 1.1rem; letter-spacing: 2px; }
   .search-container { max-width: none; }

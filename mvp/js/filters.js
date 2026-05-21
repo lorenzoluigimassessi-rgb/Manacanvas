@@ -58,7 +58,8 @@ function toggleViewDropdown() {
   if (viewDropdownOpen) { closeViewDropdown(); return; }
   closeDropdown();
   viewDropdownOpen = true;
-  const container = document.getElementById("row2Right");
+  const isMobile = window.innerWidth <= 768;
+  const container = isMobile ? document.getElementById("mobileViewBtn").parentElement : document.getElementById("row2Right");
   const dropdown = document.createElement("div");
   dropdown.className = "view-dropdown";
   dropdown.id = "viewDropdown";

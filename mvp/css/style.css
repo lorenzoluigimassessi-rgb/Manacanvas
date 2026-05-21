@@ -520,6 +520,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow-y: auto;
+  padding: 2rem 0;
   animation: fadeIn var(--transition-normal) ease;
 }
 
@@ -560,6 +562,7 @@ body {
 .lightbox .meta {
   text-align: center;
   margin-top: 1.2rem;
+  flex-shrink: 0;
 }
 
 .lightbox .meta .name { font-size: 1.1rem; color: var(--text-primary); }
@@ -572,6 +575,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .lightbox .toggle button {
@@ -626,37 +630,41 @@ body {
 /* Responsive */
 @media (max-width: 768px) {
   .header-row-1 { padding: 0.8rem 1.2rem; gap: 0.8rem; }
-  .header-row-2 { padding: 0.5rem 1.2rem; flex-wrap: wrap; }
+  .header-row-2 { padding: 0.5rem 1.2rem; flex-wrap: wrap; gap: 0.5rem; }
   .header h1 { font-size: 1.1rem; letter-spacing: 2px; }
   .search-container { max-width: none; }
-  .filters { flex-wrap: wrap; }
+  .search-bar { min-height: 40px; }
+  .filters { flex-wrap: wrap; gap: 0.4rem; }
+  .filter-btn { font-size: 0.8rem; min-height: 40px; padding: 0 0.9rem; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; padding: 1rem; }
   .grid.grid-sm { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
   .grid.grid-lg { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
   .card .overlay { opacity: 1; padding: 0.5rem 0.6rem; }
   .card .overlay .name { font-size: 0.8rem; }
   .card .overlay .artist { font-size: 0.7rem; }
-  .lightbox .art-container { max-width: 95vw; max-height: 55vh; }
+  .lightbox .art-container { max-width: 95vw; max-height: 50vh; }
+  .lightbox .art-container img { max-height: 50vh; }
   .lightbox .meta .name { font-size: 0.95rem; }
-  .lightbox .toggle button { padding: 0.5rem 1.2rem; font-size: 0.85rem; }
+  .lightbox .toggle button { padding: 0.5rem 1.2rem; font-size: 0.85rem; min-height: 40px; }
   .lightbox .zoom-hint { font-size: 0.7rem; }
-  .filter-btn { font-size: 0.75rem; }
   .grid-size-control { display: none; }
   .welcome-title { font-size: 2.8rem; letter-spacing: 5px; }
   .welcome-subtitle { font-size: 0.85rem; letter-spacing: 2px; }
+  .welcome-cta { width: 100%; max-width: 280px; min-height: 48px; }
   .pick-btn { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
 }
 
 @media (max-width: 480px) {
   .header-row-1 { flex-wrap: wrap; }
   .header h1 { font-size: 1rem; }
-  .grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.7rem; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; padding: 0.7rem; }
   .card { border-radius: 4px; }
-  .lightbox .art-container { max-width: 98vw; max-height: 50vh; }
+  .lightbox .art-container { max-width: 98vw; max-height: 45vh; }
+  .lightbox .art-container img { max-height: 45vh; }
   .lightbox .close-btn { top: 0.5rem; right: 0.8rem; font-size: 1.5rem; }
-  .scroll-top { bottom: 1rem; right: 1rem; width: 36px; height: 36px; font-size: 1rem; }
-  .welcome-title { font-size: 2rem; }
-  .welcome-page { padding: 1.5rem; justify-content: center; }
+  .scroll-top { bottom: 1rem; right: 1rem; width: 44px; height: 44px; font-size: 1.1rem; }
+  .welcome-title { font-size: 1.6rem; }
+  .welcome-page { padding: 1.5rem; padding-bottom: 3rem; justify-content: center; }
 }
 
 .site-footer {

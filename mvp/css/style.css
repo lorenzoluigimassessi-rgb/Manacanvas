@@ -639,14 +639,15 @@ body {
     background: transparent;
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    width: 40px;
     height: 40px;
+    padding: 0 0.75rem;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 0.8rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 0.3rem;
+    white-space: nowrap;
     font-family: inherit;
     transition: border-color var(--transition-fast), color var(--transition-fast);
   }

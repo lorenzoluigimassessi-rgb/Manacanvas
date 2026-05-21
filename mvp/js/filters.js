@@ -48,8 +48,11 @@ async function loadSetsIfNeeded() {
 // Sort
 function toggleSort() {
   sortOrder = sortOrder === "asc" ? "desc" : "asc";
-  document.getElementById("sortBtn").textContent = sortOrder === "asc" ? "Oldest First ⇅" : "Newest First ⇅";
+  const label = sortOrder === "asc" ? "Oldest First" : "Newest First";
+  document.getElementById("sortBtn").textContent = `${label} ⇅`;
   document.getElementById("sortBtn").classList.toggle("active", sortOrder === "desc");
+  const mobileBtn = document.getElementById("mobileSortBtn");
+  if (mobileBtn) { mobileBtn.textContent = `⇅ ${label}`; mobileBtn.classList.toggle("active", sortOrder === "desc"); }
   loadInitialGrid();
 }
 

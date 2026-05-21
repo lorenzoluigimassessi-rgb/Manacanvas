@@ -25,11 +25,9 @@ async function fetchRandomArt() {
 }
 
 async function renderWelcome() {
-  const artUrl = await fetchRandomArt();
-  const bgStyle = artUrl ? `background-image: url('${artUrl}'); background-size: cover; background-position: center;` : "";
-
+  // Show page instantly
   welcomeEl.innerHTML = `
-    <div class="welcome-page" style="${bgStyle}">
+    <div class="welcome-page" id="welcomeBg">
       <div class="welcome-overlay"></div>
       <div class="welcome-hero">
         <h1 class="welcome-title">MANACANVAS</h1>
@@ -41,6 +39,12 @@ async function renderWelcome() {
       </footer>
     </div>
   `;
+  // Load background art without blocking
+  fetchRandomArt().then(artUrl => {
+    if (!artUrl) return;
+    const bg = document.getElementById("welcomeBg");
+    if (bg) bg.style.cssText = `background-image:url('${artUrl}');background-size:cover;background-position:center;`;
+  });
 }
 
 function showWelcome() {

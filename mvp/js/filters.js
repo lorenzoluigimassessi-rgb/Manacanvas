@@ -18,7 +18,7 @@ async function initFilters() {
 
   // Sort + View (row 2, right side)
   document.getElementById("row2Right").innerHTML = `
-    <button class="filter-btn active" id="sortBtn">Newest First ⇅</button>
+    <button class="filter-btn" id="sortBtn">Oldest First ⇅</button>
     <button class="filter-btn" id="viewBtn">⊞ View ▾</button>
   `;
 
@@ -29,22 +29,26 @@ async function initFilters() {
   document.getElementById("sortBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleSort(); });
   document.getElementById("viewBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleViewDropdown(); });
 
-  // Load catalogs
+  // Load catalogs (artists + creatures now, sets deferred until dropdown opens)
   [artistList, creatureTypeList] = await Promise.all([fetchArtistNames(), fetchCreatureTypes()]);
-  try {
-    const res = await fetch("https://api.scryfall.com/sets");
-    const json = await res.json();
-    setList = (json.data || []).filter(s => s.set_type === "expansion" || s.set_type === "core" || s.set_type === "draft_innovation").map(s => ({ code: s.code, name: s.name, icon: s.icon_svg_uri }));
-  } catch (e) { setList = []; }
 
   document.addEventListener("click", () => { closeDropdown(); closeViewDropdown(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeDropdown(); closeViewDropdown(); } });
 }
 
+async function loadSetsIfNeeded() {
+  if (setList.length) return;
+  try {
+    const res = await fetch("https://api.scryfall.com/sets");
+    const json = await res.json();
+    setList = (json.data || []).filter(s => s.set_type === "expansion" || s.set_type === "core" || s.set_type === "draft_innovation").map(s => ({ code: s.code, name: s.name, icon: s.icon_svg_uri }));
+  } catch (e) { setList = []; }
+}
+
 // Sort
 function toggleSort() {
-  sortOrder = sortOrder === "desc" ? "asc" : "desc";
-  document.getElementById("sortBtn").textContent = sortOrder === "desc" ? "Newest First ⇅" : "Oldest First ⇅";
+  sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  document.getElementById("sortBtn").textContent = sortOrder === "asc" ? "Oldest First ⇅" : "Newest First ⇅";
   document.getElementById("sortBtn").classList.toggle("active", sortOrder === "desc");
   loadInitialGrid();
 }
@@ -104,10 +108,12 @@ function toggleDropdown(type) {
     filtersContainer.appendChild(dropdown);
     renderTypeList();
   } else if (type === "set") {
-    dropdown.innerHTML = `<input type="text" placeholder="Search sets..." id="setSearch"><div class="dropdown-list" id="setListEl"></div>`;
+    dropdown.innerHTML = `<input type="text" placeholder="Search sets..." id="setSearch"><div class="dropdown-list" id="setListEl"><div class="dropdown-item" style="cursor:default;">Loading sets...</div></div>`;
     filtersContainer.appendChild(dropdown);
-    renderSetList("");
-    document.getElementById("setSearch").addEventListener("input", (e) => renderSetList(e.target.value));
+    loadSetsIfNeeded().then(() => {
+      renderSetList("");
+      document.getElementById("setSearch").addEventListener("input", (e) => renderSetList(e.target.value));
+    });
     document.getElementById("setSearch").focus();
   } else if (type === "year") {
     const minY = 1993;

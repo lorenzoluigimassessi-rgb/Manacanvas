@@ -658,3 +658,11 @@ body {
   .welcome-title { font-size: 2rem; }
   .welcome-page { padding: 1.5rem; justify-content: center; }
 }
+
+.site-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #666;
+  font-size: 0.75rem;
+  font-family: 'Josefin Sans', sans-serif;
+}

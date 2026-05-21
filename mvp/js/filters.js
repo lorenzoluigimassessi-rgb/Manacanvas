@@ -18,7 +18,7 @@ async function initFilters() {
 
   // Sort + View (row 2, right side)
   document.getElementById("row2Right").innerHTML = `
-    <button class="filter-btn" id="sortBtn">Oldest First ⇅</button>
+    <button class="filter-btn active" id="sortBtn">Newest First ⇅</button>
     <button class="filter-btn" id="viewBtn">⊞ View ▾</button>
   `;
 

@@ -3,7 +3,7 @@ let currentSearch = null;
 let nextPageUrl = null;
 let isLoading = false;
 
-let sortOrder = "asc";
+let sortOrder = "desc";
 
 async function fetchCards(query = "t:creature", page = 1) {
   isLoading = true;

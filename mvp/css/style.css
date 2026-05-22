@@ -496,6 +496,8 @@ body {
   display: block;
   background: var(--surface);
   min-height: 180px;
+  object-fit: cover;
+  aspect-ratio: 4/3;
 }
 
 .card .overlay {

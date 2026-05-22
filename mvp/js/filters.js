@@ -703,6 +703,7 @@ function renderFlatSheet() {
   // Artist search
   const artistInput = document.getElementById("sheetArtistInput");
   renderSheetArtistList("");
+  artistInput.addEventListener("focus", () => renderSheetArtistList(artistInput.value));
   artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value));
 
   // Card type pills
@@ -718,6 +719,7 @@ function renderFlatSheet() {
   // Creature type search
   const typeInput = document.getElementById("sheetTypeInput");
   renderSheetTypeList("");
+  typeInput.addEventListener("focus", () => renderSheetTypeList(typeInput.value));
   typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value));
 
   // Mana pills
@@ -735,7 +737,9 @@ function renderFlatSheet() {
   // Sets
   loadSetsIfNeeded().then(() => {
     renderSheetSetList("");
-    document.getElementById("sheetSetInput").addEventListener("input", (e) => renderSheetSetList(e.target.value));
+    const setInput = document.getElementById("sheetSetInput");
+    setInput.addEventListener("focus", () => renderSheetSetList(setInput.value));
+    setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value));
   });
 
   // Art style grid
@@ -758,14 +762,17 @@ function renderSheetArtistList(query) {
   const list = document.getElementById("sheetArtistList");
   if (!list) return;
   const q = query.toLowerCase();
+  if (!q && document.activeElement !== document.getElementById("sheetArtistInput")) { list.innerHTML = ""; list.style.display = "none"; return; }
   const filtered = q ? artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 8) : artistList.slice(0, 8);
+  list.style.display = filtered.length ? "block" : "none";
   list.innerHTML = filtered.map(a =>
     `<div class="sheet-list-item ${activeArtist === a ? 'selected' : ''}" data-val="${a}">${highlightMatch(a, q)}${activeArtist === a ? '<span class="sheet-check">✓</span>' : ""}</div>`
   ).join("");
   list.querySelectorAll(".sheet-list-item").forEach(el => el.addEventListener("click", () => {
     activeArtist = activeArtist === el.dataset.val ? null : el.dataset.val;
     document.getElementById("sheetArtistInput").value = activeArtist || "";
-    renderSheetArtistList(document.getElementById("sheetArtistInput").value);
+    list.style.display = "none";
+    list.innerHTML = "";
   }));
 }
 
@@ -773,14 +780,17 @@ function renderSheetTypeList(query) {
   const list = document.getElementById("sheetTypeList");
   if (!list) return;
   const q = query.toLowerCase();
+  if (!q && document.activeElement !== document.getElementById("sheetTypeInput")) { list.innerHTML = ""; list.style.display = "none"; return; }
   const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 8) : creatureTypeList.slice(0, 8);
+  list.style.display = filtered.length ? "block" : "none";
   list.innerHTML = filtered.map(t =>
     `<div class="sheet-list-item ${activeType === t ? 'selected' : ''}" data-val="${t}">${highlightMatch(t, q)}${activeType === t ? '<span class="sheet-check">✓</span>' : ""}</div>`
   ).join("");
   list.querySelectorAll(".sheet-list-item").forEach(el => el.addEventListener("click", () => {
     activeType = activeType === el.dataset.val ? null : el.dataset.val;
     document.getElementById("sheetTypeInput").value = activeType || "";
-    renderSheetTypeList(document.getElementById("sheetTypeInput").value);
+    list.style.display = "none";
+    list.innerHTML = "";
   }));
 }
 

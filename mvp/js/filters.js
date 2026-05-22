@@ -964,6 +964,25 @@ function clearAllFilters() {
   activeArtist = null; activeType = null; activeCardType = null;
   activeColour = null; activeSets = []; activeStyles = [];
   activeYearMin = null; activeYearMax = null; activeSearch = null;
+  // Reset desktop filter button labels and active states
+  if (!isMobile()) {
+    const resets = [
+      ["artistBtn",  "All Artists ▾"],
+      ["typeBtn",    "Creature Type ▾"],
+      ["cardTypeBtn","Card Type ▾"],
+      ["manaBtn",    "Mana Type ▾"],
+      ["setBtn",     "All Sets ▾"],
+      ["styleBtn",   "Art Style ▾"],
+      ["yearBtn",    "Year Range ▾"],
+    ];
+    resets.forEach(([id, label]) => {
+      const btn = document.getElementById(id);
+      if (btn) { btn.textContent = label; btn.classList.remove("active"); }
+    });
+    // Remove desktop badge
+    const badge = document.getElementById("desktopFilterBadge");
+    if (badge) badge.remove();
+  }
   // Clear search bar UI
   const searchBar = document.getElementById("searchBar");
   const searchClear = document.getElementById("searchClear");

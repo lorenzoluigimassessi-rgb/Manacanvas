@@ -41,6 +41,9 @@ async function initFilters() {
     document.getElementById("sortBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleSort(); });
     document.getElementById("viewBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleViewDropdown(); });
     [artistList, creatureTypeList, cardTypeList] = await Promise.all([fetchArtistNames(), fetchCreatureTypes(), fetchCardTypes()]);
+    await loadSetsIfNeeded();
+    document.addEventListener("click", () => closeViewDropdown());
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeViewDropdown(); });
     return;
   }
 

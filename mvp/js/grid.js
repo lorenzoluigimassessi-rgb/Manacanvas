@@ -15,7 +15,7 @@ let activeSearch = null;
 async function loadInitialGrid() {
   showShimmers();
   resetPagination();
-  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeYearMin, activeYearMax, activeSearch);
+  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch);
   const { data, hasMore } = await fetchCards(query);
   grid.innerHTML = "";
   if (!data.length) {

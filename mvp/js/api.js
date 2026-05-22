@@ -68,7 +68,7 @@ async function fetchRandomCard() {
   }
 }
 
-function buildQuery(artist, creatureType, cardType, colour, sets, yearMin, yearMax, searchText) {
+function buildQuery(artist, creatureType, cardType, colour, sets, styles, yearMin, yearMax, searchText) {
   let q = "has:illustration";
   if (searchText) q += ` ${searchText}`;
   if (artist) q += ` a:"${artist}"`;
@@ -77,8 +77,10 @@ function buildQuery(artist, creatureType, cardType, colour, sets, yearMin, yearM
   if (colour) q += ` c:${colour}`;
   if (sets && sets.length === 1) q += ` s:${sets[0]}`;
   if (sets && sets.length > 1) q += ` (${sets.map(s => `s:${s}`).join(" OR ")})`;
+  if (styles && styles.length === 1) q += ` ${styles[0].query}`;
+  if (styles && styles.length > 1) q += ` (${styles.map(s => s.query).join(" OR ")})`;
   if (yearMin) q += ` year>=${yearMin}`;
   if (yearMax) q += ` year<=${yearMax}`;
-  if (!artist && !creatureType && !cardType && !colour && (!sets || !sets.length) && !yearMin && !yearMax && !searchText) q = "t:creature has:illustration";
+  if (!artist && !creatureType && !cardType && !colour && (!sets || !sets.length) && (!styles || !styles.length) && !yearMin && !yearMax && !searchText) q = "t:creature has:illustration";
   return q;
 }

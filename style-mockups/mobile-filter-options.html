@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Filter — Option A vs B</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #1a1a22;
+      --surface2: #22222e;
+      --border: #2a2a35;
+      --text-primary: #f0f0f0;
+      --text-secondary: #8a8a9a;
+      --radius: 6px;
+    }
+
+    body {
+      background: #111118;
+      color: var(--text-primary);
+      font-family: 'Josefin Sans', sans-serif;
+      padding: 2rem;
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .option-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      width: 375px;
+    }
+
+    .option-label {
+      font-size: 0.68rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .option-title {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+
+    .option-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 0.8rem;
+    }
+
+    /* Phone frame */
+    .phone {
+      width: 375px;
+      background: var(--bg);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      position: relative;
+      min-height: 580px;
+    }
+
+    /* Header */
+    .header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-row-1 {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.9rem 1.2rem;
+    }
+
+    .logo {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      white-space: nowrap;
+      color: var(--text-primary);
+    }
+
+    .search-bar-mock {
+      flex: 1;
+      height: 34px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 0.7rem;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .random-btn-small {
+      background: #16161f;
+      border: 1px solid #4a4a60;
+      color: #c8c8e0;
+      height: 34px;
+      padding: 0 0.7rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .header-row-2 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.2rem;
+      background: rgba(26,26,34,0.5);
+      border-top: 1px solid var(--border);
+    }
+
+    .filter-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      height: 28px;
+      padding: 0 0.7rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .filter-btn.active {
+      border-color: var(--text-primary);
+      color: var(--text-primary);
+    }
+
+    .filter-btn.primary {
+      background: var(--surface);
+      border-color: #4a4a60;
+      color: #c8c8e0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--text-primary);
+      color: var(--bg);
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      margin-left: 3px;
+    }
+
+    .ml-auto { margin-left: auto; }
+
+    /* Chip bar */
+    .chip-bar {
+      padding: 0.4rem 1.2rem;
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      color: var(--text-primary);
+    }
+
+    /* Grid preview */
+    .grid-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      padding: 0.8rem 1.2rem;
+    }
+
+    .card-mock {
+      background: var(--surface);
+      border-radius: 4px;
+      height: 100px;
+      opacity: 0.6;
+    }
+
+    .card-mock:nth-child(1) { background: #2a1a1a; opacity: 1; }
+    .card-mock:nth-child(2) { background: #1a1a2a; opacity: 1; }
+    .card-mock:nth-child(3) { background: #1a2a1a; opacity: 0.8; }
+    .card-mock:nth-child(4) { background: #2a2a1a; opacity: 0.8; }
+
+    /* ===================== */
+    /* OPTION A — Dropdown   */
+    /* ===================== */
+    .dropdown-panel {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      z-index: 20;
+      animation: slideDown 200ms ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown-filter-list {
+      padding: 0.5rem 0;
+    }
+
+    .dropdown-filter-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 1.2rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .dropdown-filter-item:last-child { border-bottom: none; }
+    .dropdown-filter-item.active { color: var(--text-primary); }
+    .dropdown-filter-item .chevron { opacity: 0.4; font-size: 0.7rem; }
+    .dropdown-filter-item .active-val {
+      font-size: 0.72rem;
+      color: #8080a8;
+      margin-right: 0.4rem;
+    }
+
+    /* ===================== */
+    /* OPTION B — Drawer     */
+    /* ===================== */
+    .drawer-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 20;
+    }
+
+    .drawer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface2);
+      border-radius: 16px 16px 0 0;
+      z-index: 30;
+      animation: slideUp 250ms ease;
+      max-height: 75%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    .drawer-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0.7rem auto 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .drawer-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+
+    .drawer-clear {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .drawer-filters {
+      overflow-y: auto;
+      flex: 1;
+      padding: 0.4rem 0;
+    }
+
+    .drawer-filter-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.2rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(42,42,53,0.5);
+      cursor: pointer;
+    }
+
+    .drawer-filter-item.active { color: var(--text-primary); }
+
+    .drawer-filter-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .drawer-filter-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #8080a8;
+      flex-shrink: 0;
+    }
+
+    .drawer-filter-val {
+      font-size: 0.72rem;
+      color: #8080a8;
+    }
+
+    .drawer-footer {
+      padding: 0.8rem 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .apply-btn {
+      width: 100%;
+      background: var(--text-primary);
+      color: var(--bg);
+      border: none;
+      border-radius: 4px;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: inherit;
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+
+    /* Annotations */
+    .annotations {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+
+    .annotation {
+      border-left: 2px solid var(--border);
+      padding-left: 0.8rem;
+    }
+
+    .annotation-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
+    }
+
+    .annotation-body {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- OPTION A -->
+  <div class="option-wrap">
+    <div class="option-label">Option A</div>
+    <div class="option-title">Single "Filters" button → dropdown panel</div>
+    <div class="option-desc">All filters collapse into one button. Tapping opens a full-width dropdown list below the header. Each filter row expands inline.</div>
+
+    <div class="phone" id="phoneA">
+      <div class="header" id="headerA">
+        <div class="header-row-1">
+          <div class="logo">MANACANVAS</div>
+          <div class="search-bar-mock">🔍 <span>Search...</span></div>
+          <button class="random-btn-small">↺</button>
+        </div>
+        <div class="header-row-2">
+          <button class="filter-btn primary" onclick="toggleA()">⚙ Filters <span class="badge">2</span></button>
+          <div class="ml-auto"></div>
+          <button class="filter-btn">Oldest ⇅</button>
+          <button class="filter-btn">⊞</button>
+        </div>
+        <div class="chip-bar">
+          <span class="chip">Dark & Gritty ✕</span>
+          <span class="chip">Dragon ✕</span>
+        </div>
+
+        <!-- Dropdown panel -->
+        <div class="dropdown-panel" id="dropdownA" style="display:none;">
+          <div class="dropdown-filter-list">
+            <div class="dropdown-filter-item">All Artists <span class="chevron">▸</span></div>
+            <div class="dropdown-filter-item">Card Type <span class="chevron">▸</span></div>
+            <div class="dropdown-filter-item">Creature Type <span class="active-val">Dragon</span><span class="chevron">▸</span></div>
+            <div class="dropdown-filter-item">Mana Type <span class="chevron">▸</span></div>
+            <div class="dropdown-filter-item">All Sets <span class="chevron">▸</span></div>
+            <div class="dropdown-filter-item active">Art Style <span class="active-val">Dark & Gritty</span><span class="chevron">▸</span></div>
+            <div class="dropdown-filter-item">Year Range <span class="chevron">▸</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-preview">
+        <div class="card-mock"></div>
+        <div class="card-mock"></div>
+        <div class="card-mock"></div>
+        <div class="card-mock"></div>
+      </div>
+    </div>
+
+    <div class="annotations">
+      <div class="annotation">
+        <div class="annotation-title">Pros</div>
+        <div class="annotation-body">Header stays compact. One tap to see all filters. Familiar pattern (similar to mobile e-commerce). No overlay — grid stays visible behind.</div>
+      </div>
+      <div class="annotation">
+        <div class="annotation-title">Cons</div>
+        <div class="annotation-body">Two taps to reach a specific filter (open panel → tap filter). Dropdown can feel cramped if sub-filters open inline.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="option-wrap">
+    <div class="option-label">Option B</div>
+    <div class="option-title">Bottom drawer</div>
+    <div class="option-desc">Tapping "Filters" slides up a bottom drawer with all filters listed. Feels native to mobile. Each filter opens its own sub-panel.</div>
+
+    <div class="phone" id="phoneB">
+      <div class="header">
+        <div class="header-row-1">
+          <div class="logo">MANACANVAS</div>
+          <div class="search-bar-mock">🔍 <span>Search...</span></div>
+          <button class="random-btn-small">↺</button>
+        </div>
+        <div class="header-row-2">
+          <button class="filter-btn primary" onclick="toggleB()">⚙ Filters <span class="badge">2</span></button>
+          <div class="ml-auto"></div>
+          <button class="filter-btn">Oldest ⇅</button>
+          <button class="filter-btn">⊞</button>
+        </div>
+        <div class="chip-bar">
+          <span class="chip">Dark & Gritty ✕</span>
+          <span class="chip">Dragon ✕</span>
+        </div>
+      </div>
+
+      <div class="grid-preview">
+        <div class="card-mock"></div>
+        <div class="card-mock"></div>
+        <div class="card-mock"></div>
+        <div class="card-mock"></div>
+      </div>
+
+      <!-- Drawer -->
+      <div id="drawerOverlay" style="display:none;" onclick="toggleB()">
+        <div class="drawer-overlay"></div>
+        <div class="drawer" onclick="event.stopPropagation()">
+          <div class="drawer-handle"></div>
+          <div class="drawer-header">
+            <span class="drawer-title">Filters</span>
+            <span class="drawer-clear">Clear all</span>
+          </div>
+          <div class="drawer-filters">
+            <div class="drawer-filter-item">
+              <div class="drawer-filter-left"><span>All Artists</span></div>
+              <span style="font-size:0.7rem;opacity:0.4;">▸</span>
+            </div>
+            <div class="drawer-filter-item">
+              <div class="drawer-filter-left"><span>Card Type</span></div>
+              <span style="font-size:0.7rem;opacity:0.4;">▸</span>
+            </div>
+            <div class="drawer-filter-item active">
+              <div class="drawer-filter-left">
+                <div class="drawer-filter-dot"></div>
+                <span>Creature Type</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.4rem;">
+                <span class="drawer-filter-val">Dragon</span>
+                <span style="font-size:0.7rem;opacity:0.4;">▸</span>
+              </div>
+            </div>
+            <div class="drawer-filter-item">
+              <div class="drawer-filter-left"><span>Mana Type</span></div>
+              <span style="font-size:0.7rem;opacity:0.4;">▸</span>
+            </div>
+            <div class="drawer-filter-item">
+              <div class="drawer-filter-left"><span>All Sets</span></div>
+              <span style="font-size:0.7rem;opacity:0.4;">▸</span>
+            </div>
+            <div class="drawer-filter-item active">
+              <div class="drawer-filter-left">
+                <div class="drawer-filter-dot"></div>
+                <span>Art Style</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.4rem;">
+                <span class="drawer-filter-val">Dark & Gritty</span>
+                <span style="font-size:0.7rem;opacity:0.4;">▸</span>
+              </div>
+            </div>
+            <div class="drawer-filter-item">
+              <div class="drawer-filter-left"><span>Year Range</span></div>
+              <span style="font-size:0.7rem;opacity:0.4;">▸</span>
+            </div>
+          </div>
+          <div class="drawer-footer">
+            <button class="apply-btn" onclick="toggleB()">SHOW RESULTS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotations">
+      <div class="annotation">
+        <div class="annotation-title">Pros</div>
+        <div class="annotation-body">Native mobile feel. More space for each filter. Active filters clearly visible with dot indicator + value. "Show Results" CTA is clear.</div>
+      </div>
+      <div class="annotation">
+        <div class="annotation-title">Cons</div>
+        <div class="annotation-body">More implementation work. Overlay hides the grid. Slightly heavier interaction — feels more like a modal.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let aOpen = false;
+    let bOpen = false;
+
+    function toggleA() {
+      aOpen = !aOpen;
+      document.getElementById("dropdownA").style.display = aOpen ? "block" : "none";
+    }
+
+    function toggleB() {
+      bOpen = !bOpen;
+      document.getElementById("drawerOverlay").style.display = bOpen ? "block" : "none";
+      document.getElementById("drawerOverlay").style.position = bOpen ? "absolute" : "";
+      document.getElementById("drawerOverlay").style.inset = bOpen ? "0" : "";
+      document.getElementById("drawerOverlay").style.zIndex = bOpen ? "20" : "";
+    }
+  </script>
+</body>
+</html>

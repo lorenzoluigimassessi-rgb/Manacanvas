@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Art Style Filter — Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #1a1a22;
+      --surface2: #22222e;
+      --border: #2a2a35;
+      --text-primary: #f0f0f0;
+      --text-secondary: #8a8a9a;
+      --radius: 6px;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Josefin Sans', sans-serif;
+      padding: 3rem 2rem;
+    }
+
+    .page-label {
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 0.6rem;
+    }
+
+    .page-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: var(--text-primary);
+      margin-bottom: 2.5rem;
+    }
+
+    /* Simulated filter row context */
+    .filter-row {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      height: 28px;
+      padding: 0 0.75rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .filter-btn.active {
+      border-color: var(--text-primary);
+      color: var(--text-primary);
+    }
+
+    /* Dropdown container */
+    .dropdown-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .style-dropdown {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      width: fit-content;
+      min-width: 280px;
+      animation: dropIn 150ms ease;
+    }
+
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown-label {
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 0.8rem;
+    }
+
+    /* Style pills grid */
+    .style-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .style-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 150ms, background 150ms, transform 150ms;
+      user-select: none;
+    }
+
+    .style-pill:hover {
+      border-color: var(--text-secondary);
+      background: #1e1e28;
+      transform: translateY(-1px);
+    }
+
+    .style-pill.active {
+      border-color: var(--text-primary);
+      background: #1e1e2e;
+    }
+
+    .style-pill.active .style-name { color: var(--text-primary); }
+
+    .style-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      min-width: 0;
+    }
+
+    .style-name {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .style-desc {
+      font-size: 0.68rem;
+      color: #5a5a6a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .style-check {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      opacity: 0;
+      transition: opacity 150ms;
+      flex-shrink: 0;
+      margin-left: 0.4rem;
+    }
+
+    .style-pill.active .style-check { opacity: 1; }
+
+    /* Section divider */
+    .section-title {
+      font-size: 0.65rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #4a4a5a;
+      margin: 1rem 0 0.5rem;
+    }
+
+    /* Chip preview */
+    .chip-preview {
+      margin-top: 2rem;
+    }
+
+    .chip-label {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 0.6rem;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .filter-chip .clear {
+      cursor: pointer;
+      opacity: 0.6;
+    }
+
+    /* Annotations */
+    .annotations {
+      margin-top: 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 700px;
+    }
+
+    .annotation {
+      border-left: 2px solid var(--border);
+      padding-left: 1rem;
+    }
+
+    .annotation-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.5px;
+    }
+
+    .annotation-body {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-label">ManaCanvas — Art Style Filter · Mockup</div>
+  <div class="page-title">STYLE FILTER — VISUAL PILL GRID</div>
+
+  <!-- Simulated filter row -->
+  <div class="filter-row">
+    <button class="filter-btn">All Artists ▾</button>
+    <button class="filter-btn">Card Type ▾</button>
+    <button class="filter-btn">Creature Type ▾</button>
+    <button class="filter-btn">Mana Type ▾</button>
+    <button class="filter-btn active" id="styleFilterBtn">Art Style ▾</button>
+    <button class="filter-btn">All Sets ▾</button>
+    <button class="filter-btn">Year Range ▾</button>
+  </div>
+
+  <!-- Style dropdown — open state -->
+  <div class="style-dropdown">
+    <div class="dropdown-label">Browse by art style</div>
+
+    <div class="style-grid" id="styleGrid"></div>
+  </div>
+
+  <!-- Chip preview -->
+  <div class="chip-preview">
+    <div class="chip-label">Active filter chips</div>
+    <div class="chip-row"></div>
+  </div>
+
+  <!-- Annotations -->
+  <div class="annotations">
+    <div class="annotation">
+      <div class="annotation-title">Implementation</div>
+      <div class="annotation-body">Each pill maps to a Scryfall query. No image analysis. Zero risk of cards disappearing. Works exactly like existing filters.</div>
+    </div>
+    <div class="annotation">
+      <div class="annotation-title">Interaction</div>
+      <div class="annotation-body">Single select — click to apply, click again to deselect. Dropdown closes on selection. Chip appears in filter bar with ✕ to clear.</div>
+    </div>
+    <div class="annotation">
+      <div class="annotation-title">Combinable</div>
+      <div class="annotation-body">Works with all other filters — e.g. "Dark & Gritty" + Artist "Aleksi Briclot" shows only dark art by that artist.</div>
+    </div>
+    <div class="annotation">
+      <div class="annotation-title">Extensible</div>
+      <div class="annotation-body">New styles can be added by defining a label + Scryfall query. No code changes needed beyond the styles array.</div>
+    </div>
+  </div>
+
+  <script>
+    const STYLES = [
+      { name: "Classic",         desc: "Pre-2003 · Origins era",    query: "year<=2003" },
+      { name: "Dark & Gritty",   desc: "Innistrad · Horror sets",   query: "s:isd OR s:soi OR s:emn" },
+      { name: "Epic & Dramatic", desc: "War · Battle sets",         query: "s:war OR s:znr OR s:bfz" },
+      { name: "Painterly",       desc: "Lorwyn · Eldraine",         query: "s:lrw OR s:shm OR s:eld" },
+      { name: "Ethereal",        desc: "Theros · Mystical",         query: "s:thb OR s:ths OR s:bng" },
+      { name: "Sketch",          desc: "Sketch frame cards",        query: "frame:sketch" },
+      { name: "Modern",          desc: "2020 onwards",              query: "year>=2020" },
+      { name: "Iconic Creatures",desc: "Dragons · Angels · Demons", query: "t:dragon OR t:angel OR t:demon" },
+    ];
+
+    let activeStyles = [];
+
+    const grid = document.getElementById("styleGrid");
+    const chipRow = document.querySelector(".chip-row");
+
+    function updateChips() {
+      chipRow.innerHTML = "";
+      activeStyles.forEach(i => {
+        const s = STYLES[i];
+        const chip = document.createElement("span");
+        chip.className = "filter-chip";
+        chip.innerHTML = `${s.name} <span class="clear" data-idx="${i}">✕</span>`;
+        chip.querySelector(".clear").addEventListener("click", () => {
+          activeStyles = activeStyles.filter(x => x !== i);
+          document.querySelectorAll(".style-pill")[i].classList.remove("active");
+          updateChips();
+          updateBtn();
+        });
+        chipRow.appendChild(chip);
+      });
+    }
+
+    function updateBtn() {
+      const btn = document.getElementById("styleFilterBtn");
+      if (activeStyles.length === 0) {
+        btn.textContent = "Art Style ▾";
+        btn.classList.remove("active");
+      } else if (activeStyles.length === 1) {
+        btn.textContent = STYLES[activeStyles[0]].name + " ▾";
+        btn.classList.add("active");
+      } else {
+        btn.textContent = `Style (${activeStyles.length}) ▾`;
+        btn.classList.add("active");
+      }
+    }
+
+    STYLES.forEach((s, i) => {
+      const pill = document.createElement("div");
+      pill.className = "style-pill";
+      pill.innerHTML = `
+        <div class="style-info">
+          <span class="style-name">${s.name}</span>
+          <span class="style-desc">${s.desc}</span>
+        </div>
+        <span class="style-check">✓</span>
+      `;
+      pill.addEventListener("click", () => {
+        const idx = activeStyles.indexOf(i);
+        if (idx === -1) {
+          activeStyles.push(i);
+          pill.classList.add("active");
+        } else {
+          activeStyles.splice(idx, 1);
+          pill.classList.remove("active");
+        }
+        updateChips();
+        updateBtn();
+      });
+      grid.appendChild(pill);
+    });
+  </script>
+</body>
+</html>

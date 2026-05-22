@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Filter — Pattern A</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #1a1a22;
+      --surface2: #22222e;
+      --border: #2a2a35;
+      --text-primary: #f0f0f0;
+      --text-secondary: #8a8a9a;
+      --radius: 6px;
+    }
+    body {
+      background: #111118;
+      font-family: 'Josefin Sans', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 3rem;
+      padding: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .label {
+      font-size: 0.68rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 0.6rem;
+    }
+
+    /* Phone */
+    .phone {
+      width: 375px;
+      height: 620px;
+      background: var(--bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Header */
+    .header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 5;
+    }
+    .row1 {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.9rem 1.2rem;
+    }
+    .logo {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .search-mock {
+      flex: 1;
+      height: 34px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 0.7rem;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+    .icon-btn {
+      background: #16161f;
+      border: 1px solid #4a4a60;
+      color: #c8c8e0;
+      width: 34px;
+      height: 34px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .row2 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.2rem;
+      background: rgba(26,26,34,0.5);
+      border-top: 1px solid var(--border);
+    }
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid #4a4a60;
+      color: #c8c8e0;
+      height: 28px;
+      padding: 0 0.7rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .sort-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      height: 28px;
+      padding: 0 0.7rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      margin-left: auto;
+    }
+    .badge {
+      background: var(--text-primary);
+      color: var(--bg);
+      border-radius: 50%;
+      width: 15px;
+      height: 15px;
+      font-size: 0.58rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chip-bar {
+      padding: 0.4rem 1.2rem;
+      display: flex;
+      gap: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: var(--text-primary);
+    }
+
+    /* Grid */
+    .grid-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      padding: 0.8rem 1.2rem;
+    }
+    .card-mock {
+      border-radius: 4px;
+      height: 110px;
+    }
+    .card-mock:nth-child(1) { background: #2a1a1a; }
+    .card-mock:nth-child(2) { background: #1a1a2a; }
+    .card-mock:nth-child(3) { background: #1a2a1a; }
+    .card-mock:nth-child(4) { background: #2a2a1a; }
+
+    /* Drawer */
+    .drawer-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 20;
+      display: none;
+    }
+    .drawer-overlay.open { display: block; }
+
+    .drawer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface2);
+      border-radius: 16px 16px 0 0;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      max-height: 75%;
+      transform: translateY(100%);
+      transition: transform 250ms ease;
+    }
+    .drawer.open { transform: translateY(0); }
+
+    .drawer-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0.7rem auto 0;
+      flex-shrink: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      padding: 0.8rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      gap: 0.6rem;
+    }
+    .drawer-back {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+      display: none;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .drawer-back.visible { display: flex; }
+    .drawer-title {
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      flex: 1;
+    }
+    .drawer-clear {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* Filter list */
+    .filter-list { overflow-y: auto; flex: 1; }
+    .filter-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.2rem;
+      min-height: 52px;
+      border-bottom: 1px solid rgba(42,42,53,0.6);
+      cursor: pointer;
+      transition: background 150ms;
+    }
+    .filter-list-item:hover { background: rgba(255,255,255,0.03); }
+    .filter-list-item:last-child { border-bottom: none; }
+
+    .filter-list-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .active-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #8080a8;
+      flex-shrink: 0;
+      opacity: 0;
+    }
+    .active-dot.on { opacity: 1; }
+    .filter-list-name {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .filter-list-item.active .filter-list-name { color: var(--text-primary); }
+    .filter-list-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .filter-list-val {
+      font-size: 0.72rem;
+      color: #8080a8;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .chevron { font-size: 0.65rem; color: var(--text-secondary); opacity: 0.4; }
+
+    /* Sub-panel */
+    .sub-panel {
+      position: absolute;
+      inset: 0;
+      background: var(--surface2);
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 220ms ease;
+    }
+    .sub-panel.open { transform: translateX(0); }
+
+    .sub-search {
+      margin: 0.6rem 1.2rem;
+      height: 36px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 0.8rem;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .sub-list { overflow-y: auto; flex: 1; }
+    .sub-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.2rem;
+      min-height: 48px;
+      border-bottom: 1px solid rgba(42,42,53,0.5);
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      transition: background 150ms;
+    }
+    .sub-list-item:hover { background: rgba(255,255,255,0.03); }
+    .sub-list-item.selected { color: var(--text-primary); }
+    .sub-list-item.selected::after { content: "✓"; font-size: 0.75rem; color: var(--text-secondary); }
+
+    /* Style pills in sub-panel */
+    .style-grid-mobile {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+      padding: 0.8rem 1.2rem;
+      overflow-y: auto;
+    }
+    .style-pill-mobile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 0.8rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 150ms, background 150ms;
+      min-height: 52px;
+    }
+    .style-pill-mobile.active {
+      border-color: var(--text-primary);
+      background: #1e1e2e;
+    }
+    .style-pill-name { font-size: 0.78rem; color: var(--text-secondary); }
+    .style-pill-mobile.active .style-pill-name { color: var(--text-primary); }
+    .style-check { font-size: 0.7rem; color: var(--text-secondary); opacity: 0; }
+    .style-pill-mobile.active .style-check { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div>
+  <div class="label">Pattern A — Two-level drawer · Tap filters to explore</div>
+  <div class="phone" id="phone">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="row1">
+        <div class="logo">MANACANVAS</div>
+        <div class="search-mock">🔍 <span>Search...</span></div>
+        <div class="icon-btn">↺</div>
+      </div>
+      <div class="row2">
+        <button class="filter-btn" onclick="openDrawer()">⚙ Filters <div class="badge" id="badge">2</div></button>
+        <button class="sort-btn">Oldest ⇅</button>
+      </div>
+      <div class="chip-bar">
+        <span class="chip">Dark & Gritty ✕</span>
+        <span class="chip">Dragon ✕</span>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid-preview">
+      <div class="card-mock"></div>
+      <div class="card-mock"></div>
+      <div class="card-mock"></div>
+      <div class="card-mock"></div>
+    </div>
+
+    <!-- Drawer overlay -->
+    <div class="drawer-overlay" id="overlay" onclick="closeDrawer()">
+
+      <!-- Drawer -->
+      <div class="drawer" id="drawer" onclick="event.stopPropagation()">
+        <div class="drawer-handle" id="handle"></div>
+        <div class="drawer-header">
+          <button class="drawer-back" id="backBtn" onclick="closeSubPanel()">← Back</button>
+          <div class="drawer-title" id="drawerTitle">Filters</div>
+          <span class="drawer-clear">Clear all</span>
+        </div>
+
+        <!-- Filter list -->
+        <div class="filter-list" id="filterList">
+          <div class="filter-list-item active" onclick="openSubPanel('creature')">
+            <div class="filter-list-left">
+              <div class="active-dot on"></div>
+              <span class="filter-list-name">Creature Type</span>
+            </div>
+            <div class="filter-list-right">
+              <span class="filter-list-val">Dragon</span>
+              <span class="chevron">▸</span>
+            </div>
+          </div>
+          <div class="filter-list-item" onclick="openSubPanel('artist')">
+            <div class="filter-list-left">
+              <div class="active-dot"></div>
+              <span class="filter-list-name">All Artists</span>
+            </div>
+            <div class="filter-list-right"><span class="chevron">▸</span></div>
+          </div>
+          <div class="filter-list-item" onclick="openSubPanel('cardtype')">
+            <div class="filter-list-left">
+              <div class="active-dot"></div>
+              <span class="filter-list-name">Card Type</span>
+            </div>
+            <div class="filter-list-right"><span class="chevron">▸</span></div>
+          </div>
+          <div class="filter-list-item" onclick="openSubPanel('mana')">
+            <div class="filter-list-left">
+              <div class="active-dot"></div>
+              <span class="filter-list-name">Mana Type</span>
+            </div>
+            <div class="filter-list-right"><span class="chevron">▸</span></div>
+          </div>
+          <div class="filter-list-item" onclick="openSubPanel('sets')">
+            <div class="filter-list-left">
+              <div class="active-dot"></div>
+              <span class="filter-list-name">All Sets</span>
+            </div>
+            <div class="filter-list-right"><span class="chevron">▸</span></div>
+          </div>
+          <div class="filter-list-item active" onclick="openSubPanel('style')">
+            <div class="filter-list-left">
+              <div class="active-dot on"></div>
+              <span class="filter-list-name">Art Style</span>
+            </div>
+            <div class="filter-list-right">
+              <span class="filter-list-val">Dark & Gritty</span>
+              <span class="chevron">▸</span>
+            </div>
+          </div>
+          <div class="filter-list-item" onclick="openSubPanel('year')">
+            <div class="filter-list-left">
+              <div class="active-dot"></div>
+              <span class="filter-list-name">Year Range</span>
+            </div>
+            <div class="filter-list-right"><span class="chevron">▸</span></div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: Creature Type -->
+        <div class="sub-panel" id="sub-creature">
+          <div class="sub-search">🔍 Search creature types...</div>
+          <div class="sub-list">
+            <div class="sub-list-item" onclick="selectItem(this)">Angel</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Demon</div>
+            <div class="sub-list-item selected" onclick="selectItem(this)">Dragon</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Elf</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Goblin</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Human</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Merfolk</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Vampire</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Zombie</div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: Artist -->
+        <div class="sub-panel" id="sub-artist">
+          <div class="sub-search">🔍 Search artists...</div>
+          <div class="sub-list">
+            <div class="sub-list-item" onclick="selectItem(this)">Aleksi Briclot</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Chris Rahn</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Magali Villeneuve</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Raymond Swanland</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Rebecca Guay</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Terese Nielsen</div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: Card Type -->
+        <div class="sub-panel" id="sub-cardtype">
+          <div class="sub-list">
+            <div class="sub-list-item" onclick="selectItem(this)">Artifact</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Creature</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Enchantment</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Instant</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Land</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Planeswalker</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Sorcery</div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: Mana Type -->
+        <div class="sub-panel" id="sub-mana">
+          <div class="sub-list">
+            <div class="sub-list-item" onclick="selectItem(this)">White</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Blue</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Black</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Red</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Green</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Multicolor</div>
+            <div class="sub-list-item" onclick="selectItem(this)">Colorless</div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: Sets -->
+        <div class="sub-panel" id="sub-sets">
+          <div class="sub-search">🔍 Search sets...</div>
+          <div class="sub-list">
+            <div class="sub-list-item" onclick="toggleItem(this)">Dominaria United</div>
+            <div class="sub-list-item" onclick="toggleItem(this)">Innistrad: Midnight Hunt</div>
+            <div class="sub-list-item" onclick="toggleItem(this)">March of the Machine</div>
+            <div class="sub-list-item" onclick="toggleItem(this)">Phyrexia: All Will Be One</div>
+            <div class="sub-list-item" onclick="toggleItem(this)">The Brothers' War</div>
+            <div class="sub-list-item" onclick="toggleItem(this)">War of the Spark</div>
+            <div class="sub-list-item" onclick="toggleItem(this)">Zendikar Rising</div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: Art Style -->
+        <div class="sub-panel" id="sub-style">
+          <div class="style-grid-mobile">
+            <div class="style-pill-mobile" onclick="togglePill(this)">
+              <span class="style-pill-name">Classic</span><span class="style-check">✓</span>
+            </div>
+            <div class="style-pill-mobile active" onclick="togglePill(this)">
+              <span class="style-pill-name">Dark & Gritty</span><span class="style-check">✓</span>
+            </div>
+            <div class="style-pill-mobile" onclick="togglePill(this)">
+              <span class="style-pill-name">Epic & Dramatic</span><span class="style-check">✓</span>
+            </div>
+            <div class="style-pill-mobile" onclick="togglePill(this)">
+              <span class="style-pill-name">Painterly</span><span class="style-check">✓</span>
+            </div>
+            <div class="style-pill-mobile" onclick="togglePill(this)">
+              <span class="style-pill-name">Ethereal</span><span class="style-check">✓</span>
+            </div>
+            <div class="style-pill-mobile" onclick="togglePill(this)">
+              <span class="style-pill-name">Sketch</span><span class="style-check">✓</span>
+            </div>
+            <div class="style-pill-mobile" onclick="togglePill(this)">
+              <span class="style-pill-name">Modern</span><span class="style-check">✓</span>
+            </div>
+            <div class="style-pill-mobile" onclick="togglePill(this)">
+              <span class="style-pill-name">Iconic Creatures</span><span class="style-check">✓</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-panel: Year -->
+        <div class="sub-panel" id="sub-year">
+          <div style="padding:1.2rem;">
+            <div style="font-size:0.82rem;color:var(--text-primary);margin-bottom:1rem;">Year Range</div>
+            <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;">
+              <span style="font-size:0.78rem;color:var(--text-secondary);width:30px;">From</span>
+              <input type="range" min="1993" max="2025" value="1993" style="flex:1;accent-color:var(--text-primary);">
+              <span style="font-size:0.78rem;color:var(--text-secondary);min-width:35px;">1993</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.2rem;">
+              <span style="font-size:0.78rem;color:var(--text-secondary);width:30px;">To</span>
+              <input type="range" min="1993" max="2025" value="2025" style="flex:1;accent-color:var(--text-primary);">
+              <span style="font-size:0.78rem;color:var(--text-secondary);min-width:35px;">2025</span>
+            </div>
+            <button onclick="closeSubPanel()" style="width:100%;background:var(--surface);border:1px solid #4a4a60;color:#c8c8e0;padding:0.7rem;border-radius:4px;font-family:inherit;font-size:0.82rem;cursor:pointer;">Apply</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let currentSub = null;
+
+  function openDrawer() {
+    document.getElementById('overlay').classList.add('open');
+    setTimeout(() => document.getElementById('drawer').classList.add('open'), 10);
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+    setTimeout(() => {
+      document.getElementById('overlay').classList.remove('open');
+      if (currentSub) closeSubPanel();
+    }, 250);
+  }
+
+  function openSubPanel(type) {
+    if (currentSub) {
+      document.getElementById('sub-' + currentSub).classList.remove('open');
+    }
+    currentSub = type;
+    const titles = {
+      creature: 'Creature Type', artist: 'All Artists', cardtype: 'Card Type',
+      mana: 'Mana Type', sets: 'All Sets', style: 'Art Style', year: 'Year Range'
+    };
+    document.getElementById('drawerTitle').textContent = titles[type];
+    document.getElementById('backBtn').classList.add('visible');
+    document.getElementById('sub-' + type).classList.add('open');
+  }
+
+  function closeSubPanel() {
+    if (currentSub) {
+      document.getElementById('sub-' + currentSub).classList.remove('open');
+      currentSub = null;
+    }
+    document.getElementById('drawerTitle').textContent = 'Filters';
+    document.getElementById('backBtn').classList.remove('visible');
+  }
+
+  function selectItem(el) {
+    el.closest('.sub-list').querySelectorAll('.sub-list-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    setTimeout(() => closeSubPanel(), 200);
+  }
+
+  function toggleItem(el) {
+    el.classList.toggle('selected');
+  }
+
+  function togglePill(el) {
+    el.classList.toggle('active');
+  }
+</script>
+</body>
+</html>

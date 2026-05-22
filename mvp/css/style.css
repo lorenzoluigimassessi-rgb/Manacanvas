@@ -753,6 +753,8 @@ body {
   margin: 0.7rem auto 0;
   flex-shrink: 0;
   cursor: pointer;
+  padding: 12px 60px;
+  background-clip: content-box;
 }
 
 .drawer-header {

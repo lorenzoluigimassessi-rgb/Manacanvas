@@ -631,24 +631,30 @@ function isMobile() { return window.innerWidth <= 768; }
 function initDrawer() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
 
-  // Swipe down to close
+  // Swipe down to close — only from handle
+  const handle = document.querySelector(".drawer-handle");
   const drawer = document.getElementById("drawer");
   let touchStartY = 0;
   let touchCurrentY = 0;
 
-  drawer.addEventListener("touchstart", (e) => {
+  document.getElementById("drawer").addEventListener("touchstart", (e) => {
+    // Only initiate swipe if touch starts on handle or drawer-header
+    const target = e.target;
+    if (!target.closest(".drawer-handle") && !target.closest(".drawer-header")) return;
     touchStartY = e.touches[0].clientY;
     touchCurrentY = touchStartY;
     drawer.style.transition = "none";
   }, { passive: true });
 
-  drawer.addEventListener("touchmove", (e) => {
+  document.getElementById("drawer").addEventListener("touchmove", (e) => {
+    if (!touchStartY) return;
     touchCurrentY = e.touches[0].clientY;
     const delta = touchCurrentY - touchStartY;
     if (delta > 0) drawer.style.transform = `translateY(${delta}px)`;
   }, { passive: true });
 
-  drawer.addEventListener("touchend", () => {
+  document.getElementById("drawer").addEventListener("touchend", () => {
+    if (!touchStartY) return;
     drawer.style.transition = "";
     const delta = touchCurrentY - touchStartY;
     if (delta > 80) {
@@ -656,6 +662,8 @@ function initDrawer() {
     } else {
       drawer.style.transform = "";
     }
+    touchStartY = 0;
+    touchCurrentY = 0;
   });
 
   // Re-init filters when crossing the mobile breakpoint

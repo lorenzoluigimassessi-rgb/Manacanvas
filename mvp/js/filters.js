@@ -734,12 +734,12 @@ function renderFlatSheet() {
     manaPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", p.dataset.code === activeColour));
   }));
 
-  // Sets
+  // Sets — show on focus only
   loadSetsIfNeeded().then(() => {
-    renderSheetSetList("");
+    renderSheetSetList("", false);
     const setInput = document.getElementById("sheetSetInput");
-    setInput.addEventListener("focus", () => renderSheetSetList(setInput.value));
-    setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value));
+    setInput.addEventListener("focus", () => renderSheetSetList(setInput.value, true));
+    setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value, true));
   });
 
   // Art style grid
@@ -794,11 +794,13 @@ function renderSheetTypeList(query) {
   }));
 }
 
-function renderSheetSetList(query) {
+function renderSheetSetList(query, show = true) {
   const list = document.getElementById("sheetSetList");
   if (!list) return;
+  if (!show) { list.style.display = "none"; list.innerHTML = ""; return; }
   const q = query.toLowerCase();
   const filtered = q ? setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 20) : setList.slice(0, 20);
+  list.style.display = filtered.length ? "block" : "none";
   list.innerHTML = filtered.map(s => {
     const checked = activeSets.includes(s.code);
     return `<div class="sheet-list-item ${checked ? 'selected' : ''}" data-code="${s.code}" data-name="${s.name}">
@@ -808,7 +810,7 @@ function renderSheetSetList(query) {
   list.querySelectorAll(".sheet-list-item").forEach(el => el.addEventListener("click", () => {
     const idx = activeSets.indexOf(el.dataset.code);
     if (idx === -1) activeSets.push(el.dataset.code); else activeSets.splice(idx, 1);
-    renderSheetSetList(document.getElementById("sheetSetInput")?.value || "");
+    renderSheetSetList(document.getElementById("sheetSetInput")?.value || "", true);
   }));
 }
 
@@ -827,212 +829,6 @@ function renderSheetStyleGrid() {
     if (idx === -1) activeStyles.push(i); else activeStyles.splice(idx, 1);
     pill.classList.toggle("active");
   }));
-}
-
-function updateDrawerBadge(count) {
-  const btn = document.getElementById("mobileFiltersBtn");
-  if (!btn) return;
-  const badge = btn.querySelector(".mobile-badge");
-  if (count > 0) {
-    if (badge) badge.textContent = count;
-    else btn.insertAdjacentHTML("beforeend", `<span class="mobile-badge">${count}</span>`);
-    btn.classList.add("active");
-  } else {
-    if (badge) badge.remove();
-    btn.classList.remove("active");
-  }
-}
-
-function clearAllFilters() {
-  activeArtist = null; activeType = null; activeCardType = null;
-  activeColour = null; activeSets = []; activeStyles = [];
-  activeYearMin = null; activeYearMax = null;
-  updateChips(); loadInitialGrid(); closeDrawer();
-}
-
-function renderDrawerList() {
-  document.getElementById("drawerTitle").textContent = "Filters";
-  document.getElementById("drawerBack").style.display = "none";
-  drawerSubPanel = null;
-
-  const activeCount = [activeArtist, activeType, activeCardType, activeColour]
-    .filter(Boolean).length + activeStyles.length + activeSets.length +
-    (activeYearMin || activeYearMax ? 1 : 0);
-  updateDrawerBadge(activeCount);
-
-  const filters = [
-    { key: "artist",   label: "Artist",        val: activeArtist },
-    { key: "cardType", label: "Card Type",      val: activeCardType },
-    { key: "type",     label: "Creature Type",  val: activeType },
-    { key: "mana",     label: "Mana Type",      val: activeColour ? MANA_TYPES.find(m => m.code === activeColour)?.label : null },
-    { key: "set",      label: "Sets",           val: activeSets.length ? (activeSets.length === 1 ? (setList.find(s => s.code === activeSets[0])?.name || activeSets[0]) : `${activeSets.length} selected`) : null },
-    { key: "style",    label: "Art Style",      val: activeStyles.length ? (activeStyles.length === 1 ? ART_STYLES[activeStyles[0]].name : `${activeStyles.length} selected`) : null },
-    { key: "year",     label: "Year Range",     val: (activeYearMin || activeYearMax) ? `${activeYearMin || 1993}–${activeYearMax || new Date().getFullYear()}` : null },
-  ];
-
-  document.getElementById("drawerBody").innerHTML = filters.map(f => `
-    <div class="drawer-item ${f.val ? 'active' : ''}" onclick="openSubPanel('${f.key}')">
-      <div class="drawer-item-left">
-        <div class="drawer-dot ${f.val ? 'on' : ''}"></div>
-        <span class="drawer-item-label">${f.label}</span>
-      </div>
-      <div class="drawer-item-right">
-        ${f.val ? `<span class="drawer-item-val">${f.val}</span>` : ""}
-        <span class="drawer-chevron">▸</span>
-      </div>
-    </div>
-  `).join("");
-}
-
-function openSubPanel(type) {
-  drawerSubPanel = type;
-  const titles = {
-    artist: "Artist", cardType: "Card Type", type: "Creature Type",
-    mana: "Mana Type", set: "Sets", style: "Art Style", year: "Year Range"
-  };
-  document.getElementById("drawerTitle").textContent = titles[type];
-  document.getElementById("drawerBack").style.display = "flex";
-
-  const body = document.getElementById("drawerBody");
-
-  if (type === "artist") {
-    body.innerHTML = `<div class="drawer-search-wrap"><input class="drawer-search" id="drawerArtistSearch" placeholder="Search artists..."></div><div class="drawer-list" id="drawerArtistList"></div>`;
-    renderDrawerArtistList("");
-    document.getElementById("drawerArtistSearch").addEventListener("input", (e) => renderDrawerArtistList(e.target.value));
-    document.getElementById("drawerArtistSearch").focus();
-
-  } else if (type === "cardType") {
-    body.innerHTML = `<div class="drawer-list" id="drawerCardTypeList"></div>`;
-    const list = document.getElementById("drawerCardTypeList");
-    list.innerHTML = cardTypeList.map(t => `<div class="drawer-list-item ${activeCardType === t ? 'selected' : ''}" data-val="${t}">${t}${activeCardType === t ? '<span class="drawer-check">✓</span>' : ""}</div>`).join("");
-    list.querySelectorAll(".drawer-list-item").forEach(el => el.addEventListener("click", () => { selectCardType(el.dataset.val); renderDrawerList(); }));
-
-  } else if (type === "type") {
-    body.innerHTML = `<div class="drawer-search-wrap"><input class="drawer-search" id="drawerTypeSearch" placeholder="Search creature types..."></div><div class="drawer-list" id="drawerTypeList"></div>`;
-    renderDrawerTypeList("");
-    document.getElementById("drawerTypeSearch").addEventListener("input", (e) => renderDrawerTypeList(e.target.value));
-    document.getElementById("drawerTypeSearch").focus();
-
-  } else if (type === "mana") {
-    body.innerHTML = `<div class="drawer-list" id="drawerManaList"></div>`;
-    const list = document.getElementById("drawerManaList");
-    list.innerHTML = MANA_TYPES.map(m => `
-      <div class="drawer-list-item ${activeColour === m.code ? 'selected' : ''}" data-code="${m.code}">
-        <img class="mana-symbol" src="${m.svg}" alt="${m.label}" style="width:18px;height:18px;margin-right:0.5rem;">
-        ${m.label}${activeColour === m.code ? '<span class="drawer-check">✓</span>' : ""}
-      </div>`).join("");
-    list.querySelectorAll(".drawer-list-item").forEach(el => el.addEventListener("click", () => {
-      if (activeColour === el.dataset.code) { clearMana(); } else { selectMana(el.dataset.code, el.dataset.code); }
-      renderDrawerList();
-    }));
-
-  } else if (type === "set") {
-    body.innerHTML = `<div class="drawer-search-wrap"><input class="drawer-search" id="drawerSetSearch" placeholder="Search sets..."></div><div class="drawer-list" id="drawerSetList"><div class="drawer-list-item" style="opacity:0.5;">Loading...</div></div>`;
-    loadSetsIfNeeded().then(() => {
-      renderDrawerSetList("");
-      document.getElementById("drawerSetSearch").addEventListener("input", (e) => renderDrawerSetList(e.target.value));
-    });
-    document.getElementById("drawerSetSearch").focus();
-
-  } else if (type === "style") {
-    body.innerHTML = `<div class="drawer-style-grid" id="drawerStyleGrid"></div>`;
-    renderDrawerStyleGrid();
-
-  } else if (type === "year") {
-    const minY = 1993, maxY = new Date().getFullYear();
-    const curMin = activeYearMin || minY, curMax = activeYearMax || maxY;
-    body.innerHTML = `
-      <div style="padding:1.2rem;">
-        <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem;">
-          <span style="font-size:0.8rem;color:var(--text-secondary);width:35px;">From</span>
-          <input type="range" id="dYearMin" min="${minY}" max="${maxY}" value="${curMin}" style="flex:1;accent-color:var(--text-primary);">
-          <span id="dYearMinVal" style="font-size:0.8rem;min-width:35px;">${curMin}</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.2rem;">
-          <span style="font-size:0.8rem;color:var(--text-secondary);width:35px;">To</span>
-          <input type="range" id="dYearMax" min="${minY}" max="${maxY}" value="${curMax}" style="flex:1;accent-color:var(--text-primary);">
-          <span id="dYearMaxVal" style="font-size:0.8rem;min-width:35px;">${curMax}</span>
-        </div>
-        <button onclick="applyDrawerYear()" style="width:100%;background:var(--surface);border:1px solid #4a4a60;color:#c8c8e0;padding:0.75rem;border-radius:4px;font-family:inherit;font-size:0.85rem;cursor:pointer;">Apply</button>
-      </div>`;
-    document.getElementById("dYearMin").addEventListener("input", (e) => {
-      if (parseInt(e.target.value) > parseInt(document.getElementById("dYearMax").value)) e.target.value = document.getElementById("dYearMax").value;
-      document.getElementById("dYearMinVal").textContent = e.target.value;
-    });
-    document.getElementById("dYearMax").addEventListener("input", (e) => {
-      if (parseInt(e.target.value) < parseInt(document.getElementById("dYearMin").value)) e.target.value = document.getElementById("dYearMin").value;
-      document.getElementById("dYearMaxVal").textContent = e.target.value;
-    });
-  }
-}
-
-function applyDrawerYear() {
-  const min = parseInt(document.getElementById("dYearMin").value);
-  const max = parseInt(document.getElementById("dYearMax").value);
-  activeYearMin = min > 1993 ? min : null;
-  activeYearMax = max < new Date().getFullYear() ? max : null;
-  updateChips();
-  loadInitialGrid();
-  closeSubPanel();
-}
-
-function closeSubPanel() {
-  renderDrawerList();
-}
-
-function renderDrawerArtistList(query) {
-  const list = document.getElementById("drawerArtistList");
-  if (!list) return;
-  const q = query.toLowerCase();
-  const filtered = q ? artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 50) : artistList.slice(0, 50);
-  list.innerHTML = filtered.map(a => `<div class="drawer-list-item ${activeArtist === a ? 'selected' : ''}" data-val="${a}">${highlightMatch(a, q)}${activeArtist === a ? '<span class="drawer-check">✓</span>' : ""}</div>`).join("");
-  list.querySelectorAll(".drawer-list-item").forEach(el => el.addEventListener("click", () => { selectArtist(el.dataset.val); renderDrawerList(); }));
-}
-
-function renderDrawerTypeList(query) {
-  const list = document.getElementById("drawerTypeList");
-  if (!list) return;
-  const q = query.toLowerCase();
-  const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 50) : creatureTypeList.slice(0, 50);
-  list.innerHTML = filtered.map(t => `<div class="drawer-list-item ${activeType === t ? 'selected' : ''}" data-val="${t}">${highlightMatch(t, q)}${activeType === t ? '<span class="drawer-check">✓</span>' : ""}</div>`).join("");
-  list.querySelectorAll(".drawer-list-item").forEach(el => el.addEventListener("click", () => { selectType(el.dataset.val); renderDrawerList(); }));
-}
-
-function renderDrawerSetList(query) {
-  const list = document.getElementById("drawerSetList");
-  if (!list) return;
-  const q = query.toLowerCase();
-  const filtered = q ? setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 50) : setList.slice(0, 50);
-  list.innerHTML = filtered.map(s => {
-    const checked = activeSets.includes(s.code);
-    return `<div class="drawer-list-item ${checked ? 'selected' : ''}" data-code="${s.code}" data-name="${s.name}">
-      <img class="set-icon" src="${s.icon}" alt="">${s.name}${checked ? '<span class="drawer-check">✓</span>' : ""}
-    </div>`;
-  }).join("");
-  list.querySelectorAll(".drawer-list-item").forEach(el => el.addEventListener("click", () => {
-    toggleSetSelection(el.dataset.code, el.dataset.name);
-    renderDrawerSetList(document.getElementById("drawerSetSearch")?.value || "");
-  }));
-}
-
-function renderDrawerStyleGrid() {
-  const grid = document.getElementById("drawerStyleGrid");
-  if (!grid) return;
-  grid.innerHTML = ART_STYLES.map((s, i) => `
-    <div class="drawer-style-pill ${activeStyles.includes(i) ? 'active' : ''}" data-idx="${i}">
-      <div class="style-info">
-        <span class="style-name">${s.name}</span>
-        <span class="style-desc">${s.desc}</span>
-      </div>
-      <span class="style-check">✓</span>
-    </div>
-  `).join("");
-  grid.querySelectorAll(".drawer-style-pill").forEach(pill => {
-    pill.addEventListener("click", () => {
-      toggleStyle(parseInt(pill.dataset.idx));
-      renderDrawerStyleGrid();
-    });
-  });
 }
 
 function updateDrawerBadge(count) {

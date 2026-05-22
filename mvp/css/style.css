@@ -271,13 +271,15 @@ body {
   overflow: hidden;
   z-index: 110;
   animation: dropIn var(--transition-fast) ease;
+  padding-top: 0.2rem;
 }
 
 .suggestion-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.8rem;
+  padding: 0.6rem 0.8rem;
+  min-height: 44px;
   cursor: pointer;
   font-size: 0.85rem;
   color: var(--text-secondary);

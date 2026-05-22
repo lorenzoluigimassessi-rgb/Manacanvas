@@ -876,7 +876,7 @@ function renderSheetListChunk(list, items, start, chunkSize, onSelect, q, isSet)
         sentinel.remove();
         renderSheetListChunk(list, items, start + chunkSize, chunkSize, onSelect, q, isSet);
       }
-    }, { root: list, rootMargin: "40px" });
+    }, { rootMargin: "40px" });
     observer.observe(sentinel);
   }
 }

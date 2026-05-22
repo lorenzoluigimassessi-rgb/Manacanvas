@@ -862,7 +862,7 @@ body {
   border: 1px solid var(--border);
   border-top: none;
   border-radius: 0 0 4px 4px;
-  max-height: 200px;
+  max-height: 280px;
   overflow-y: auto;
   display: none;
   margin-bottom: 0.4rem;

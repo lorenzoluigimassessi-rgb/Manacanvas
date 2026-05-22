@@ -12,7 +12,14 @@ let activeYearMin = null;
 let activeYearMax = null;
 let activeSearch = null;
 
-async function loadInitialGrid() {
+let gridDebounceTimer = null;
+
+function loadInitialGrid() {
+  clearTimeout(gridDebounceTimer);
+  gridDebounceTimer = setTimeout(_loadInitialGrid, 300);
+}
+
+async function _loadInitialGrid() {
   showShimmers();
   resetPagination();
   const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch);

@@ -964,25 +964,32 @@ function clearAllFilters() {
   activeArtist = null; activeType = null; activeCardType = null;
   activeColour = null; activeSets = []; activeStyles = [];
   activeYearMin = null; activeYearMax = null; activeSearch = null;
+
+  // Close any open dropdown
+  closeDropdown();
+
   // Reset desktop filter button labels and active states
   if (!isMobile()) {
     const resets = [
-      ["artistBtn",  "All Artists ▾"],
-      ["typeBtn",    "Creature Type ▾"],
-      ["cardTypeBtn","Card Type ▾"],
-      ["manaBtn",    "Mana Type ▾"],
-      ["setBtn",     "All Sets ▾"],
-      ["styleBtn",   "Art Style ▾"],
-      ["yearBtn",    "Year Range ▾"],
+      ["artistBtn",   "All Artists ▾"],
+      ["typeBtn",     "Creature Type ▾"],
+      ["cardTypeBtn", "Card Type ▾"],
+      ["setBtn",      "All Sets ▾"],
+      ["styleBtn",    "Art Style ▾"],
+      ["yearBtn",     "Year Range ▾"],
     ];
     resets.forEach(([id, label]) => {
       const btn = document.getElementById(id);
-      if (btn) { btn.textContent = label; btn.classList.remove("active"); }
+      if (btn) { btn.textContent = label; btn.classList.remove("active"); btn.style.position = ""; }
     });
+    // Mana button uses innerHTML (has SVG)
+    const manaBtn = document.getElementById("manaBtn");
+    if (manaBtn) { manaBtn.textContent = "Mana Type ▾"; manaBtn.classList.remove("active"); manaBtn.style.position = ""; }
     // Remove desktop badge
     const badge = document.getElementById("desktopFilterBadge");
     if (badge) badge.remove();
   }
+
   // Clear search bar UI
   const searchBar = document.getElementById("searchBar");
   const searchClear = document.getElementById("searchClear");

@@ -631,6 +631,33 @@ function isMobile() { return window.innerWidth <= 768; }
 function initDrawer() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
 
+  // Swipe down to close
+  const drawer = document.getElementById("drawer");
+  let touchStartY = 0;
+  let touchCurrentY = 0;
+
+  drawer.addEventListener("touchstart", (e) => {
+    touchStartY = e.touches[0].clientY;
+    touchCurrentY = touchStartY;
+    drawer.style.transition = "none";
+  }, { passive: true });
+
+  drawer.addEventListener("touchmove", (e) => {
+    touchCurrentY = e.touches[0].clientY;
+    const delta = touchCurrentY - touchStartY;
+    if (delta > 0) drawer.style.transform = `translateY(${delta}px)`;
+  }, { passive: true });
+
+  drawer.addEventListener("touchend", () => {
+    drawer.style.transition = "";
+    const delta = touchCurrentY - touchStartY;
+    if (delta > 80) {
+      closeDrawer();
+    } else {
+      drawer.style.transform = "";
+    }
+  });
+
   // Re-init filters when crossing the mobile breakpoint
   let wasMobile = isMobile();
   window.addEventListener("resize", () => {
@@ -651,7 +678,10 @@ function openDrawer() {
 }
 
 function closeDrawer() {
-  document.getElementById("drawer").classList.remove("open");
+  const drawer = document.getElementById("drawer");
+  drawer.style.transform = "";
+  drawer.style.transition = "";
+  drawer.classList.remove("open");
   document.getElementById("drawerOverlay").style.display = "none";
   document.body.style.overflow = "";
 }

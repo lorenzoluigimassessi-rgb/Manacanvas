@@ -705,6 +705,10 @@ function renderFlatSheet() {
   renderSheetArtistList("");
   artistInput.addEventListener("focus", () => renderSheetArtistList(artistInput.value));
   artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value));
+  artistInput.addEventListener("blur", () => setTimeout(() => {
+    const list = document.getElementById("sheetArtistList");
+    if (list) { list.style.display = "none"; }
+  }, 150));
 
   // Card type pills
   const ctPills = document.getElementById("sheetCardTypePills");
@@ -721,6 +725,10 @@ function renderFlatSheet() {
   renderSheetTypeList("");
   typeInput.addEventListener("focus", () => renderSheetTypeList(typeInput.value));
   typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value));
+  typeInput.addEventListener("blur", () => setTimeout(() => {
+    const list = document.getElementById("sheetTypeList");
+    if (list) { list.style.display = "none"; }
+  }, 150));
 
   // Mana pills
   const manaPills = document.getElementById("sheetManaPills");
@@ -740,6 +748,10 @@ function renderFlatSheet() {
     const setInput = document.getElementById("sheetSetInput");
     setInput.addEventListener("focus", () => renderSheetSetList(setInput.value, true));
     setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value, true));
+    setInput.addEventListener("blur", () => setTimeout(() => {
+      const list = document.getElementById("sheetSetList");
+      if (list) { list.style.display = "none"; }
+    }, 150));
   });
 
   // Art style grid

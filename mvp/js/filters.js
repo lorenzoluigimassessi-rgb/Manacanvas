@@ -33,7 +33,7 @@ const ART_STYLES = [
 async function initFilters() {
   // Mobile: single filters button
   if (isMobile()) {
-    filtersContainer.innerHTML = `<button class="filter-btn mobile-filters-btn" id="mobileFiltersBtn" onclick="openDrawer()">&#9776; Filters</button>`;
+    filtersContainer.innerHTML = `<button class="filter-btn mobile-filters-btn" id="mobileFiltersBtn" onclick="openDrawer()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="5" cy="3" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="8" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="13" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/></svg> Filters</button>`;
     document.getElementById("row2Right").innerHTML = `
       <button class="filter-btn" id="sortBtn">Oldest First ⇅</button>
     `;

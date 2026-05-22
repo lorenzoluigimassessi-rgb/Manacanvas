@@ -866,6 +866,8 @@ body {
   overflow-y: auto;
   display: none;
   margin-bottom: 0.4rem;
+  position: relative;
+  z-index: 10;
 }
 
 .sheet-list-item {

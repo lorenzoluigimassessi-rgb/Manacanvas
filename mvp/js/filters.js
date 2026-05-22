@@ -702,14 +702,14 @@ function renderFlatSheet() {
 
   // Artist search
   const artistInput = document.getElementById("sheetArtistInput");
-  let artistFocused = false;
-  artistInput.addEventListener("focus", () => { artistFocused = true; renderSheetArtistList(artistInput.value, true); });
+  const showArtist = () => renderSheetArtistList(artistInput.value, true);
+  artistInput.addEventListener("focus", showArtist);
+  artistInput.addEventListener("click", showArtist);
   artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value, true));
   artistInput.addEventListener("blur", () => setTimeout(() => {
-    artistFocused = false;
     const list = document.getElementById("sheetArtistList");
     if (list) list.style.display = "none";
-  }, 150));
+  }, 200));
 
   // Card type pills
   const ctPills = document.getElementById("sheetCardTypePills");
@@ -723,14 +723,15 @@ function renderFlatSheet() {
 
   // Creature type search
   const typeInput = document.getElementById("sheetTypeInput");
-  let typeFocused = false;
-  typeInput.addEventListener("focus", () => { typeFocused = true; renderSheetTypeList(typeInput.value, true); });
+  const showType = () => renderSheetTypeList(typeInput.value, true);
+  typeInput.addEventListener("focus", showType);
+  typeInput.addEventListener("click", showType);
   typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value, true));
   typeInput.addEventListener("blur", () => setTimeout(() => {
     typeFocused = false;
     const list = document.getElementById("sheetTypeList");
     if (list) list.style.display = "none";
-  }, 150));
+  }, 200));
 
   // Mana pills
   const manaPills = document.getElementById("sheetManaPills");
@@ -744,16 +745,18 @@ function renderFlatSheet() {
     manaPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", p.dataset.code === activeColour));
   }));
 
-  // Sets — show on focus only
+  // Sets — show on focus/click
   loadSetsIfNeeded().then(() => {
     renderSheetSetList("", false);
     const setInput = document.getElementById("sheetSetInput");
-    setInput.addEventListener("focus", () => renderSheetSetList(setInput.value, true));
+    const showSets = () => renderSheetSetList(setInput.value, true);
+    setInput.addEventListener("focus", showSets);
+    setInput.addEventListener("click", showSets);
     setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value, true));
     setInput.addEventListener("blur", () => setTimeout(() => {
       const list = document.getElementById("sheetSetList");
-      if (list) { list.style.display = "none"; }
-    }, 150));
+      if (list) list.style.display = "none";
+    }, 200));
   });
 
   // Art style grid

@@ -507,9 +507,9 @@ function updateChips() {
     .filter(Boolean).length + activeStyles.length + activeSets.length +
     (activeYearMin || activeYearMax ? 1 : 0);
 
-  // Clear button — show when any filter active
+  // Clear button — show when any filter OR search is active
   const clearBtn = document.getElementById("clearFiltersBtn");
-  if (clearBtn) clearBtn.style.display = activeCount > 0 ? "inline-flex" : "none";
+  if (clearBtn) clearBtn.style.display = (activeCount > 0 || activeSearch) ? "inline-flex" : "none";
 
   // Desktop: update count badge on filter area
   updateDesktopBadge(activeCount);
@@ -567,7 +567,7 @@ function initSearch() {
   });
 
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { hideSearchSuggestions(); activeSearch = input.value.trim() || null; loadInitialGrid(); }
+    if (e.key === "Enter") { hideSearchSuggestions(); activeSearch = input.value.trim() || null; loadInitialGrid(); updateChips(); }
     if (e.key === "Escape") { hideSearchSuggestions(); input.blur(); }
   });
 
@@ -576,6 +576,7 @@ function initSearch() {
     clearBtn.style.display = "none";
     activeSearch = null;
     hideSearchSuggestions();
+    updateChips();
     loadInitialGrid();
   });
 
@@ -962,8 +963,16 @@ function updateDrawerBadge(count) {
 function clearAllFilters() {
   activeArtist = null; activeType = null; activeCardType = null;
   activeColour = null; activeSets = []; activeStyles = [];
-  activeYearMin = null; activeYearMax = null;
-  updateChips(); loadInitialGrid(); closeDrawer();
+  activeYearMin = null; activeYearMax = null; activeSearch = null;
+  // Clear search bar UI
+  const searchBar = document.getElementById("searchBar");
+  const searchClear = document.getElementById("searchClear");
+  if (searchBar) searchBar.value = "";
+  if (searchClear) searchClear.style.display = "none";
+  hideSearchSuggestions();
+  updateChips();
+  loadInitialGrid();
+  closeDrawer();
 }
 
 // Init

@@ -780,16 +780,14 @@ function renderSheetArtistList(query, show = false) {
   if (!list) return;
   if (!show) { list.style.display = "none"; return; }
   const q = query.toLowerCase();
-  const filtered = q ? artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 8) : artistList.slice(0, 8);
+  const filtered = q ? artistList.filter(a => a.toLowerCase().includes(q)) : artistList;
   list.style.display = filtered.length ? "block" : "none";
-  list.innerHTML = filtered.map(a =>
-    `<div class="sheet-list-item ${activeArtist === a ? 'selected' : ''}" data-val="${a}">${highlightMatch(a, q)}${activeArtist === a ? '<span class="sheet-check">✓</span>' : ""}</div>`
-  ).join("");
-  list.querySelectorAll(".sheet-list-item").forEach(el => el.addEventListener("click", () => {
-    activeArtist = activeArtist === el.dataset.val ? null : el.dataset.val;
+  list.innerHTML = "";
+  renderSheetListChunk(list, filtered, 0, 20, (val) => {
+    activeArtist = activeArtist === val ? null : val;
     document.getElementById("sheetArtistInput").value = activeArtist || "";
     list.style.display = "none";
-  }));
+  }, q, false);
 }
 
 function renderSheetTypeList(query, show = false) {
@@ -797,16 +795,14 @@ function renderSheetTypeList(query, show = false) {
   if (!list) return;
   if (!show) { list.style.display = "none"; return; }
   const q = query.toLowerCase();
-  const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 8) : creatureTypeList.slice(0, 8);
+  const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)) : creatureTypeList;
   list.style.display = filtered.length ? "block" : "none";
-  list.innerHTML = filtered.map(t =>
-    `<div class="sheet-list-item ${activeType === t ? 'selected' : ''}" data-val="${t}">${highlightMatch(t, q)}${activeType === t ? '<span class="sheet-check">✓</span>' : ""}</div>`
-  ).join("");
-  list.querySelectorAll(".sheet-list-item").forEach(el => el.addEventListener("click", () => {
-    activeType = activeType === el.dataset.val ? null : el.dataset.val;
+  list.innerHTML = "";
+  renderSheetListChunk(list, filtered, 0, 20, (val) => {
+    activeType = activeType === val ? null : val;
     document.getElementById("sheetTypeInput").value = activeType || "";
     list.style.display = "none";
-  }));
+  }, q, false);
 }
 
 function renderSheetSetList(query, show = true) {
@@ -814,19 +810,44 @@ function renderSheetSetList(query, show = true) {
   if (!list) return;
   if (!show) { list.style.display = "none"; list.innerHTML = ""; return; }
   const q = query.toLowerCase();
-  const filtered = q ? setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 20) : setList.slice(0, 20);
+  const filtered = q ? setList.filter(s => s.name.toLowerCase().includes(q)) : setList;
   list.style.display = filtered.length ? "block" : "none";
-  list.innerHTML = filtered.map(s => {
-    const checked = activeSets.includes(s.code);
-    return `<div class="sheet-list-item ${checked ? 'selected' : ''}" data-code="${s.code}" data-name="${s.name}">
-      <img class="set-icon" src="${s.icon}" alt="">${s.name}${checked ? '<span class="sheet-check">✓</span>' : ""}
-    </div>`;
-  }).join("");
-  list.querySelectorAll(".sheet-list-item").forEach(el => el.addEventListener("click", () => {
-    const idx = activeSets.indexOf(el.dataset.code);
-    if (idx === -1) activeSets.push(el.dataset.code); else activeSets.splice(idx, 1);
+  list.innerHTML = "";
+  renderSheetListChunk(list, filtered, 0, 20, (val) => {
+    const idx = activeSets.indexOf(val);
+    if (idx === -1) activeSets.push(val); else activeSets.splice(idx, 1);
     renderSheetSetList(document.getElementById("sheetSetInput")?.value || "", true);
-  }));
+  }, q, true);
+}
+
+function renderSheetListChunk(list, items, start, chunkSize, onSelect, q, isSet) {
+  const chunk = items.slice(start, start + chunkSize);
+  chunk.forEach(item => {
+    const val = isSet ? item.code : item;
+    const label = isSet ? item.name : item;
+    const isActive = isSet ? activeSets.includes(val) : (activeArtist === val || activeType === val);
+    const el = document.createElement("div");
+    el.className = "sheet-list-item" + (isActive ? " selected" : "");
+    el.dataset.val = val;
+    el.innerHTML = (isSet ? `<img class="set-icon" src="${item.icon}" alt="">` : "") +
+      highlightMatch(label, q) +
+      (isActive ? '<span class="sheet-check">✓</span>' : "");
+    el.addEventListener("click", () => onSelect(val));
+    list.appendChild(el);
+  });
+  if (start + chunkSize < items.length) {
+    const sentinel = document.createElement("div");
+    sentinel.style.height = "1px";
+    list.appendChild(sentinel);
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        observer.disconnect();
+        sentinel.remove();
+        renderSheetListChunk(list, items, start + chunkSize, chunkSize, onSelect, q, isSet);
+      }
+    }, { root: list, rootMargin: "40px" });
+    observer.observe(sentinel);
+  }
 }
 
 function renderSheetStyleGrid() {

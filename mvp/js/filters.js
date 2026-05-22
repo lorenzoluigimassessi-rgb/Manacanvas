@@ -702,12 +702,13 @@ function renderFlatSheet() {
 
   // Artist search
   const artistInput = document.getElementById("sheetArtistInput");
-  renderSheetArtistList("");
-  artistInput.addEventListener("focus", () => renderSheetArtistList(artistInput.value));
-  artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value));
+  let artistFocused = false;
+  artistInput.addEventListener("focus", () => { artistFocused = true; renderSheetArtistList(artistInput.value, true); });
+  artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value, true));
   artistInput.addEventListener("blur", () => setTimeout(() => {
+    artistFocused = false;
     const list = document.getElementById("sheetArtistList");
-    if (list) { list.style.display = "none"; }
+    if (list) list.style.display = "none";
   }, 150));
 
   // Card type pills
@@ -722,12 +723,13 @@ function renderFlatSheet() {
 
   // Creature type search
   const typeInput = document.getElementById("sheetTypeInput");
-  renderSheetTypeList("");
-  typeInput.addEventListener("focus", () => renderSheetTypeList(typeInput.value));
-  typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value));
+  let typeFocused = false;
+  typeInput.addEventListener("focus", () => { typeFocused = true; renderSheetTypeList(typeInput.value, true); });
+  typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value, true));
   typeInput.addEventListener("blur", () => setTimeout(() => {
+    typeFocused = false;
     const list = document.getElementById("sheetTypeList");
-    if (list) { list.style.display = "none"; }
+    if (list) list.style.display = "none";
   }, 150));
 
   // Mana pills
@@ -770,11 +772,11 @@ function renderFlatSheet() {
   });
 }
 
-function renderSheetArtistList(query) {
+function renderSheetArtistList(query, show = false) {
   const list = document.getElementById("sheetArtistList");
   if (!list) return;
+  if (!show) { list.style.display = "none"; return; }
   const q = query.toLowerCase();
-  if (!q && document.activeElement !== document.getElementById("sheetArtistInput")) { list.innerHTML = ""; list.style.display = "none"; return; }
   const filtered = q ? artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 8) : artistList.slice(0, 8);
   list.style.display = filtered.length ? "block" : "none";
   list.innerHTML = filtered.map(a =>
@@ -784,15 +786,14 @@ function renderSheetArtistList(query) {
     activeArtist = activeArtist === el.dataset.val ? null : el.dataset.val;
     document.getElementById("sheetArtistInput").value = activeArtist || "";
     list.style.display = "none";
-    list.innerHTML = "";
   }));
 }
 
-function renderSheetTypeList(query) {
+function renderSheetTypeList(query, show = false) {
   const list = document.getElementById("sheetTypeList");
   if (!list) return;
+  if (!show) { list.style.display = "none"; return; }
   const q = query.toLowerCase();
-  if (!q && document.activeElement !== document.getElementById("sheetTypeInput")) { list.innerHTML = ""; list.style.display = "none"; return; }
   const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 8) : creatureTypeList.slice(0, 8);
   list.style.display = filtered.length ? "block" : "none";
   list.innerHTML = filtered.map(t =>
@@ -802,7 +803,6 @@ function renderSheetTypeList(query) {
     activeType = activeType === el.dataset.val ? null : el.dataset.val;
     document.getElementById("sheetTypeInput").value = activeType || "";
     list.style.display = "none";
-    list.innerHTML = "";
   }));
 }
 

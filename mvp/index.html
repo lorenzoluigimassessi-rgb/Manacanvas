@@ -30,16 +30,18 @@
       </div>
     </header>
 
-    <!-- Mobile filter drawer -->
+    <!-- Mobile filter sheet -->
     <div class="drawer-overlay" id="drawerOverlay" style="display:none;" onclick="closeDrawer()"></div>
     <div class="drawer" id="drawer">
       <div class="drawer-handle" onclick="closeDrawer()"></div>
       <div class="drawer-header">
-        <button class="drawer-back" id="drawerBack" onclick="closeSubPanel()">← Back</button>
-        <span class="drawer-title" id="drawerTitle">Filters</span>
+        <span class="drawer-title">Filters</span>
         <span class="drawer-clear" onclick="clearAllFilters()">Clear all</span>
       </div>
       <div class="drawer-body" id="drawerBody"></div>
+      <div class="drawer-footer">
+        <button class="drawer-apply-btn" onclick="applySheet()">SHOW RESULTS</button>
+      </div>
     </div>
     <main class="grid" id="grid"></main>
     <div class="loading-more" id="loader" style="display:none;">Loading more artwork...</div>

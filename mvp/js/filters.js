@@ -591,29 +591,250 @@ function hideSearchSuggestions() {
   if (container) container.style.display = "none";
 }
 
-// Mobile drawer
-let drawerSubPanel = null;
-
+// Mobile flat sheet
 function isMobile() { return window.innerWidth <= 768; }
 
 function initDrawer() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+
+  // Re-init filters when crossing the mobile breakpoint
+  let wasMobile = isMobile();
+  window.addEventListener("resize", () => {
+    const nowMobile = isMobile();
+    if (nowMobile !== wasMobile) {
+      wasMobile = nowMobile;
+      closeDrawer();
+      initFilters();
+    }
+  });
 }
 
 function openDrawer() {
   document.getElementById("drawerOverlay").style.display = "block";
   document.getElementById("drawer").classList.add("open");
   document.body.style.overflow = "hidden";
-  renderDrawerList();
+  renderFlatSheet();
 }
 
 function closeDrawer() {
-  drawerSubPanel = null;
   document.getElementById("drawer").classList.remove("open");
   document.getElementById("drawerOverlay").style.display = "none";
   document.body.style.overflow = "";
-  document.getElementById("drawerTitle").textContent = "Filters";
-  document.getElementById("drawerBack").style.display = "none";
+}
+
+function applySheet() {
+  // Read year sliders if present
+  const minSlider = document.getElementById("sheetYearMin");
+  const maxSlider = document.getElementById("sheetYearMax");
+  if (minSlider && maxSlider) {
+    const min = parseInt(minSlider.value);
+    const max = parseInt(maxSlider.value);
+    activeYearMin = min > 1993 ? min : null;
+    activeYearMax = max < new Date().getFullYear() ? max : null;
+  }
+  updateChips();
+  loadInitialGrid();
+  closeDrawer();
+}
+
+function renderFlatSheet() {
+  const minY = 1993, maxY = new Date().getFullYear();
+  const curMin = activeYearMin || minY, curMax = activeYearMax || maxY;
+
+  // Active count for badge
+  const activeCount = [activeArtist, activeType, activeCardType, activeColour]
+    .filter(Boolean).length + activeStyles.length + activeSets.length +
+    (activeYearMin || activeYearMax ? 1 : 0);
+  updateDrawerBadge(activeCount);
+
+  document.getElementById("drawerBody").innerHTML = `
+
+    <div class="sheet-section">
+      <div class="sheet-section-label">Artist</div>
+      <input class="sheet-input" id="sheetArtistInput" placeholder="Search artists..." value="${activeArtist || ''}" autocomplete="off">
+      <div class="sheet-list" id="sheetArtistList"></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-label">Card Type</div>
+      <div class="sheet-pill-row" id="sheetCardTypePills"></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-label">Creature Type</div>
+      <input class="sheet-input" id="sheetTypeInput" placeholder="Search creature types..." value="${activeType || ''}" autocomplete="off">
+      <div class="sheet-list" id="sheetTypeList"></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-label">Mana Type</div>
+      <div class="sheet-pill-row" id="sheetManaPills"></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-label">Sets</div>
+      <input class="sheet-input" id="sheetSetInput" placeholder="Search sets..." autocomplete="off">
+      <div class="sheet-list" id="sheetSetList"><div class="sheet-list-item" style="opacity:0.5;">Loading...</div></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-label">Art Style</div>
+      <div class="sheet-style-grid" id="sheetStyleGrid"></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-label">Year Range</div>
+      <div class="sheet-year-row">
+        <span>From</span>
+        <input type="range" id="sheetYearMin" min="${minY}" max="${maxY}" value="${curMin}" style="flex:1;accent-color:var(--text-primary);">
+        <span id="sheetYearMinVal">${curMin}</span>
+      </div>
+      <div class="sheet-year-row">
+        <span>To</span>
+        <input type="range" id="sheetYearMax" min="${minY}" max="${maxY}" value="${curMax}" style="flex:1;accent-color:var(--text-primary);">
+        <span id="sheetYearMaxVal">${curMax}</span>
+      </div>
+    </div>
+  `;
+
+  // Artist search
+  const artistInput = document.getElementById("sheetArtistInput");
+  renderSheetArtistList("");
+  artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value));
+
+  // Card type pills
+  const ctPills = document.getElementById("sheetCardTypePills");
+  ctPills.innerHTML = cardTypeList.map(t =>
+    `<div class="sheet-pill ${activeCardType === t ? 'active' : ''}" data-val="${t}">${t}</div>`
+  ).join("");
+  ctPills.querySelectorAll(".sheet-pill").forEach(el => el.addEventListener("click", () => {
+    activeCardType = activeCardType === el.dataset.val ? null : el.dataset.val;
+    ctPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", p.dataset.val === activeCardType));
+  }));
+
+  // Creature type search
+  const typeInput = document.getElementById("sheetTypeInput");
+  renderSheetTypeList("");
+  typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value));
+
+  // Mana pills
+  const manaPills = document.getElementById("sheetManaPills");
+  manaPills.innerHTML = MANA_TYPES.map(m =>
+    `<div class="sheet-pill ${activeColour === m.code ? 'active' : ''}" data-code="${m.code}">
+      <img src="${m.svg}" style="width:16px;height:16px;"> ${m.label}
+    </div>`
+  ).join("");
+  manaPills.querySelectorAll(".sheet-pill").forEach(el => el.addEventListener("click", () => {
+    activeColour = activeColour === el.dataset.code ? null : el.dataset.code;
+    manaPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", p.dataset.code === activeColour));
+  }));
+
+  // Sets
+  loadSetsIfNeeded().then(() => {
+    renderSheetSetList("");
+    document.getElementById("sheetSetInput").addEventListener("input", (e) => renderSheetSetList(e.target.value));
+  });
+
+  // Art style grid
+  renderSheetStyleGrid();
+
+  // Year sliders
+  document.getElementById("sheetYearMin").addEventListener("input", (e) => {
+    if (parseInt(e.target.value) > parseInt(document.getElementById("sheetYearMax").value))
+      e.target.value = document.getElementById("sheetYearMax").value;
+    document.getElementById("sheetYearMinVal").textContent = e.target.value;
+  });
+  document.getElementById("sheetYearMax").addEventListener("input", (e) => {
+    if (parseInt(e.target.value) < parseInt(document.getElementById("sheetYearMin").value))
+      e.target.value = document.getElementById("sheetYearMin").value;
+    document.getElementById("sheetYearMaxVal").textContent = e.target.value;
+  });
+}
+
+function renderSheetArtistList(query) {
+  const list = document.getElementById("sheetArtistList");
+  if (!list) return;
+  const q = query.toLowerCase();
+  const filtered = q ? artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 8) : artistList.slice(0, 8);
+  list.innerHTML = filtered.map(a =>
+    `<div class="sheet-list-item ${activeArtist === a ? 'selected' : ''}" data-val="${a}">${highlightMatch(a, q)}${activeArtist === a ? '<span class="sheet-check">✓</span>' : ""}</div>`
+  ).join("");
+  list.querySelectorAll(".sheet-list-item").forEach(el => el.addEventListener("click", () => {
+    activeArtist = activeArtist === el.dataset.val ? null : el.dataset.val;
+    document.getElementById("sheetArtistInput").value = activeArtist || "";
+    renderSheetArtistList(document.getElementById("sheetArtistInput").value);
+  }));
+}
+
+function renderSheetTypeList(query) {
+  const list = document.getElementById("sheetTypeList");
+  if (!list) return;
+  const q = query.toLowerCase();
+  const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 8) : creatureTypeList.slice(0, 8);
+  list.innerHTML = filtered.map(t =>
+    `<div class="sheet-list-item ${activeType === t ? 'selected' : ''}" data-val="${t}">${highlightMatch(t, q)}${activeType === t ? '<span class="sheet-check">✓</span>' : ""}</div>`
+  ).join("");
+  list.querySelectorAll(".sheet-list-item").forEach(el => el.addEventListener("click", () => {
+    activeType = activeType === el.dataset.val ? null : el.dataset.val;
+    document.getElementById("sheetTypeInput").value = activeType || "";
+    renderSheetTypeList(document.getElementById("sheetTypeInput").value);
+  }));
+}
+
+function renderSheetSetList(query) {
+  const list = document.getElementById("sheetSetList");
+  if (!list) return;
+  const q = query.toLowerCase();
+  const filtered = q ? setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 20) : setList.slice(0, 20);
+  list.innerHTML = filtered.map(s => {
+    const checked = activeSets.includes(s.code);
+    return `<div class="sheet-list-item ${checked ? 'selected' : ''}" data-code="${s.code}" data-name="${s.name}">
+      <img class="set-icon" src="${s.icon}" alt="">${s.name}${checked ? '<span class="sheet-check">✓</span>' : ""}
+    </div>`;
+  }).join("");
+  list.querySelectorAll(".sheet-list-item").forEach(el => el.addEventListener("click", () => {
+    const idx = activeSets.indexOf(el.dataset.code);
+    if (idx === -1) activeSets.push(el.dataset.code); else activeSets.splice(idx, 1);
+    renderSheetSetList(document.getElementById("sheetSetInput")?.value || "");
+  }));
+}
+
+function renderSheetStyleGrid() {
+  const grid = document.getElementById("sheetStyleGrid");
+  if (!grid) return;
+  grid.innerHTML = ART_STYLES.map((s, i) => `
+    <div class="sheet-style-pill ${activeStyles.includes(i) ? 'active' : ''}" data-idx="${i}">
+      <span class="style-name">${s.name}</span>
+      <span class="style-check">✓</span>
+    </div>
+  `).join("");
+  grid.querySelectorAll(".sheet-style-pill").forEach(pill => pill.addEventListener("click", () => {
+    const i = parseInt(pill.dataset.idx);
+    const idx = activeStyles.indexOf(i);
+    if (idx === -1) activeStyles.push(i); else activeStyles.splice(idx, 1);
+    pill.classList.toggle("active");
+  }));
+}
+
+function updateDrawerBadge(count) {
+  const btn = document.getElementById("mobileFiltersBtn");
+  if (!btn) return;
+  const badge = btn.querySelector(".mobile-badge");
+  if (count > 0) {
+    if (badge) badge.textContent = count;
+    else btn.insertAdjacentHTML("beforeend", `<span class="mobile-badge">${count}</span>`);
+    btn.classList.add("active");
+  } else {
+    if (badge) badge.remove();
+    btn.classList.remove("active");
+  }
+}
+
+function clearAllFilters() {
+  activeArtist = null; activeType = null; activeCardType = null;
+  activeColour = null; activeSets = []; activeStyles = [];
+  activeYearMin = null; activeYearMax = null;
+  updateChips(); loadInitialGrid(); closeDrawer();
 }
 
 function renderDrawerList() {
@@ -819,9 +1040,7 @@ function clearAllFilters() {
   activeArtist = null; activeType = null; activeCardType = null;
   activeColour = null; activeSets = []; activeStyles = [];
   activeYearMin = null; activeYearMax = null;
-  updateChips();
-  loadInitialGrid();
-  renderDrawerList();
+  updateChips(); loadInitialGrid(); closeDrawer();
 }
 
 // Init

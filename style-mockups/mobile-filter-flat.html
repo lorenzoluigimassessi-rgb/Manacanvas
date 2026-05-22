@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Filter — Option C: Flat Sheet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #1a1a22;
+      --surface2: #22222e;
+      --border: #2a2a35;
+      --text-primary: #f0f0f0;
+      --text-secondary: #8a8a9a;
+      --radius: 6px;
+    }
+    body {
+      background: #111118;
+      font-family: 'Josefin Sans', sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+      gap: 3rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .wrap { display: flex; flex-direction: column; gap: 0.8rem; width: 375px; }
+    .label { font-size: 0.68rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-secondary); }
+    .title { font-size: 0.95rem; color: var(--text-primary); font-weight: 500; margin-bottom: 0.2rem; }
+    .desc { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.8rem; }
+
+    /* Phone */
+    .phone {
+      width: 375px;
+      height: 640px;
+      background: var(--bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Header */
+    .header { background: var(--bg); border-bottom: 1px solid var(--border); position: relative; z-index: 5; }
+    .row1 { display: flex; align-items: center; gap: 0.8rem; padding: 0.9rem 1.2rem; }
+    .logo { font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 2px; color: var(--text-primary); white-space: nowrap; }
+    .search-mock {
+      flex: 1; height: 34px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; display: flex; align-items: center; padding: 0 0.7rem;
+      gap: 0.4rem; font-size: 0.78rem; color: var(--text-secondary);
+    }
+    .icon-btn {
+      background: #16161f; border: 1px solid #4a4a60; color: #c8c8e0;
+      width: 34px; height: 34px; border-radius: 4px; font-size: 0.85rem;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+    }
+    .row2 {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1.2rem; background: rgba(26,26,34,0.5); border-top: 1px solid var(--border);
+    }
+    .filter-btn {
+      background: var(--surface); border: 1px solid #4a4a60; color: #c8c8e0;
+      height: 28px; padding: 0 0.7rem; border-radius: 4px; font-size: 0.75rem;
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .sort-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--text-secondary);
+      height: 28px; padding: 0 0.7rem; border-radius: 4px; font-size: 0.75rem;
+      cursor: pointer; font-family: inherit; margin-left: auto;
+    }
+    .badge {
+      background: var(--text-primary); color: var(--bg); border-radius: 50%;
+      width: 15px; height: 15px; font-size: 0.58rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .chip-bar { padding: 0.4rem 1.2rem; display: flex; gap: 0.4rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; color: var(--text-primary);
+    }
+
+    /* Grid */
+    .grid-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.8rem 1.2rem; }
+    .card-mock { border-radius: 4px; height: 100px; }
+    .card-mock:nth-child(1) { background: #2a1a1a; }
+    .card-mock:nth-child(2) { background: #1a1a2a; }
+    .card-mock:nth-child(3) { background: #1a2a1a; }
+    .card-mock:nth-child(4) { background: #2a2a1a; }
+
+    /* Flat sheet */
+    .sheet-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 20; display: none;
+    }
+    .sheet-overlay.open { display: block; }
+
+    .sheet {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--surface2); border-radius: 16px 16px 0 0;
+      z-index: 30; display: flex; flex-direction: column;
+      max-height: 82%;
+      transform: translateY(100%); transition: transform 250ms ease;
+    }
+    .sheet.open { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 36px; height: 4px; background: var(--border);
+      border-radius: 2px; margin: 0.7rem auto 0; flex-shrink: 0; cursor: pointer;
+    }
+
+    .sheet-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .sheet-title { font-size: 0.82rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--text-primary); }
+    .sheet-clear { font-size: 0.72rem; color: var(--text-secondary); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+    /* Scrollable filter content */
+    .sheet-body { overflow-y: auto; flex: 1; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 1.2rem; }
+
+    /* Filter section */
+    .filter-section { display: flex; flex-direction: column; gap: 0.5rem; }
+    .filter-section-label {
+      font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-secondary); padding-bottom: 0.2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Search input */
+    .filter-input {
+      width: 100%; height: 40px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 4px; padding: 0 0.8rem; color: var(--text-primary);
+      font-size: 0.85rem; font-family: inherit; outline: none;
+    }
+    .filter-input::placeholder { color: var(--text-secondary); }
+
+    /* Pill row — for mana, card type */
+    .pill-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .pill {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-secondary); padding: 0.35rem 0.75rem;
+      border-radius: 20px; font-size: 0.78rem; cursor: pointer;
+      transition: border-color 150ms, color 150ms, background 150ms;
+      display: flex; align-items: center; gap: 0.4rem;
+      min-height: 34px;
+    }
+    .pill:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+    .pill.active { border-color: var(--text-primary); color: var(--text-primary); background: #1e1e2e; }
+
+    /* Style grid */
+    .style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .style-pill {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.55rem 0.7rem; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--surface);
+      cursor: pointer; min-height: 48px;
+      transition: border-color 150ms, background 150ms;
+    }
+    .style-pill.active { border-color: var(--text-primary); background: #1e1e2e; }
+    .style-pill-name { font-size: 0.78rem; color: var(--text-secondary); }
+    .style-pill.active .style-pill-name { color: var(--text-primary); }
+    .style-check { font-size: 0.7rem; color: var(--text-secondary); opacity: 0; }
+    .style-pill.active .style-check { opacity: 1; }
+
+    /* Year sliders */
+    .year-row { display: flex; align-items: center; gap: 0.8rem; }
+    .year-row span { font-size: 0.78rem; color: var(--text-secondary); min-width: 30px; }
+    .year-row input[type=range] { flex: 1; accent-color: var(--text-primary); }
+    .year-val { font-size: 0.78rem; color: var(--text-secondary); min-width: 35px; text-align: right; }
+
+    /* Mana symbols */
+    .mana-img { width: 18px; height: 18px; }
+
+    /* Sheet footer */
+    .sheet-footer { padding: 0.8rem 1.2rem; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .apply-btn {
+      width: 100%; background: var(--text-primary); color: var(--bg);
+      border: none; border-radius: 4px; padding: 0.75rem;
+      font-size: 0.85rem; font-weight: 600; font-family: inherit;
+      letter-spacing: 1px; cursor: pointer;
+    }
+
+    /* Annotations */
+    .annotations { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem; }
+    .annotation { border-left: 2px solid var(--border); padding-left: 0.8rem; }
+    .annotation-title { font-size: 0.72rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.2rem; }
+    .annotation-body { font-size: 0.72rem; color: var(--text-secondary); line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="label">Option C</div>
+  <div class="title">Flat bottom sheet — all filters on one screen</div>
+  <div class="desc">All filters visible at once, no sub-panels. Scroll within the sheet to reach all options. Inspired by Scryfall's flat layout but contained in a sheet.</div>
+
+  <div class="phone">
+    <div class="header">
+      <div class="row1">
+        <div class="logo">MANACANVAS</div>
+        <div class="search-mock">🔍 <span>Search...</span></div>
+        <div class="icon-btn">↺</div>
+      </div>
+      <div class="row2">
+        <button class="filter-btn" onclick="toggleSheet()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="5" cy="3" r="2" fill="#22222e" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="10" cy="8" r="2" fill="#22222e" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="7" cy="13" r="2" fill="#22222e" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          Filters <div class="badge">2</div>
+        </button>
+        <button class="sort-btn">Oldest ⇅</button>
+      </div>
+      <div class="chip-bar">
+        <span class="chip">Dark & Gritty ✕</span>
+        <span class="chip">Dragon ✕</span>
+      </div>
+    </div>
+
+    <div class="grid-preview">
+      <div class="card-mock"></div>
+      <div class="card-mock"></div>
+      <div class="card-mock"></div>
+      <div class="card-mock"></div>
+    </div>
+
+    <!-- Sheet overlay -->
+    <div class="sheet-overlay" id="overlay" onclick="toggleSheet()">
+      <div class="sheet" id="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle" onclick="toggleSheet()"></div>
+        <div class="sheet-header">
+          <span class="sheet-title">Filters</span>
+          <span class="sheet-clear">Clear all</span>
+        </div>
+
+        <div class="sheet-body">
+
+          <!-- Artist -->
+          <div class="filter-section">
+            <div class="filter-section-label">Artist</div>
+            <input class="filter-input" placeholder="Search artists...">
+          </div>
+
+          <!-- Card Type -->
+          <div class="filter-section">
+            <div class="filter-section-label">Card Type</div>
+            <div class="pill-row">
+              <div class="pill" onclick="togglePill(this)">Artifact</div>
+              <div class="pill" onclick="togglePill(this)">Creature</div>
+              <div class="pill" onclick="togglePill(this)">Enchantment</div>
+              <div class="pill" onclick="togglePill(this)">Instant</div>
+              <div class="pill" onclick="togglePill(this)">Land</div>
+              <div class="pill" onclick="togglePill(this)">Sorcery</div>
+            </div>
+          </div>
+
+          <!-- Creature Type -->
+          <div class="filter-section">
+            <div class="filter-section-label">Creature Type</div>
+            <input class="filter-input" placeholder="Search creature types...">
+            <div class="pill-row" style="margin-top:0.3rem;">
+              <div class="pill active" onclick="togglePill(this)">Dragon</div>
+              <div class="pill" onclick="togglePill(this)">Angel</div>
+              <div class="pill" onclick="togglePill(this)">Demon</div>
+              <div class="pill" onclick="togglePill(this)">Elf</div>
+              <div class="pill" onclick="togglePill(this)">Goblin</div>
+            </div>
+          </div>
+
+          <!-- Mana Type -->
+          <div class="filter-section">
+            <div class="filter-section-label">Mana Type</div>
+            <div class="pill-row">
+              <div class="pill" onclick="togglePill(this)"><img class="mana-img" src="https://svgs.scryfall.io/card-symbols/W.svg"> White</div>
+              <div class="pill" onclick="togglePill(this)"><img class="mana-img" src="https://svgs.scryfall.io/card-symbols/U.svg"> Blue</div>
+              <div class="pill" onclick="togglePill(this)"><img class="mana-img" src="https://svgs.scryfall.io/card-symbols/B.svg"> Black</div>
+              <div class="pill" onclick="togglePill(this)"><img class="mana-img" src="https://svgs.scryfall.io/card-symbols/R.svg"> Red</div>
+              <div class="pill" onclick="togglePill(this)"><img class="mana-img" src="https://svgs.scryfall.io/card-symbols/G.svg"> Green</div>
+              <div class="pill" onclick="togglePill(this)"><img class="mana-img" src="https://svgs.scryfall.io/card-symbols/C.svg"> Colorless</div>
+            </div>
+          </div>
+
+          <!-- Sets -->
+          <div class="filter-section">
+            <div class="filter-section-label">Sets</div>
+            <input class="filter-input" placeholder="Search sets...">
+          </div>
+
+          <!-- Art Style -->
+          <div class="filter-section">
+            <div class="filter-section-label">Art Style</div>
+            <div class="style-grid">
+              <div class="style-pill" onclick="toggleStyle(this)">
+                <span class="style-pill-name">Classic</span><span class="style-check">✓</span>
+              </div>
+              <div class="style-pill active" onclick="toggleStyle(this)">
+                <span class="style-pill-name">Dark & Gritty</span><span class="style-check">✓</span>
+              </div>
+              <div class="style-pill" onclick="toggleStyle(this)">
+                <span class="style-pill-name">Epic & Dramatic</span><span class="style-check">✓</span>
+              </div>
+              <div class="style-pill" onclick="toggleStyle(this)">
+                <span class="style-pill-name">Painterly</span><span class="style-check">✓</span>
+              </div>
+              <div class="style-pill" onclick="toggleStyle(this)">
+                <span class="style-pill-name">Ethereal</span><span class="style-check">✓</span>
+              </div>
+              <div class="style-pill" onclick="toggleStyle(this)">
+                <span class="style-pill-name">Sketch</span><span class="style-check">✓</span>
+              </div>
+              <div class="style-pill" onclick="toggleStyle(this)">
+                <span class="style-pill-name">Modern</span><span class="style-check">✓</span>
+              </div>
+              <div class="style-pill" onclick="toggleStyle(this)">
+                <span class="style-pill-name">Iconic Creatures</span><span class="style-check">✓</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Year Range -->
+          <div class="filter-section">
+            <div class="filter-section-label">Year Range</div>
+            <div class="year-row">
+              <span>From</span>
+              <input type="range" min="1993" max="2025" value="1993" oninput="this.nextElementSibling.textContent=this.value">
+              <span class="year-val">1993</span>
+            </div>
+            <div class="year-row" style="margin-top:0.4rem;">
+              <span>To</span>
+              <input type="range" min="1993" max="2025" value="2025" oninput="this.nextElementSibling.textContent=this.value">
+              <span class="year-val">2025</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="sheet-footer">
+          <button class="apply-btn" onclick="toggleSheet()">SHOW RESULTS</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotations">
+    <div class="annotation">
+      <div class="annotation-title">No sub-panels</div>
+      <div class="annotation-body">Everything visible at once. Scroll to see all filters. Zero navigation overhead — same mental model as Scryfall's advanced search.</div>
+    </div>
+    <div class="annotation">
+      <div class="annotation-title">Pill-based selection</div>
+      <div class="annotation-body">Card Type, Creature Type and Mana shown as tappable pills — fast to scan and select without opening anything.</div>
+    </div>
+    <div class="annotation">
+      <div class="annotation-title">Search inputs inline</div>
+      <div class="annotation-body">Artist and Sets have a search input directly in the sheet — no sub-panel needed.</div>
+    </div>
+    <div class="annotation">
+      <div class="annotation-title">Apply on close</div>
+      <div class="annotation-body">"Show Results" closes the sheet and applies all selections at once — reduces grid re-renders while browsing filters.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleSheet() {
+    const overlay = document.getElementById('overlay');
+    const sheet = document.getElementById('sheet');
+    const isOpen = sheet.classList.contains('open');
+    if (isOpen) {
+      sheet.classList.remove('open');
+      setTimeout(() => overlay.classList.remove('open'), 250);
+    } else {
+      overlay.classList.add('open');
+      setTimeout(() => sheet.classList.add('open'), 10);
+    }
+  }
+
+  function togglePill(el) { el.classList.toggle('active'); }
+  function toggleStyle(el) { el.classList.toggle('active'); }
+</script>
+</body>
+</html>

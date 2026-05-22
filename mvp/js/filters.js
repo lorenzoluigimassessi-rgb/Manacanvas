@@ -246,26 +246,29 @@ function toggleDropdown(type) {
 // Render functions
 function renderArtistList(query) {
   const list = document.getElementById("artistList");
+  if (!list) return;
   const q = query.toLowerCase();
-  const filtered = q ? artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 50) : artistList.slice(0, 50);
+  const filtered = q ? artistList.filter(a => a.toLowerCase().includes(q)) : artistList;
   if (!filtered.length) { list.innerHTML = `<div class="dropdown-item" style="cursor:default;">No artists found</div>`; return; }
-  list.innerHTML = filtered.map(a => `<div class="dropdown-item" data-value="${a}">${highlightMatch(a, q)}</div>`).join("");
-  list.querySelectorAll(".dropdown-item").forEach(item => item.addEventListener("click", () => selectArtist(item.dataset.value)));
+  list.innerHTML = "";
+  renderDropdownChunk(list, filtered, 0, 20, (val) => selectArtist(val), q, false);
 }
 
 function renderTypeList(query = "") {
   const list = document.getElementById("typeList");
+  if (!list) return;
   const q = query.toLowerCase();
-  const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 50) : creatureTypeList.slice(0, 50);
+  const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)) : creatureTypeList;
   if (!filtered.length) { list.innerHTML = `<div class="dropdown-item" style="cursor:default;">No types found</div>`; return; }
-  list.innerHTML = filtered.map(t => `<div class="dropdown-item" data-value="${t}">${highlightMatch(t, q)}</div>`).join("");
-  list.querySelectorAll(".dropdown-item").forEach(item => item.addEventListener("click", () => selectType(item.dataset.value)));
+  list.innerHTML = "";
+  renderDropdownChunk(list, filtered, 0, 20, (val) => selectType(val), q, false);
 }
 
 function renderCardTypeList() {
   const list = document.getElementById("cardTypeList");
-  list.innerHTML = cardTypeList.map(t => `<div class="dropdown-item" data-value="${t}">${t}</div>`).join("");
-  list.querySelectorAll(".dropdown-item").forEach(item => item.addEventListener("click", () => selectCardType(item.dataset.value)));
+  if (!list) return;
+  list.innerHTML = "";
+  renderDropdownChunk(list, cardTypeList, 0, 20, (val) => selectCardType(val), "", false);
 }
 
 function renderManaPicker() {
@@ -299,20 +302,48 @@ function renderStyleGrid() {
 
 function renderSetList(query) {
   const list = document.getElementById("setListEl");
+  if (!list) return;
   const q = query.toLowerCase();
-  const filtered = q ? setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 50) : setList.slice(0, 50);
+  const filtered = q ? setList.filter(s => s.name.toLowerCase().includes(q)) : setList;
   if (!filtered.length) { list.innerHTML = `<div class="dropdown-item" style="cursor:default;">No sets found</div>`; return; }
-  list.innerHTML = filtered.map(s => {
-    const checked = activeSets.includes(s.code);
-    return `<div class="dropdown-item set-item ${checked ? 'selected' : ''}" data-code="${s.code}" data-name="${s.name}">
-      <input type="checkbox" class="set-checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation()">
-      <img class="set-icon" src="${s.icon}" alt="">
-      ${s.name}
-    </div>`;
-  }).join("");
-  list.querySelectorAll(".set-item").forEach(item => {
-    item.addEventListener("click", () => toggleSetSelection(item.dataset.code, item.dataset.name));
+  list.innerHTML = "";
+  renderDropdownChunk(list, filtered, 0, 20, (val) => {
+    const s = setList.find(s => s.code === val);
+    if (s) toggleSetSelection(s.code, s.name);
+  }, q, true);
+}
+
+function renderDropdownChunk(list, items, start, chunkSize, onSelect, q, isSet) {
+  const chunk = items.slice(start, start + chunkSize);
+  chunk.forEach(item => {
+    const val = isSet ? item.code : item;
+    const label = isSet ? item.name : item;
+    const el = document.createElement("div");
+    el.className = isSet
+      ? `dropdown-item set-item${activeSets.includes(val) ? ' selected' : ''}`
+      : "dropdown-item";
+    el.dataset.value = val;
+    if (isSet) {
+      el.innerHTML = `<input type="checkbox" class="set-checkbox" ${activeSets.includes(val) ? 'checked' : ''} onclick="event.stopPropagation()"><img class="set-icon" src="${item.icon}" alt="">${highlightMatch(label, q)}`;
+    } else {
+      el.innerHTML = highlightMatch(label, q);
+    }
+    el.addEventListener("click", () => onSelect(val));
+    list.appendChild(el);
   });
+  if (start + chunkSize < items.length) {
+    const sentinel = document.createElement("div");
+    sentinel.style.height = "1px";
+    list.appendChild(sentinel);
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        observer.disconnect();
+        sentinel.remove();
+        renderDropdownChunk(list, items, start + chunkSize, chunkSize, onSelect, q, isSet);
+      }
+    }, { root: list, rootMargin: "40px" });
+    observer.observe(sentinel);
+  }
 }
 
 // Select / clear handlers

@@ -83,14 +83,22 @@ function openLightbox(card) {
   // Meta link handlers
   document.getElementById("lbArtist").addEventListener("click", () => {
     closeLightbox();
-    selectArtist(card.artist);
+    activeArtist = card.artist;
+    if (!isMobile()) {
+      const btn = document.getElementById("artistBtn");
+      if (btn) { btn.textContent = card.artist; btn.classList.add("active"); }
+    }
+    updateChips();
+    loadInitialGrid();
   });
   if (setName) document.getElementById("lbSet").addEventListener("click", () => {
     closeLightbox();
     activeSets = [card.set];
-    const s = setList.find(s => s.code === card.set);
-    document.getElementById("setBtn").textContent = s ? s.name : setName;
-    document.getElementById("setBtn").classList.add("active");
+    if (!isMobile()) {
+      const s = setList.find(s => s.code === card.set);
+      const btn = document.getElementById("setBtn");
+      if (btn) { btn.textContent = s ? s.name : setName; btn.classList.add("active"); }
+    }
     updateChips();
     loadInitialGrid();
   });
@@ -98,8 +106,10 @@ function openLightbox(card) {
     closeLightbox();
     activeYearMin = parseInt(year);
     activeYearMax = parseInt(year);
-    document.getElementById("yearBtn").textContent = `${year}–${year}`;
-    document.getElementById("yearBtn").classList.add("active");
+    if (!isMobile()) {
+      const btn = document.getElementById("yearBtn");
+      if (btn) { btn.textContent = `${year}–${year}`; btn.classList.add("active"); }
+    }
     updateChips();
     loadInitialGrid();
   });

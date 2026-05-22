@@ -33,7 +33,9 @@ const ART_STYLES = [
 async function initFilters() {
   // Mobile: single filters button
   if (isMobile()) {
-    filtersContainer.innerHTML = `<button class="filter-btn mobile-filters-btn" id="mobileFiltersBtn" onclick="openDrawer()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="5" cy="3" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="8" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="13" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/></svg> Filters</button>`;
+    filtersContainer.innerHTML = `
+      <button class="filter-btn mobile-filters-btn" id="mobileFiltersBtn" onclick="openDrawer()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="5" cy="3" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="8" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="13" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/></svg> Filters</button>
+    `;
     document.getElementById("row2Right").innerHTML = `
       <button class="filter-btn" id="sortBtn">Oldest First ⇅</button>
       <button class="filter-btn" id="viewBtn">⊞ View ▾</button>
@@ -501,30 +503,37 @@ function clearYear() {
 }
 
 function updateChips() {
-  const chipBar = document.getElementById("chipBar");
-  let html = "";
-  if (activeArtist)   html += `<span class="filter-chip">${activeArtist} <span class="clear" onclick="clearArtist()">✕</span></span>`;
-  if (activeType)     html += `<span class="filter-chip">${activeType} <span class="clear" onclick="clearType()">✕</span></span>`;
-  if (activeCardType) html += `<span class="filter-chip">${activeCardType} <span class="clear" onclick="clearCardType()">✕</span></span>`;
-  if (activeColour) {
-    const m = MANA_TYPES.find(m => m.code === activeColour);
-    html += `<span class="filter-chip"><img class="mana-symbol-chip" src="${m.svg}" alt="${m.label}">${m.label} <span class="clear" onclick="clearMana()">✕</span></span>`;
+  const activeCount = [activeArtist, activeType, activeCardType, activeColour]
+    .filter(Boolean).length + activeStyles.length + activeSets.length +
+    (activeYearMin || activeYearMax ? 1 : 0);
+
+  // Clear button — show when any filter active
+  const clearBtn = document.getElementById("clearFiltersBtn");
+  if (clearBtn) clearBtn.style.display = activeCount > 0 ? "inline-flex" : "none";
+
+  // Desktop: update count badge on filter area
+  updateDesktopBadge(activeCount);
+
+  // Mobile: update drawer badge
+  updateDrawerBadge(activeCount);
+}
+
+function updateDesktopBadge(count) {
+  if (isMobile()) return;
+  let badge = document.getElementById("desktopFilterBadge");
+  if (count > 0) {
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.id = "desktopFilterBadge";
+      badge.className = "mobile-badge";
+      badge.style.marginLeft = "0.4rem";
+      const filtersEl = document.getElementById("filters");
+      if (filtersEl) filtersEl.appendChild(badge);
+    }
+    badge.textContent = count;
+  } else {
+    if (badge) badge.remove();
   }
-  activeStyles.forEach(idx => {
-    html += `<span class="filter-chip">${ART_STYLES[idx].name} <span class="clear" onclick="clearSingleStyle(${idx})">✕</span></span>`;
-  });
-  if (activeSets.length === 1) {
-    const s = setList.find(s => s.code === activeSets[0]);
-    html += `<span class="filter-chip">${s ? s.name : activeSets[0]} <span class="clear" onclick="clearSingleSet('${activeSets[0]}')">✕</span></span>`;
-  } else if (activeSets.length > 1) {
-    activeSets.forEach(code => {
-      const s = setList.find(s => s.code === code);
-      html += `<span class="filter-chip">${s ? s.name : code} <span class="clear" onclick="clearSingleSet('${code}')">✕</span></span>`;
-    });
-    html += `<span class="filter-chip" onclick="clearAllSets()" style="cursor:pointer;opacity:0.7;">Clear all sets</span>`;
-  }
-  if (activeYearMin || activeYearMax) html += `<span class="filter-chip">${activeYearMin || 1993}–${activeYearMax || new Date().getFullYear()} <span class="clear" onclick="clearYear()">✕</span></span>`;
-  chipBar.innerHTML = html ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-left:0.5rem;">${html}</div>` : "";
 }
 
 function closeDropdown() {

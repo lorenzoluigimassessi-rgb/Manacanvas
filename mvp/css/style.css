@@ -331,6 +331,25 @@ body {
   position: relative;
 }
 
+.clear-filters-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.clear-filters-btn:hover { color: var(--text-primary); }
+
 .filter-btn {
   background: transparent;
   color: var(--text-secondary);

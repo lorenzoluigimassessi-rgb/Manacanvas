@@ -1,36 +1,53 @@
-// Filters — artist, creature type, set, year range, sort, view
+// Filters — artist, creature type, card type, mana type, sets (multi), year range, sort, view
 const filtersContainer = document.getElementById("filters");
 
 let artistList = [];
 let creatureTypeList = [];
+let cardTypeList = [];
 let setList = [];
 let openDropdown = null;
 let currentGridSize = "md";
 let viewDropdownOpen = false;
 
+const MANA_TYPES = [
+  { code: "w", label: "White",      svg: "https://svgs.scryfall.io/card-symbols/W.svg" },
+  { code: "u", label: "Blue",       svg: "https://svgs.scryfall.io/card-symbols/U.svg" },
+  { code: "b", label: "Black",      svg: "https://svgs.scryfall.io/card-symbols/B.svg" },
+  { code: "r", label: "Red",        svg: "https://svgs.scryfall.io/card-symbols/R.svg" },
+  { code: "g", label: "Green",      svg: "https://svgs.scryfall.io/card-symbols/G.svg" },
+  { code: "m", label: "Multicolor", svg: "https://svgs.scryfall.io/card-symbols/S.svg" },
+  { code: "c", label: "Colorless",  svg: "https://svgs.scryfall.io/card-symbols/C.svg" },
+];
+
 async function initFilters() {
   filtersContainer.innerHTML = `
     <button class="filter-btn" id="artistBtn">All Artists ▾</button>
-    <button class="filter-btn" id="typeBtn">All Creatures ▾</button>
+    <button class="filter-btn" id="cardTypeBtn">Card Type ▾</button>
+    <button class="filter-btn" id="typeBtn">Creature Type ▾</button>
+    <button class="filter-btn" id="manaBtn">Mana Type ▾</button>
     <button class="filter-btn" id="setBtn">All Sets ▾</button>
     <button class="filter-btn" id="yearBtn">Year Range ▾</button>
   `;
 
-  // Sort + View (row 2, right side)
   document.getElementById("row2Right").innerHTML = `
     <button class="filter-btn" id="sortBtn">Oldest First ⇅</button>
     <button class="filter-btn" id="viewBtn">⊞ View ▾</button>
   `;
 
-  document.getElementById("artistBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleDropdown("artist"); });
-  document.getElementById("typeBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleDropdown("type"); });
-  document.getElementById("setBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleDropdown("set"); });
-  document.getElementById("yearBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleDropdown("year"); });
-  document.getElementById("sortBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleSort(); });
-  document.getElementById("viewBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleViewDropdown(); });
+  document.getElementById("artistBtn").addEventListener("click",   (e) => { e.stopPropagation(); toggleDropdown("artist"); });
+  document.getElementById("typeBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleDropdown("type"); });
+  document.getElementById("cardTypeBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleDropdown("cardType"); });
+  document.getElementById("manaBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleDropdown("mana"); });
+  document.getElementById("setBtn").addEventListener("click",      (e) => { e.stopPropagation(); toggleDropdown("set"); });
+  document.getElementById("yearBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleDropdown("year"); });
+  document.getElementById("sortBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleSort(); });
+  document.getElementById("viewBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleViewDropdown(); });
 
-  // Load catalogs (artists + creatures now, sets deferred until dropdown opens)
-  [artistList, creatureTypeList] = await Promise.all([fetchArtistNames(), fetchCreatureTypes()]);
+  [artistList, creatureTypeList, cardTypeList] = await Promise.all([
+    fetchArtistNames(),
+    fetchCreatureTypes(),
+    fetchCardTypes(),
+  ]);
 
   document.addEventListener("click", () => { closeDropdown(); closeViewDropdown(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeDropdown(); closeViewDropdown(); } });
@@ -41,7 +58,9 @@ async function loadSetsIfNeeded() {
   try {
     const res = await fetch("https://api.scryfall.com/sets");
     const json = await res.json();
-    setList = (json.data || []).filter(s => s.set_type === "expansion" || s.set_type === "core" || s.set_type === "draft_innovation").map(s => ({ code: s.code, name: s.name, icon: s.icon_svg_uri }));
+    setList = (json.data || [])
+      .filter(s => s.set_type === "expansion" || s.set_type === "core" || s.set_type === "draft_innovation")
+      .map(s => ({ code: s.code, name: s.name, icon: s.icon_svg_uri }));
   } catch (e) { setList = []; }
 }
 
@@ -104,10 +123,24 @@ function toggleDropdown(type) {
     renderArtistList("");
     document.getElementById("artistSearch").addEventListener("input", (e) => renderArtistList(e.target.value));
     document.getElementById("artistSearch").focus();
+
   } else if (type === "type") {
-    dropdown.innerHTML = `<div class="dropdown-list" id="typeList"></div>`;
+    dropdown.innerHTML = `<input type="text" placeholder="Search creature types..." id="typeSearch"><div class="dropdown-list" id="typeList"></div>`;
     filtersContainer.appendChild(dropdown);
-    renderTypeList();
+    renderTypeList("");
+    document.getElementById("typeSearch").addEventListener("input", (e) => renderTypeList(e.target.value));
+    document.getElementById("typeSearch").focus();
+
+  } else if (type === "cardType") {
+    dropdown.innerHTML = `<div class="dropdown-list" id="cardTypeList"></div>`;
+    filtersContainer.appendChild(dropdown);
+    renderCardTypeList();
+
+  } else if (type === "mana") {
+    dropdown.innerHTML = `<div class="mana-picker" id="manaPicker"></div>`;
+    filtersContainer.appendChild(dropdown);
+    renderManaPicker();
+
   } else if (type === "set") {
     dropdown.innerHTML = `<input type="text" placeholder="Search sets..." id="setSearch"><div class="dropdown-list" id="setListEl"><div class="dropdown-item" style="cursor:default;">Loading sets...</div></div>`;
     filtersContainer.appendChild(dropdown);
@@ -116,6 +149,7 @@ function toggleDropdown(type) {
       document.getElementById("setSearch").addEventListener("input", (e) => renderSetList(e.target.value));
     });
     document.getElementById("setSearch").focus();
+
   } else if (type === "year") {
     const minY = 1993;
     const maxY = new Date().getFullYear();
@@ -167,6 +201,7 @@ function toggleDropdown(type) {
   }
 }
 
+// Render functions
 function renderArtistList(query) {
   const list = document.getElementById("artistList");
   const q = query.toLowerCase();
@@ -176,10 +211,32 @@ function renderArtistList(query) {
   list.querySelectorAll(".dropdown-item").forEach(item => item.addEventListener("click", () => selectArtist(item.dataset.value)));
 }
 
-function renderTypeList() {
+function renderTypeList(query = "") {
   const list = document.getElementById("typeList");
-  list.innerHTML = creatureTypeList.map(t => `<div class="dropdown-item" data-value="${t}">${t}</div>`).join("");
+  const q = query.toLowerCase();
+  const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 50) : creatureTypeList.slice(0, 50);
+  if (!filtered.length) { list.innerHTML = `<div class="dropdown-item" style="cursor:default;">No types found</div>`; return; }
+  list.innerHTML = filtered.map(t => `<div class="dropdown-item" data-value="${t}">${highlightMatch(t, q)}</div>`).join("");
   list.querySelectorAll(".dropdown-item").forEach(item => item.addEventListener("click", () => selectType(item.dataset.value)));
+}
+
+function renderCardTypeList() {
+  const list = document.getElementById("cardTypeList");
+  list.innerHTML = cardTypeList.map(t => `<div class="dropdown-item" data-value="${t}">${t}</div>`).join("");
+  list.querySelectorAll(".dropdown-item").forEach(item => item.addEventListener("click", () => selectCardType(item.dataset.value)));
+}
+
+function renderManaPicker() {
+  const picker = document.getElementById("manaPicker");
+  picker.innerHTML = MANA_TYPES.map(m => `
+    <div class="mana-option ${activeColour === m.code ? 'active' : ''}" data-code="${m.code}" data-label="${m.label}">
+      <img class="mana-symbol" src="${m.svg}" alt="${m.label}">
+      <span class="mana-label">${m.label}</span>
+    </div>
+  `).join("");
+  picker.querySelectorAll(".mana-option").forEach(el => {
+    el.addEventListener("click", () => selectMana(el.dataset.code, el.dataset.label));
+  });
 }
 
 function renderSetList(query) {
@@ -187,17 +244,20 @@ function renderSetList(query) {
   const q = query.toLowerCase();
   const filtered = q ? setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 50) : setList.slice(0, 50);
   if (!filtered.length) { list.innerHTML = `<div class="dropdown-item" style="cursor:default;">No sets found</div>`; return; }
-  list.innerHTML = filtered.map(s => `<div class="dropdown-item" data-value="${s.code}"><img class="set-icon" src="${s.icon}" alt="">${s.name}</div>`).join("");
-  list.querySelectorAll(".dropdown-item").forEach(item => item.addEventListener("click", () => selectSet(item.dataset.value, item.textContent)));
+  list.innerHTML = filtered.map(s => {
+    const checked = activeSets.includes(s.code);
+    return `<div class="dropdown-item set-item ${checked ? 'selected' : ''}" data-code="${s.code}" data-name="${s.name}">
+      <input type="checkbox" class="set-checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation()">
+      <img class="set-icon" src="${s.icon}" alt="">
+      ${s.name}
+    </div>`;
+  }).join("");
+  list.querySelectorAll(".set-item").forEach(item => {
+    item.addEventListener("click", () => toggleSetSelection(item.dataset.code, item.dataset.name));
+  });
 }
 
-function highlightMatch(text, query) {
-  if (!query) return text;
-  const idx = text.toLowerCase().indexOf(query);
-  if (idx === -1) return text;
-  return text.slice(0, idx) + `<strong style="color:var(--text-primary)">${text.slice(idx, idx + query.length)}</strong>` + text.slice(idx + query.length);
-}
-
+// Select / clear handlers
 function selectArtist(name) {
   activeArtist = name;
   closeDropdown();
@@ -216,11 +276,43 @@ function selectType(type) {
   loadInitialGrid();
 }
 
-function selectSet(code, name) {
-  activeSet = code;
+function selectCardType(type) {
+  activeCardType = type;
   closeDropdown();
-  document.getElementById("setBtn").textContent = name;
-  document.getElementById("setBtn").classList.add("active");
+  document.getElementById("cardTypeBtn").textContent = type;
+  document.getElementById("cardTypeBtn").classList.add("active");
+  updateChips();
+  loadInitialGrid();
+}
+
+function selectMana(code, label) {
+  if (activeColour === code) { clearMana(); return; }
+  activeColour = code;
+  closeDropdown();
+  const mana = MANA_TYPES.find(m => m.code === code);
+  const btn = document.getElementById("manaBtn");
+  btn.innerHTML = `<img class="mana-symbol-btn" src="${mana.svg}" alt="${mana.label}"> ${mana.label} ▾`;
+  btn.classList.add("active");
+  updateChips();
+  loadInitialGrid();
+}
+
+function toggleSetSelection(code, name) {
+  const idx = activeSets.indexOf(code);
+  if (idx === -1) { activeSets.push(code); } else { activeSets.splice(idx, 1); }
+  const query = document.getElementById("setSearch")?.value || "";
+  renderSetList(query);
+  if (activeSets.length === 0) {
+    document.getElementById("setBtn").textContent = "All Sets ▾";
+    document.getElementById("setBtn").classList.remove("active");
+  } else if (activeSets.length === 1) {
+    const s = setList.find(s => s.code === activeSets[0]);
+    document.getElementById("setBtn").textContent = s ? s.name : "1 Set";
+    document.getElementById("setBtn").classList.add("active");
+  } else {
+    document.getElementById("setBtn").textContent = `Sets (${activeSets.length}) ▾`;
+    document.getElementById("setBtn").classList.add("active");
+  }
   updateChips();
   loadInitialGrid();
 }
@@ -229,24 +321,49 @@ function clearArtist() {
   activeArtist = null;
   document.getElementById("artistBtn").textContent = "All Artists ▾";
   document.getElementById("artistBtn").classList.remove("active");
-  updateChips();
-  loadInitialGrid();
+  updateChips(); loadInitialGrid();
 }
 
 function clearType() {
   activeType = null;
-  document.getElementById("typeBtn").textContent = "All Creatures ▾";
+  document.getElementById("typeBtn").textContent = "Creature Type ▾";
   document.getElementById("typeBtn").classList.remove("active");
-  updateChips();
-  loadInitialGrid();
+  updateChips(); loadInitialGrid();
 }
 
-function clearSet() {
-  activeSet = null;
+function clearCardType() {
+  activeCardType = null;
+  document.getElementById("cardTypeBtn").textContent = "Card Type ▾";
+  document.getElementById("cardTypeBtn").classList.remove("active");
+  updateChips(); loadInitialGrid();
+}
+
+function clearMana() {
+  activeColour = null;
+  document.getElementById("manaBtn").textContent = "Mana Type ▾";
+  document.getElementById("manaBtn").classList.remove("active");
+  updateChips(); loadInitialGrid();
+}
+
+function clearSingleSet(code) {
+  activeSets = activeSets.filter(s => s !== code);
+  if (activeSets.length === 0) {
+    document.getElementById("setBtn").textContent = "All Sets ▾";
+    document.getElementById("setBtn").classList.remove("active");
+  } else if (activeSets.length === 1) {
+    const s = setList.find(s => s.code === activeSets[0]);
+    document.getElementById("setBtn").textContent = s ? s.name : "1 Set";
+  } else {
+    document.getElementById("setBtn").textContent = `Sets (${activeSets.length}) ▾`;
+  }
+  updateChips(); loadInitialGrid();
+}
+
+function clearAllSets() {
+  activeSets = [];
   document.getElementById("setBtn").textContent = "All Sets ▾";
   document.getElementById("setBtn").classList.remove("active");
-  updateChips();
-  loadInitialGrid();
+  updateChips(); loadInitialGrid();
 }
 
 function clearYear() {
@@ -254,16 +371,29 @@ function clearYear() {
   activeYearMax = null;
   document.getElementById("yearBtn").textContent = "Year Range ▾";
   document.getElementById("yearBtn").classList.remove("active");
-  updateChips();
-  loadInitialGrid();
+  updateChips(); loadInitialGrid();
 }
 
 function updateChips() {
   const chipBar = document.getElementById("chipBar");
   let html = "";
-  if (activeArtist) html += `<span class="filter-chip">${activeArtist} <span class="clear" onclick="clearArtist()">✕</span></span>`;
-  if (activeType) html += `<span class="filter-chip">${activeType} <span class="clear" onclick="clearType()">✕</span></span>`;
-  if (activeSet) html += `<span class="filter-chip">${document.getElementById("setBtn").textContent} <span class="clear" onclick="clearSet()">✕</span></span>`;
+  if (activeArtist)   html += `<span class="filter-chip">${activeArtist} <span class="clear" onclick="clearArtist()">✕</span></span>`;
+  if (activeType)     html += `<span class="filter-chip">${activeType} <span class="clear" onclick="clearType()">✕</span></span>`;
+  if (activeCardType) html += `<span class="filter-chip">${activeCardType} <span class="clear" onclick="clearCardType()">✕</span></span>`;
+  if (activeColour) {
+    const m = MANA_TYPES.find(m => m.code === activeColour);
+    html += `<span class="filter-chip"><img class="mana-symbol-chip" src="${m.svg}" alt="${m.label}">${m.label} <span class="clear" onclick="clearMana()">✕</span></span>`;
+  }
+  if (activeSets.length === 1) {
+    const s = setList.find(s => s.code === activeSets[0]);
+    html += `<span class="filter-chip">${s ? s.name : activeSets[0]} <span class="clear" onclick="clearSingleSet('${activeSets[0]}')">✕</span></span>`;
+  } else if (activeSets.length > 1) {
+    activeSets.forEach(code => {
+      const s = setList.find(s => s.code === code);
+      html += `<span class="filter-chip">${s ? s.name : code} <span class="clear" onclick="clearSingleSet('${code}')">✕</span></span>`;
+    });
+    html += `<span class="filter-chip" onclick="clearAllSets()" style="cursor:pointer;opacity:0.7;">Clear all sets</span>`;
+  }
   if (activeYearMin || activeYearMax) html += `<span class="filter-chip">${activeYearMin || 1993}–${activeYearMax || new Date().getFullYear()} <span class="clear" onclick="clearYear()">✕</span></span>`;
   chipBar.innerHTML = html ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-left:0.5rem;">${html}</div>` : "";
 }
@@ -272,6 +402,13 @@ function closeDropdown() {
   openDropdown = null;
   const existing = document.getElementById("activeDropdown");
   if (existing) existing.remove();
+}
+
+function highlightMatch(text, query) {
+  if (!query) return text;
+  const idx = text.toLowerCase().indexOf(query);
+  if (idx === -1) return text;
+  return text.slice(0, idx) + `<strong style="color:var(--text-primary)">${text.slice(idx, idx + query.length)}</strong>` + text.slice(idx + query.length);
 }
 
 // Search bar
@@ -286,24 +423,14 @@ function initSearch() {
     clearBtn.style.display = input.value ? "block" : "none";
     searchTimeout = setTimeout(() => {
       const val = input.value.trim();
-      if (val.length >= 2) {
-        showSearchSuggestions(val);
-      } else {
-        hideSearchSuggestions();
-      }
+      if (val.length >= 2) showSearchSuggestions(val);
+      else hideSearchSuggestions();
     }, 200);
   });
 
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      hideSearchSuggestions();
-      activeSearch = input.value.trim() || null;
-      loadInitialGrid();
-    }
-    if (e.key === "Escape") {
-      hideSearchSuggestions();
-      input.blur();
-    }
+    if (e.key === "Enter") { hideSearchSuggestions(); activeSearch = input.value.trim() || null; loadInitialGrid(); }
+    if (e.key === "Escape") { hideSearchSuggestions(); input.blur(); }
   });
 
   clearBtn.addEventListener("click", () => {
@@ -324,22 +451,21 @@ async function showSearchSuggestions(query) {
   const q = query.toLowerCase();
   const suggestions = [];
 
-  const artistMatches = artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 3);
-  artistMatches.forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => selectArtist(a) }));
-
-  const typeMatches = creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 3);
-  typeMatches.forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => selectType(t) }));
-
-  const setMatches = setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 3);
-  setMatches.forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => selectSet(s.code, s.name) }));
+  artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 3)
+    .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => selectArtist(a) }));
+  creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
+    .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => selectType(t) }));
+  cardTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
+    .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => selectCardType(t) }));
+  setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 3)
+    .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => { activeSets = [s.code]; toggleSetSelection(s.code, s.name); } }));
 
   suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => { activeSearch = query; hideSearchSuggestions(); loadInitialGrid(); } });
 
   try {
     const res = await fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(query)}`);
     const json = await res.json();
-    const cardNames = (json.data || []).slice(0, 4);
-    cardNames.forEach(name => {
+    (json.data || []).slice(0, 4).forEach(name => {
       suggestions.splice(suggestions.length - 1, 0, { label: name, tag: "Card", action: () => { document.getElementById("searchBar").value = name; activeSearch = name; hideSearchSuggestions(); loadInitialGrid(); } });
     });
   } catch (e) { /* ignore */ }
@@ -355,11 +481,7 @@ async function showSearchSuggestions(query) {
   container.style.display = "block";
 
   container.querySelectorAll(".suggestion-item").forEach((el, i) => {
-    el.addEventListener("click", (e) => {
-      e.stopPropagation();
-      suggestions[i].action();
-      hideSearchSuggestions();
-    });
+    el.addEventListener("click", (e) => { e.stopPropagation(); suggestions[i].action(); hideSearchSuggestions(); });
   });
 }
 

@@ -301,7 +301,29 @@ body {
 .tag-set { background: #3a2a1b; color: #ffb74d; }
 .tag-card { background: #1a2a3a; color: #81d4fa; }
 
-/* Filters */
+.random-feed-btn {
+  background: #16161f;
+  border: 1px solid #4a4a60;
+  color: #c8c8e0;
+  height: 32px;
+  padding: 0 1rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.random-feed-btn:hover {
+  background: #1e1e2e;
+  border-color: #8080a8;
+  color: #e8e8f8;
+}
+
+.random-feed-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .filters {
   display: flex;
   gap: 0.4rem;
@@ -542,6 +564,24 @@ body {
 
 .lightbox .close-btn:hover { color: var(--text-primary); }
 
+.lightbox .random-btn {
+  margin-top: 0.75rem;
+  background: #16161f;
+  border: 1px solid #4a4a60;
+  color: #c8c8e0;
+  font-size: 0.85rem;
+  padding: 0.4rem 1.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.lightbox .random-btn:hover { background: #1e1e2e; border-color: #8080a8; color: #e8e8f8; }
+.lightbox .random-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .lightbox .art-container {
   max-width: 80vw;
   max-height: 70vh;
@@ -567,6 +607,17 @@ body {
 
 .lightbox .meta .name { font-size: 1.1rem; color: var(--text-primary); }
 .lightbox .meta .details { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem; }
+
+.meta-link {
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.meta-link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .lightbox .toggle {
   display: flex;
@@ -690,4 +741,64 @@ body {
   margin-right: 0.5rem;
   vertical-align: middle;
   filter: brightness(0) invert(0.7);
+}
+
+/* Mana type picker */
+.mana-picker {
+  display: flex;
+  flex-direction: column;
+  padding: 0.4rem 0;
+  min-width: 160px;
+}
+
+.mana-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.mana-option:hover { background: var(--bg); color: var(--text-primary); }
+.mana-option.active { color: var(--text-primary); background: var(--bg); }
+.mana-option.active::after { content: " ✓"; margin-left: auto; opacity: 0.6; }
+
+.mana-symbol {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.mana-symbol-btn {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 2px;
+}
+
+.mana-symbol-chip {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+/* Multi-select set items */
+.set-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.set-item.selected { color: var(--text-primary); }
+
+.set-checkbox {
+  accent-color: var(--text-primary);
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  cursor: pointer;
 }

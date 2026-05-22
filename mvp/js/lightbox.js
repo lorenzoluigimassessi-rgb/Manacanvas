@@ -34,13 +34,18 @@ function openLightbox(card) {
       </div>
       <div class="meta">
         <div class="name">${card.name}</div>
-        <div class="details">${card.artist || "Unknown"}${setName ? " · " + setName : ""}${year ? " · " + year : ""}</div>
+        <div class="details">
+          <span class="meta-link" id="lbArtist">${card.artist || "Unknown"}</span>
+          ${setName ? ` · <span class="meta-link" id="lbSet">${setName}</span>` : ""}
+          ${year ? ` · <span class="meta-link" id="lbYear">${year}</span>` : ""}
+        </div>
       </div>
       <div class="toggle">
         <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
         <button id="toggleFrame">With Frame</button>
       </div>
-      <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · Double-click to reset</div>
+      <button class="random-btn" id="lbRandom" title="Discover a random artwork">↺ Random</button>
+      <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · Double-click to reset · R for random</div>
     </div>
   `;
 
@@ -74,6 +79,33 @@ function openLightbox(card) {
     document.getElementById("toggleArt").classList.remove("active");
     resetZoom();
   });
+
+  // Meta link handlers
+  document.getElementById("lbArtist").addEventListener("click", () => {
+    closeLightbox();
+    selectArtist(card.artist);
+  });
+  if (setName) document.getElementById("lbSet").addEventListener("click", () => {
+    closeLightbox();
+    activeSets = [card.set];
+    const s = setList.find(s => s.code === card.set);
+    document.getElementById("setBtn").textContent = s ? s.name : setName;
+    document.getElementById("setBtn").classList.add("active");
+    updateChips();
+    loadInitialGrid();
+  });
+  if (year) document.getElementById("lbYear").addEventListener("click", () => {
+    closeLightbox();
+    activeYearMin = parseInt(year);
+    activeYearMax = parseInt(year);
+    document.getElementById("yearBtn").textContent = `${year}–${year}`;
+    document.getElementById("yearBtn").classList.add("active");
+    updateChips();
+    loadInitialGrid();
+  });
+
+  // Random button
+  document.getElementById("lbRandom").addEventListener("click", () => loadRandomCard());
 
   // Zoom (scroll wheel)
   const container = document.getElementById("artContainer");
@@ -179,8 +211,26 @@ function getTouchCenter(touches) {
   return { x: (touches[0].clientX + touches[1].clientX) / 2, y: (touches[0].clientY + touches[1].clientY) / 2 };
 }
 
+async function loadRandomCard() {
+  const btn = document.getElementById("lbRandom");
+  const img = document.getElementById("lbImage");
+  if (!btn || btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = "↻";
+  if (img) img.style.opacity = "0.5";
+  const card = await fetchRandomCard();
+  if (card) {
+    openLightbox(card);
+  } else {
+    // Network error — restore button
+    if (img) img.style.opacity = "1";
+    if (btn) { btn.disabled = false; btn.textContent = "↺ Random"; }
+  }
+}
+
 function handleLbKey(e) {
   if (e.key === "Escape") closeLightbox();
+  if (e.key === "r" || e.key === "R") loadRandomCard();
 }
 
 function closeLightbox() {

@@ -5,7 +5,9 @@ const scrollTopBtn = document.getElementById("scrollTop");
 
 let activeArtist = null;
 let activeType = null;
-let activeSet = null;
+let activeCardType = null;
+let activeColour = null;
+let activeSets = [];
 let activeYearMin = null;
 let activeYearMax = null;
 let activeSearch = null;
@@ -13,7 +15,7 @@ let activeSearch = null;
 async function loadInitialGrid() {
   showShimmers();
   resetPagination();
-  const query = buildQuery(activeArtist, activeType, activeSet, activeYearMin, activeYearMax, activeSearch);
+  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeYearMin, activeYearMax, activeSearch);
   const { data, hasMore } = await fetchCards(query);
   grid.innerHTML = "";
   if (!data.length) {
@@ -75,6 +77,17 @@ function observeLastCard() {
 // Scroll to top button
 window.addEventListener("scroll", () => {
   scrollTopBtn.classList.toggle("visible", window.scrollY > 800);
+});
+
+// Feed random button
+document.getElementById("randomFeedBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("randomFeedBtn");
+  btn.disabled = true;
+  btn.textContent = "↻";
+  const card = await fetchRandomCard();
+  btn.disabled = false;
+  btn.textContent = "↺ Random";
+  if (card) openLightbox(card);
 });
 
 // Init

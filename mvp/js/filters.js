@@ -33,7 +33,7 @@ const ART_STYLES = [
 async function initFilters() {
   // Mobile: single filters button
   if (isMobile()) {
-    filtersContainer.innerHTML = `<button class="filter-btn mobile-filters-btn" id="mobileFiltersBtn" onclick="openDrawer()">⚙ Filters</button>`;
+    filtersContainer.innerHTML = `<button class="filter-btn mobile-filters-btn" id="mobileFiltersBtn" onclick="openDrawer()">&#9776; Filters</button>`;
     document.getElementById("row2Right").innerHTML = `
       <button class="filter-btn" id="sortBtn">Oldest First ⇅</button>
     `;

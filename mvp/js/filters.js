@@ -229,19 +229,24 @@ let sortDropdownOpen = false;
 
 function toggleSort() {
   if (sortDropdownOpen) { closeSortDropdown(); return; }
+  closeDropdown();
+  closeViewDropdown();
   closeSortDropdown();
   sortDropdownOpen = true;
-  const container = document.getElementById("row2Right");
+  const btn = document.getElementById("sortBtn");
   const dropdown = document.createElement("div");
   dropdown.className = "view-dropdown";
   dropdown.id = "sortDropdown";
+  dropdown.style.right = 'auto';
+  dropdown.style.left = '0';
   dropdown.addEventListener("click", (e) => e.stopPropagation());
   dropdown.innerHTML = SORT_OPTIONS.map((opt, i) => `
     <div class="view-dropdown-item ${sortOrder === opt.order && sortDir === opt.dir ? 'active' : ''}" data-idx="${i}">
       ${opt.label}${sortOrder === opt.order && sortDir === opt.dir ? ' ✓' : ''}
     </div>
   `).join("");
-  container.appendChild(dropdown);
+  btn.style.position = 'relative';
+  btn.appendChild(dropdown);
   dropdown.querySelectorAll(".view-dropdown-item").forEach(el => {
     el.addEventListener("click", () => {
       const opt = SORT_OPTIONS[parseInt(el.dataset.idx)];
@@ -274,18 +279,22 @@ function shuffleAgain() {
 function toggleViewDropdown() {
   if (viewDropdownOpen) { closeViewDropdown(); return; }
   closeDropdown();
+  closeSortDropdown();
   viewDropdownOpen = true;
-  const container = document.getElementById("row2Right");
+  const btn = document.getElementById("viewBtn");
   const dropdown = document.createElement("div");
   dropdown.className = "view-dropdown";
   dropdown.id = "viewDropdown";
+  dropdown.style.right = 'auto';
+  dropdown.style.left = '0';
   dropdown.addEventListener("click", (e) => e.stopPropagation());
   dropdown.innerHTML = `
     <div class="view-dropdown-item ${currentGridSize === 'sm' ? 'active' : ''}" onclick="setGridSize('sm')">Small Grid</div>
     <div class="view-dropdown-item ${currentGridSize === 'md' ? 'active' : ''}" onclick="setGridSize('md')">Medium Grid</div>
     <div class="view-dropdown-item ${currentGridSize === 'lg' ? 'active' : ''}" onclick="setGridSize('lg')">Large Grid</div>
   `;
-  container.appendChild(dropdown);
+  btn.style.position = 'relative';
+  btn.appendChild(dropdown);
 }
 
 function closeViewDropdown() {
@@ -307,6 +316,7 @@ function toggleDropdown(type) {
   if (openDropdown === type) { closeDropdown(); return; }
   closeDropdown();
   closeViewDropdown();
+  closeSortDropdown();
   openDropdown = type;
 
   const btnMap = {

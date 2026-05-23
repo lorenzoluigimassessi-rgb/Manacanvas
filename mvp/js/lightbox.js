@@ -44,7 +44,7 @@ function openLightbox(card) {
         <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
         <button id="toggleFrame">With Frame</button>
       </div>
-      <button class="random-btn" id="lbRandom" title="Discover a random artwork">↺ Random</button>
+      <button class="random-btn" id="lbRandom" title="Discover a random artwork">↺ Random Artwork</button>
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · Double-click to reset · R for random</div>
     </div>
   `;
@@ -234,7 +234,7 @@ async function loadRandomCard() {
   } else {
     // Network error — restore button
     if (img) img.style.opacity = "1";
-    if (btn) { btn.disabled = false; btn.textContent = "↺ Random"; }
+    if (btn) { btn.disabled = false; btn.textContent = "↺ Random Artwork"; }
   }
 }
 

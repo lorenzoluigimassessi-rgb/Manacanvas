@@ -3,11 +3,24 @@ let currentSearch = null;
 let nextPageUrl = null;
 let isLoading = false;
 
-let sortOrder = "asc";
+let sortOrder = "random"; // default: Shuffle
+let sortDir = "auto";
+
+const SORT_OPTIONS = [
+  { label: "Shuffle",      order: "random",   dir: "auto" },
+  { label: "Newest First", order: "released", dir: "desc" },
+  { label: "Oldest First", order: "released", dir: "asc"  },
+  { label: "A → Z",        order: "name",     dir: "asc"  },
+  { label: "Z → A",        order: "name",     dir: "desc" },
+];
 
 async function fetchCards(query = "t:creature", page = 1) {
   isLoading = true;
-  const url = nextPageUrl || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&order=released&dir=${sortOrder}&page=${page}`;
+  const isRandom = sortOrder === "random";
+  // For random sort, append a unique seed so Scryfall treats each load as a new shuffle
+  const randomSeed = isRandom ? `&_seed=${Math.random().toString(36).slice(2)}` : "";
+  const baseUrl = `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&order=${sortOrder}${sortOrder !== "random" ? `&dir=${sortDir}` : ""}&page=${page}${randomSeed}`;
+  const url = (!isRandom && nextPageUrl) ? nextPageUrl : baseUrl;
   try {
     const res = await fetch(url);
     if (!res.ok) return { data: [], hasMore: false };

@@ -86,7 +86,7 @@ document.getElementById("randomFeedBtn").addEventListener("click", async () => {
   btn.textContent = "↻";
   const card = await fetchRandomCard();
   btn.disabled = false;
-  btn.textContent = "↺ Random";
+  btn.textContent = "↺ Random Artwork";
   if (card) openLightbox(card);
 });
 

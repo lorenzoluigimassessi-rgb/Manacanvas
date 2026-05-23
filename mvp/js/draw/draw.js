@@ -28,6 +28,8 @@ let arrowTimer = null;
 
 // ─── Entry ───────────────────────────────────────────────────────────────────
 async function enterDrawMode() {
+  const el = document.getElementById('drawMode');
+  if (!el) { console.warn('drawMode element not found'); return; }
   savedScrollY = window.scrollY;
   drawQueue = [];
   drawHistory = [];

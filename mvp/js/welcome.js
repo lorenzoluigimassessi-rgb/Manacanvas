@@ -68,7 +68,8 @@ function startDraw() {
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
   loadInitialGrid();
-  enterDrawMode();
+  // Defer enterDrawMode by one frame so appShell DOM is painted first
+  requestAnimationFrame(() => enterDrawMode());
 }
 
 // On load: skip welcome if user has been here before

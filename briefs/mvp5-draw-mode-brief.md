@@ -68,7 +68,7 @@ The name "Draw" is intentional: it references the MTG mechanic (drawing a card),
 **Default visual: art crop**
 The art crop (`image_uris.art_crop` from Scryfall) fills the screen edge-to-edge. No card frame, no text, no mana cost — pure illustration. This is the primary Draw experience.
 
-A subtle toggle (bottom center, unobtrusive) allows switching to the full card frame view (`image_uris.normal`) for users who want to see the complete card. The toggle state persists within the session but resets on re-entry.
+A subtle toggle (bottom center, unobtrusive) allows switching to the full card frame view (`image_uris.normal`) for users who want to see the complete card. The toggle state persists across all cards for the duration of the session — if you switch to Card frame, every subsequent card shows the frame until you toggle back. Resets to art crop on re-entry.
 
 **Core interaction:**
 - Full-screen single card view — art crop fills the screen

@@ -1761,6 +1761,8 @@ body {
   padding: 0 1.5rem;
   color: rgba(240,240,240,0.65);
   text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  z-index: 3;
+  text-align: center;
 }
 
 .set-icon {

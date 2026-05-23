@@ -69,7 +69,7 @@ function startSurprise() {
   appShell.style.display = "block";
   loadInitialGrid();
   // Open a random card in the lightbox once the grid loads
-  fetchRandomCard().then(card => { if (card) openLightbox(card); });
+  fetchRandomCard().then(card => { if (card) openLightbox(card, 'surprise'); });
 }
 
 // On load: skip welcome if user has been here before

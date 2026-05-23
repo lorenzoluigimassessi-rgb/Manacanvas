@@ -42,7 +42,10 @@ function openLightbox(card, mode = 'feed') {
   const arrowsHtml = !isSurprise ? `
     <button class="lb-nav-arrow" id="lbPrev">‹</button>
     <button class="lb-nav-arrow" id="lbNext">›</button>
-  ` : '';
+  ` : `
+    <button class="lb-nav-arrow hidden" id="lbPrev">‹</button>
+    <button class="lb-nav-arrow" id="lbNext">›</button>
+  `;
 
   const actionsHtml = `
     <div class="lightbox-actions">
@@ -56,7 +59,7 @@ function openLightbox(card, mode = 'feed') {
   const showFte = false; const fteHtml = '';
 
   // Ghost arrows — overlaid on art-container, mobile only
-  const ghostPrevHidden = (!isSurprise && filteredCards.findIndex(c => c.id === card.id) <= 0) ? 'hidden' : '';
+  const ghostPrevHidden = isSurprise || filteredCards.findIndex(c => c.id === card.id) <= 0 ? 'hidden' : '';
   const ghostNextHidden = (!isSurprise && filteredCards.findIndex(c => c.id === card.id) >= filteredCards.length - 1) ? 'hidden' : '';
   const ghostArrowsHtml = `
     <div class="lb-ghost-arrows" id="lbGhostArrows">
@@ -205,12 +208,14 @@ function openLightbox(card, mode = 'feed') {
   }
 
   // ── Desktop arrows ──────────────────────────────────────────────────────────
-  if (!isSurprise) {
+  {
     const lbPrev = document.getElementById("lbPrev");
     const lbNext = document.getElementById("lbNext");
-    const currentIndex = filteredCards.findIndex(c => c.id === card.id);
-    if (currentIndex <= 0) lbPrev.classList.add('hidden');
-    if (currentIndex === -1 || currentIndex >= filteredCards.length - 1) lbNext.classList.add('hidden');
+    if (!isSurprise) {
+      const currentIndex = filteredCards.findIndex(c => c.id === card.id);
+      if (currentIndex <= 0) lbPrev.classList.add('hidden');
+      if (currentIndex === -1 || currentIndex >= filteredCards.length - 1) lbNext.classList.add('hidden');
+    }
     lbPrev.addEventListener('click', goPrev);
     lbNext.addEventListener('click', goNext);
   }

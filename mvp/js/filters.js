@@ -40,7 +40,7 @@ async function initFilters() {
     document.getElementById("row2Right").innerHTML = `
       <button class="filter-btn" id="viewBtn"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg></button>
       <button class="filter-btn" id="sortBtn">Random ⇅</button>
-      <button class="shuffle-again-btn" id="shuffleAgainBtn" onclick="shuffleAgain()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Shuffle</button>
+      <button class="shuffle-again-btn" id="shuffleAgainBtn" onclick="shuffleAgain()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Reshuffle</button>
     `;
     document.getElementById("sortBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleSort(); });
     document.getElementById("viewBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleViewDropdown(); });
@@ -63,7 +63,7 @@ async function initFilters() {
   document.getElementById("row2Right").innerHTML = `
     <button class="filter-btn" id="viewBtn">⊞ View ▾</button>
     <button class="filter-btn" id="sortBtn">Random ⇅</button>
-    <button class="shuffle-again-btn" id="shuffleAgainBtn" onclick="shuffleAgain()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Shuffle</button>
+    <button class="shuffle-again-btn" id="shuffleAgainBtn" onclick="shuffleAgain()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Reshuffle</button>
   `;
 
   document.getElementById("artistBtn").addEventListener("click",   (e) => { e.stopPropagation(); toggleDropdown("artist"); });
@@ -317,9 +317,9 @@ function closeViewDropdown() {
 
 function setGridSize(size) {
   currentGridSize = size;
-  const grid = document.getElementById("grid");
-  grid.classList.remove("grid-sm", "grid-md", "grid-lg");
-  grid.classList.add(`grid-${size}`);
+  const g = document.getElementById("grid");
+  g.classList.remove("grid-sm", "grid-md", "grid-lg");
+  if (size !== 'md') g.classList.add(`grid-${size}`);
   closeViewDropdown();
 }
 

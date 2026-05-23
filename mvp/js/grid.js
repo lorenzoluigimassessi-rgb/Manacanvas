@@ -96,32 +96,14 @@ function mobileSurprise() {
   const pill = document.getElementById('surprisePillMobile');
   if (!pill) return;
   const btn = pill.querySelector('.surprise-pill-btn');
+  if (!btn) return;
   let pressTimer = null;
-
-  // Long-press (500ms) also triggers
   btn.addEventListener('touchstart', () => {
     btn.classList.add('pressing');
     pressTimer = setTimeout(() => { btn.classList.remove('pressing'); mobileSurprise(); }, 500);
   }, { passive: true });
-  btn.addEventListener('touchend', () => {
-    clearTimeout(pressTimer);
-    btn.classList.remove('pressing');
-  });
-  btn.addEventListener('touchcancel', () => {
-    clearTimeout(pressTimer);
-    btn.classList.remove('pressing');
-  });
-
-  // Dim slightly on scroll, restore on stop
-  let lastY = 0, pillTimer = null;
-  window.addEventListener('scroll', () => {
-    const y = window.scrollY;
-    if (y > lastY + 10) pill.classList.add('scroll-hidden');
-    else if (y < lastY - 5) pill.classList.remove('scroll-hidden');
-    lastY = y;
-    clearTimeout(pillTimer);
-    pillTimer = setTimeout(() => pill.classList.remove('scroll-hidden'), 600);
-  }, { passive: true });
+  btn.addEventListener('touchend', () => { clearTimeout(pressTimer); btn.classList.remove('pressing'); });
+  btn.addEventListener('touchcancel', () => { clearTimeout(pressTimer); btn.classList.remove('pressing'); });
 })();
 
 // Global keyboard shortcut: S = Surprise Me

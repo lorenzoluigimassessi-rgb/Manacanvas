@@ -24,9 +24,11 @@ async function fetchRandomArt() {
   }
 }
 
-// Pre-fetch first surprise card as soon as welcome loads
+// Pre-fetch first surprise card after DOM is ready
 let _welcomeCard = null;
-fetchRandomCard().then(c => { _welcomeCard = c; });
+window.addEventListener('load', () => {
+  fetchRandomCard().then(c => { _welcomeCard = c; });
+});
 
 async function renderWelcome() {
   welcomeEl.innerHTML = `

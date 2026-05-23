@@ -989,8 +989,8 @@ body {
 
 .lb-nav-arrow:hover { background: rgba(30,30,40,0.8); color: #f0f0f0; }
 .lb-nav-arrow.active { background: rgba(60,60,80,0.9); color: #f0f0f0; transform: translateY(-50%) scale(0.94); }
-#lbPrev { left: 1rem; }
-#lbNext { right: 1rem; }
+#lbPrev { position: fixed; left: 1rem; top: 50%; transform: translateY(-50%); }
+#lbNext { position: fixed; right: 1rem; top: 50%; transform: translateY(-50%); }
 .lb-nav-arrow.hidden { display: none; }
 
 /* Floating Surprise Me pill — mobile only */

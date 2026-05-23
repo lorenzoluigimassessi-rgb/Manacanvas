@@ -114,6 +114,7 @@ function openLightbox(card, mode = 'feed') {
     const lbPrev = document.getElementById("lbPrev");
     const lbNext = document.getElementById("lbNext");
     const currentIndex = filteredCards.findIndex(c => c.id === card.id);
+    console.log('[LB] filteredCards.length:', filteredCards.length, 'currentIndex:', currentIndex, 'card.id:', card.id);
 
     if (currentIndex <= 0) lbPrev.classList.add('hidden');
     if (currentIndex === -1 || currentIndex >= filteredCards.length - 1) lbNext.classList.add('hidden');

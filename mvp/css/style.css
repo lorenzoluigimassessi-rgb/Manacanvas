@@ -100,28 +100,34 @@ body {
 }
 
 .welcome-draw-cta {
-  background: transparent;
-  border: 1px solid rgba(240,240,240,0.85);
+  background: linear-gradient(135deg, #b8943a, #d4aa50, #c9a040, #e0bc60, #b8943a);
+  background-size: 200% 100%;
+  border: none;
   border-radius: 4px;
   font-family: 'Josefin Sans', sans-serif;
   font-size: 1rem;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 1px;
   cursor: pointer;
   width: 260px;
   height: 48px;
-  color: rgba(240,240,240,0.8);
-  transition: border-color 200ms, color 200ms, transform var(--transition-fast);
+  color: #1a1408;
+  transition: background-position 400ms ease, transform var(--transition-fast);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  animation: goldShimmer 4s ease-in-out infinite;
 }
 
 .welcome-draw-cta:hover {
-  border-color: rgba(240,240,240,0.9);
-  color: #f0f0f0;
   transform: translateY(-2px);
+  animation-duration: 1.5s;
+}
+
+@keyframes goldShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
 }
 
 .welcome-picks { max-width: 700px; width: 100%; }
@@ -348,9 +354,10 @@ body {
 .tag-card { background: #1a2a3a; color: #81d4fa; }
 
 .random-feed-btn {
-  background: #16161f;
-  border: 1px solid #4a4a60;
-  color: #c8c8e0;
+  background: linear-gradient(135deg, #b8943a, #d4aa50, #c9a040, #e0bc60, #b8943a);
+  background-size: 200% 100%;
+  border: none;
+  color: #1a1408;
   height: 32px;
   padding: 0 10px;
   border-radius: 4px;
@@ -362,17 +369,15 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  animation: goldShimmer 4s ease-in-out infinite;
   flex-shrink: 0;
 }
 
 .random-feed-btn:hover {
-  background: #1e1e2e;
-  border-color: #8080a8;
-  color: #e8e8f8;
+  animation-duration: 1.5s;
 }
 
-.random-feed-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.random-feed-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .filters {
   display: flex;
   gap: 0.4rem;
@@ -381,9 +386,9 @@ body {
 }
 
 .shuffle-again-btn {
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid #3a3a4a;
   height: 28px;
   padding: 0 0.9rem;
   border-radius: 4px;
@@ -391,22 +396,21 @@ body {
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.3px;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
   flex-shrink: 0;
 }
 
 .shuffle-again-btn:hover {
-  background: var(--surface);
-  border-color: var(--text-secondary);
-  color: var(--text-primary);
+  background: #22222e;
+  border-color: #5a5a70;
 }
 
-.shuffle-again-btn:active { transform: translateY(0); }
+.shuffle-again-btn:active { transform: scale(0.97); }
 
 .clear-filters-btn {
   background: transparent;
@@ -1013,9 +1017,10 @@ body {
 }
 
 .surprise-pill-btn {
-  background: #f0f0f0;
+  background: linear-gradient(135deg, #b8943a, #d4aa50, #c9a040, #e0bc60, #b8943a);
+  background-size: 200% 100%;
   border: none;
-  color: #0c0c0f;
+  color: #1a1408;
   height: 48px;
   padding: 0 1.4rem;
   border-radius: 24px;
@@ -1027,15 +1032,15 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  transition: background 150ms, transform 150ms, box-shadow 150ms;
+  box-shadow: 0 4px 20px rgba(180,140,40,0.35);
+  animation: goldShimmer 4s ease-in-out infinite;
   white-space: nowrap;
 }
 
 .surprise-pill-btn:active,
 .surprise-pill-btn.pressing {
   transform: scale(0.94);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 10px rgba(180,140,40,0.25);
 }
 
 /* Scroll to top */
@@ -1072,7 +1077,7 @@ body {
   .random-feed-btn { display: none; }
   .filter-btn { height: 44px; padding: 0 1rem; font-size: 0.88rem; }
   .mobile-filters-btn { height: 44px; padding: 0 1rem; font-size: 0.88rem; }
-  .shuffle-again-btn { height: 44px; padding: 0 1rem; font-size: 0.88rem; }
+  .shuffle-again-btn { height: 44px; padding: 0 1rem; font-size: 0.88rem; font-weight: 500; }
   .mobile-clear-btn { height: 44px; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; padding: 1rem; }
   .grid.grid-sm { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }

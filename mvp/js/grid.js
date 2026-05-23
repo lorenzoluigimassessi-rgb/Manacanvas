@@ -86,6 +86,31 @@ function observeLastCard() {
   if (cards.length) scrollObserver.observe(cards[cards.length - 1]);
 }
 
+// Mobile floating Surprise Me pill
+function mobileSurprise() {
+  const btn = document.querySelector('.surprise-pill-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:lbSpin 0.8s linear infinite"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>`; }
+  fetchRandomCard().then(card => {
+    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`; }
+    if (card) openLightbox(card, 'surprise');
+  });
+}
+
+// Scroll-aware floating pill
+(function() {
+  let lastY = 0, pillTimer = null;
+  window.addEventListener('scroll', () => {
+    const pill = document.getElementById('surprisePillMobile');
+    if (!pill) return;
+    const y = window.scrollY;
+    if (y > lastY + 10) pill.classList.add('scroll-hidden');
+    else if (y < lastY - 5) pill.classList.remove('scroll-hidden');
+    lastY = y;
+    clearTimeout(pillTimer);
+    pillTimer = setTimeout(() => pill && pill.classList.remove('scroll-hidden'), 400);
+  }, { passive: true });
+})();
+
 // Scroll to top button
 window.addEventListener("scroll", () => {
   scrollTopBtn.classList.toggle("visible", window.scrollY > 800);

@@ -1263,6 +1263,27 @@ function resetAllState() {
   activeYearMin = null; activeYearMax = null; activeSearch = null;
   sortOrder = "random";
   sortDir = "auto";
+
+  // Reset search bar UI
+  const searchBar = document.getElementById('searchBar');
+  const searchClear = document.getElementById('searchClear');
+  if (searchBar) searchBar.value = '';
+  if (searchClear) searchClear.style.display = 'none';
+
+  // Reset filter button labels
+  const resets = [
+    ['artistBtn', 'All Artists ▾'],
+    ['typeBtn',   'Creature Type ▾'],
+    ['setBtn',    'All Sets ▾'],
+    ['styleBtn',  'Art Style ▾'],
+    ['sortBtn',   'Random ⇅'],
+  ];
+  resets.forEach(([id, label]) => {
+    const btn = document.getElementById(id);
+    if (btn) { btn.textContent = label; btn.classList.remove('active'); }
+  });
+
+  updateChips();
 }
 
 function syncFilterUI() {
@@ -1346,8 +1367,8 @@ function clearAllFilters() {
 
 // Init
 initFilters().then(() => {
-  // Sync button labels to match any state restored from localStorage before initFilters ran
   syncFilterUI();
 });
 initSearch();
 initDrawer();
+restoreFilters();

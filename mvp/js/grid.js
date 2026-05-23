@@ -122,4 +122,4 @@ function restoreFilters() {
 }
 
 // Init
-restoreFilters();
+// restoreFilters() is called from filters.js after all functions are defined

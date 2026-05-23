@@ -181,14 +181,12 @@ function openLightbox(card, mode = 'feed') {
     }
   }
 
-  // ── Mobile swipe — full screen, whole lightbox moves ───────────────────────
+  // ── Mobile swipe — clean slide, dark background ────────────────────────────
   const swipeTarget = document.getElementById('lightboxOverlay');
-  const artContainer = document.getElementById('artContainer');
   let swX = 0, swY = 0, scX = 0, swiping = false, swDir = null;
-  let peekEl = null;
 
-  function getPeekCard(dx) {
-    if (dx < 0) {
+  function getNextCard(goingNext) {
+    if (goingNext) {
       if (isSurprise) return (window._surpriseQueue || [])[0] || null;
       const idx = filteredCards.findIndex(c => c.id === card.id);
       return idx < filteredCards.length - 1 ? filteredCards[idx + 1] : null;
@@ -214,26 +212,7 @@ function openLightbox(card, mode = 'feed') {
     if (!swDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
       swDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
     if (swDir !== 'h') return;
-
-    // Slide current overlay with finger — no opacity change
     swipeTarget.style.transform = 'translateX(' + dx + 'px)';
-
-    // Create/update peek card behind current overlay
-    const peekCard = getPeekCard(dx);
-    if (peekCard) {
-      if (!peekEl) {
-        peekEl = document.createElement('div');
-        peekEl.style.cssText = 'position:fixed;inset:0;z-index:199;background:#0c0c0f;overflow:hidden;';
-        const peekArt = peekCard.image_uris && peekCard.image_uris.art_crop
-          ? peekCard.image_uris.art_crop
-          : (peekCard.image_uris && peekCard.image_uris.normal) || '';
-        peekEl.innerHTML = '<div style="position:absolute;inset:-20px;background-image:url(' + JSON.stringify(peekArt) + ');background-size:cover;background-position:center;filter:blur(40px) brightness(0.35) saturate(1.2);transform:scale(1.1)"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><img src="' + peekArt + '" style="max-width:80vw;max-height:70vh;object-fit:contain;border-radius:6px;"></div>';
-        document.body.appendChild(peekEl);
-      }
-      // Peek slides in from the opposite edge
-      const peekOffset = dx < 0 ? window.innerWidth + dx : -window.innerWidth + dx;
-      peekEl.style.transform = 'translateX(' + peekOffset + 'px)';
-    }
   }, { passive: true });
 
   swipeTarget.addEventListener('touchend', () => {
@@ -244,43 +223,38 @@ function openLightbox(card, mode = 'feed') {
 
     if (swDir === 'h' && Math.abs(dx) >= threshold) {
       const goingNext = dx < 0;
-      const targetCard = getPeekCard(dx);
+      const exitX = goingNext ? '-110%' : '110%';
+      const enterX = goingNext ? '110%' : '-110%';
 
-      // Handle surprise swipe-right = back to welcome (no peek card)
-      if (!targetCard && goingNext === false && isSurprise) {
+      // Surprise swipe-right = back to welcome
+      if (!goingNext && isSurprise) {
         swipeTarget.style.transition = 'transform 220ms ease-in';
         swipeTarget.style.transform  = 'translateX(110%)';
         setTimeout(() => { closeLightbox(); showWelcome(); }, 220);
         return;
       }
 
+      const targetCard = getNextCard(goingNext);
       if (!targetCard) {
-        // no card in that direction — snap back
+        // edge — snap back
         swipeTarget.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1)';
         swipeTarget.style.transform  = '';
         return;
       }
 
-      const exitX = goingNext ? '-110%' : '110%';
-
-      // Animate current overlay off, peek slides to 0
       swipeTarget.style.transition = 'transform 220ms ease-in';
       swipeTarget.style.transform  = 'translateX(' + exitX + ')';
-      if (peekEl) {
-        peekEl.style.transition = 'transform 220ms ease-in';
-        peekEl.style.transform  = 'translateX(0)';
-      }
 
       setTimeout(() => {
-        // peekEl is now covering the screen — open new lightbox underneath it
         if (isSurprise && goingNext && window._surpriseQueue) window._surpriseQueue.shift();
         openLightbox(targetCard, isSurprise ? 'surprise' : 'feed');
-        // now fade peekEl out so new lightbox is revealed seamlessly
-        if (peekEl) {
-          peekEl.style.transition = 'opacity 80ms ease';
-          peekEl.style.opacity = '0';
-          setTimeout(() => { if (peekEl) { peekEl.remove(); peekEl = null; } }, 80);
-        }
+        const newOverlay = document.getElementById('lightboxOverlay');
+        if (!newOverlay) return;
+        newOverlay.style.transition = 'none';
+        newOverlay.style.transform  = 'translateX(' + enterX + ')';
+        newOverlay.getBoundingClientRect();
+        newOverlay.style.transition = 'transform 220ms ease-out';
+        newOverlay.style.transform  = '';
       }, 220);
       return;
     }
@@ -288,12 +262,6 @@ function openLightbox(card, mode = 'feed') {
     // Snap back
     swipeTarget.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1)';
     swipeTarget.style.transform  = '';
-    if (peekEl) {
-      peekEl.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1)';
-      const peekStart = dx < 0 ? window.innerWidth : -window.innerWidth;
-      peekEl.style.transform = 'translateX(' + peekStart + 'px)';
-      setTimeout(() => { if (peekEl) { peekEl.remove(); peekEl = null; } }, 300);
-    }
     setTimeout(() => { swipeTarget.style.transition = ''; }, 300);
   });
 

@@ -37,8 +37,8 @@ async function initFilters() {
       <button class="filter-btn mobile-filters-btn" id="mobileFiltersBtn" onclick="openDrawer()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="5" cy="3" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="8" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="13" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/></svg> Filters</button>
     `;
     document.getElementById("row2Right").innerHTML = `
-      <button class="filter-btn" id="viewBtn">⊞ View ▾</button>
-      <button class="filter-btn" id="sortBtn">Random ⇅</button>
+      <button class="filter-btn" id="viewBtn">⊞</button>
+      <button class="filter-btn" id="sortBtn">⇅</button>
       <button class="shuffle-again-btn" id="shuffleAgainBtn" onclick="shuffleAgain()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Shuffle</button>
     `;
     document.getElementById("sortBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleSort(); });

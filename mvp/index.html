@@ -30,6 +30,19 @@
       </div>
     </header>
 
+    <!-- More Filters Modal -->
+    <div class="more-modal-overlay" id="moreModalOverlay" style="display:none;" onclick="closeMoreModal()"></div>
+    <div class="more-modal" id="moreModal" style="display:none;">
+      <div class="more-modal-header">
+        <span class="more-modal-title">More Filters</span>
+        <span class="more-modal-clear" onclick="clearMoreFilters()">Clear</span>
+      </div>
+      <div class="more-modal-body" id="moreModalBody"></div>
+      <div class="more-modal-footer">
+        <button class="more-modal-apply" onclick="applyMoreModal()">Show Results</button>
+      </div>
+    </div>
+
     <!-- Mobile filter sheet -->
     <div class="drawer-overlay" id="drawerOverlay" style="display:none;" onclick="closeDrawer()"></div>
     <div class="drawer" id="drawer">

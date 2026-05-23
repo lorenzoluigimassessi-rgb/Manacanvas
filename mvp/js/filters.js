@@ -53,12 +53,10 @@ async function initFilters() {
   // Desktop: full filter row
   filtersContainer.innerHTML = `
     <button class="filter-btn" id="artistBtn">All Artists ▾</button>
-    <button class="filter-btn" id="cardTypeBtn">Card Type ▾</button>
-    <button class="filter-btn" id="typeBtn">Creature Type ▾</button>
-    <button class="filter-btn" id="manaBtn">Mana Type ▾</button>
     <button class="filter-btn" id="setBtn">All Sets ▾</button>
     <button class="filter-btn" id="styleBtn">Art Style ▾</button>
-    <button class="filter-btn" id="yearBtn">Year Range ▾</button>
+    <button class="filter-btn" id="typeBtn">Creature Type ▾</button>
+    <button class="filter-btn more-filters-btn" id="moreBtn"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;vertical-align:middle"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="5" cy="3" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="8" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="13" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/></svg> Filters</button>
   `;
 
   document.getElementById("row2Right").innerHTML = `
@@ -69,11 +67,9 @@ async function initFilters() {
 
   document.getElementById("artistBtn").addEventListener("click",   (e) => { e.stopPropagation(); toggleDropdown("artist"); });
   document.getElementById("typeBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleDropdown("type"); });
-  document.getElementById("cardTypeBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleDropdown("cardType"); });
-  document.getElementById("manaBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleDropdown("mana"); });
-  document.getElementById("styleBtn").addEventListener("click",    (e) => { e.stopPropagation(); toggleDropdown("style"); });
   document.getElementById("setBtn").addEventListener("click",      (e) => { e.stopPropagation(); toggleDropdown("set"); });
-  document.getElementById("yearBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleDropdown("year"); });
+  document.getElementById("styleBtn").addEventListener("click",    (e) => { e.stopPropagation(); toggleDropdown("style"); });
+  document.getElementById("moreBtn").addEventListener("click",     (e) => { e.stopPropagation(); openMoreModal(); });
   document.getElementById("sortBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleSort(); });
   document.getElementById("viewBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleViewDropdown(); });
 
@@ -98,7 +94,136 @@ async function loadSetsIfNeeded() {
   } catch (e) { setList = []; }
 }
 
-// Sort dropdown
+// More Filters Modal
+let modalCardType = null;
+let modalColour = null;
+let modalYearMin = null;
+let modalYearMax = null;
+
+function openMoreModal() {
+  // Snapshot current values into modal state
+  modalCardType = activeCardType;
+  modalColour   = activeColour;
+  modalYearMin  = activeYearMin;
+  modalYearMax  = activeYearMax;
+
+  const minY = 1993, maxY = new Date().getFullYear();
+  const curMin = modalYearMin || minY;
+  const curMax = modalYearMax || maxY;
+
+  document.getElementById("moreModalBody").innerHTML = `
+    <div class="more-section">
+      <div class="more-section-label">Card Type</div>
+      <div class="more-pill-row" id="modalCardTypePills"></div>
+    </div>
+    <div class="more-section">
+      <div class="more-section-label">Mana Type</div>
+      <div class="more-pill-row" id="modalManaPills"></div>
+    </div>
+    <div class="more-section">
+      <div class="more-section-label">Year Range</div>
+      <div class="more-year-row">
+        <span>From</span>
+        <input type="range" id="modalYearMin" min="${minY}" max="${maxY}" value="${curMin}" style="flex:1;accent-color:var(--text-primary);">
+        <span id="modalYearMinVal">${curMin}</span>
+      </div>
+      <div class="more-year-row">
+        <span>To</span>
+        <input type="range" id="modalYearMax" min="${minY}" max="${maxY}" value="${curMax}" style="flex:1;accent-color:var(--text-primary);">
+        <span id="modalYearMaxVal">${curMax}</span>
+      </div>
+    </div>
+  `;
+
+  // Card type pills
+  const ctPills = document.getElementById("modalCardTypePills");
+  ctPills.innerHTML = cardTypeList.map(t =>
+    `<div class="more-pill ${modalCardType === t ? 'active' : ''}" data-val="${t}">${t}</div>`
+  ).join("");
+  ctPills.querySelectorAll(".more-pill").forEach(el => el.addEventListener("click", () => {
+    modalCardType = modalCardType === el.dataset.val ? null : el.dataset.val;
+    ctPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", p.dataset.val === modalCardType));
+  }));
+
+  // Mana pills
+  const manaPills = document.getElementById("modalManaPills");
+  manaPills.innerHTML = MANA_TYPES.map(m =>
+    `<div class="more-pill ${modalColour === m.code ? 'active' : ''}" data-code="${m.code}">
+      <img src="${m.svg}" style="width:15px;height:15px;vertical-align:middle;"> ${m.label}
+    </div>`
+  ).join("");
+  manaPills.querySelectorAll(".more-pill").forEach(el => el.addEventListener("click", () => {
+    modalColour = modalColour === el.dataset.code ? null : el.dataset.code;
+    manaPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", p.dataset.code === modalColour));
+  }));
+
+  // Year sliders
+  document.getElementById("modalYearMin").addEventListener("input", (e) => {
+    if (parseInt(e.target.value) > parseInt(document.getElementById("modalYearMax").value))
+      e.target.value = document.getElementById("modalYearMax").value;
+    document.getElementById("modalYearMinVal").textContent = e.target.value;
+  });
+  document.getElementById("modalYearMax").addEventListener("input", (e) => {
+    if (parseInt(e.target.value) < parseInt(document.getElementById("modalYearMin").value))
+      e.target.value = document.getElementById("modalYearMin").value;
+    document.getElementById("modalYearMaxVal").textContent = e.target.value;
+  });
+
+  document.getElementById("moreModalOverlay").style.display = "block";
+  document.getElementById("moreModal").style.display = "flex";
+  document.addEventListener("keydown", handleMoreModalKey);
+}
+
+function closeMoreModal() {
+  document.getElementById("moreModalOverlay").style.display = "none";
+  document.getElementById("moreModal").style.display = "none";
+  document.removeEventListener("keydown", handleMoreModalKey);
+}
+
+function applyMoreModal() {
+  activeCardType = modalCardType;
+  activeColour   = modalColour;
+  const min = parseInt(document.getElementById("modalYearMin")?.value || 1993);
+  const max = parseInt(document.getElementById("modalYearMax")?.value || new Date().getFullYear());
+  activeYearMin = min > 1993 ? min : null;
+  activeYearMax = max < new Date().getFullYear() ? max : null;
+  closeMoreModal();
+  updateMoreBadge();
+  updateChips();
+  loadInitialGrid();
+}
+
+function clearMoreFilters() {
+  modalCardType = null;
+  modalColour   = null;
+  modalYearMin  = null;
+  modalYearMax  = null;
+  // Reset pills visually
+  document.querySelectorAll("#modalCardTypePills .more-pill, #modalManaPills .more-pill").forEach(p => p.classList.remove("active"));
+  const minY = 1993, maxY = new Date().getFullYear();
+  const minEl = document.getElementById("modalYearMin");
+  const maxEl = document.getElementById("modalYearMax");
+  if (minEl) { minEl.value = minY; document.getElementById("modalYearMinVal").textContent = minY; }
+  if (maxEl) { maxEl.value = maxY; document.getElementById("modalYearMaxVal").textContent = maxY; }
+}
+
+function handleMoreModalKey(e) {
+  if (e.key === "Escape") closeMoreModal();
+}
+
+function updateMoreBadge() {
+  const btn = document.getElementById("moreBtn");
+  if (!btn) return;
+  const count = [activeCardType, activeColour].filter(Boolean).length +
+    (activeYearMin || activeYearMax ? 1 : 0);
+  const existing = btn.querySelector(".more-badge");
+  if (count > 0) {
+    if (existing) existing.textContent = count;
+    else btn.insertAdjacentHTML("beforeend", `<span class="more-badge">${count}</span>`);
+  } else {
+    if (existing) existing.remove();
+  }
+}
 let sortDropdownOpen = false;
 
 function toggleSort() {
@@ -550,6 +675,7 @@ function updateChips() {
 
   // Desktop: update count badge on filter area
   updateDesktopBadge(activeCount);
+  updateMoreBadge();
 
   // Mobile: update drawer badge
   updateDrawerBadge(activeCount);

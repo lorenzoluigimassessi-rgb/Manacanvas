@@ -100,34 +100,29 @@ body {
 }
 
 .welcome-draw-cta {
-  background: linear-gradient(135deg, #b8943a, #d4aa50, #c9a040, #e0bc60, #b8943a);
-  background-size: 200% 100%;
-  border: none;
+  background: #16161f;
+  border: 1px solid #4a4a60;
   border-radius: 4px;
   font-family: 'Josefin Sans', sans-serif;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 1px;
   cursor: pointer;
   width: 260px;
   height: 48px;
-  color: #1a1408;
-  transition: background-position 400ms ease, transform var(--transition-fast);
+  color: #c8c8e0;
+  transition: background 200ms, border-color 200ms, color 200ms, transform var(--transition-fast);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  animation: goldShimmer 4s ease-in-out infinite;
 }
 
 .welcome-draw-cta:hover {
+  background: #1e1e2e;
+  border-color: #8080a8;
+  color: #e8e8f8;
   transform: translateY(-2px);
-  animation-duration: 1.5s;
-}
-
-@keyframes goldShimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50%       { background-position: 100% 50%; }
 }
 
 .welcome-picks { max-width: 700px; width: 100%; }
@@ -354,10 +349,9 @@ body {
 .tag-card { background: #1a2a3a; color: #81d4fa; }
 
 .random-feed-btn {
-  background: linear-gradient(135deg, #b8943a, #d4aa50, #c9a040, #e0bc60, #b8943a);
-  background-size: 200% 100%;
-  border: none;
-  color: #1a1408;
+  background: #16161f;
+  border: 1px solid #4a4a60;
+  color: #c8c8e0;
   height: 32px;
   padding: 0 10px;
   border-radius: 4px;
@@ -369,15 +363,17 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  animation: goldShimmer 4s ease-in-out infinite;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
   flex-shrink: 0;
 }
 
 .random-feed-btn:hover {
-  animation-duration: 1.5s;
+  background: #1e1e2e;
+  border-color: #8080a8;
+  color: #e8e8f8;
 }
 
-.random-feed-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.random-feed-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .filters {
   display: flex;
   gap: 0.4rem;
@@ -386,9 +382,9 @@ body {
 }
 
 .shuffle-again-btn {
-  background: var(--surface);
-  color: var(--text-primary);
-  border: 1px solid #3a3a4a;
+  background: var(--text-primary);
+  color: var(--bg);
+  border: none;
   height: 28px;
   padding: 0 0.9rem;
   border-radius: 4px;
@@ -396,21 +392,21 @@ body {
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.3px;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast), transform var(--transition-fast);
   flex-shrink: 0;
 }
 
 .shuffle-again-btn:hover {
-  background: #22222e;
-  border-color: #5a5a70;
+  background: #d0d0d0;
+  transform: translateY(-1px);
 }
 
-.shuffle-again-btn:active { transform: scale(0.97); }
+.shuffle-again-btn:active { transform: translateY(0); }
 
 .clear-filters-btn {
   background: transparent;
@@ -1017,30 +1013,34 @@ body {
 }
 
 .surprise-pill-btn {
-  background: linear-gradient(135deg, #b8943a, #d4aa50, #c9a040, #e0bc60, #b8943a);
-  background-size: 200% 100%;
-  border: none;
-  color: #1a1408;
+  background: #16161f;
+  border: 1px solid #4a4a60;
+  color: #c8c8e0;
   height: 48px;
   padding: 0 1.4rem;
   border-radius: 24px;
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.5px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 20px rgba(180,140,40,0.35);
-  animation: goldShimmer 4s ease-in-out infinite;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  transition: background 150ms, border-color 150ms, color 150ms;
   white-space: nowrap;
+}
+
+.surprise-pill-btn:hover {
+  background: #1e1e2e;
+  border-color: #8080a8;
+  color: #e8e8f8;
 }
 
 .surprise-pill-btn:active,
 .surprise-pill-btn.pressing {
   transform: scale(0.94);
-  box-shadow: 0 2px 10px rgba(180,140,40,0.25);
 }
 
 /* Scroll to top */

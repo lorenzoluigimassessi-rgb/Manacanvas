@@ -247,7 +247,7 @@ async function loadRandomCard() {
   const img = document.getElementById("lbImage");
   if (!btn || btn.disabled) return;
   btn.disabled = true;
-  btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;animation:lbSpin 0.8s linear infinite"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg> Loading...`;
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:lbSpin 0.8s linear infinite"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>`;
   if (img) img.style.opacity = "0.5";
   const card = await fetchRandomCard();
   if (card) {
@@ -258,11 +258,18 @@ async function loadRandomCard() {
   }
 }
 
+function flashArrow(id) {
+  const btn = document.getElementById(id);
+  if (!btn || btn.classList.contains('hidden')) return;
+  btn.classList.add('active');
+  setTimeout(() => btn.classList.remove('active'), 150);
+}
+
 function handleLbKey(e) {
   if (e.key === "Escape") closeLightbox();
-  if (e.key === "r" || e.key === "R") { const btn = document.getElementById("lbRandom"); if (btn) loadRandomCard(); }
-  if (e.key === "ArrowRight") document.getElementById("lbNext")?.click();
-  if (e.key === "ArrowLeft")  document.getElementById("lbPrev")?.click();
+  if (e.key === "s" || e.key === "S") { const btn = document.getElementById("lbRandom"); if (btn) loadRandomCard(); }
+  if (e.key === "ArrowRight") { flashArrow('lbNext'); document.getElementById("lbNext")?.click(); }
+  if (e.key === "ArrowLeft")  { flashArrow('lbPrev'); document.getElementById("lbPrev")?.click(); }
 }
 
 function closeLightbox() {

@@ -69,16 +69,19 @@ body {
 
 .welcome-cta {
   background: #f0f0f0;
-  border: none;
+  border: 1px solid transparent;
   color: #0c0c0f;
-  padding: 0.9rem 0;
   width: 260px;
+  height: 48px;
   border-radius: 4px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   font-family: 'Josefin Sans', sans-serif;
   letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -105,8 +108,8 @@ body {
   font-weight: 400;
   letter-spacing: 1px;
   cursor: pointer;
-  padding: 0.9rem 0;
   width: 260px;
+  height: 48px;
   color: rgba(240,240,240,0.7);
   transition: border-color 200ms, color 200ms, transform var(--transition-fast);
   display: inline-flex;
@@ -934,7 +937,8 @@ body {
   .lb-nav-arrow { display: none; }
   .welcome-title { font-size: 2.8rem; letter-spacing: 5px; }
   .welcome-subtitle { font-size: 0.85rem; letter-spacing: 2px; }
-  .welcome-cta { width: 100%; max-width: 280px; min-height: 48px; padding: 0.9rem 0; }
+  .welcome-cta { width: 100%; max-width: 280px; height: 52px; }
+  .welcome-draw-cta { width: 100%; max-width: 280px; height: 52px; }
   .pick-btn { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
   .chip-bar { padding: 0.4rem 1rem; }
 }

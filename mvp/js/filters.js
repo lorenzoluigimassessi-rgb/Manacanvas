@@ -1368,7 +1368,7 @@ function clearAllFilters() {
 // Init
 initFilters().then(() => {
   syncFilterUI();
+  restoreFilters();
 });
 initSearch();
 initDrawer();
-restoreFilters();

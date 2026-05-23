@@ -88,15 +88,7 @@ function observeLastCard() {
 
 // Mobile floating Surprise Me
 function mobileSurprise() {
-  const btn = document.querySelector('.surprise-pill-btn');
-  if (!btn || btn.disabled) return;
-  btn.disabled = true;
-  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:lbSpin 0.8s linear infinite"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>`;
-  fetchRandomCard().then(card => {
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`;
-    if (card) openLightbox(card, 'surprise');
-  });
+  triggerSurprise();
 }
 
 // Mobile floating Surprise Me pill — long-press support
@@ -135,10 +127,8 @@ function mobileSurprise() {
 // Global keyboard shortcut: S = Surprise Me
 document.addEventListener('keydown', (e) => {
   if (e.key === 's' || e.key === 'S') {
-    // Only fire if no input is focused
     if (document.activeElement.tagName === 'INPUT') return;
-    const btn = document.getElementById('randomFeedBtn');
-    if (btn && !btn.disabled) btn.click();
+    triggerSurprise();
   }
 });
 
@@ -150,14 +140,7 @@ window.addEventListener("scroll", () => {
 // Feed random button
 const randomFeedBtn = document.getElementById("randomFeedBtn");
 if (randomFeedBtn) {
-  randomFeedBtn.addEventListener("click", async () => {
-    randomFeedBtn.disabled = true;
-    randomFeedBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:lbSpin 0.8s linear infinite"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>`;
-    const card = await fetchRandomCard();
-    randomFeedBtn.disabled = false;
-    randomFeedBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`;
-    if (card) openLightbox(card, 'surprise');
-  });
+  randomFeedBtn.addEventListener("click", () => triggerSurprise());
 }
 
 function restoreFilters() {

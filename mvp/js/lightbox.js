@@ -138,7 +138,10 @@ function openLightbox(card, mode = 'feed') {
 
   // Surprise Me button — surprise mode
   if (isSurprise) {
-    document.getElementById("lbRandom").addEventListener("click", () => loadRandomCard());
+    document.getElementById("lbRandom").addEventListener("click", () => {
+      closeLightbox();
+      triggerSurprise();
+    });
   }
 
   // Frame toggle
@@ -267,7 +270,7 @@ function flashArrow(id) {
 
 function handleLbKey(e) {
   if (e.key === "Escape") closeLightbox();
-  if (e.key === "s" || e.key === "S") { const btn = document.getElementById("lbRandom"); if (btn) loadRandomCard(); }
+  if (e.key === "s" || e.key === "S") { closeLightbox(); triggerSurprise(); }
   if (e.key === "ArrowRight") { flashArrow('lbNext'); document.getElementById("lbNext")?.click(); }
   if (e.key === "ArrowLeft")  { flashArrow('lbPrev'); document.getElementById("lbPrev")?.click(); }
 }

@@ -65,6 +65,22 @@ function showTransition(callback) {
   }, 900);
 }
 
+// Shared Surprise Me ritual — used by welcome, header button, mobile pill
+function triggerSurprise() {
+  const el = document.getElementById('transition');
+  const dice = el.querySelector('.transition-dice');
+  // Reset dice animation
+  dice.classList.remove('pulse');
+  void dice.offsetWidth;
+  el.classList.add('active');
+  setTimeout(() => { dice.classList.add('pulse'); }, 900);
+  fetchRandomCard().then(card => {
+    dice.classList.remove('pulse');
+    el.classList.remove('active');
+    if (card) openLightbox(card, 'surprise');
+  });
+}
+
 function startBrowse() {
   localStorage.setItem("mc_entered", "1");
   welcomeEl.style.display = "none";
@@ -74,19 +90,10 @@ function startBrowse() {
 
 function startSurprise() {
   localStorage.setItem("mc_entered", "1");
-  const el = document.getElementById('transition');
-  const dice = el.querySelector('.transition-dice');
-  el.classList.add('active');
-  // After roll completes, switch to pulse while fetching
-  setTimeout(() => { dice.classList.add('pulse'); }, 900);
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
   loadInitialGrid();
-  fetchRandomCard().then(card => {
-    dice.classList.remove('pulse');
-    el.classList.remove('active');
-    if (card) openLightbox(card, 'surprise');
-  });
+  triggerSurprise();
 }
 
 // On load: skip welcome if user has been here before

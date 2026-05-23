@@ -459,6 +459,9 @@ body {
 }
 
 .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.5rem 0.8rem;
   cursor: pointer;
   font-size: 0.85rem;
@@ -467,6 +470,35 @@ body {
 }
 
 .dropdown-item:hover { background: var(--bg); color: var(--text-primary); }
+.dropdown-item.selected { color: var(--text-primary); }
+
+.dropdown-checkbox {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  background: transparent;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.dropdown-item.selected .dropdown-checkbox,
+.sheet-list-item.selected .dropdown-checkbox,
+.mana-option.active .dropdown-checkbox {
+  border-color: var(--text-primary);
+  background: var(--text-primary);
+  color: var(--bg);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.25rem 0;
+}
 
 /* Grid */
 .grid {
@@ -1097,7 +1129,7 @@ body {
   cursor: pointer;
   font-size: 0.85rem;
   color: var(--text-secondary);
-  gap: 0.4rem;
+  gap: 0.5rem;
   transition: background 150ms;
 }
 
@@ -1249,7 +1281,6 @@ body {
 
 .mana-option:hover { background: var(--bg); color: var(--text-primary); }
 .mana-option.active { color: var(--text-primary); background: var(--bg); }
-.mana-option.active::after { content: " ✓"; margin-left: auto; opacity: 0.6; }
 
 .mana-symbol {
   width: 20px;

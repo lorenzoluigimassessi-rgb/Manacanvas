@@ -439,9 +439,9 @@ function renderManaPicker() {
   const picker = document.getElementById("manaPicker");
   picker.innerHTML = MANA_TYPES.map(m => `
     <div class="mana-option ${activeColour.includes(m.code) ? 'active' : ''}" data-code="${m.code}" data-label="${m.label}">
+      <span class="dropdown-checkbox">${activeColour.includes(m.code) ? "<svg width='10' height='10' viewBox='0 0 10 10'><polyline points='1.5,5 4,7.5 8.5,2' stroke='currentColor' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" : ""}</span>
       <img class="mana-symbol" src="${m.svg}" alt="${m.label}">
       <span class="mana-label">${m.label}</span>
-      ${activeColour.includes(m.code) ? '<span style="margin-left:auto;font-size:0.7rem;">✓</span>' : ''}
     </div>
   `).join("");
   picker.querySelectorAll(".mana-option").forEach(el => {
@@ -491,27 +491,23 @@ function renderSetList(query) {
   }, q, true);
 }
 
-function renderDropdownChunk(list, items, start, chunkSize, onSelect, q, isSet) {
-  const chunk = items.slice(start, start + chunkSize);
-  chunk.forEach(item => {
-    const val = isSet ? item.code : item;
-    const label = isSet ? item.name : item;
-    // Check active state for multi-select arrays
-    const isActive = isSet ? activeSets.includes(val) :
-      (activeArtist.includes(val) || activeType.includes(val));
-    const el = document.createElement("div");
-    el.className = isSet
-      ? `dropdown-item set-item${activeSets.includes(val) ? ' selected' : ''}`
-      : `dropdown-item${isActive ? ' selected' : ''}`;
-    el.dataset.value = val;
-    if (isSet) {
-      el.innerHTML = `<input type="checkbox" class="set-checkbox" ${activeSets.includes(val) ? 'checked' : ''} onclick="event.stopPropagation()"><img class="set-icon" src="${item.icon}" alt="">${highlightMatch(label, q)}`;
-    } else {
-      el.innerHTML = highlightMatch(label, q) + (isActive ? ' <span style="margin-left:auto;font-size:0.75rem;">✓</span>' : '');
+function renderDropdownChunk(list, items, start, chunkSize, onSelect, q, isSet, skipSort) {
+  if (!skipSort && start === 0) {
+    const getVal = item => isSet ? item.code : item;
+    const isItemActive = val => isSet ? activeSets.includes(val) : (activeArtist.includes(val) || activeType.includes(val));
+    const selected = items.filter(item => isItemActive(getVal(item)));
+    const rest = items.filter(item => !isItemActive(getVal(item)));
+    if (selected.length) {
+      selected.forEach(item => appendDropdownItem(list, item, isSet, onSelect, q));
+      const divider = document.createElement("div");
+      divider.className = "dropdown-divider";
+      list.appendChild(divider);
     }
-    el.addEventListener("click", () => onSelect(val));
-    list.appendChild(el);
-  });
+    renderDropdownChunk(list, rest, 0, chunkSize, onSelect, q, isSet, true);
+    return;
+  }
+  const chunk = items.slice(start, start + chunkSize);
+  chunk.forEach(item => appendDropdownItem(list, item, isSet, onSelect, q));
   if (start + chunkSize < items.length) {
     const sentinel = document.createElement("div");
     sentinel.style.height = "1px";
@@ -520,11 +516,24 @@ function renderDropdownChunk(list, items, start, chunkSize, onSelect, q, isSet) 
       if (entries[0].isIntersecting) {
         observer.disconnect();
         sentinel.remove();
-        renderDropdownChunk(list, items, start + chunkSize, chunkSize, onSelect, q, isSet);
+        renderDropdownChunk(list, items, start + chunkSize, chunkSize, onSelect, q, isSet, true);
       }
     }, { root: list, rootMargin: "40px" });
     observer.observe(sentinel);
   }
+}
+
+function appendDropdownItem(list, item, isSet, onSelect, q) {
+  const val = isSet ? item.code : item;
+  const label = isSet ? item.name : item;
+  const isActive = isSet ? activeSets.includes(val) : (activeArtist.includes(val) || activeType.includes(val));
+  const el = document.createElement("div");
+  el.className = "dropdown-item" + (isActive ? " selected" : "");
+  el.dataset.value = val;
+  const iconHtml = isSet ? `<img class="set-icon" src="${item.icon}" alt="">` : "";
+  el.innerHTML = `<span class="dropdown-checkbox">${isActive ? "<svg width='10' height='10' viewBox='0 0 10 10'><polyline points='1.5,5 4,7.5 8.5,2' stroke='currentColor' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" : ""}</span>${iconHtml}<span>${highlightMatch(label, q)}</span>`;
+  el.addEventListener("click", () => onSelect(val));
+  list.appendChild(el);
 }
 
 // Select / clear handlers
@@ -1074,21 +1083,23 @@ function renderSheetSetList(query, show = true) {
   }, q, true);
 }
 
-function renderSheetListChunk(list, items, start, chunkSize, onSelect, q, isSet) {
+function renderSheetListChunk(list, items, start, chunkSize, onSelect, q, isSet, skipSort) {
+  if (!skipSort && start === 0) {
+    const getVal = item => isSet ? item.code : item;
+    const isItemActive = val => isSet ? activeSets.includes(val) : (activeArtist.includes(val) || activeType.includes(val));
+    const selected = items.filter(item => isItemActive(getVal(item)));
+    const rest = items.filter(item => !isItemActive(getVal(item)));
+    if (selected.length) {
+      selected.forEach(item => appendSheetItem(list, item, isSet, onSelect, q));
+      const divider = document.createElement("div");
+      divider.className = "dropdown-divider";
+      list.appendChild(divider);
+    }
+    renderSheetListChunk(list, rest, 0, chunkSize, onSelect, q, isSet, true);
+    return;
+  }
   const chunk = items.slice(start, start + chunkSize);
-  chunk.forEach(item => {
-    const val = isSet ? item.code : item;
-    const label = isSet ? item.name : item;
-    const isActive = isSet ? activeSets.includes(val) : (activeArtist.includes(val) || activeType.includes(val));
-    const el = document.createElement("div");
-    el.className = "sheet-list-item" + (isActive ? " selected" : "");
-    el.dataset.val = val;
-    el.innerHTML = (isSet ? `<img class="set-icon" src="${item.icon}" alt="">` : "") +
-      highlightMatch(label, q) +
-      (isActive ? '<span class="sheet-check">✓</span>' : "");
-    el.addEventListener("click", () => onSelect(val));
-    list.appendChild(el);
-  });
+  chunk.forEach(item => appendSheetItem(list, item, isSet, onSelect, q));
   if (start + chunkSize < items.length) {
     const sentinel = document.createElement("div");
     sentinel.style.height = "1px";
@@ -1097,11 +1108,24 @@ function renderSheetListChunk(list, items, start, chunkSize, onSelect, q, isSet)
       if (entries[0].isIntersecting) {
         observer.disconnect();
         sentinel.remove();
-        renderSheetListChunk(list, items, start + chunkSize, chunkSize, onSelect, q, isSet);
+        renderSheetListChunk(list, items, start + chunkSize, chunkSize, onSelect, q, isSet, true);
       }
     }, { rootMargin: "40px" });
     observer.observe(sentinel);
   }
+}
+
+function appendSheetItem(list, item, isSet, onSelect, q) {
+  const val = isSet ? item.code : item;
+  const label = isSet ? item.name : item;
+  const isActive = isSet ? activeSets.includes(val) : (activeArtist.includes(val) || activeType.includes(val));
+  const el = document.createElement("div");
+  el.className = "sheet-list-item" + (isActive ? " selected" : "");
+  el.dataset.val = val;
+  const iconHtml = isSet ? `<img class="set-icon" src="${item.icon}" alt="">` : "";
+  el.innerHTML = `<span class="dropdown-checkbox">${isActive ? "<svg width='10' height='10' viewBox='0 0 10 10'><polyline points='1.5,5 4,7.5 8.5,2' stroke='currentColor' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" : ""}</span>${iconHtml}<span>${highlightMatch(label, q)}</span>`;
+  el.addEventListener("click", () => onSelect(val));
+  list.appendChild(el);
 }
 
 function renderSheetStyleGrid() {

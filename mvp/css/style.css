@@ -828,7 +828,53 @@ body {
 
 .random-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* FTE overlay — plain icon+text at bottom corners, first open only */
+/* Mobile lightbox nav bar — ‹ name · artist › */
+.lb-mobile-nav {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.6rem 0.5rem 0;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.lb-mobile-arrow {
+  background: none;
+  border: none;
+  color: rgba(240,240,240,0.7);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 150ms;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.lb-mobile-arrow:hover { color: #f0f0f0; }
+
+.lb-mobile-meta {
+  font-size: 0.72rem;
+  color: rgba(240,240,240,0.5);
+  letter-spacing: 0.5px;
+  text-align: center;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .lb-mobile-nav { display: flex; }
+  .lightbox .meta { display: none; }
+}
+
+
 .lb-fte-overlay {
   display: none;
   position: absolute;

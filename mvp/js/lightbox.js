@@ -53,24 +53,10 @@ function openLightbox(card, mode = 'feed') {
     </div>
   `;
 
-  // FTE — first open only, plain icon+text at bottom corners
-  const showFte = !sessionStorage.getItem('lb_fte_shown');
-  const fteHtml = showFte ? `
-    <div class="lb-fte-overlay" id="lbFteOverlay">
-      <div class="fte-half fte-left">
-        <span class="lb-fte-icon">‹</span>
-        <span class="lb-fte-label">Previous</span>
-      </div>
-      <div class="fte-half fte-right">
-        <span class="lb-fte-label">Next</span>
-        <span class="lb-fte-icon">›</span>
-      </div>
-    </div>
-  ` : '';
+  const showFte = false; const fteHtml = ''; // replaced by mobile nav bar
 
   const lightbox = document.getElementById("lightbox");
   lightbox.style.background = '#0c0c0f';
-  lightbox.style.pointerEvents = 'auto';
   lightbox.innerHTML = `
     <div class="lightbox" id="lightboxOverlay" style="background:#0c0c0f;">
       ${blurBgHtml}
@@ -88,7 +74,11 @@ function openLightbox(card, mode = 'feed') {
         </div>
       </div>
       ${actionsHtml}
-      ${fteHtml}
+      <div class="lb-mobile-nav" id="lbMobileNav">
+        <button class="lb-mobile-arrow" id="lbMobilePrev">‹</button>
+        <span class="lb-mobile-meta" id="lbMobileMeta">${card.name} · ${card.artist || 'Unknown'}</span>
+        <button class="lb-mobile-arrow" id="lbMobileNext">›</button>
+      </div>
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
     </div>
   `;
@@ -141,25 +131,56 @@ function openLightbox(card, mode = 'feed') {
     }
   }
 
-  // ── Whole-lightbox slide transition ────────────────────────────────────────
+  // ── Crossfade transition — only art + blur bg change, chrome stays put ─────
   function transitionTo(nextCard, dir, nextMode) {
-    const overlay = document.getElementById("lightboxOverlay");
-    if (!overlay) return;
-    const exitX = dir === 'next' ? '-110%' : '110%';
-    const enterX = dir === 'next' ? '110%' : '-110%';
-    overlay.style.transition = 'transform 240ms ease-in';
-    overlay.style.transform  = `translateX(${exitX})`;
+    const img   = document.getElementById('lbImage');
+    const bg    = document.getElementById('lbBlurBg');
+    const meta  = document.getElementById('lbMobileMeta');
+    if (!img || !bg) { openLightbox(nextCard, nextMode); return; }
+
+    const nextArt = nextCard.image_uris?.art_crop || nextCard.card_faces?.[0]?.image_uris?.art_crop
+                 || nextCard.image_uris?.normal   || nextCard.card_faces?.[0]?.image_uris?.normal;
+
+    // Fade out
+    img.style.transition = bg.style.transition = 'opacity 180ms ease';
+    img.style.opacity = bg.style.opacity = '0';
+
     setTimeout(() => {
-      openLightbox(nextCard, nextMode);
-      const newOverlay = document.getElementById("lightboxOverlay");
-      if (!newOverlay) return;
-      newOverlay.style.transition = 'none';
-      newOverlay.style.transform  = `translateX(${enterX})`;
-      // force reflow then slide in
-      newOverlay.getBoundingClientRect();
-      newOverlay.style.transition = 'transform 240ms ease-out';
-      newOverlay.style.transform  = '';
-    }, 240);
+      // Swap content
+      img.src = nextArt;
+      bg.style.backgroundImage = `url('${nextArt}')`;
+      if (meta) meta.textContent = `${nextCard.name} · ${nextCard.artist || 'Unknown'}`;
+      currentCard = nextCard;
+      _lbMode = nextMode;
+
+      // Update arrow visibility
+      const mPrev = document.getElementById('lbMobilePrev');
+      const mNext = document.getElementById('lbMobileNext');
+      if (mPrev && mNext) {
+        if (nextMode === 'surprise') {
+          mPrev.style.opacity = '0.25'; mPrev.style.pointerEvents = 'none';
+          mNext.style.opacity = '1';    mNext.style.pointerEvents = 'auto';
+        } else {
+          const idx = filteredCards.findIndex(c => c.id === nextCard.id);
+          mPrev.style.opacity = idx <= 0 ? '0.25' : '1';
+          mPrev.style.pointerEvents = idx <= 0 ? 'none' : 'auto';
+          mNext.style.opacity = idx >= filteredCards.length - 1 ? '0.25' : '1';
+          mNext.style.pointerEvents = idx >= filteredCards.length - 1 ? 'none' : 'auto';
+        }
+      }
+
+      // Fade in
+      img.style.transition = bg.style.transition = 'opacity 220ms ease';
+      img.style.opacity = bg.style.opacity = '1';
+
+      // Re-warm surprise queue
+      if (nextMode === 'surprise') {
+        if (!window._surpriseQueue) window._surpriseQueue = [];
+        if (window._surpriseQueue.length < 2)
+          Promise.all([fetchRandomCard(), fetchRandomCard()])
+            .then(cards => window._surpriseQueue.push(...cards.filter(Boolean)));
+      }
+    }, 180);
   }
 
   // ── Desktop arrows ──────────────────────────────────────────────────────────
@@ -182,88 +203,65 @@ function openLightbox(card, mode = 'feed') {
     }
   }
 
-  // ── Mobile swipe — clean slide, dark background ────────────────────────────
-  const swipeTarget = document.getElementById('lightboxOverlay');
+  // ── Mobile nav bar arrows ───────────────────────────────────────────────────
+  const mPrev = document.getElementById('lbMobilePrev');
+  const mNext = document.getElementById('lbMobileNext');
+
+  if (mPrev && mNext) {
+    // Initial state
+    if (isSurprise) {
+      mPrev.style.opacity = '0.25'; mPrev.style.pointerEvents = 'none';
+    } else {
+      const idx = filteredCards.findIndex(c => c.id === card.id);
+      if (idx <= 0) { mPrev.style.opacity = '0.25'; mPrev.style.pointerEvents = 'none'; }
+      if (idx >= filteredCards.length - 1) { mNext.style.opacity = '0.25'; mNext.style.pointerEvents = 'none'; }
+    }
+    mPrev.addEventListener('click', goPrev);
+    mNext.addEventListener('click', goNext);
+  }
+
+  // ── Swipe on art zone (art-container + blur bg) ─────────────────────────────
+  const swipeZone = document.getElementById('lightboxOverlay');
   let swX = 0, swY = 0, scX = 0, swiping = false, swDir = null;
 
-  function getNextCard(goingNext) {
+  function getSwipeCard(goingNext) {
     if (goingNext) {
       if (isSurprise) return (window._surpriseQueue || [])[0] || null;
-      const idx = filteredCards.findIndex(c => c.id === card.id);
+      const idx = filteredCards.findIndex(c => c.id === currentCard.id);
       return idx < filteredCards.length - 1 ? filteredCards[idx + 1] : null;
     } else {
       if (isSurprise) return null;
-      const idx = filteredCards.findIndex(c => c.id === card.id);
+      const idx = filteredCards.findIndex(c => c.id === currentCard.id);
       return idx > 0 ? filteredCards[idx - 1] : null;
     }
   }
 
-  swipeTarget.addEventListener('touchstart', (e) => {
-    if (e.target.closest('button, a, .toggle, .meta-link')) return;
+  swipeZone.addEventListener('touchstart', (e) => {
+    if (e.target.closest('button, a, .toggle, .meta-link, .lb-mobile-nav')) return;
     swX = e.touches[0].clientX; swY = e.touches[0].clientY;
     scX = swX; swiping = true; swDir = null;
-    swipeTarget.style.transition = 'none';
   }, { passive: true });
 
-  swipeTarget.addEventListener('touchmove', (e) => {
+  swipeZone.addEventListener('touchmove', (e) => {
     if (!swiping) return;
     const dx = e.touches[0].clientX - swX;
     const dy = e.touches[0].clientY - swY;
     scX = e.touches[0].clientX;
     if (!swDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
       swDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
-    if (swDir !== 'h') return;
-    swipeTarget.style.transform = 'translateX(' + dx + 'px)';
   }, { passive: true });
 
-  swipeTarget.addEventListener('touchend', () => {
+  swipeZone.addEventListener('touchend', () => {
     if (!swiping) return;
     swiping = false;
     const dx = scX - swX;
-    const threshold = window.innerWidth * 0.25;
-
-    if (swDir === 'h' && Math.abs(dx) >= threshold) {
-      const goingNext = dx < 0;
-      const exitX = goingNext ? '-110%' : '110%';
-      const enterX = goingNext ? '110%' : '-110%';
-
-      // Surprise swipe-right = back to welcome
-      if (!goingNext && isSurprise) {
-        swipeTarget.style.transition = 'transform 220ms ease-in';
-        swipeTarget.style.transform  = 'translateX(110%)';
-        setTimeout(() => { closeLightbox(); showWelcome(); }, 220);
-        return;
-      }
-
-      const targetCard = getNextCard(goingNext);
-      if (!targetCard) {
-        // edge — snap back
-        swipeTarget.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1)';
-        swipeTarget.style.transform  = '';
-        return;
-      }
-
-      swipeTarget.style.transition = 'transform 220ms ease-in';
-      swipeTarget.style.transform  = 'translateX(' + exitX + ')';
-
-      setTimeout(() => {
-        if (isSurprise && goingNext && window._surpriseQueue) window._surpriseQueue.shift();
-        openLightbox(targetCard, isSurprise ? 'surprise' : 'feed');
-        const newOverlay = document.getElementById('lightboxOverlay');
-        if (!newOverlay) return;
-        newOverlay.style.transition = 'none';
-        newOverlay.style.transform  = 'translateX(' + enterX + ')';
-        newOverlay.getBoundingClientRect();
-        newOverlay.style.transition = 'transform 220ms ease-out';
-        newOverlay.style.transform  = '';
-      }, 220);
-      return;
-    }
-
-    // Snap back
-    swipeTarget.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1)';
-    swipeTarget.style.transform  = '';
-    setTimeout(() => { swipeTarget.style.transition = ''; }, 300);
+    if (swDir !== 'h' || Math.abs(dx) < window.innerWidth * 0.2) return;
+    const goingNext = dx < 0;
+    if (!goingNext && isSurprise) { closeLightbox(); showWelcome(); return; }
+    const target = getSwipeCard(goingNext);
+    if (!target) return;
+    if (goingNext && isSurprise && window._surpriseQueue) window._surpriseQueue.shift();
+    transitionTo(target, goingNext ? 'next' : 'prev', isSurprise ? 'surprise' : 'feed');
   });
 
   // ── Frame toggle ────────────────────────────────────────────────────────────
@@ -365,9 +363,7 @@ function handleLbKey(e) {
 }
 
 function closeLightbox() {
-  const lb = document.getElementById("lightbox");
-  lb.innerHTML = "";
-  lb.style.pointerEvents = 'none';
+  document.getElementById("lightbox").innerHTML = "";
   document.body.style.overflow = "";
   document.removeEventListener("keydown", handleLbKey);
   document.removeEventListener("mousemove", handleDrag);

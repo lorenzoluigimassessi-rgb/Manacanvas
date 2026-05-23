@@ -405,7 +405,9 @@
   width: 260px;
   color: rgba(240,240,240,0.7);
   transition: border-color 200ms, color 200ms;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .welcome-draw-cta:hover {

@@ -22,13 +22,13 @@ async function fetchCards(query = "t:creature", page = 1) {
   const randomPage = (isRandom && isDefaultQuery) ? Math.floor(Math.random() * 100) + 1 : page;
   const order = isRandom ? "released" : sortOrder;
   const dir = isRandom ? "asc" : sortDir;
-  const url = (!isRandom && nextPageUrl) || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&order=${order}&dir=${dir}&page=${randomPage}`;
+  const url = (!isRandom && nextPageUrl) || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=${randomPage}`;
   try {
     const res = await fetch(url);
     if (!res.ok) {
       // If random page fails, fall back to page 1
       if (isRandom && isDefaultQuery) {
-        const fallback = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&order=${order}&dir=${dir}&page=1`);
+        const fallback = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=1`);
         if (!fallback.ok) return { data: [], hasMore: false };
         const fjson = await fallback.json();
         nextPageUrl = fjson.has_more ? fjson.next_page : null;

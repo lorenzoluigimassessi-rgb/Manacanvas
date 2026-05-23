@@ -828,13 +828,13 @@ body {
 
 .random-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* FTE overlay — two floating labels bottom corners, first open only */
+/* FTE overlay — plain icon+text at bottom corners, first open only */
 .lb-fte-overlay {
   display: none;
   position: absolute;
   left: 0;
   right: 0;
-  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  bottom: calc(1rem + env(safe-area-inset-bottom));
   z-index: 5;
   pointer-events: none;
 }
@@ -845,23 +845,24 @@ body {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  background: transparent;
 }
 
 .lb-fte-overlay .fte-half.fte-left  { left: 1.5rem; }
 .lb-fte-overlay .fte-half.fte-right { right: 1.5rem; }
 
 .lb-fte-icon {
-  font-size: 1.2rem;
-  color: rgba(240,240,240,0.75);
+  font-size: 1.1rem;
+  color: rgba(240,240,240,0.65);
 }
 
 .lb-fte-label {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: rgba(240,240,240,0.6);
+  color: rgba(240,240,240,0.5);
   white-space: nowrap;
 }
 
@@ -869,7 +870,6 @@ body {
   .lb-fte-overlay { display: block; }
 }
 
-/* Remove old FTE/swipe hint classes */
 .lb-swipe-hint, .lb-fte, .lb-fte-arrow, .lb-fte-text { display: none !important; }
 
 /* Lightbox */

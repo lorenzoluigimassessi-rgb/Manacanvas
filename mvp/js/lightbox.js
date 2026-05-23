@@ -1,14 +1,9 @@
-// Lightbox — two modes: 'surprise' and 'feed'
+// Lightbox — two modes: 'surprise' | 'feed'
 let currentCard = null;
 let currentMode = "art";
-let scale = 1;
-let translateX = 0;
-let translateY = 0;
-let isDragging = false;
-let dragStartX = 0;
-let dragStartY = 0;
-let lastTx = 0;
-let lastTy = 0;
+let scale = 1, translateX = 0, translateY = 0;
+let isDragging = false, dragStartX = 0, dragStartY = 0, lastTx = 0, lastTy = 0;
+let _lbMode = 'feed'; // track mode for close behaviour
 
 const LB_GRADIENTS = {
   W: 'linear-gradient(160deg,#2a2318,#3d3420,#1a1610)',
@@ -26,10 +21,10 @@ function getManaGradient(colors) {
   return LB_GRADIENTS[colors[0]] || LB_GRADIENTS.C;
 }
 
-// mode: 'surprise' | 'feed'
 function openLightbox(card, mode = 'feed') {
   currentCard = card;
   currentMode = "art";
+  _lbMode = mode;
   scale = 1; translateX = 0; translateY = 0;
 
   const artCrop  = card.image_uris?.art_crop  || card.card_faces?.[0]?.image_uris?.art_crop;
@@ -43,11 +38,11 @@ function openLightbox(card, mode = 'feed') {
 
   const blurBgHtml = `<div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>`;
 
-  // Desktop arrows — both modes
-  const arrowsHtml = `
+  // Desktop arrows — feed mode only
+  const arrowsHtml = !isSurprise ? `
     <button class="lb-nav-arrow" id="lbPrev">‹</button>
     <button class="lb-nav-arrow" id="lbNext">›</button>
-  `;
+  ` : '';
 
   const actionsHtml = `
     <div class="lightbox-actions">
@@ -58,7 +53,7 @@ function openLightbox(card, mode = 'feed') {
     </div>
   `;
 
-  // FTE overlay — first open only, fades out after 2s then hidden permanently
+  // FTE — first open only, plain icon+text at bottom corners
   const showFte = !sessionStorage.getItem('lb_fte_shown');
   const fteHtml = showFte ? `
     <div class="lb-fte-overlay" id="lbFteOverlay">
@@ -92,64 +87,79 @@ function openLightbox(card, mode = 'feed') {
       </div>
       ${actionsHtml}
       ${fteHtml}
-      <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ↑↓ to browse</div>
+      <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
     </div>
   `;
 
   document.body.style.overflow = "hidden";
 
-  // Fade out FTE after 2s, mark as shown
+  // FTE fade
   if (showFte) {
     sessionStorage.setItem('lb_fte_shown', '1');
     setTimeout(() => {
       const fte = document.getElementById("lbFteOverlay");
       if (fte) { fte.style.opacity = '0'; fte.style.transition = 'opacity 400ms ease'; }
-    }, 2000);
+    }, 2500);
   }
 
   setTimeout(() => { const h = document.getElementById("zoomHint"); if (h) h.style.opacity = "0"; }, 3000);
 
-  // Close
+  // Close — always goes back to feed
   document.getElementById("lbClose").addEventListener("click", closeLightbox);
   document.getElementById("lightboxOverlay").addEventListener("click", (e) => {
     if (e.target.id === "lightboxOverlay") closeLightbox();
   });
   document.addEventListener("keydown", handleLbKey);
 
-  // ── Navigation helpers ──────────────────────────────────────────────────────
+  // ── Navigation ──────────────────────────────────────────────────────────────
   function goNext() {
     if (isSurprise) {
       if (!window._surpriseQueue) window._surpriseQueue = [];
       const next = window._surpriseQueue.shift();
-      if (next) openLightbox(next, 'surprise');
-      else fetchRandomCard().then(c => { if (c) openLightbox(c, 'surprise'); });
+      if (next) transitionTo(next, 'next', 'surprise');
+      else fetchRandomCard().then(c => { if (c) transitionTo(c, 'next', 'surprise'); });
     } else {
       const idx = filteredCards.findIndex(c => c.id === card.id);
-      if (idx < filteredCards.length - 1) openLightbox(filteredCards[idx + 1], 'feed');
+      if (idx < filteredCards.length - 1) transitionTo(filteredCards[idx + 1], 'next', 'feed');
     }
   }
 
   function goPrev() {
     if (isSurprise) {
       closeLightbox();
+      showWelcome();
     } else {
       const idx = filteredCards.findIndex(c => c.id === card.id);
-      if (idx > 0) openLightbox(filteredCards[idx - 1], 'feed');
+      if (idx > 0) transitionTo(filteredCards[idx - 1], 'prev', 'feed');
     }
   }
 
-  // ── Desktop arrows ──────────────────────────────────────────────────────────
-  const lbPrev = document.getElementById("lbPrev");
-  const lbNext = document.getElementById("lbNext");
+  // ── Whole-lightbox slide transition ────────────────────────────────────────
+  function transitionTo(nextCard, dir, nextMode) {
+    const overlay = document.getElementById("lightboxOverlay");
+    if (!overlay) return;
+    const exitX = dir === 'next' ? '-100%' : '100%';
+    overlay.style.transition = 'transform 280ms ease-in-out, opacity 280ms ease-in-out';
+    overlay.style.transform  = `translateX(${exitX})`;
+    overlay.style.opacity    = '0';
+    setTimeout(() => {
+      overlay.style.transition = 'none';
+      overlay.style.transform  = '';
+      overlay.style.opacity    = '1';
+      openLightbox(nextCard, nextMode);
+    }, 280);
+  }
 
+  // ── Desktop arrows ──────────────────────────────────────────────────────────
   if (!isSurprise) {
+    const lbPrev = document.getElementById("lbPrev");
+    const lbNext = document.getElementById("lbNext");
     const currentIndex = filteredCards.findIndex(c => c.id === card.id);
     if (currentIndex <= 0) lbPrev.classList.add('hidden');
     if (currentIndex === -1 || currentIndex >= filteredCards.length - 1) lbNext.classList.add('hidden');
+    lbPrev.addEventListener('click', goPrev);
+    lbNext.addEventListener('click', goNext);
   }
-
-  lbPrev.addEventListener('click', goPrev);
-  lbNext.addEventListener('click', goNext);
 
   // Pre-warm surprise queue
   if (isSurprise) {
@@ -160,29 +170,28 @@ function openLightbox(card, mode = 'feed') {
     }
   }
 
-  // ── Mobile swipe — full screen, left=prev, right=next ──────────────────────
+  // ── Mobile swipe — full screen, whole lightbox moves ───────────────────────
   const swipeTarget = document.getElementById("lightboxOverlay");
   const artContainer = document.getElementById("artContainer");
-  let swX = 0, swY = 0, scX = 0, scY = 0, swiping = false, swDir = null;
+  let swX = 0, swY = 0, scX = 0, swiping = false, swDir = null;
 
   swipeTarget.addEventListener('touchstart', (e) => {
-    // Don't intercept taps on buttons/links
     if (e.target.closest('button, a, .toggle, .meta-link')) return;
     swX = e.touches[0].clientX; swY = e.touches[0].clientY;
-    scX = swX; scY = swY; swiping = true; swDir = null;
-    artContainer.style.transition = 'none';
+    scX = swX; swiping = true; swDir = null;
+    swipeTarget.style.transition = 'none';
   }, { passive: true });
 
   swipeTarget.addEventListener('touchmove', (e) => {
     if (!swiping) return;
     const dx = e.touches[0].clientX - swX;
     const dy = e.touches[0].clientY - swY;
-    scX = e.touches[0].clientX; scY = e.touches[0].clientY;
+    scX = e.touches[0].clientX;
     if (!swDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
       swDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
     if (swDir === 'h') {
-      artContainer.style.transform = `translateX(${dx}px) rotate(${(dx / window.innerWidth) * 3}deg)`;
-      artContainer.style.opacity   = String(Math.max(0.2, 1 - Math.abs(dx) / (window.innerWidth * 1.5)));
+      swipeTarget.style.transform = `translateX(${dx}px)`;
+      swipeTarget.style.opacity   = String(Math.max(0.3, 1 - Math.abs(dx) / (window.innerWidth * 1.2)));
     }
   }, { passive: true });
 
@@ -194,23 +203,23 @@ function openLightbox(card, mode = 'feed') {
 
     if (swDir === 'h' && Math.abs(dx) >= threshold) {
       const exitX = dx < 0 ? '-110%' : '110%';
-      artContainer.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
-      artContainer.style.transform  = `translateX(${exitX})`;
-      artContainer.style.opacity    = '0';
+      swipeTarget.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
+      swipeTarget.style.transform  = `translateX(${exitX})`;
+      swipeTarget.style.opacity    = '0';
       setTimeout(() => {
-        artContainer.style.transition = 'none';
-        artContainer.style.transform  = '';
-        artContainer.style.opacity    = '1';
+        swipeTarget.style.transition = 'none';
+        swipeTarget.style.transform  = '';
+        swipeTarget.style.opacity    = '1';
         if (dx < 0) goNext(); else goPrev();
       }, 220);
       return;
     }
 
     // Snap back
-    artContainer.style.transition = 'transform 280ms cubic-bezier(0.34,1.56,0.64,1), opacity 280ms ease';
-    artContainer.style.transform  = '';
-    artContainer.style.opacity    = '1';
-    setTimeout(() => { artContainer.style.transition = ''; }, 280);
+    swipeTarget.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1), opacity 200ms ease';
+    swipeTarget.style.transform  = '';
+    swipeTarget.style.opacity    = '1';
+    setTimeout(() => { swipeTarget.style.transition = ''; }, 300);
   });
 
   // ── Frame toggle ────────────────────────────────────────────────────────────
@@ -295,12 +304,6 @@ function resetZoom() {
   if (container) container.style.transform = '';
 }
 
-function getTouchDist(touches) {
-  const dx = touches[0].clientX - touches[1].clientX;
-  const dy = touches[0].clientY - touches[1].clientY;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
 function flashArrow(id) {
   const btn = document.getElementById(id);
   if (!btn || btn.classList.contains('hidden')) return;
@@ -310,8 +313,8 @@ function flashArrow(id) {
 
 function handleLbKey(e) {
   if (e.key === "Escape") closeLightbox();
-  if (e.key === "ArrowRight" || e.key === "ArrowDown") { flashArrow('lbNext'); document.getElementById("lbNext")?.click(); }
-  if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   { flashArrow('lbPrev'); document.getElementById("lbPrev")?.click(); }
+  if (e.key === "ArrowRight") { flashArrow('lbNext'); document.getElementById("lbNext")?.click(); }
+  if (e.key === "ArrowLeft")  { flashArrow('lbPrev'); document.getElementById("lbPrev")?.click(); }
 }
 
 function closeLightbox() {

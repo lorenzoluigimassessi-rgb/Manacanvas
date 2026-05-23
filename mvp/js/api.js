@@ -17,27 +17,27 @@ const SORT_OPTIONS = [
 async function fetchCards(query = "t:creature", page = 1) {
   isLoading = true;
   const isRandom = sortOrder === "random";
-  const isDefaultQuery = query === "t:creature has:illustration";
-  // Cap at page 100 to stay well within available pages and avoid empty results
-  const randomPage = (isRandom && isDefaultQuery) ? Math.floor(Math.random() * 100) + 1 : page;
+  const randomPage = isRandom ? Math.floor(Math.random() * 100) + 1 : page;
   const order = isRandom ? "released" : sortOrder;
   const dir = isRandom ? "asc" : sortDir;
   const url = (!isRandom && nextPageUrl) || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=${randomPage}`;
   try {
     const res = await fetch(url);
     if (!res.ok) {
-      // If random page fails, fall back to page 1
-      if (isRandom && isDefaultQuery) {
+      if (isRandom) {
         const fallback = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=1`);
-        if (!fallback.ok) return { data: [], hasMore: false };
+        if (!fallback.ok) { isLoading = false; return { data: [], hasMore: false }; }
         const fjson = await fallback.json();
+        if (fjson.object === 'error') { isLoading = false; return { data: [], hasMore: false }; }
         nextPageUrl = fjson.has_more ? fjson.next_page : null;
         isLoading = false;
         return { data: shuffleArray(fjson.data || []), hasMore: fjson.has_more || false };
       }
+      isLoading = false;
       return { data: [], hasMore: false };
     }
     const json = await res.json();
+    if (json.object === 'error') { isLoading = false; return { data: [], hasMore: false }; }
     nextPageUrl = json.has_more ? json.next_page : null;
     isLoading = false;
     const data = json.data || [];

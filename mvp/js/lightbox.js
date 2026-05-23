@@ -61,8 +61,14 @@ function openLightbox(card, mode = 'feed') {
   // FTE overlay — shown on every open, fades out after 2s
   const fteHtml = `
     <div class="lb-fte-overlay" id="lbFteOverlay">
-      <div class="lb-fte-row"><span class="lb-fte-icon">↑</span><span class="lb-fte-label">Next</span></div>
-      <div class="lb-fte-row"><span class="lb-fte-icon">↓</span><span class="lb-fte-label">Previous</span></div>
+      <div class="fte-half fte-left">
+        <div class="lb-fte-icon">←</div>
+        <div class="lb-fte-label">Previous</div>
+      </div>
+      <div class="fte-half fte-right">
+        <div class="lb-fte-icon">→</div>
+        <div class="lb-fte-label">Next</div>
+      </div>
     </div>
   `;
 
@@ -150,45 +156,48 @@ function openLightbox(card, mode = 'feed') {
     }
   }
 
-  // ── Mobile swipe — up=next, down=prev/close ─────────────────────────────────
+  // ── Mobile swipe — full screen, left=prev, right=next ──────────────────────
+  const swipeTarget = document.getElementById("lightboxOverlay");
   const artContainer = document.getElementById("artContainer");
   let swX = 0, swY = 0, scX = 0, scY = 0, swiping = false, swDir = null;
 
-  artContainer.addEventListener('touchstart', (e) => {
+  swipeTarget.addEventListener('touchstart', (e) => {
+    // Don't intercept taps on buttons/links
+    if (e.target.closest('button, a, .toggle, .meta-link')) return;
     swX = e.touches[0].clientX; swY = e.touches[0].clientY;
     scX = swX; scY = swY; swiping = true; swDir = null;
     artContainer.style.transition = 'none';
   }, { passive: true });
 
-  artContainer.addEventListener('touchmove', (e) => {
+  swipeTarget.addEventListener('touchmove', (e) => {
     if (!swiping) return;
     const dx = e.touches[0].clientX - swX;
     const dy = e.touches[0].clientY - swY;
     scX = e.touches[0].clientX; scY = e.touches[0].clientY;
     if (!swDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
-      swDir = Math.abs(dy) >= Math.abs(dx) ? 'v' : 'h';
-    if (swDir === 'v') {
-      artContainer.style.transform = `translateY(${dy}px)`;
-      artContainer.style.opacity   = String(Math.max(0.2, 1 - Math.abs(dy) / (window.innerHeight * 0.6)));
+      swDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
+    if (swDir === 'h') {
+      artContainer.style.transform = `translateX(${dx}px) rotate(${(dx / window.innerWidth) * 3}deg)`;
+      artContainer.style.opacity   = String(Math.max(0.2, 1 - Math.abs(dx) / (window.innerWidth * 1.5)));
     }
   }, { passive: true });
 
-  artContainer.addEventListener('touchend', () => {
+  swipeTarget.addEventListener('touchend', () => {
     if (!swiping) return;
     swiping = false;
-    const dy = scY - swY;
-    const threshold = window.innerHeight * 0.18;
+    const dx = scX - swX;
+    const threshold = window.innerWidth * 0.25;
 
-    if (swDir === 'v' && Math.abs(dy) >= threshold) {
-      const exitY = dy < 0 ? '-110%' : '110%';
+    if (swDir === 'h' && Math.abs(dx) >= threshold) {
+      const exitX = dx < 0 ? '-110%' : '110%';
       artContainer.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
-      artContainer.style.transform  = `translateY(${exitY})`;
+      artContainer.style.transform  = `translateX(${exitX})`;
       artContainer.style.opacity    = '0';
       setTimeout(() => {
         artContainer.style.transition = 'none';
         artContainer.style.transform  = '';
         artContainer.style.opacity    = '1';
-        if (dy < 0) goNext(); else goPrev();
+        if (dx < 0) goNext(); else goPrev();
       }, 220);
       return;
     }

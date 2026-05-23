@@ -828,46 +828,46 @@ body {
 
 .random-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* FTE overlay — shown on every lightbox open, fades out after 2s */
+/* FTE overlay — Tinder-style split screen, shown on every open */
 .lb-fte-overlay {
   display: none;
   position: absolute;
-  bottom: 5.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(12,12,15,0.72);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 0.7rem 1.2rem;
-  flex-direction: column;
-  gap: 0.35rem;
-  pointer-events: none;
-  backdrop-filter: blur(8px);
+  inset: 0;
   z-index: 5;
+  pointer-events: none;
 }
 
-.lb-fte-row {
+.lb-fte-overlay .fte-half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.6rem;
+  background: rgba(12,12,15,0.55);
 }
+
+.lb-fte-overlay .fte-half.fte-left  { left: 0;   border-right: 1px dashed rgba(255,255,255,0.15); }
+.lb-fte-overlay .fte-half.fte-right { right: 0; }
 
 .lb-fte-icon {
-  font-size: 0.9rem;
-  color: rgba(240,240,240,0.8);
-  width: 16px;
-  text-align: center;
+  font-size: 2rem;
+  color: rgba(240,240,240,0.9);
 }
 
 .lb-fte-label {
-  font-size: 0.7rem;
-  letter-spacing: 1px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(240,240,240,0.5);
+  color: rgba(240,240,240,0.9);
 }
 
 @media (max-width: 768px) {
-  .lb-fte-overlay { display: flex; }
+  .lb-fte-overlay { display: block; }
 }
 
 /* Remove old FTE/swipe hint classes */
@@ -1091,6 +1091,14 @@ body {
   transition: background 150ms, transform 150ms;
   padding: 0 1.2rem;
   white-space: nowrap;
+}
+
+.mobile-action-btn.icon-only {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  flex-shrink: 0;
+  border-radius: 50%;
 }
 
 /* Floating Surprise Me pill — mobile only */

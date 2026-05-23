@@ -22,6 +22,7 @@ let arrowTimer = null;
 // ─── Open / Close ─────────────────────────────────────────────────────────────
 
 function enterDrawMode() {
+  console.log('[Draw] enterDrawMode called, drawOpen=', drawOpen);
   if (drawOpen) return;
   drawOpen    = true;
   savedScroll = window.scrollY;

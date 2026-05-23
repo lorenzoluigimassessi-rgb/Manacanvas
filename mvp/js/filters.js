@@ -35,6 +35,7 @@ async function initFilters() {
   if (isMobile()) {
     filtersContainer.innerHTML = `
       <button class="filter-btn mobile-filters-btn" id="mobileFiltersBtn" onclick="openDrawer()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="5" cy="3" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="8" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="13" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/></svg> Filters</button>
+      <button class="mobile-clear-btn" id="mobileClearBtn" style="display:none;" onclick="clearAllFilters()">Clear</button>
     `;
     document.getElementById("row2Right").innerHTML = `
       <button class="filter-btn" id="viewBtn">⊞</button>
@@ -688,40 +689,53 @@ function updateChips() {
   const chips = [];
 
   if (activeArtist.length)
-    chips.push({ label: activeArtist.length === 1 ? activeArtist[0] : `Artists (${activeArtist.length})`, clear: () => clearArtist() });
+    chips.push({ label: activeArtist.length === 1 ? activeArtist[0] : `Artists (${activeArtist.length})`, icon: "", clear: () => clearArtist() });
   if (activeType.length)
-    chips.push({ label: activeType.length === 1 ? activeType[0] : `Creatures (${activeType.length})`, clear: () => clearType() });
+    chips.push({ label: activeType.length === 1 ? activeType[0] : `Creatures (${activeType.length})`, icon: "", clear: () => clearType() });
   if (activeSets.length) {
-    const setLabel = activeSets.length === 1 ? (setList.find(s => s.code === activeSets[0])?.name || "1 Set") : `Sets (${activeSets.length})`;
-    chips.push({ label: setLabel, clear: () => clearAllSets() });
+    const s = activeSets.length === 1 ? setList.find(s => s.code === activeSets[0]) : null;
+    const icon = s ? `<img src="${s.icon}" style="width:13px;height:13px;filter:brightness(0) invert(0.8);flex-shrink:0;">` : "";
+    const label = s ? s.name : `Sets (${activeSets.length})`;
+    chips.push({ label, icon, clear: () => clearAllSets() });
   }
   if (activeStyles.length)
-    chips.push({ label: activeStyles.length === 1 ? ART_STYLES[activeStyles[0]].name : `Style (${activeStyles.length})`, clear: () => { activeStyles = []; const btn = document.getElementById("styleBtn"); if (btn) { btn.textContent = "Art Style ▾"; btn.classList.remove("active"); } updateChips(); loadInitialGrid(); } });
+    chips.push({ label: activeStyles.length === 1 ? ART_STYLES[activeStyles[0]].name : `Style (${activeStyles.length})`, icon: "", clear: () => { activeStyles = []; const btn = document.getElementById("styleBtn"); if (btn) { btn.textContent = "Art Style ▾"; btn.classList.remove("active"); } updateChips(); loadInitialGrid(); } });
   if (activeCardType.length)
-    chips.push({ label: activeCardType.length === 1 ? activeCardType[0] : `Type (${activeCardType.length})`, clear: () => clearCardType() });
-  if (activeColour.length)
-    chips.push({ label: activeColour.length === 1 ? (MANA_TYPES.find(m => m.code === activeColour[0])?.label || activeColour[0]) : `Mana (${activeColour.length})`, clear: () => clearColour() });
+    chips.push({ label: activeCardType.length === 1 ? activeCardType[0] : `Type (${activeCardType.length})`, icon: "", clear: () => clearCardType() });
+  if (activeColour.length) {
+    const m = activeColour.length === 1 ? MANA_TYPES.find(m => m.code === activeColour[0]) : null;
+    const icon = m ? `<img src="${m.svg}" style="width:13px;height:13px;flex-shrink:0;">` : "";
+    const label = m ? m.label : `Mana (${activeColour.length})`;
+    chips.push({ label, icon, clear: () => clearColour() });
+  }
   if (activeYearMin || activeYearMax)
-    chips.push({ label: `${activeYearMin || 1993}–${activeYearMax || new Date().getFullYear()}`, clear: () => { activeYearMin = null; activeYearMax = null; updateMoreBadge(); updateChips(); loadInitialGrid(); } });
+    chips.push({ label: `${activeYearMin || 1993}–${activeYearMax || new Date().getFullYear()}`, icon: "", clear: () => { activeYearMin = null; activeYearMax = null; updateMoreBadge(); updateChips(); loadInitialGrid(); } });
   if (activeSearch)
-    chips.push({ label: `"${activeSearch}"`, clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; updateChips(); loadInitialGrid(); } });
+    chips.push({ label: `"${activeSearch}"`, icon: "", clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; updateChips(); loadInitialGrid(); } });
 
   const hasFilters = chips.length > 0;
+
+  // Desktop: show chip bar, no redundant count badge (chips are the count)
   chipBar.style.display = (!isMobile() && hasFilters) ? "flex" : "none";
   if (clearBtn) clearBtn.style.display = hasFilters ? "inline-flex" : "none";
+  const badge = document.getElementById("desktopFilterBadge");
+  if (badge) badge.remove();
+
+  // Mobile: show/hide inline clear button next to Filters
+  const mobileClear = document.getElementById("mobileClearBtn");
+  if (mobileClear) mobileClear.style.display = hasFilters ? "inline-flex" : "none";
 
   chipList.innerHTML = "";
   chips.forEach(chip => {
     const el = document.createElement("div");
     el.className = "filter-chip";
-    el.innerHTML = `<span>${chip.label}</span><span class="chip-remove" title="Remove">✕</span>`;
+    el.innerHTML = `${chip.icon}<span>${chip.label}</span><span class="chip-remove" title="Remove">✕</span>`;
     el.querySelector(".chip-remove").addEventListener("click", chip.clear);
     chipList.appendChild(el);
   });
 
-  updateDesktopBadge(chips.length);
   updateMoreBadge();
-  updateDrawerBadge(chips.length);
+  updateDrawerBadge(hasFilters ? chips.length : 0);
 }
 
 function updateDesktopBadge(count) {

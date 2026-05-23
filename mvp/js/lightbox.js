@@ -114,7 +114,6 @@ function openLightbox(card, mode = 'feed') {
     const lbPrev = document.getElementById("lbPrev");
     const lbNext = document.getElementById("lbNext");
     const currentIndex = filteredCards.findIndex(c => c.id === card.id);
-    console.log('[LB] filteredCards.length:', filteredCards.length, 'currentIndex:', currentIndex, 'card.id:', card.id);
 
     if (currentIndex <= 0) lbPrev.classList.add('hidden');
     if (currentIndex === -1 || currentIndex >= filteredCards.length - 1) lbNext.classList.add('hidden');
@@ -232,12 +231,14 @@ function applyZoom(delta) {
 }
 
 function applyTransform() {
-  const img = document.getElementById("lbImage");
-  if (img) img.style.transform = `scale(${scale}) translate(${translateX / scale}px, ${translateY / scale}px)`;
+  const container = document.getElementById("artContainer");
+  if (container) container.style.transform = `scale(${scale}) translate(${translateX / scale}px, ${translateY / scale}px)`;
 }
 
 function resetZoom() {
-  scale = 1; translateX = 0; translateY = 0; applyTransform();
+  scale = 1; translateX = 0; translateY = 0;
+  const container = document.getElementById("artContainer");
+  if (container) container.style.transform = '';
 }
 
 function getTouchDist(touches) {

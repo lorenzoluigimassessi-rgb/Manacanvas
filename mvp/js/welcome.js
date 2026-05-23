@@ -33,7 +33,10 @@ async function renderWelcome() {
         <p class="welcome-subtitle">Discover 30 years of Magic: The Gathering artwork</p>
         <button class="welcome-cta" onclick="startBrowse()">Browse the Gallery</button>
         <p class="welcome-draw-separator">or</p>
-        <button class="welcome-draw-cta" onclick="startDraw()">✦ Draw a card</button>
+        <button class="welcome-draw-cta" onclick="startSurprise()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:0.5rem"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg>
+          Surprise Me
+        </button>
       </div>
       <footer class="site-footer welcome-footer">
         <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images © Wizards of the Coast.</p>
@@ -63,12 +66,13 @@ function startBrowse() {
   loadInitialGrid();
 }
 
-function startDraw() {
+function startSurprise() {
   localStorage.setItem("mc_entered", "1");
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
   loadInitialGrid();
-  enterDrawMode();
+  // Open a random card in the lightbox once the grid loads
+  fetchRandomCard().then(card => { if (card) openLightbox(card); });
 }
 
 // On load: skip welcome if user has been here before

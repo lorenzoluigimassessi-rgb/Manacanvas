@@ -1256,6 +1256,15 @@ function updateDrawerBadge(count) {
   }
 }
 
+// Full state reset — called when returning to welcome page
+function resetAllState() {
+  activeArtist = []; activeType = []; activeCardType = [];
+  activeColour = []; activeSets = []; activeStyles = [];
+  activeYearMin = null; activeYearMax = null; activeSearch = null;
+  sortOrder = "random";
+  sortDir = "auto";
+}
+
 function clearAllFilters() {
   activeArtist = []; activeType = []; activeCardType = [];
   activeColour = []; activeSets = []; activeStyles = [];

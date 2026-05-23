@@ -50,6 +50,7 @@ async function renderWelcome() {
 function showWelcome() {
   localStorage.removeItem("mc_entered");
   localStorage.removeItem("mc_filters");
+  resetAllState();
   appShell.style.display = "none";
   welcomeEl.style.display = "block";
   renderWelcome();

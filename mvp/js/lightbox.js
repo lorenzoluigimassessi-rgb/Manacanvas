@@ -113,9 +113,10 @@ function openLightbox(card, mode = 'feed') {
   if (!isSurprise) {
     const lbPrev = document.getElementById("lbPrev");
     const lbNext = document.getElementById("lbNext");
-    const currentIndex = typeof filteredCards !== 'undefined' ? filteredCards.indexOf(card) : -1;
+    const currentIndex = filteredCards.findIndex(c => c.id === card.id);
+
     if (currentIndex <= 0) lbPrev.classList.add('hidden');
-    if (currentIndex === -1 || currentIndex >= (filteredCards?.length ?? 0) - 1) lbNext.classList.add('hidden');
+    if (currentIndex === -1 || currentIndex >= filteredCards.length - 1) lbNext.classList.add('hidden');
 
     lbPrev.addEventListener('click', () => {
       if (currentIndex > 0) openLightbox(filteredCards[currentIndex - 1], 'feed');
@@ -124,7 +125,7 @@ function openLightbox(card, mode = 'feed') {
       if (currentIndex < filteredCards.length - 1) openLightbox(filteredCards[currentIndex + 1], 'feed');
     });
 
-    // Mobile swipe for feed mode
+    // Mobile swipe
     let swipeStartX = 0;
     const artContainer = document.getElementById("artContainer");
     artContainer.addEventListener('touchstart', (e) => { swipeStartX = e.touches[0].clientX; }, { passive: true });

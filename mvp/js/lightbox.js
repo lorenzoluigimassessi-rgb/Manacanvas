@@ -146,12 +146,14 @@ function openLightbox(card, mode = 'feed') {
   document.getElementById("toggleArt").addEventListener("click", () => {
     if (!hasArtCrop) return;
     currentMode = "art"; img.src = artCrop;
+    img.classList.remove("frame-mode");
     document.getElementById("toggleArt").classList.add("active");
     document.getElementById("toggleFrame").classList.remove("active");
     resetZoom();
   });
   document.getElementById("toggleFrame").addEventListener("click", () => {
     currentMode = "frame"; img.src = normal;
+    img.classList.add("frame-mode");
     document.getElementById("toggleFrame").classList.add("active");
     document.getElementById("toggleArt").classList.remove("active");
     resetZoom();

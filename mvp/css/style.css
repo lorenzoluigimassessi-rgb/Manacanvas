@@ -898,6 +898,11 @@ body {
   transition: opacity var(--transition-slow);
 }
 
+.lightbox .art-container img.frame-mode {
+  border-radius: 0;
+  background: transparent;
+}
+
 .lightbox .meta {
   text-align: center;
   margin-top: 1.2rem;

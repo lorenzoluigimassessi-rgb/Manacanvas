@@ -1263,7 +1263,7 @@ body {
   .random-btn-primary { font-size: 1rem; padding: 0.85rem 2rem; }
   .welcome-title { font-size: 2.8rem; letter-spacing: 5px; }
   .welcome-subtitle { font-size: 0.78rem; letter-spacing: 1px; white-space: normal; text-align: center; }
-  .welcome-footer { padding: 0 2rem; font-size: 0.7rem; color: rgba(240,240,240,0.6); }
+  .welcome-footer { padding: 0 2.5rem; font-size: 0.7rem; color: rgba(240,240,240,0.6); bottom: 0.75rem; position: absolute; }
   .lightbox .meta .name { font-size: 1.1rem; }
   .welcome-cta { width: 100%; max-width: 280px; height: 52px; }
   .welcome-draw-cta { width: 100%; max-width: 280px; height: 52px; }

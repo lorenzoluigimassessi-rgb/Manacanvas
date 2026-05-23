@@ -120,6 +120,27 @@ function startSurprise() {
 if (localStorage.getItem("mc_entered")) {
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
+  // Restore lightbox if it was open before reload
+  const savedLb = localStorage.getItem('mc_lightbox');
+  if (savedLb) {
+    try {
+      const { id, mode } = JSON.parse(savedLb);
+      // Wait for grid to load, then restore
+      const restoreLightbox = () => {
+        if (mode === 'feed') {
+          // Try from filteredCards first, fallback to Scryfall
+          const card = filteredCards.find(c => c.id === id);
+          if (card) { openLightbox(card, 'feed'); return; }
+        }
+        // For surprise or card not in feed — fetch by id
+        fetch(`https://api.scryfall.com/cards/${id}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(card => { if (card && card.id) openLightbox(card, mode); });
+      };
+      // Give grid a moment to populate filteredCards
+      setTimeout(restoreLightbox, 600);
+    } catch(e) { localStorage.removeItem('mc_lightbox'); }
+  }
 } else {
   const bar = document.getElementById("mobileActionBar");
   if (bar) bar.style.display = "none";

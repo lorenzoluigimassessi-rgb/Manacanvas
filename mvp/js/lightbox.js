@@ -84,6 +84,8 @@ function openLightbox(card, mode = 'feed') {
 
   const lightbox = document.getElementById("lightbox");
   lightbox.style.background = '#0c0c0f';
+  // Persist lightbox state for reload
+  localStorage.setItem('mc_lightbox', JSON.stringify({ id: card.id, mode }));
   lightbox.innerHTML = `
     <div class="lightbox" id="lightboxOverlay" style="background:#0c0c0f;">
       ${blurBgHtml}
@@ -438,6 +440,7 @@ function handleLbKey(e) {
 }
 
 function closeLightbox() {
+  localStorage.removeItem('mc_lightbox');
   document.getElementById("lightbox").innerHTML = "";
   document.body.style.overflow = "";
   document.removeEventListener("keydown", handleLbKey);

@@ -47,15 +47,15 @@ function openLightbox(card, mode = 'feed') {
   // Background style
   const bgStyle = isSurprise
     ? `style="background:${gradient};"`
-    : `style="background:rgba(0,0,0,0.92);"`;
+    : `style="background:rgba(0,0,0,0.78);"`;
 
-  // Prev/next arrows — feed mode only
+  // Prev/next arrows — feed mode only, inside art-container
   const arrowsHtml = !isSurprise ? `
     <button class="lb-nav-arrow" id="lbPrev">‹</button>
     <button class="lb-nav-arrow" id="lbNext">›</button>
   ` : '';
 
-  // Actions row — Surprise Me in surprise mode, nothing in feed mode
+  // Actions row
   const actionsHtml = isSurprise ? `
     <div class="lightbox-actions">
       <div class="toggle">
@@ -81,8 +81,8 @@ function openLightbox(card, mode = 'feed') {
   lightbox.innerHTML = `
     <div class="lightbox" id="lightboxOverlay" ${bgStyle}>
       <button class="close-btn" id="lbClose">✕</button>
-      ${arrowsHtml}
       <div class="art-container" id="artContainer">
+        ${arrowsHtml}
         <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
       </div>
       <div class="meta">

@@ -13,6 +13,9 @@ let activeYearMin = null;
 let activeYearMax = null;
 let activeSearch = null;
 
+// Track cards currently in the feed for lightbox prev/next
+let filteredCards = [];
+
 async function loadInitialGrid() {
   // Save current filter state to localStorage
   localStorage.setItem("mc_filters", JSON.stringify({
@@ -29,6 +32,7 @@ async function loadInitialGrid() {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><h2>No artwork found</h2><p>Try adjusting your filters or clearing them to browse all art.</p></div>`;
     return;
   }
+  filteredCards = data;
   renderCards(data);
   if (hasMore) observeLastCard();
 }
@@ -72,6 +76,7 @@ function observeLastCard() {
       loader.style.display = "block";
       const { data, hasMore } = await fetchCards();
       loader.style.display = "none";
+      filteredCards = filteredCards.concat(data);
       renderCards(data);
       if (hasMore) observeLastCard();
     }

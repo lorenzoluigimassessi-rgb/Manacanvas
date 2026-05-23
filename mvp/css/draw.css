@@ -401,7 +401,8 @@
   font-weight: 400;
   letter-spacing: 1px;
   cursor: pointer;
-  padding: 0.9rem 3rem;
+  padding: 0.9rem 0;
+  width: 260px;
   color: rgba(240,240,240,0.7);
   transition: border-color 200ms, color 200ms;
   display: inline-block;

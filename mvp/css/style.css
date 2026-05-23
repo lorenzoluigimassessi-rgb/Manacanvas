@@ -825,6 +825,32 @@ body {
 
 .random-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Mobile swipe hint in feed lightbox */
+.lb-swipe-hint {
+  display: none;
+  position: absolute;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  color: rgba(240,240,240,0.45);
+  pointer-events: none;
+  animation: swipeHintFade 2.5s ease forwards;
+  white-space: nowrap;
+}
+
+@keyframes swipeHintFade {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  .lb-swipe-hint { display: block; }
+}
+
 /* Lightbox */
 .lightbox {
   position: fixed;

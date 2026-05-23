@@ -77,6 +77,10 @@ function openLightbox(card, mode = 'feed') {
     ? 'Scroll to zoom · Drag to pan · R for random'
     : 'Scroll to zoom · Drag to pan · ← → to browse';
 
+  const swipeHintHtml = !isSurprise
+    ? `<div class="lb-swipe-hint" id="lbSwipeHint">‹ swipe ›</div>`
+    : '';
+
   const lightbox = document.getElementById("lightbox");
   lightbox.innerHTML = `
     <div class="lightbox" id="lightboxOverlay" ${bgStyle}>
@@ -95,6 +99,7 @@ function openLightbox(card, mode = 'feed') {
         </div>
       </div>
       ${actionsHtml}
+      ${swipeHintHtml || ''}
       <div class="zoom-hint" id="zoomHint">${hintText}</div>
     </div>
   `;
@@ -125,15 +130,81 @@ function openLightbox(card, mode = 'feed') {
       if (currentIndex < filteredCards.length - 1) openLightbox(filteredCards[currentIndex + 1], 'feed');
     });
 
-    // Mobile swipe
-    let swipeStartX = 0;
+    // Mobile swipe — live drag with peek and animation
+    let swipeStartX = 0, swipeStartY = 0, swipeCurX = 0;
+    let swiping = false, swipeDir = null;
     const artContainer = document.getElementById("artContainer");
-    artContainer.addEventListener('touchstart', (e) => { swipeStartX = e.touches[0].clientX; }, { passive: true });
+
+    // Swipe hint on first open — nudge left then back
+    const isFirstOpen = !sessionStorage.getItem('lb_swipe_hinted');
+    if (isFirstOpen) {
+      sessionStorage.setItem('lb_swipe_hinted', '1');
+      setTimeout(() => {
+        artContainer.style.transition = 'transform 300ms ease-out';
+        artContainer.style.transform = 'translateX(-18px)';
+        setTimeout(() => {
+          artContainer.style.transition = 'transform 400ms cubic-bezier(0.34,1.56,0.64,1)';
+          artContainer.style.transform = '';
+          setTimeout(() => { artContainer.style.transition = ''; }, 400);
+        }, 320);
+      }, 600);
+    }
+
+    artContainer.addEventListener('touchstart', (e) => {
+      swipeStartX = e.touches[0].clientX;
+      swipeStartY = e.touches[0].clientY;
+      swipeCurX   = swipeStartX;
+      swiping     = true;
+      swipeDir    = null;
+      artContainer.style.transition = 'none';
+    }, { passive: true });
+
+    artContainer.addEventListener('touchmove', (e) => {
+      if (!swiping) return;
+      const dx = e.touches[0].clientX - swipeStartX;
+      const dy = e.touches[0].clientY - swipeStartY;
+      swipeCurX = e.touches[0].clientX;
+      if (!swipeDir) {
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8)
+          swipeDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
+        return;
+      }
+      if (swipeDir !== 'h') return;
+      const tilt = (dx / window.innerWidth) * 3;
+      artContainer.style.transform = `translateX(${dx}px) rotate(${tilt}deg)`;
+      artContainer.style.opacity   = String(1 - Math.abs(dx) / (window.innerWidth * 1.5));
+    }, { passive: true });
+
     artContainer.addEventListener('touchend', (e) => {
-      const dx = e.changedTouches[0].clientX - swipeStartX;
-      if (Math.abs(dx) < 40) return;
-      if (dx < 0 && currentIndex < filteredCards.length - 1) openLightbox(filteredCards[currentIndex + 1], 'feed');
-      if (dx > 0 && currentIndex > 0) openLightbox(filteredCards[currentIndex - 1], 'feed');
+      if (!swiping) return;
+      swiping = false;
+      const dx = swipeCurX - swipeStartX;
+      const threshold = window.innerWidth * 0.28;
+
+      if (swipeDir !== 'h' || Math.abs(dx) < threshold) {
+        // Snap back
+        artContainer.style.transition = 'transform 280ms cubic-bezier(0.34,1.56,0.64,1), opacity 280ms ease';
+        artContainer.style.transform  = '';
+        artContainer.style.opacity    = '1';
+        setTimeout(() => { artContainer.style.transition = ''; }, 280);
+        return;
+      }
+
+      // Commit swipe — slide out then load next
+      const exitX = dx < 0 ? '-110%' : '110%';
+      artContainer.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
+      artContainer.style.transform  = `translateX(${exitX})`;
+      artContainer.style.opacity    = '0';
+
+      setTimeout(() => {
+        artContainer.style.transition = 'none';
+        artContainer.style.transform  = '';
+        artContainer.style.opacity    = '1';
+        if (dx < 0 && currentIndex < filteredCards.length - 1)
+          openLightbox(filteredCards[currentIndex + 1], 'feed');
+        else if (dx > 0 && currentIndex > 0)
+          openLightbox(filteredCards[currentIndex - 1], 'feed');
+      }, 220);
     });
   }
 

@@ -76,6 +76,7 @@ function openLightbox(card, mode = 'feed') {
         <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
         ${ghostArrowsHtml}
       </div>
+      ${actionsHtml}
       <div class="meta">
         <div class="name">${card.name}</div>
         <div class="details">
@@ -84,7 +85,6 @@ function openLightbox(card, mode = 'feed') {
           ${year    ? ` · <span class="meta-link" id="lbYear">${year}</span>`    : ""}
         </div>
       </div>
-      ${actionsHtml}
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
     </div>
   `;
@@ -116,23 +116,23 @@ function openLightbox(card, mode = 'feed') {
 
   // ── Navigation ──────────────────────────────────────────────────────────────
   function goNext() {
-    if (isSurprise) {
+    if (_lbMode === 'surprise') {
       if (!window._surpriseQueue) window._surpriseQueue = [];
       const next = window._surpriseQueue.shift();
       if (next) transitionTo(next, 'next', 'surprise');
       else fetchRandomCard().then(c => { if (c) transitionTo(c, 'next', 'surprise'); });
     } else {
-      const idx = filteredCards.findIndex(c => c.id === card.id);
+      const idx = filteredCards.findIndex(c => c.id === currentCard.id);
       if (idx < filteredCards.length - 1) transitionTo(filteredCards[idx + 1], 'next', 'feed');
     }
   }
 
   function goPrev() {
-    if (isSurprise) {
+    if (_lbMode === 'surprise') {
       closeLightbox();
       showWelcome();
     } else {
-      const idx = filteredCards.findIndex(c => c.id === card.id);
+      const idx = filteredCards.findIndex(c => c.id === currentCard.id);
       if (idx > 0) transitionTo(filteredCards[idx - 1], 'prev', 'feed');
     }
   }
@@ -231,7 +231,7 @@ function openLightbox(card, mode = 'feed') {
     if (!g) return;
     g.style.opacity = '1';
     clearTimeout(ghostTimer);
-    ghostTimer = setTimeout(() => { if (g) g.style.opacity = '0'; }, 2000);
+    ghostTimer = setTimeout(() => { if (g) g.style.opacity = '0'; }, 1500);
   }
   showGhostArrows();
   document.getElementById('lightboxOverlay').addEventListener('touchstart', showGhostArrows, { passive: true });
@@ -247,11 +247,11 @@ function openLightbox(card, mode = 'feed') {
 
   function getSwipeCard(goingNext) {
     if (goingNext) {
-      if (isSurprise) return (window._surpriseQueue || [])[0] || null;
+      if (_lbMode === 'surprise') return (window._surpriseQueue || [])[0] || null;
       const idx = filteredCards.findIndex(c => c.id === currentCard.id);
       return idx < filteredCards.length - 1 ? filteredCards[idx + 1] : null;
     } else {
-      if (isSurprise) return null;
+      if (_lbMode === 'surprise') return null;
       const idx = filteredCards.findIndex(c => c.id === currentCard.id);
       return idx > 0 ? filteredCards[idx - 1] : null;
     }
@@ -278,11 +278,11 @@ function openLightbox(card, mode = 'feed') {
     const dx = scX - swX;
     if (swDir !== 'h' || Math.abs(dx) < window.innerWidth * 0.2) return;
     const goingNext = dx < 0;
-    if (!goingNext && isSurprise) { closeLightbox(); showWelcome(); return; }
+    if (!goingNext && _lbMode === 'surprise') { closeLightbox(); showWelcome(); return; }
     const target = getSwipeCard(goingNext);
     if (!target) return;
-    if (goingNext && isSurprise && window._surpriseQueue) window._surpriseQueue.shift();
-    transitionTo(target, goingNext ? 'next' : 'prev', isSurprise ? 'surprise' : 'feed');
+    if (goingNext && _lbMode === 'surprise' && window._surpriseQueue) window._surpriseQueue.shift();
+    transitionTo(target, goingNext ? 'next' : 'prev', _lbMode === 'surprise' ? 'surprise' : 'feed');
   });
 
   // ── Frame toggle ────────────────────────────────────────────────────────────

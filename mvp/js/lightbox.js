@@ -46,7 +46,7 @@ function openLightbox(card, mode = 'feed') {
   // Both modes use blurred art background
   const bgStyle = `style="background:#0c0c0f;"`;
   const blurBgHtml = `<div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>`;
-  // Prev/next arrows — feed mode only, inside art-container
+  // Prev/next arrows — feed mode only, outside art-container
   const arrowsHtml = !isSurprise ? `
     <button class="lb-nav-arrow" id="lbPrev">‹</button>
     <button class="lb-nav-arrow" id="lbNext">›</button>
@@ -82,8 +82,8 @@ function openLightbox(card, mode = 'feed') {
     <div class="lightbox" id="lightboxOverlay" ${bgStyle}>
       ${blurBgHtml}
       <button class="close-btn" id="lbClose">✕</button>
+      ${arrowsHtml}
       <div class="art-container" id="artContainer">
-        ${arrowsHtml}
         <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
       </div>
       <div class="meta">

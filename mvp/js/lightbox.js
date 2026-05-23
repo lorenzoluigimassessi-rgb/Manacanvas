@@ -53,18 +53,8 @@ function openLightbox(card, mode = 'feed') {
   ` : '';
 
   // Actions row
-  const actionsHtml = isSurprise ? `
-    <div class="lightbox-actions">
-      <div class="toggle">
-        <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
-        <button id="toggleFrame">With Frame</button>
-      </div>
-      <button class="random-btn-primary" id="lbRandom">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg>
-        Surprise Me
-      </button>
-    </div>
-  ` : `
+  // Both modes: same toggle-only actions
+  const actionsHtml = `
     <div class="lightbox-actions">
       <div class="toggle">
         <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
@@ -72,15 +62,12 @@ function openLightbox(card, mode = 'feed') {
       </div>
     </div>
   `;
-
   const hintText = isSurprise
     ? 'Scroll to zoom · Drag to pan · R for random'
     : 'Scroll to zoom · Drag to pan · ← → to browse';
 
-  const swipeHintHtml = !isSurprise
-    ? `<div class="lb-swipe-hint" id="lbSwipeHint">↑ swipe up to close · ← → to browse</div>
-       <div class="lb-fte" id="lbFte"><div class="lb-fte-arrow">↑</div><div class="lb-fte-text">Swipe up to close</div></div>`
-    : '';
+  const swipeHintHtml = `<div class="lb-swipe-hint" id="lbSwipeHint">↑ swipe up to close · ← → to browse</div>
+     <div class="lb-fte" id="lbFte"><div class="lb-fte-arrow">↑</div><div class="lb-fte-text">Swipe up to close</div></div>`;
 
   const lightbox = document.getElementById("lightbox");
   lightbox.innerHTML = `
@@ -224,9 +211,67 @@ function openLightbox(card, mode = 'feed') {
     });
   }
 
-  // Surprise Me button — surprise mode
+  // Surprise Me button removed — swipe navigates instead
+  // Pre-fetch a small surprise queue for swipe navigation
   if (isSurprise) {
-    document.getElementById("lbRandom").addEventListener("click", () => loadRandomCard());
+    if (!window._surpriseQueue) window._surpriseQueue = [];
+    // Pre-warm queue in background
+    if (window._surpriseQueue.length < 2) {
+      Promise.all([fetchRandomCard(), fetchRandomCard()])
+        .then(cards => { window._surpriseQueue.push(...cards.filter(Boolean)); });
+    }
+
+    // Mobile swipe for surprise mode
+    const artContainerS = document.getElementById("artContainer");
+    let ssX = 0, ssY = 0, scX = 0, scY = 0, sSwiping = false, sDir = null;
+
+    artContainerS.addEventListener('touchstart', (e) => {
+      ssX = e.touches[0].clientX; ssY = e.touches[0].clientY;
+      scX = ssX; scY = ssY; sSwiping = true; sDir = null;
+      artContainerS.style.transition = 'none';
+    }, { passive: true });
+
+    artContainerS.addEventListener('touchmove', (e) => {
+      if (!sSwiping) return;
+      const dx = e.touches[0].clientX - ssX, dy = e.touches[0].clientY - ssY;
+      scX = e.touches[0].clientX; scY = e.touches[0].clientY;
+      if (!sDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
+        sDir = Math.abs(dy) >= Math.abs(dx) ? 'v' : 'h';
+      if (sDir === 'v' && dy < 0) {
+        artContainerS.style.transform = `translateY(${dy}px)`;
+        artContainerS.style.opacity = String(Math.max(0, 1 + dy / (window.innerHeight * 0.4)));
+      } else if (sDir === 'h') {
+        artContainerS.style.transform = `translateX(${dx}px) rotate(${(dx / window.innerWidth) * 3}deg)`;
+        artContainerS.style.opacity = String(1 - Math.abs(dx) / (window.innerWidth * 1.5));
+      }
+    }, { passive: true });
+
+    artContainerS.addEventListener('touchend', () => {
+      if (!sSwiping) return;
+      sSwiping = false;
+      const dx = scX - ssX, dy = scY - ssY;
+      if (sDir === 'v' && dy < 0 && Math.abs(dy) > window.innerHeight * 0.18) {
+        artContainerS.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
+        artContainerS.style.transform = 'translateY(-110%)';
+        artContainerS.style.opacity = '0';
+        setTimeout(() => closeLightbox(), 220);
+        return;
+      }
+      if (sDir === 'h' && Math.abs(dx) >= window.innerWidth * 0.28) {
+        artContainerS.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
+        artContainerS.style.transform = `translateX(${dx < 0 ? '-110%' : '110%'})`;
+        artContainerS.style.opacity = '0';
+        setTimeout(() => {
+          const next = window._surpriseQueue.shift();
+          if (next) openLightbox(next, 'surprise');
+          else fetchRandomCard().then(c => { if (c) openLightbox(c, 'surprise'); });
+        }, 220);
+        return;
+      }
+      artContainerS.style.transition = 'transform 280ms cubic-bezier(0.34,1.56,0.64,1), opacity 280ms ease';
+      artContainerS.style.transform = ''; artContainerS.style.opacity = '1';
+      setTimeout(() => { artContainerS.style.transition = ''; }, 280);
+    });
   }
 
   // Frame toggle
@@ -345,7 +390,6 @@ function flashArrow(id) {
 
 function handleLbKey(e) {
   if (e.key === "Escape") closeLightbox();
-  if (e.key === "s" || e.key === "S") { const btn = document.getElementById("lbRandom"); if (btn && !btn.disabled) loadRandomCard(); }
   if (e.key === "ArrowRight") { flashArrow('lbNext'); document.getElementById("lbNext")?.click(); }
   if (e.key === "ArrowLeft")  { flashArrow('lbPrev'); document.getElementById("lbPrev")?.click(); }
 }

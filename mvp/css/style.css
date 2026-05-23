@@ -886,6 +886,9 @@ body {
   max-height: 70vh;
   position: relative;
   cursor: grab;
+  background: #000;
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .lightbox .art-container.grabbing { cursor: grabbing; }

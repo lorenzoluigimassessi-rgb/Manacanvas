@@ -47,7 +47,7 @@ function openLightbox(card, mode = 'feed') {
   // Background style
   const bgStyle = isSurprise
     ? `style="background:${gradient};"`
-    : `style="background:rgba(0,0,0,0.88);"`;
+    : `style="background:rgba(0,0,0,0.95);"`;
 
   // Prev/next arrows — feed mode only, inside art-container
   const arrowsHtml = !isSurprise ? `

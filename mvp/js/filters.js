@@ -1035,8 +1035,14 @@ function renderFlatSheet() {
     </div>
 
     <div class="sheet-section">
-      <div class="sheet-section-label">Card Type</div>
-      <div class="sheet-pill-row" id="sheetCardTypePills"></div>
+      <div class="sheet-section-label">Sets</div>
+      <input class="sheet-input" id="sheetSetInput" placeholder="Search sets..." autocomplete="off">
+      <div class="sheet-list" id="sheetSetList"><div class="sheet-list-item" style="opacity:0.5;">Loading...</div></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-label">Art Style</div>
+      <div class="sheet-style-grid" id="sheetStyleGrid"></div>
     </div>
 
     <div class="sheet-section">
@@ -1051,14 +1057,8 @@ function renderFlatSheet() {
     </div>
 
     <div class="sheet-section">
-      <div class="sheet-section-label">Sets</div>
-      <input class="sheet-input" id="sheetSetInput" placeholder="Search sets..." autocomplete="off">
-      <div class="sheet-list" id="sheetSetList"><div class="sheet-list-item" style="opacity:0.5;">Loading...</div></div>
-    </div>
-
-    <div class="sheet-section">
-      <div class="sheet-section-label">Art Style</div>
-      <div class="sheet-style-grid" id="sheetStyleGrid"></div>
+      <div class="sheet-section-label">Card Type</div>
+      <div class="sheet-pill-row" id="sheetCardTypePills"></div>
     </div>
 
     <div class="sheet-section">

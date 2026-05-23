@@ -4,6 +4,7 @@ let currentMode = "art";
 let scale = 1, translateX = 0, translateY = 0;
 let isDragging = false, dragStartX = 0, dragStartY = 0, lastTx = 0, lastTy = 0;
 let _lbMode = 'feed'; // track mode for close behaviour
+window._surpriseHistory = window._surpriseHistory || [];
 
 const LB_GRADIENTS = {
   W: 'linear-gradient(160deg,#2a2318,#3d3420,#1a1610)',
@@ -119,10 +120,11 @@ function openLightbox(card, mode = 'feed') {
     if (_lbMode === 'surprise') {
       if (!window._surpriseQueue) window._surpriseQueue = [];
       const next = window._surpriseQueue.shift();
-      // Re-warm immediately after consuming
       if (window._surpriseQueue.length < 2)
         Promise.all([fetchRandomCard(), fetchRandomCard()])
           .then(cards => window._surpriseQueue.push(...cards.filter(Boolean)));
+      // Push current to history before moving forward
+      if (currentCard) window._surpriseHistory.push(currentCard);
       if (next) transitionTo(next, 'next', 'surprise');
       else fetchRandomCard().then(c => { if (c) transitionTo(c, 'next', 'surprise'); });
     } else {
@@ -133,8 +135,15 @@ function openLightbox(card, mode = 'feed') {
 
   function goPrev() {
     if (_lbMode === 'surprise') {
-      closeLightbox();
-      showWelcome();
+      const prev = window._surpriseHistory.pop();
+      if (prev) {
+        // Put current back at front of queue so forward still works
+        if (currentCard) window._surpriseQueue.unshift(currentCard);
+        transitionTo(prev, 'prev', 'surprise');
+      } else {
+        closeLightbox();
+        showWelcome();
+      }
     } else {
       const idx = filteredCards.findIndex(c => c.id === currentCard.id);
       if (idx > 0) transitionTo(filteredCards[idx - 1], 'prev', 'feed');

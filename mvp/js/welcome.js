@@ -105,6 +105,7 @@ function startSurprise() {
   const bar = document.getElementById("mobileActionBar");
   if (bar) bar.style.removeProperty("display");
   // Open lightbox first so feed never flashes
+  window._surpriseHistory = []; // reset history for new session
   if (_welcomeCard) {
     openLightbox(_welcomeCard, 'surprise');
     _welcomeCard = null;

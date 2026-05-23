@@ -95,15 +95,14 @@ async function loadSetsIfNeeded() {
 }
 
 // More Filters Modal
-let modalCardType = null;
-let modalColour = null;
+let modalCardType = [];
+let modalColour = [];
 let modalYearMin = null;
 let modalYearMax = null;
 
 function openMoreModal() {
-  // Snapshot current values into modal state
-  modalCardType = activeCardType;
-  modalColour   = activeColour;
+  modalCardType = [...activeCardType];
+  modalColour   = [...activeColour];
   modalYearMin  = activeYearMin;
   modalYearMax  = activeYearMax;
 
@@ -138,23 +137,25 @@ function openMoreModal() {
   // Card type pills
   const ctPills = document.getElementById("modalCardTypePills");
   ctPills.innerHTML = cardTypeList.map(t =>
-    `<div class="more-pill ${modalCardType === t ? 'active' : ''}" data-val="${t}">${t}</div>`
+    `<div class="more-pill ${modalCardType.includes(t) ? 'active' : ''}" data-val="${t}">${t}</div>`
   ).join("");
   ctPills.querySelectorAll(".more-pill").forEach(el => el.addEventListener("click", () => {
-    modalCardType = modalCardType === el.dataset.val ? null : el.dataset.val;
-    ctPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", p.dataset.val === modalCardType));
+    const idx = modalCardType.indexOf(el.dataset.val);
+    if (idx === -1) modalCardType.push(el.dataset.val); else modalCardType.splice(idx, 1);
+    ctPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", modalCardType.includes(p.dataset.val)));
   }));
 
   // Mana pills
   const manaPills = document.getElementById("modalManaPills");
   manaPills.innerHTML = MANA_TYPES.map(m =>
-    `<div class="more-pill ${modalColour === m.code ? 'active' : ''}" data-code="${m.code}">
+    `<div class="more-pill ${modalColour.includes(m.code) ? 'active' : ''}" data-code="${m.code}">
       <img src="${m.svg}" style="width:15px;height:15px;vertical-align:middle;"> ${m.label}
     </div>`
   ).join("");
   manaPills.querySelectorAll(".more-pill").forEach(el => el.addEventListener("click", () => {
-    modalColour = modalColour === el.dataset.code ? null : el.dataset.code;
-    manaPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", p.dataset.code === modalColour));
+    const idx = modalColour.indexOf(el.dataset.code);
+    if (idx === -1) modalColour.push(el.dataset.code); else modalColour.splice(idx, 1);
+    manaPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", modalColour.includes(p.dataset.code)));
   }));
 
   // Year sliders
@@ -194,11 +195,10 @@ function applyMoreModal() {
 }
 
 function clearMoreFilters() {
-  modalCardType = null;
-  modalColour   = null;
+  modalCardType = [];
+  modalColour   = [];
   modalYearMin  = null;
   modalYearMax  = null;
-  // Reset pills visually
   document.querySelectorAll("#modalCardTypePills .more-pill, #modalManaPills .more-pill").forEach(p => p.classList.remove("active"));
   const minY = 1993, maxY = new Date().getFullYear();
   const minEl = document.getElementById("modalYearMin");
@@ -214,7 +214,7 @@ function handleMoreModalKey(e) {
 function updateMoreBadge() {
   const btn = document.getElementById("moreBtn");
   if (!btn) return;
-  const count = [activeCardType, activeColour].filter(Boolean).length +
+  const count = activeCardType.length + activeColour.length +
     (activeYearMin || activeYearMax ? 1 : 0);
   const existing = btn.querySelector(".more-badge");
   if (count > 0) {
@@ -415,7 +415,7 @@ function renderArtistList(query) {
   const filtered = q ? artistList.filter(a => a.toLowerCase().includes(q)) : artistList;
   if (!filtered.length) { list.innerHTML = `<div class="dropdown-item" style="cursor:default;">No artists found</div>`; return; }
   list.innerHTML = "";
-  renderDropdownChunk(list, filtered, 0, 20, (val) => selectArtist(val), q, false);
+  renderDropdownChunk(list, filtered, 0, 20, (val) => toggleArtist(val), q, false);
 }
 
 function renderTypeList(query = "") {
@@ -425,26 +425,40 @@ function renderTypeList(query = "") {
   const filtered = q ? creatureTypeList.filter(t => t.toLowerCase().includes(q)) : creatureTypeList;
   if (!filtered.length) { list.innerHTML = `<div class="dropdown-item" style="cursor:default;">No types found</div>`; return; }
   list.innerHTML = "";
-  renderDropdownChunk(list, filtered, 0, 20, (val) => selectType(val), q, false);
+  renderDropdownChunk(list, filtered, 0, 20, (val) => toggleType(val), q, false);
 }
 
 function renderCardTypeList() {
   const list = document.getElementById("cardTypeList");
   if (!list) return;
   list.innerHTML = "";
-  renderDropdownChunk(list, cardTypeList, 0, 20, (val) => selectCardType(val), "", false);
+  renderDropdownChunk(list, cardTypeList, 0, 20, (val) => toggleCardType(val), "", false);
 }
 
 function renderManaPicker() {
   const picker = document.getElementById("manaPicker");
   picker.innerHTML = MANA_TYPES.map(m => `
-    <div class="mana-option ${activeColour === m.code ? 'active' : ''}" data-code="${m.code}" data-label="${m.label}">
+    <div class="mana-option ${activeColour.includes(m.code) ? 'active' : ''}" data-code="${m.code}" data-label="${m.label}">
       <img class="mana-symbol" src="${m.svg}" alt="${m.label}">
       <span class="mana-label">${m.label}</span>
+      ${activeColour.includes(m.code) ? '<span style="margin-left:auto;font-size:0.7rem;">✓</span>' : ''}
     </div>
   `).join("");
   picker.querySelectorAll(".mana-option").forEach(el => {
-    el.addEventListener("click", () => selectMana(el.dataset.code, el.dataset.label));
+    el.addEventListener("click", () => {
+      toggleColour(el.dataset.code);
+      renderManaPicker();
+      const btn = document.getElementById("manaBtn");
+      if (btn) {
+        if (activeColour.length === 0) btn.textContent = "Mana Type ▾";
+        else if (activeColour.length === 1) {
+          const m = MANA_TYPES.find(m => m.code === activeColour[0]);
+          btn.innerHTML = `<img class="mana-symbol-btn" src="${m.svg}" alt="${m.label}"> ${m.label} ▾`;
+        } else btn.textContent = `Mana (${activeColour.length}) ▾`;
+        btn.classList.toggle("active", activeColour.length > 0);
+      }
+      loadInitialGrid();
+    });
   });
 }
 
@@ -482,15 +496,18 @@ function renderDropdownChunk(list, items, start, chunkSize, onSelect, q, isSet) 
   chunk.forEach(item => {
     const val = isSet ? item.code : item;
     const label = isSet ? item.name : item;
+    // Check active state for multi-select arrays
+    const isActive = isSet ? activeSets.includes(val) :
+      (activeArtist.includes(val) || activeType.includes(val));
     const el = document.createElement("div");
     el.className = isSet
       ? `dropdown-item set-item${activeSets.includes(val) ? ' selected' : ''}`
-      : "dropdown-item";
+      : `dropdown-item${isActive ? ' selected' : ''}`;
     el.dataset.value = val;
     if (isSet) {
       el.innerHTML = `<input type="checkbox" class="set-checkbox" ${activeSets.includes(val) ? 'checked' : ''} onclick="event.stopPropagation()"><img class="set-icon" src="${item.icon}" alt="">${highlightMatch(label, q)}`;
     } else {
-      el.innerHTML = highlightMatch(label, q);
+      el.innerHTML = highlightMatch(label, q) + (isActive ? ' <span style="margin-left:auto;font-size:0.75rem;">✓</span>' : '');
     }
     el.addEventListener("click", () => onSelect(val));
     list.appendChild(el);
@@ -511,43 +528,38 @@ function renderDropdownChunk(list, items, start, chunkSize, onSelect, q, isSet) 
 }
 
 // Select / clear handlers
-function selectArtist(name) {
-  activeArtist = name;
-  closeDropdown();
-  document.getElementById("artistBtn").textContent = name;
-  document.getElementById("artistBtn").classList.add("active");
-  updateChips();
-  loadInitialGrid();
+function toggleArtist(name) {
+  const idx = activeArtist.indexOf(name);
+  if (idx === -1) activeArtist.push(name); else activeArtist.splice(idx, 1);
+  const btn = document.getElementById("artistBtn");
+  if (btn) {
+    btn.textContent = activeArtist.length === 0 ? "All Artists ▾" : activeArtist.length === 1 ? `${activeArtist[0]} ▾` : `Artists (${activeArtist.length}) ▾`;
+    btn.classList.toggle("active", activeArtist.length > 0);
+  }
+  updateChips(); loadInitialGrid();
 }
 
-function selectType(type) {
-  activeType = type;
-  closeDropdown();
-  document.getElementById("typeBtn").textContent = type;
-  document.getElementById("typeBtn").classList.add("active");
-  updateChips();
-  loadInitialGrid();
+function toggleType(type) {
+  const idx = activeType.indexOf(type);
+  if (idx === -1) activeType.push(type); else activeType.splice(idx, 1);
+  const btn = document.getElementById("typeBtn");
+  if (btn) {
+    btn.textContent = activeType.length === 0 ? "Creature Type ▾" : activeType.length === 1 ? `${activeType[0]} ▾` : `Creatures (${activeType.length}) ▾`;
+    btn.classList.toggle("active", activeType.length > 0);
+  }
+  updateChips(); loadInitialGrid();
 }
 
-function selectCardType(type) {
-  activeCardType = type;
-  closeDropdown();
-  document.getElementById("cardTypeBtn").textContent = type;
-  document.getElementById("cardTypeBtn").classList.add("active");
-  updateChips();
-  loadInitialGrid();
+function toggleCardType(type) {
+  const idx = activeCardType.indexOf(type);
+  if (idx === -1) activeCardType.push(type); else activeCardType.splice(idx, 1);
+  updateMoreBadge(); updateChips();
 }
 
-function selectMana(code, label) {
-  if (activeColour === code) { clearMana(); return; }
-  activeColour = code;
-  closeDropdown();
-  const mana = MANA_TYPES.find(m => m.code === code);
-  const btn = document.getElementById("manaBtn");
-  btn.innerHTML = `<img class="mana-symbol-btn" src="${mana.svg}" alt="${mana.label}"> ${mana.label} ▾`;
-  btn.classList.add("active");
-  updateChips();
-  loadInitialGrid();
+function toggleColour(code) {
+  const idx = activeColour.indexOf(code);
+  if (idx === -1) activeColour.push(code); else activeColour.splice(idx, 1);
+  updateMoreBadge(); updateChips();
 }
 
 function toggleSetSelection(code, name) {
@@ -571,31 +583,27 @@ function toggleSetSelection(code, name) {
 }
 
 function clearArtist() {
-  activeArtist = null;
-  document.getElementById("artistBtn").textContent = "All Artists ▾";
-  document.getElementById("artistBtn").classList.remove("active");
+  activeArtist = [];
+  const btn = document.getElementById("artistBtn");
+  if (btn) { btn.textContent = "All Artists ▾"; btn.classList.remove("active"); }
   updateChips(); loadInitialGrid();
 }
 
 function clearType() {
-  activeType = null;
-  document.getElementById("typeBtn").textContent = "Creature Type ▾";
-  document.getElementById("typeBtn").classList.remove("active");
+  activeType = [];
+  const btn = document.getElementById("typeBtn");
+  if (btn) { btn.textContent = "Creature Type ▾"; btn.classList.remove("active"); }
   updateChips(); loadInitialGrid();
 }
 
 function clearCardType() {
-  activeCardType = null;
-  document.getElementById("cardTypeBtn").textContent = "Card Type ▾";
-  document.getElementById("cardTypeBtn").classList.remove("active");
-  updateChips(); loadInitialGrid();
+  activeCardType = [];
+  updateMoreBadge(); updateChips(); loadInitialGrid();
 }
 
-function clearMana() {
-  activeColour = null;
-  document.getElementById("manaBtn").textContent = "Mana Type ▾";
-  document.getElementById("manaBtn").classList.remove("active");
-  updateChips(); loadInitialGrid();
+function clearColour() {
+  activeColour = [];
+  updateMoreBadge(); updateChips(); loadInitialGrid();
 }
 
 let activeStyles = [];
@@ -665,8 +673,8 @@ function clearYear() {
 }
 
 function updateChips() {
-  const activeCount = [activeArtist, activeType, activeCardType, activeColour]
-    .filter(Boolean).length + activeStyles.length + activeSets.length +
+  const activeCount = activeArtist.length + activeType.length + activeCardType.length +
+    activeColour.length + activeStyles.length + activeSets.length +
     (activeYearMin || activeYearMax ? 1 : 0);
 
   // Clear button — show when any filter OR search is active
@@ -956,11 +964,12 @@ function renderFlatSheet() {
   // Card type pills
   const ctPills = document.getElementById("sheetCardTypePills");
   ctPills.innerHTML = cardTypeList.map(t =>
-    `<div class="sheet-pill ${activeCardType === t ? 'active' : ''}" data-val="${t}">${t}</div>`
+    `<div class="sheet-pill ${activeCardType.includes(t) ? 'active' : ''}" data-val="${t}">${t}</div>`
   ).join("");
   ctPills.querySelectorAll(".sheet-pill").forEach(el => el.addEventListener("click", () => {
-    activeCardType = activeCardType === el.dataset.val ? null : el.dataset.val;
-    ctPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", p.dataset.val === activeCardType));
+    const idx = activeCardType.indexOf(el.dataset.val);
+    if (idx === -1) activeCardType.push(el.dataset.val); else activeCardType.splice(idx, 1);
+    ctPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", activeCardType.includes(p.dataset.val)));
   }));
 
   // Creature type search
@@ -978,13 +987,14 @@ function renderFlatSheet() {
   // Mana pills
   const manaPills = document.getElementById("sheetManaPills");
   manaPills.innerHTML = MANA_TYPES.map(m =>
-    `<div class="sheet-pill ${activeColour === m.code ? 'active' : ''}" data-code="${m.code}">
+    `<div class="sheet-pill ${activeColour.includes(m.code) ? 'active' : ''}" data-code="${m.code}">
       <img src="${m.svg}" style="width:16px;height:16px;"> ${m.label}
     </div>`
   ).join("");
   manaPills.querySelectorAll(".sheet-pill").forEach(el => el.addEventListener("click", () => {
-    activeColour = activeColour === el.dataset.code ? null : el.dataset.code;
-    manaPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", p.dataset.code === activeColour));
+    const idx = activeColour.indexOf(el.dataset.code);
+    if (idx === -1) activeColour.push(el.dataset.code); else activeColour.splice(idx, 1);
+    manaPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", activeColour.includes(p.dataset.code)));
   }));
 
   // Sets — show on focus/click
@@ -1026,9 +1036,11 @@ function renderSheetArtistList(query, show = false) {
   list.style.display = filtered.length ? "block" : "none";
   list.innerHTML = "";
   renderSheetListChunk(list, filtered, 0, 20, (val) => {
-    activeArtist = activeArtist === val ? null : val;
-    document.getElementById("sheetArtistInput").value = activeArtist || "";
-    list.style.display = "none";
+    const idx = activeArtist.indexOf(val);
+    if (idx === -1) activeArtist.push(val); else activeArtist.splice(idx, 1);
+    const input = document.getElementById("sheetArtistInput");
+    if (input) input.value = activeArtist.length === 1 ? activeArtist[0] : activeArtist.length > 1 ? `${activeArtist.length} artists` : "";
+    renderSheetArtistList(input?.value || "", true);
   }, q, false);
 }
 
@@ -1041,9 +1053,11 @@ function renderSheetTypeList(query, show = false) {
   list.style.display = filtered.length ? "block" : "none";
   list.innerHTML = "";
   renderSheetListChunk(list, filtered, 0, 20, (val) => {
-    activeType = activeType === val ? null : val;
-    document.getElementById("sheetTypeInput").value = activeType || "";
-    list.style.display = "none";
+    const idx = activeType.indexOf(val);
+    if (idx === -1) activeType.push(val); else activeType.splice(idx, 1);
+    const input = document.getElementById("sheetTypeInput");
+    if (input) input.value = activeType.length === 1 ? activeType[0] : activeType.length > 1 ? `${activeType.length} types` : "";
+    renderSheetTypeList(input?.value || "", true);
   }, q, false);
 }
 
@@ -1067,7 +1081,7 @@ function renderSheetListChunk(list, items, start, chunkSize, onSelect, q, isSet)
   chunk.forEach(item => {
     const val = isSet ? item.code : item;
     const label = isSet ? item.name : item;
-    const isActive = isSet ? activeSets.includes(val) : (activeArtist === val || activeType === val);
+    const isActive = isSet ? activeSets.includes(val) : (activeArtist.includes(val) || activeType.includes(val));
     const el = document.createElement("div");
     el.className = "sheet-list-item" + (isActive ? " selected" : "");
     el.dataset.val = val;
@@ -1124,8 +1138,8 @@ function updateDrawerBadge(count) {
 }
 
 function clearAllFilters() {
-  activeArtist = null; activeType = null; activeCardType = null;
-  activeColour = null; activeSets = []; activeStyles = [];
+  activeArtist = []; activeType = []; activeCardType = [];
+  activeColour = []; activeSets = []; activeStyles = [];
   activeYearMin = null; activeYearMax = null; activeSearch = null;
 
   // Close any open dropdown
@@ -1136,16 +1150,14 @@ function clearAllFilters() {
     const resets = [
       ["artistBtn",   "All Artists ▾"],
       ["typeBtn",     "Creature Type ▾"],
-      ["cardTypeBtn", "Card Type ▾"],
       ["setBtn",      "All Sets ▾"],
       ["styleBtn",    "Art Style ▾"],
-      ["yearBtn",     "Year Range ▾"],
     ];
     resets.forEach(([id, label]) => {
       const btn = document.getElementById(id);
       if (btn) { btn.textContent = label; btn.classList.remove("active"); btn.style.position = ""; }
     });
-    // Mana button uses innerHTML (has SVG)
+    // Mana button
     const manaBtn = document.getElementById("manaBtn");
     if (manaBtn) { manaBtn.textContent = "Mana Type ▾"; manaBtn.classList.remove("active"); manaBtn.style.position = ""; }
     // Remove desktop badge

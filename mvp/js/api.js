@@ -92,7 +92,7 @@ async function fetchArtistNames() {
 }
 
 async function fetchRandomCard() {
-  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeYearMin, activeYearMax, activeSearch);
+  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch);
   try {
     const res = await fetch(`${API_BASE}/cards/random?q=${encodeURIComponent(query)}`);
     if (res.ok) return await res.json();
@@ -104,19 +104,25 @@ async function fetchRandomCard() {
   }
 }
 
-function buildQuery(artist, creatureType, cardType, colour, sets, styles, yearMin, yearMax, searchText) {
+function buildQuery(artists, creatureTypes, cardTypes, colours, sets, styles, yearMin, yearMax, searchText) {
   let q = "has:illustration";
   if (searchText) q += ` ${searchText}`;
-  if (artist) q += ` a:"${artist}"`;
-  if (creatureType) q += ` t:${creatureType}`;
-  if (cardType) q += ` t:${cardType}`;
-  if (colour) q += ` c:${colour}`;
+  if (artists && artists.length === 1) q += ` a:"${artists[0]}"`;
+  if (artists && artists.length > 1) q += ` (${artists.map(a => `a:"${a}"`).join(" OR ")})`;
+  if (creatureTypes && creatureTypes.length === 1) q += ` t:${creatureTypes[0]}`;
+  if (creatureTypes && creatureTypes.length > 1) q += ` (${creatureTypes.map(t => `t:${t}`).join(" OR ")})`;
+  if (cardTypes && cardTypes.length === 1) q += ` t:${cardTypes[0]}`;
+  if (cardTypes && cardTypes.length > 1) q += ` (${cardTypes.map(t => `t:${t}`).join(" OR ")})`;
+  if (colours && colours.length === 1) q += ` c:${colours[0]}`;
+  if (colours && colours.length > 1) q += ` (${colours.map(c => `c:${c}`).join(" OR ")})`;
   if (sets && sets.length === 1) q += ` s:${sets[0]}`;
   if (sets && sets.length > 1) q += ` (${sets.map(s => `s:${s}`).join(" OR ")})`;
   if (styles && styles.length === 1) q += ` ${styles[0].query}`;
   if (styles && styles.length > 1) q += ` (${styles.map(s => s.query).join(" OR ")})`;
   if (yearMin) q += ` year>=${yearMin}`;
   if (yearMax) q += ` year<=${yearMax}`;
-  if (!artist && !creatureType && !cardType && !colour && (!sets || !sets.length) && (!styles || !styles.length) && !yearMin && !yearMax && !searchText) q = "t:creature has:illustration";
+  const hasFilters = (artists?.length || creatureTypes?.length || cardTypes?.length || colours?.length ||
+    sets?.length || styles?.length || yearMin || yearMax || searchText);
+  if (!hasFilters) q = "t:creature has:illustration";
   return q;
 }

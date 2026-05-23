@@ -85,10 +85,10 @@ function openLightbox(card) {
   // Meta link handlers
   document.getElementById("lbArtist").addEventListener("click", () => {
     closeLightbox();
-    activeArtist = card.artist;
+    activeArtist = [card.artist];
     if (!isMobile()) {
       const btn = document.getElementById("artistBtn");
-      if (btn) { btn.textContent = card.artist; btn.classList.add("active"); }
+      if (btn) { btn.textContent = card.artist + " ▾"; btn.classList.add("active"); }
     }
     updateChips();
     loadInitialGrid();
@@ -99,7 +99,7 @@ function openLightbox(card) {
     if (!isMobile()) {
       const s = setList.find(s => s.code === card.set);
       const btn = document.getElementById("setBtn");
-      if (btn) { btn.textContent = s ? s.name : setName; btn.classList.add("active"); }
+      if (btn) { btn.textContent = (s ? s.name : setName) + " ▾"; btn.classList.add("active"); }
     }
     updateChips();
     loadInitialGrid();

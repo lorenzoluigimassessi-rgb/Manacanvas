@@ -3,10 +3,10 @@ const grid = document.getElementById("grid");
 const loader = document.getElementById("loader");
 const scrollTopBtn = document.getElementById("scrollTop");
 
-let activeArtist = null;
-let activeType = null;
-let activeCardType = null;
-let activeColour = null;
+let activeArtist = [];
+let activeType = [];
+let activeCardType = [];
+let activeColour = [];
 let activeSets = [];
 let activeYearMin = null;
 let activeYearMax = null;
@@ -102,10 +102,10 @@ function restoreFilters() {
   if (!saved) { loadInitialGrid(); return; }
   try {
     const f = JSON.parse(saved);
-    activeArtist    = f.activeArtist    || null;
-    activeType      = f.activeType      || null;
-    activeCardType  = f.activeCardType  || null;
-    activeColour    = f.activeColour    || null;
+    activeArtist    = f.activeArtist    || [];
+    activeType      = f.activeType      || [];
+    activeCardType  = f.activeCardType  || [];
+    activeColour    = f.activeColour    || [];
     activeSets      = f.activeSets      || [];
     activeStyles    = f.activeStyles    || [];
     activeYearMin   = f.activeYearMin   || null;

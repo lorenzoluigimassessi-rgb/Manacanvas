@@ -53,6 +53,8 @@ function showWelcome() {
   resetAllState();
   appShell.style.display = "none";
   welcomeEl.style.display = "block";
+  const bar = document.getElementById("mobileActionBar");
+  if (bar) bar.style.display = "none";
   renderWelcome();
 }
 
@@ -85,6 +87,8 @@ function startBrowse() {
   localStorage.setItem("mc_entered", "1");
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
+  const bar = document.getElementById("mobileActionBar");
+  if (bar) bar.style.removeProperty("display");
   loadInitialGrid();
 }
 
@@ -92,6 +96,8 @@ function startSurprise() {
   localStorage.setItem("mc_entered", "1");
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
+  const bar = document.getElementById("mobileActionBar");
+  if (bar) bar.style.removeProperty("display");
   loadInitialGrid();
   triggerSurprise();
 }
@@ -101,5 +107,7 @@ if (localStorage.getItem("mc_entered")) {
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
 } else {
+  const bar = document.getElementById("mobileActionBar");
+  if (bar) bar.style.display = "none";
   renderWelcome();
 }

@@ -286,7 +286,7 @@ body {
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.suggestion-item:hover { background: var(--bg); color: var(--text-primary); }
+.suggestion-item:hover, .suggestion-item.highlighted { background: var(--bg); color: var(--text-primary); }
 .suggestion-item strong { color: var(--text-primary); }
 
 .suggestion-tag {

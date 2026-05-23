@@ -799,9 +799,11 @@ let searchTimeout = null;
 function initSearch() {
   const input = document.getElementById("searchBar");
   const clearBtn = document.getElementById("searchClear");
+  let highlightedIdx = -1;
 
   input.addEventListener("input", () => {
     clearTimeout(searchTimeout);
+    highlightedIdx = -1;
     clearBtn.style.display = input.value ? "block" : "none";
     searchTimeout = setTimeout(() => {
       const val = input.value.trim();
@@ -811,8 +813,31 @@ function initSearch() {
   });
 
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { hideSearchSuggestions(); activeSearch = input.value.trim() || null; loadInitialGrid(); updateChips(); }
-    if (e.key === "Escape") { hideSearchSuggestions(); input.blur(); }
+    const items = document.querySelectorAll(".suggestion-item");
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      highlightedIdx = Math.min(highlightedIdx + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle("highlighted", i === highlightedIdx));
+      if (items[highlightedIdx]) input.value = items[highlightedIdx].dataset.label;
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      highlightedIdx = Math.max(highlightedIdx - 1, -1);
+      items.forEach((el, i) => el.classList.toggle("highlighted", i === highlightedIdx));
+      if (highlightedIdx === -1) input.value = input.dataset.query || "";
+      else if (items[highlightedIdx]) input.value = items[highlightedIdx].dataset.label;
+    } else if (e.key === "Enter") {
+      if (highlightedIdx >= 0 && items[highlightedIdx]) {
+        items[highlightedIdx].dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+      } else {
+        hideSearchSuggestions();
+        activeSearch = input.value.trim() || null;
+        loadInitialGrid();
+        updateChips();
+      }
+    } else if (e.key === "Escape") {
+      hideSearchSuggestions();
+      input.blur();
+    }
   });
 
   clearBtn.addEventListener("click", () => {
@@ -831,40 +856,44 @@ function initSearch() {
 
 async function showSearchSuggestions(query) {
   const container = document.getElementById("searchSuggestions");
+  const input = document.getElementById("searchBar");
+  input.dataset.query = query;
   const q = query.toLowerCase();
   const suggestions = [];
 
   artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 3)
-    .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => selectArtist(a) }));
+    .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => { toggleArtist(a); input.value = a; input.dataset.query = a; updateChips(); } }));
   creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
-    .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => selectType(t) }));
+    .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => { toggleType(t); input.value = t; input.dataset.query = t; updateChips(); } }));
   cardTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
-    .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => selectCardType(t) }));
+    .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => { toggleCardType(t); input.value = t; input.dataset.query = t; updateMoreBadge(); updateChips(); loadInitialGrid(); } }));
   setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 3)
-    .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => { activeSets = [s.code]; toggleSetSelection(s.code, s.name); } }));
+    .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => { if (!activeSets.includes(s.code)) activeSets.push(s.code); input.value = s.name; input.dataset.query = s.name; updateChips(); loadInitialGrid(); } }));
 
-  suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => { activeSearch = query; hideSearchSuggestions(); loadInitialGrid(); } });
+  suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => { activeSearch = query; input.value = query; hideSearchSuggestions(); loadInitialGrid(); updateChips(); } });
 
   try {
     const res = await fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(query)}`);
     const json = await res.json();
     (json.data || []).slice(0, 4).forEach(name => {
-      suggestions.splice(suggestions.length - 1, 0, { label: name, tag: "Card", action: () => { document.getElementById("searchBar").value = name; activeSearch = name; hideSearchSuggestions(); loadInitialGrid(); } });
+      suggestions.splice(suggestions.length - 1, 0, { label: name, tag: "Card", action: () => { input.value = name; activeSearch = name; hideSearchSuggestions(); loadInitialGrid(); updateChips(); } });
     });
   } catch (e) { /* ignore */ }
 
   if (!suggestions.length) { hideSearchSuggestions(); return; }
 
   container.innerHTML = suggestions.map((s, i) => `
-    <div class="suggestion-item" data-idx="${i}">
+    <div class="suggestion-item" data-idx="${i}" data-label="${s.label.replace(/"/g, '&quot;')}">
       <span class="suggestion-label">${highlightSuggestion(s.label, q)}</span>
       <span class="suggestion-tag tag-${s.tag.toLowerCase()}">${s.tag}</span>
     </div>
   `).join("");
   container.style.display = "block";
 
+  // mousedown fires before blur — prevents suggestions closing before click registers
   container.querySelectorAll(".suggestion-item").forEach((el, i) => {
-    el.addEventListener("click", (e) => { e.stopPropagation(); suggestions[i].action(); hideSearchSuggestions(); });
+    el.addEventListener("mousedown", (e) => { e.preventDefault(); suggestions[i].action(); hideSearchSuggestions(); });
+    el.addEventListener("touchend", (e) => { e.preventDefault(); suggestions[i].action(); hideSearchSuggestions(); });
   });
 }
 

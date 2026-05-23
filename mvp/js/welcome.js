@@ -67,11 +67,9 @@ function showTransition(callback) {
 
 function startBrowse() {
   localStorage.setItem("mc_entered", "1");
-  showTransition(() => {
-    welcomeEl.style.display = "none";
-    appShell.style.display = "block";
-    loadInitialGrid();
-  });
+  welcomeEl.style.display = "none";
+  appShell.style.display = "block";
+  loadInitialGrid();
 }
 
 function startSurprise() {

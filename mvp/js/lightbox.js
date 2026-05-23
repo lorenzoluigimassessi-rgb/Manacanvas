@@ -246,7 +246,8 @@ async function loadRandomCard() {
   const btn = document.getElementById("lbRandom");
   const img = document.getElementById("lbImage");
   if (!btn || btn.disabled) return;
-  btn.disabled = true; btn.textContent = "↻";
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;animation:lbSpin 0.8s linear infinite"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg> Loading...`;
   if (img) img.style.opacity = "0.5";
   const card = await fetchRandomCard();
   if (card) {

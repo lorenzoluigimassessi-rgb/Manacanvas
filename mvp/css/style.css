@@ -769,6 +769,11 @@ body {
   50%       { transform: scale(1.12); opacity: 0.9; }
 }
 
+@keyframes lbSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 /* Surprise mode — blurred art background */
 .lb-blur-bg {
   position: absolute;

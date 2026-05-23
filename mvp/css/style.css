@@ -828,45 +828,41 @@ body {
 
 .random-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* FTE overlay — Tinder-style split screen, first open only */
+/* FTE overlay — two floating labels bottom corners, first open only */
 .lb-fte-overlay {
   display: none;
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
-  height: 35%;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
   z-index: 5;
   pointer-events: none;
 }
 
 .lb-fte-overlay .fte-half {
   position: absolute;
-  top: 0;
   bottom: 0;
-  width: 50%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  background: rgba(12,12,15,0.6);
 }
 
-.lb-fte-overlay .fte-half.fte-left  { left: 0;  padding-right: 1.5rem; border-right: 1px dashed rgba(255,255,255,0.15); }
-.lb-fte-overlay .fte-half.fte-right { right: 0; padding-left: 1.5rem; }
+.lb-fte-overlay .fte-half.fte-left  { left: 1.5rem; }
+.lb-fte-overlay .fte-half.fte-right { right: 1.5rem; }
 
 .lb-fte-icon {
-  font-size: 2rem;
-  color: rgba(240,240,240,0.9);
+  font-size: 1.2rem;
+  color: rgba(240,240,240,0.75);
 }
 
 .lb-fte-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 2px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: rgba(240,240,240,0.9);
+  color: rgba(240,240,240,0.6);
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {

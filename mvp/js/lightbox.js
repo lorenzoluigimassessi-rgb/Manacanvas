@@ -63,12 +63,12 @@ function openLightbox(card, mode = 'feed') {
   const fteHtml = showFte ? `
     <div class="lb-fte-overlay" id="lbFteOverlay">
       <div class="fte-half fte-left">
-        <div class="lb-fte-icon">←</div>
-        <div class="lb-fte-label">Previous</div>
+        <span class="lb-fte-icon">‹</span>
+        <span class="lb-fte-label">Previous</span>
       </div>
       <div class="fte-half fte-right">
-        <div class="lb-fte-icon">→</div>
-        <div class="lb-fte-label">Next</div>
+        <span class="lb-fte-label">Next</span>
+        <span class="lb-fte-icon">›</span>
       </div>
     </div>
   ` : '';

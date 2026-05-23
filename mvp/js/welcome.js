@@ -36,7 +36,7 @@ async function renderWelcome() {
       <div class="welcome-overlay"></div>
       <div class="welcome-hero">
         <h1 class="welcome-title">MANACANVAS</h1>
-        <p class="welcome-subtitle">Discover the art of Magic:&#174; The Gathering</p>
+        <p class="welcome-subtitle">Discover the art of Magic: The Gathering&#174;</p>
         <button class="welcome-cta" onclick="startSurprise()">Surprise Me</button>
         <p class="welcome-draw-separator">or</p>
         <button class="welcome-draw-cta" onclick="startBrowse()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Browse the Gallery</button>
@@ -104,15 +104,15 @@ function startSurprise() {
   appShell.style.display = "block";
   const bar = document.getElementById("mobileActionBar");
   if (bar) bar.style.removeProperty("display");
-  loadInitialGrid();
-  // Use pre-fetched card for instant open, fallback to fetch if not ready
+  // Open lightbox first so feed never flashes
   if (_welcomeCard) {
     openLightbox(_welcomeCard, 'surprise');
     _welcomeCard = null;
-    fetchRandomCard().then(c => { _welcomeCard = c; }); // pre-warm next
+    fetchRandomCard().then(c => { _welcomeCard = c; });
   } else {
     fetchRandomCard().then(card => { if (card) openLightbox(card, 'surprise'); });
   }
+  loadInitialGrid();
 }
 
 // On load: skip welcome if user has been here before

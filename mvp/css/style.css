@@ -51,7 +51,7 @@ body {
 
 .welcome-title {
   font-family: 'Cinzel', serif;
-  font-size: 5.5rem;
+  font-size: 6.5rem;
   font-weight: 600;
   letter-spacing: 10px;
   color: var(--text-primary);
@@ -62,9 +62,10 @@ body {
   font-size: 1rem;
   color: rgba(240, 240, 240, 0.85);
   font-weight: 300;
-  letter-spacing: 3px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   margin-bottom: 2.5rem;
+  white-space: nowrap;
 }
 
 .welcome-cta {
@@ -863,8 +864,10 @@ body {
 .lb-ghost-arrow.lb-ghost-next { right: 0; }
 .lb-ghost-arrow.hidden { display: none; }
 
+/* Ghost arrows — mobile only, desktop uses lb-nav-arrow outside the image */
+.lb-ghost-arrows { display: none; }
 @media (max-width: 768px) {
-  .lightbox .meta { display: block; }
+  .lb-ghost-arrows { display: block; }
 }
 
 
@@ -1232,7 +1235,7 @@ body {
   .lb-nav-arrow { display: none; }
   .random-btn-primary { font-size: 1rem; padding: 0.85rem 2rem; }
   .welcome-title { font-size: 2.8rem; letter-spacing: 5px; }
-  .welcome-subtitle { font-size: 0.85rem; letter-spacing: 2px; }
+  .welcome-subtitle { font-size: 0.78rem; letter-spacing: 1px; white-space: normal; text-align: center; }
   .welcome-footer { opacity: 1; color: rgba(240,240,240,0.7); font-size: 0.72rem; }
   .lightbox .meta .name { font-size: 1.1rem; }
   .welcome-cta { width: 100%; max-width: 280px; height: 52px; }

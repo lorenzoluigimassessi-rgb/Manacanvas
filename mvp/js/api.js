@@ -8,8 +8,8 @@ let sortDir = "auto";
 
 const SORT_OPTIONS = [
   { label: "Random",      order: "random",   dir: "auto" },
-  { label: "Newest First", order: "released", dir: "desc" },
   { label: "Oldest First", order: "released", dir: "asc"  },
+  { label: "Newest First", order: "released", dir: "desc" },
   { label: "A → Z",        order: "name",     dir: "asc"  },
   { label: "Z → A",        order: "name",     dir: "desc" },
 ];

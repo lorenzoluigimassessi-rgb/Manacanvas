@@ -13,6 +13,9 @@ let activeYearMin = null;
 let activeYearMax = null;
 let activeSearch = null;
 
+// Track cards currently in the feed for lightbox prev/next
+let filteredCards = [];
+
 async function loadInitialGrid() {
   // Save current filter state to localStorage
   localStorage.setItem("mc_filters", JSON.stringify({
@@ -26,9 +29,10 @@ async function loadInitialGrid() {
   const { data, hasMore } = await fetchCards(query);
   grid.innerHTML = "";
   if (!data.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><h2>No artwork found</h2><p>Try adjusting your filters or clearing them to browse all art.</p></div>`;
+    grid.innerHTML = `<div class="empty-state"><h2>No artwork found</h2><p>Try adjusting your filters or clearing them to browse all art.</p></div>`;
     return;
   }
+  filteredCards = data;
   renderCards(data);
   if (hasMore) observeLastCard();
 }
@@ -47,7 +51,7 @@ function renderCards(cards) {
         <div class="artist">${card.artist || "Unknown"}</div>
       </div>
     `;
-    el.addEventListener("click", () => openLightbox(card));
+    el.addEventListener("click", () => openLightbox(card, 'feed'));
     grid.appendChild(el);
   });
 }
@@ -72,6 +76,7 @@ function observeLastCard() {
       loader.style.display = "block";
       const { data, hasMore } = await fetchCards();
       loader.style.display = "none";
+      filteredCards = filteredCards.concat(data);
       renderCards(data);
       if (hasMore) observeLastCard();
     }
@@ -81,21 +86,62 @@ function observeLastCard() {
   if (cards.length) scrollObserver.observe(cards[cards.length - 1]);
 }
 
+// Mobile floating Surprise Me
+function mobileSurprise() {
+  triggerSurprise();
+}
+
+// Mobile floating Surprise Me pill — long-press support
+(function() {
+  const pill = document.getElementById('surprisePillMobile');
+  if (!pill) return;
+  const btn = pill.querySelector('.surprise-pill-btn');
+  let pressTimer = null;
+
+  // Long-press (500ms) also triggers
+  btn.addEventListener('touchstart', () => {
+    btn.classList.add('pressing');
+    pressTimer = setTimeout(() => { btn.classList.remove('pressing'); mobileSurprise(); }, 500);
+  }, { passive: true });
+  btn.addEventListener('touchend', () => {
+    clearTimeout(pressTimer);
+    btn.classList.remove('pressing');
+  });
+  btn.addEventListener('touchcancel', () => {
+    clearTimeout(pressTimer);
+    btn.classList.remove('pressing');
+  });
+
+  // Dim slightly on scroll, restore on stop
+  let lastY = 0, pillTimer = null;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y > lastY + 10) pill.classList.add('scroll-hidden');
+    else if (y < lastY - 5) pill.classList.remove('scroll-hidden');
+    lastY = y;
+    clearTimeout(pillTimer);
+    pillTimer = setTimeout(() => pill.classList.remove('scroll-hidden'), 600);
+  }, { passive: true });
+})();
+
+// Global keyboard shortcut: S = Surprise Me
+document.addEventListener('keydown', (e) => {
+  if (e.key === 's' || e.key === 'S') {
+    if (document.activeElement.tagName === 'INPUT') return;
+    triggerSurprise();
+  }
+});
+
 // Scroll to top button
 window.addEventListener("scroll", () => {
   scrollTopBtn.classList.toggle("visible", window.scrollY > 800);
 });
 
 // Feed random button
-document.getElementById("randomFeedBtn").addEventListener("click", async () => {
-  const btn = document.getElementById("randomFeedBtn");
-  btn.disabled = true;
-  btn.textContent = "↻";
-  const card = await fetchRandomCard();
-  btn.disabled = false;
-  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`;
-  if (card) openLightbox(card);
-});
+const randomFeedBtn = document.getElementById("randomFeedBtn");
+if (randomFeedBtn) {
+  randomFeedBtn.addEventListener("click", () => triggerSurprise());
+}
 
 function restoreFilters() {
   const saved = localStorage.getItem("mc_filters");
@@ -120,4 +166,4 @@ function restoreFilters() {
 }
 
 // Init
-restoreFilters();
+// restoreFilters() is called from filters.js after all functions are defined

@@ -38,7 +38,7 @@ async function initFilters() {
       <button class="mobile-clear-btn" id="mobileClearBtn" style="display:none;" onclick="clearAllFilters()">Clear</button>
     `;
     document.getElementById("row2Right").innerHTML = `
-      <button class="filter-btn" id="viewBtn">⊞</button>
+      <button class="filter-btn" id="viewBtn"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg></button>
       <button class="filter-btn" id="sortBtn">Random ⇅</button>
       <button class="shuffle-again-btn" id="shuffleAgainBtn" onclick="shuffleAgain()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Shuffle</button>
     `;
@@ -144,6 +144,7 @@ function openMoreModal() {
     const idx = modalCardType.indexOf(el.dataset.val);
     if (idx === -1) modalCardType.push(el.dataset.val); else modalCardType.splice(idx, 1);
     ctPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", modalCardType.includes(p.dataset.val)));
+    updateModalClearState();
   }));
 
   // Mana pills
@@ -157,6 +158,7 @@ function openMoreModal() {
     const idx = modalColour.indexOf(el.dataset.code);
     if (idx === -1) modalColour.push(el.dataset.code); else modalColour.splice(idx, 1);
     manaPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", modalColour.includes(p.dataset.code)));
+    updateModalClearState();
   }));
 
   // Year sliders
@@ -174,6 +176,7 @@ function openMoreModal() {
   document.getElementById("moreModalOverlay").style.display = "block";
   document.getElementById("moreModal").style.display = "flex";
   document.addEventListener("keydown", handleMoreModalKey);
+  updateModalClearState();
 }
 
 function closeMoreModal() {
@@ -206,6 +209,15 @@ function clearMoreFilters() {
   const maxEl = document.getElementById("modalYearMax");
   if (minEl) { minEl.value = minY; document.getElementById("modalYearMinVal").textContent = minY; }
   if (maxEl) { maxEl.value = maxY; document.getElementById("modalYearMaxVal").textContent = maxY; }
+  updateModalClearState();
+}
+
+function updateModalClearState() {
+  const clearEl = document.querySelector('.more-modal-clear');
+  if (!clearEl) return;
+  const hasFilters = modalCardType.length || modalColour.length || modalYearMin || modalYearMax;
+  clearEl.style.opacity = hasFilters ? '1' : '0.3';
+  clearEl.style.pointerEvents = hasFilters ? 'auto' : 'none';
 }
 
 function handleMoreModalKey(e) {
@@ -229,19 +241,24 @@ let sortDropdownOpen = false;
 
 function toggleSort() {
   if (sortDropdownOpen) { closeSortDropdown(); return; }
+  closeDropdown();
+  closeViewDropdown();
   closeSortDropdown();
   sortDropdownOpen = true;
-  const container = document.getElementById("row2Right");
+  const btn = document.getElementById("sortBtn");
   const dropdown = document.createElement("div");
   dropdown.className = "view-dropdown";
   dropdown.id = "sortDropdown";
+  dropdown.style.right = 'auto';
+  dropdown.style.left = '0';
   dropdown.addEventListener("click", (e) => e.stopPropagation());
   dropdown.innerHTML = SORT_OPTIONS.map((opt, i) => `
     <div class="view-dropdown-item ${sortOrder === opt.order && sortDir === opt.dir ? 'active' : ''}" data-idx="${i}">
       ${opt.label}${sortOrder === opt.order && sortDir === opt.dir ? ' ✓' : ''}
     </div>
   `).join("");
-  container.appendChild(dropdown);
+  btn.style.position = 'relative';
+  btn.appendChild(dropdown);
   dropdown.querySelectorAll(".view-dropdown-item").forEach(el => {
     el.addEventListener("click", () => {
       const opt = SORT_OPTIONS[parseInt(el.dataset.idx)];
@@ -249,6 +266,7 @@ function toggleSort() {
       sortDir = opt.dir;
       document.getElementById("sortBtn").textContent = `${opt.label} ⇅`;
       closeSortDropdown();
+      window.scrollTo(0, 0);
       loadInitialGrid();
     });
   });
@@ -265,6 +283,7 @@ function shuffleAgain() {
   sortDir = "auto";
   const sortBtn = document.getElementById("sortBtn");
   if (sortBtn) sortBtn.textContent = "Random ⇅";
+  window.scrollTo(0, 0);
   loadInitialGrid();
 }
 
@@ -272,18 +291,22 @@ function shuffleAgain() {
 function toggleViewDropdown() {
   if (viewDropdownOpen) { closeViewDropdown(); return; }
   closeDropdown();
+  closeSortDropdown();
   viewDropdownOpen = true;
-  const container = document.getElementById("row2Right");
+  const btn = document.getElementById("viewBtn");
   const dropdown = document.createElement("div");
   dropdown.className = "view-dropdown";
   dropdown.id = "viewDropdown";
+  dropdown.style.right = 'auto';
+  dropdown.style.left = '0';
   dropdown.addEventListener("click", (e) => e.stopPropagation());
   dropdown.innerHTML = `
     <div class="view-dropdown-item ${currentGridSize === 'sm' ? 'active' : ''}" onclick="setGridSize('sm')">Small Grid</div>
     <div class="view-dropdown-item ${currentGridSize === 'md' ? 'active' : ''}" onclick="setGridSize('md')">Medium Grid</div>
     <div class="view-dropdown-item ${currentGridSize === 'lg' ? 'active' : ''}" onclick="setGridSize('lg')">Large Grid</div>
   `;
-  container.appendChild(dropdown);
+  btn.style.position = 'relative';
+  btn.appendChild(dropdown);
 }
 
 function closeViewDropdown() {
@@ -305,6 +328,7 @@ function toggleDropdown(type) {
   if (openDropdown === type) { closeDropdown(); return; }
   closeDropdown();
   closeViewDropdown();
+  closeSortDropdown();
   openDropdown = type;
 
   const btnMap = {
@@ -997,8 +1021,8 @@ function renderFlatSheet() {
   const curMin = activeYearMin || minY, curMax = activeYearMax || maxY;
 
   // Active count for badge
-  const activeCount = [activeArtist, activeType, activeCardType, activeColour]
-    .filter(Boolean).length + activeStyles.length + activeSets.length +
+  const activeCount = activeArtist.length + activeType.length + activeCardType.length +
+    activeColour.length + activeStyles.length + activeSets.length +
     (activeYearMin || activeYearMax ? 1 : 0);
   updateDrawerBadge(activeCount);
 
@@ -1254,6 +1278,75 @@ function updateDrawerBadge(count) {
   }
 }
 
+// Full state reset — called when returning to welcome page
+function resetAllState() {
+  activeArtist = []; activeType = []; activeCardType = [];
+  activeColour = []; activeSets = []; activeStyles = [];
+  activeYearMin = null; activeYearMax = null; activeSearch = null;
+  sortOrder = "random";
+  sortDir = "auto";
+
+  // Reset search bar UI
+  const searchBar = document.getElementById('searchBar');
+  const searchClear = document.getElementById('searchClear');
+  if (searchBar) searchBar.value = '';
+  if (searchClear) searchClear.style.display = 'none';
+
+  // Reset filter button labels
+  const resets = [
+    ['artistBtn', 'All Artists ▾'],
+    ['typeBtn',   'Creature Type ▾'],
+    ['setBtn',    'All Sets ▾'],
+    ['styleBtn',  'Art Style ▾'],
+    ['sortBtn',   'Random ⇅'],
+  ];
+  resets.forEach(([id, label]) => {
+    const btn = document.getElementById(id);
+    if (btn) { btn.textContent = label; btn.classList.remove('active'); }
+  });
+
+  updateChips();
+}
+
+function syncFilterUI() {
+  if (isMobile()) return; // mobile uses chips + drawer badge, no persistent button labels
+
+  const sortBtn = document.getElementById('sortBtn');
+  if (sortBtn) {
+    const opt = SORT_OPTIONS.find(o => o.order === sortOrder && o.dir === sortDir);
+    if (opt) sortBtn.textContent = `${opt.label} ⇅`;
+  }
+
+  const artistBtn = document.getElementById('artistBtn');
+  if (artistBtn && activeArtist.length) {
+    artistBtn.textContent = activeArtist.length === 1 ? `${activeArtist[0]} ▾` : `Artists (${activeArtist.length}) ▾`;
+    artistBtn.classList.add('active');
+  }
+
+  const typeBtn = document.getElementById('typeBtn');
+  if (typeBtn && activeType.length) {
+    typeBtn.textContent = activeType.length === 1 ? `${activeType[0]} ▾` : `Creatures (${activeType.length}) ▾`;
+    typeBtn.classList.add('active');
+  }
+
+  const setBtn = document.getElementById('setBtn');
+  if (setBtn && activeSets.length) {
+    loadSetsIfNeeded().then(() => {
+      const s = setList.find(s => s.code === activeSets[0]);
+      setBtn.textContent = activeSets.length === 1 ? (s?.name || '1 Set') + ' ▾' : `Sets (${activeSets.length}) ▾`;
+      setBtn.classList.add('active');
+    });
+  }
+
+  const styleBtn = document.getElementById('styleBtn');
+  if (styleBtn && activeStyles.length) {
+    styleBtn.textContent = activeStyles.length === 1 ? ART_STYLES[activeStyles[0]].name + ' ▾' : `Style (${activeStyles.length}) ▾`;
+    styleBtn.classList.add('active');
+  }
+
+  updateMoreBadge();
+}
+
 function clearAllFilters() {
   activeArtist = []; activeType = []; activeCardType = [];
   activeColour = []; activeSets = []; activeStyles = [];
@@ -1295,6 +1388,10 @@ function clearAllFilters() {
 }
 
 // Init
-initFilters();
+initFilters().then(() => {
+  restoreFilters();
+  syncFilterUI();
+  updateChips();
+});
 initSearch();
 initDrawer();

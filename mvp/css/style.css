@@ -381,9 +381,9 @@ body {
 }
 
 .shuffle-again-btn {
-  background: var(--text-primary);
-  color: var(--bg);
-  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
   height: 28px;
   padding: 0 0.9rem;
   border-radius: 4px;
@@ -391,18 +391,19 @@ body {
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0.3px;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  transition: background var(--transition-fast), transform var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
   flex-shrink: 0;
 }
 
 .shuffle-again-btn:hover {
-  background: #d0d0d0;
-  transform: translateY(-1px);
+  background: var(--surface);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .shuffle-again-btn:active { transform: translateY(0); }

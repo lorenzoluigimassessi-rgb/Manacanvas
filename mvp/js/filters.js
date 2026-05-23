@@ -144,6 +144,7 @@ function openMoreModal() {
     const idx = modalCardType.indexOf(el.dataset.val);
     if (idx === -1) modalCardType.push(el.dataset.val); else modalCardType.splice(idx, 1);
     ctPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", modalCardType.includes(p.dataset.val)));
+    updateModalClearState();
   }));
 
   // Mana pills
@@ -157,6 +158,7 @@ function openMoreModal() {
     const idx = modalColour.indexOf(el.dataset.code);
     if (idx === -1) modalColour.push(el.dataset.code); else modalColour.splice(idx, 1);
     manaPills.querySelectorAll(".more-pill").forEach(p => p.classList.toggle("active", modalColour.includes(p.dataset.code)));
+    updateModalClearState();
   }));
 
   // Year sliders
@@ -174,6 +176,7 @@ function openMoreModal() {
   document.getElementById("moreModalOverlay").style.display = "block";
   document.getElementById("moreModal").style.display = "flex";
   document.addEventListener("keydown", handleMoreModalKey);
+  updateModalClearState();
 }
 
 function closeMoreModal() {
@@ -206,6 +209,15 @@ function clearMoreFilters() {
   const maxEl = document.getElementById("modalYearMax");
   if (minEl) { minEl.value = minY; document.getElementById("modalYearMinVal").textContent = minY; }
   if (maxEl) { maxEl.value = maxY; document.getElementById("modalYearMaxVal").textContent = maxY; }
+  updateModalClearState();
+}
+
+function updateModalClearState() {
+  const clearEl = document.querySelector('.more-modal-clear');
+  if (!clearEl) return;
+  const hasFilters = modalCardType.length || modalColour.length || modalYearMin || modalYearMax;
+  clearEl.style.opacity = hasFilters ? '1' : '0.3';
+  clearEl.style.pointerEvents = hasFilters ? 'auto' : 'none';
 }
 
 function handleMoreModalKey(e) {

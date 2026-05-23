@@ -688,48 +688,71 @@ function updateChips() {
 
   const chips = [];
 
-  if (activeArtist.length)
-    chips.push({ label: activeArtist.length === 1 ? activeArtist[0] : `Artists (${activeArtist.length})`, icon: "", clear: () => clearArtist() });
-  if (activeType.length)
-    chips.push({ label: activeType.length === 1 ? activeType[0] : `Creatures (${activeType.length})`, icon: "", clear: () => clearType() });
-  if (activeSets.length) {
-    const s = activeSets.length === 1 ? setList.find(s => s.code === activeSets[0]) : null;
-    const icon = s ? `<img src="${s.icon}" style="width:13px;height:13px;filter:brightness(0) invert(0.8);flex-shrink:0;">` : "";
-    const label = s ? s.name : `Sets (${activeSets.length})`;
-    chips.push({ label, icon, clear: () => clearAllSets() });
-  }
-  if (activeStyles.length)
-    chips.push({ label: activeStyles.length === 1 ? ART_STYLES[activeStyles[0]].name : `Style (${activeStyles.length})`, icon: "", clear: () => { activeStyles = []; const btn = document.getElementById("styleBtn"); if (btn) { btn.textContent = "Art Style ▾"; btn.classList.remove("active"); } updateChips(); loadInitialGrid(); } });
-  if (activeCardType.length)
-    chips.push({ label: activeCardType.length === 1 ? activeCardType[0] : `Type (${activeCardType.length})`, icon: "", clear: () => clearCardType() });
-  if (activeColour.length) {
-    const m = activeColour.length === 1 ? MANA_TYPES.find(m => m.code === activeColour[0]) : null;
-    const icon = m ? `<img src="${m.svg}" style="width:13px;height:13px;flex-shrink:0;">` : "";
-    const label = m ? m.label : `Mana (${activeColour.length})`;
-    chips.push({ label, icon, clear: () => clearColour() });
-  }
+  activeArtist.forEach(a => chips.push({
+    icon: "", label: a,
+    clear: () => { activeArtist = activeArtist.filter(x => x !== a); const btn = document.getElementById("artistBtn"); if (btn) { btn.textContent = activeArtist.length === 0 ? "All Artists \u25be" : activeArtist.length === 1 ? `${activeArtist[0]} \u25be` : `Artists (${activeArtist.length}) \u25be`; btn.classList.toggle("active", activeArtist.length > 0); } updateChips(); loadInitialGrid(); }
+  }));
+
+  activeType.forEach(t => chips.push({
+    icon: "", label: t,
+    clear: () => { activeType = activeType.filter(x => x !== t); const btn = document.getElementById("typeBtn"); if (btn) { btn.textContent = activeType.length === 0 ? "Creature Type \u25be" : activeType.length === 1 ? `${activeType[0]} \u25be` : `Creatures (${activeType.length}) \u25be`; btn.classList.toggle("active", activeType.length > 0); } updateChips(); loadInitialGrid(); }
+  }));
+
+  activeSets.forEach(code => {
+    const s = setList.find(s => s.code === code);
+    chips.push({
+      icon: s ? `<img src="${s.icon}" style="width:13px;height:13px;filter:brightness(0) invert(0.8);flex-shrink:0;">` : "",
+      label: s ? s.name : code,
+      clear: () => { activeSets = activeSets.filter(x => x !== code); const btn = document.getElementById("setBtn"); if (btn) { btn.textContent = activeSets.length === 0 ? "All Sets \u25be" : activeSets.length === 1 ? (setList.find(s=>s.code===activeSets[0])?.name||"1 Set") : `Sets (${activeSets.length}) \u25be`; btn.classList.toggle("active", activeSets.length > 0); } updateChips(); loadInitialGrid(); }
+    });
+  });
+
+  activeStyles.forEach(idx => chips.push({
+    icon: "", label: ART_STYLES[idx].name,
+    clear: () => { activeStyles = activeStyles.filter(x => x !== idx); const btn = document.getElementById("styleBtn"); if (btn) { btn.textContent = activeStyles.length === 0 ? "Art Style \u25be" : activeStyles.length === 1 ? ART_STYLES[activeStyles[0]].name + " \u25be" : `Style (${activeStyles.length}) \u25be`; btn.classList.toggle("active", activeStyles.length > 0); } updateChips(); loadInitialGrid(); }
+  }));
+
+  activeCardType.forEach(t => chips.push({
+    icon: "", label: t,
+    clear: () => { activeCardType = activeCardType.filter(x => x !== t); updateMoreBadge(); updateChips(); loadInitialGrid(); }
+  }));
+
+  activeColour.forEach(code => {
+    const m = MANA_TYPES.find(m => m.code === code);
+    chips.push({
+      icon: m ? `<img src="${m.svg}" style="width:13px;height:13px;flex-shrink:0;">` : "",
+      label: m ? m.label : code,
+      clear: () => { activeColour = activeColour.filter(x => x !== code); updateMoreBadge(); updateChips(); loadInitialGrid(); }
+    });
+  });
+
   if (activeYearMin || activeYearMax)
-    chips.push({ label: `${activeYearMin || 1993}–${activeYearMax || new Date().getFullYear()}`, icon: "", clear: () => { activeYearMin = null; activeYearMax = null; updateMoreBadge(); updateChips(); loadInitialGrid(); } });
+    chips.push({ icon: "", label: `${activeYearMin || 1993}\u2013${activeYearMax || new Date().getFullYear()}`, clear: () => { activeYearMin = null; activeYearMax = null; updateMoreBadge(); updateChips(); loadInitialGrid(); } });
+
   if (activeSearch)
-    chips.push({ label: `"${activeSearch}"`, icon: "", clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; updateChips(); loadInitialGrid(); } });
+    chips.push({ icon: "", label: `"${activeSearch}"`, clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; updateChips(); loadInitialGrid(); } });
 
   const hasFilters = chips.length > 0;
 
-  // Desktop: show chip bar, no redundant count badge (chips are the count)
-  chipBar.style.display = (!isMobile() && hasFilters) ? "flex" : "none";
+  // Clear all — row-2, next to filter buttons
   if (clearBtn) clearBtn.style.display = hasFilters ? "inline-flex" : "none";
-  const badge = document.getElementById("desktopFilterBadge");
-  if (badge) badge.remove();
 
-  // Mobile: show/hide inline clear button next to Filters
+  // Chip bar — row-3, desktop only
+  chipBar.style.display = (!isMobile() && hasFilters) ? "flex" : "none";
+
+  // Mobile inline clear
   const mobileClear = document.getElementById("mobileClearBtn");
   if (mobileClear) mobileClear.style.display = hasFilters ? "inline-flex" : "none";
+
+  // Remove any leftover desktop badge
+  const badge = document.getElementById("desktopFilterBadge");
+  if (badge) badge.remove();
 
   chipList.innerHTML = "";
   chips.forEach(chip => {
     const el = document.createElement("div");
     el.className = "filter-chip";
-    el.innerHTML = `${chip.icon}<span>${chip.label}</span><span class="chip-remove" title="Remove">✕</span>`;
+    el.innerHTML = `${chip.icon}<span>${chip.label}</span><span class="chip-remove" title="Remove">\u2715</span>`;
     el.querySelector(".chip-remove").addEventListener("click", chip.clear);
     chipList.appendChild(el);
   });

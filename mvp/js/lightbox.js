@@ -70,6 +70,7 @@ function openLightbox(card, mode = 'feed') {
 
   const lightbox = document.getElementById("lightbox");
   lightbox.style.background = '#0c0c0f';
+  lightbox.style.pointerEvents = 'auto';
   lightbox.innerHTML = `
     <div class="lightbox" id="lightboxOverlay" style="background:#0c0c0f;">
       ${blurBgHtml}
@@ -364,7 +365,9 @@ function handleLbKey(e) {
 }
 
 function closeLightbox() {
-  document.getElementById("lightbox").innerHTML = "";
+  const lb = document.getElementById("lightbox");
+  lb.innerHTML = "";
+  lb.style.pointerEvents = 'none';
   document.body.style.overflow = "";
   document.removeEventListener("keydown", handleLbKey);
   document.removeEventListener("mousemove", handleDrag);

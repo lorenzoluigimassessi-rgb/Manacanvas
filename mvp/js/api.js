@@ -117,8 +117,13 @@ function buildQuery(artists, creatureTypes, cardTypes, colours, sets, styles, ye
   if (creatureTypes && creatureTypes.length > 1) q += ` (${creatureTypes.map(t => `t:${t}`).join(" OR ")})`;
   if (cardTypes && cardTypes.length === 1) q += ` t:${cardTypes[0]}`;
   if (cardTypes && cardTypes.length > 1) q += ` (${cardTypes.map(t => `t:${t}`).join(" OR ")})`;
-  if (colours && colours.length === 1) q += ` c:${colours[0]}`;
-  if (colours && colours.length > 1) q += ` (${colours.map(c => `c:${c}`).join(" OR ")})`;
+  if (colours && colours.length === 1) {
+    const c = colours[0];
+    if (c === 'm') q += ` c>=2`;
+    else if (c === 'c') q += ` c:c`;
+    else q += ` color=${c}`;
+  }
+  if (colours && colours.length > 1) q += ` (${colours.map(c => c === 'm' ? 'c>=2' : c === 'c' ? 'c:c' : `color=${c}`).join(" OR ")})`;
   if (sets && sets.length === 1) q += ` s:${sets[0]}`;
   if (sets && sets.length > 1) q += ` (${sets.map(s => `s:${s}`).join(" OR ")})`;
   if (styles && styles.length === 1) q += ` ${styles[0].query}`;

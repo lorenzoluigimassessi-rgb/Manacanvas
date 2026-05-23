@@ -78,7 +78,7 @@ function openLightbox(card, mode = 'feed') {
       </div>
       ${actionsHtml}
       <div class="meta">
-        <div class="name">${card.name}</div>
+        <div class="name meta-link" id="lbName" title="See all versions">${card.name}</div>
         <div class="details">
           <span class="meta-link" id="lbArtist">${card.artist || "Unknown"}</span>
           ${setName ? ` · <span class="meta-link" id="lbSet">${setName}</span>` : ""}
@@ -119,6 +119,10 @@ function openLightbox(card, mode = 'feed') {
     if (_lbMode === 'surprise') {
       if (!window._surpriseQueue) window._surpriseQueue = [];
       const next = window._surpriseQueue.shift();
+      // Re-warm immediately after consuming
+      if (window._surpriseQueue.length < 2)
+        Promise.all([fetchRandomCard(), fetchRandomCard()])
+          .then(cards => window._surpriseQueue.push(...cards.filter(Boolean)));
       if (next) transitionTo(next, 'next', 'surprise');
       else fetchRandomCard().then(c => { if (c) transitionTo(c, 'next', 'surprise'); });
     } else {
@@ -139,41 +143,37 @@ function openLightbox(card, mode = 'feed') {
 
   // ── Crossfade transition — only art + blur bg change, chrome stays put ─────
   function transitionTo(nextCard, dir, nextMode) {
-    const img   = document.getElementById('lbImage');
-    const bg    = document.getElementById('lbBlurBg');
-    const meta  = document.getElementById('lbMobileMeta');
+    const img = document.getElementById('lbImage');
+    const bg  = document.getElementById('lbBlurBg');
     if (!img || !bg) { openLightbox(nextCard, nextMode); return; }
 
-    const nextArt = nextCard.image_uris?.art_crop || nextCard.card_faces?.[0]?.image_uris?.art_crop
-                 || nextCard.image_uris?.normal   || nextCard.card_faces?.[0]?.image_uris?.normal;
+    const nextArtCrop = nextCard.image_uris?.art_crop || nextCard.card_faces?.[0]?.image_uris?.art_crop;
+    const nextNormal  = nextCard.image_uris?.normal   || nextCard.card_faces?.[0]?.image_uris?.normal;
+    const nextSrc = currentMode === 'frame' ? (nextNormal || nextArtCrop) : (nextArtCrop || nextNormal);
 
     // Fade out
     img.style.transition = bg.style.transition = 'opacity 180ms ease';
     img.style.opacity = bg.style.opacity = '0';
 
     setTimeout(() => {
-      // Swap content
-      img.src = nextArt;
-      bg.style.backgroundImage = `url('${nextArt}')`;
-      if (meta) meta.textContent = `${nextCard.name} · ${nextCard.artist || 'Unknown'}`;
+      // Swap content — respect current frame/art mode
+      img.src = nextSrc;
+      if (currentMode === 'frame') img.classList.add('frame-mode');
+      else img.classList.remove('frame-mode');
+      bg.style.backgroundImage = `url('${nextArtCrop || nextNormal}')`;
+
+      // Update meta text
+      const nameEl   = document.getElementById('lbName');
+      const artistEl = document.getElementById('lbArtist');
+      const setEl    = document.getElementById('lbSet');
+      const yearEl   = document.getElementById('lbYear');
+      if (nameEl)   nameEl.textContent   = nextCard.name;
+      if (artistEl) artistEl.textContent = nextCard.artist || 'Unknown';
+      if (setEl)    setEl.textContent    = nextCard.set_name || '';
+      if (yearEl)   yearEl.textContent   = nextCard.released_at ? nextCard.released_at.slice(0,4) : '';
+
       currentCard = nextCard;
       _lbMode = nextMode;
-
-      // Update arrow visibility
-      const mPrev = document.getElementById('lbMobilePrev');
-      const mNext = document.getElementById('lbMobileNext');
-      if (mPrev && mNext) {
-        if (nextMode === 'surprise') {
-          mPrev.style.opacity = '0.25'; mPrev.style.pointerEvents = 'none';
-          mNext.style.opacity = '1';    mNext.style.pointerEvents = 'auto';
-        } else {
-          const idx = filteredCards.findIndex(c => c.id === nextCard.id);
-          mPrev.style.opacity = idx <= 0 ? '0.25' : '1';
-          mPrev.style.pointerEvents = idx <= 0 ? 'none' : 'auto';
-          mNext.style.opacity = idx >= filteredCards.length - 1 ? '0.25' : '1';
-          mNext.style.pointerEvents = idx >= filteredCards.length - 1 ? 'none' : 'auto';
-        }
-      }
 
       // Fade in
       img.style.transition = bg.style.transition = 'opacity 220ms ease';
@@ -303,20 +303,27 @@ function openLightbox(card, mode = 'feed') {
     resetZoom();
   });
 
-  // ── Meta links ──────────────────────────────────────────────────────────────
+  // ── Meta links — all use currentCard so they work after crossfade ───────────
+  document.getElementById("lbName").addEventListener("click", () => {
+    closeLightbox(); activeSearch = currentCard.name;
+    const sb = document.getElementById("searchBar"); if (sb) sb.value = currentCard.name;
+    const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "block";
+    updateChips(); loadInitialGrid();
+  });
   document.getElementById("lbArtist").addEventListener("click", () => {
-    closeLightbox(); activeArtist = [card.artist];
-    if (!isMobile()) { const btn = document.getElementById("artistBtn"); if (btn) { btn.textContent = card.artist + " ▾"; btn.classList.add("active"); } }
+    closeLightbox(); activeArtist = [currentCard.artist];
+    if (!isMobile()) { const btn = document.getElementById("artistBtn"); if (btn) { btn.textContent = currentCard.artist + " ▾"; btn.classList.add("active"); } }
     updateChips(); loadInitialGrid();
   });
-  if (setName) document.getElementById("lbSet").addEventListener("click", () => {
-    closeLightbox(); activeSets = [card.set];
-    if (!isMobile()) { const s = setList.find(s => s.code === card.set); const btn = document.getElementById("setBtn"); if (btn) { btn.textContent = (s ? s.name : setName) + " ▾"; btn.classList.add("active"); } }
+  document.getElementById("lbSet")?.addEventListener("click", () => {
+    closeLightbox(); activeSets = [currentCard.set];
+    if (!isMobile()) { const s = setList.find(s => s.code === currentCard.set); const btn = document.getElementById("setBtn"); if (btn) { btn.textContent = (s ? s.name : currentCard.set_name) + " ▾"; btn.classList.add("active"); } }
     updateChips(); loadInitialGrid();
   });
-  if (year) document.getElementById("lbYear").addEventListener("click", () => {
-    closeLightbox(); activeYearMin = parseInt(year); activeYearMax = parseInt(year);
-    if (!isMobile()) { const btn = document.getElementById("yearBtn"); if (btn) { btn.textContent = `${year}–${year}`; btn.classList.add("active"); } }
+  document.getElementById("lbYear")?.addEventListener("click", () => {
+    const y = currentCard.released_at?.slice(0,4); if (!y) return;
+    closeLightbox(); activeYearMin = parseInt(y); activeYearMax = parseInt(y);
+    if (!isMobile()) { const btn = document.getElementById("yearBtn"); if (btn) { btn.textContent = `${y}–${y}`; btn.classList.add("active"); } }
     updateChips(); loadInitialGrid();
   });
 

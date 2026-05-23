@@ -33,7 +33,7 @@ async function renderWelcome() {
         <p class="welcome-subtitle">Discover 30 years of Magic: The Gathering artwork</p>
         <button class="welcome-cta" onclick="startBrowse()">Browse the Gallery</button>
         <p class="welcome-draw-separator">or</p>
-        <button class="welcome-draw-cta" onclick="startDraw()"><svg width="10" height="14" viewBox="0 0 11 15" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-right:0.5rem"><rect x="0.75" y="0.75" width="9.5" height="13.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>Draw a card</button>
+        <button class="welcome-draw-cta" onclick="startDraw()">✦ Draw a card</button>
       </div>
       <footer class="site-footer welcome-footer">
         <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images © Wizards of the Coast.</p>

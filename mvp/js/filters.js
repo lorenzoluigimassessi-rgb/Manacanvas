@@ -249,6 +249,7 @@ function toggleSort() {
       sortDir = opt.dir;
       document.getElementById("sortBtn").textContent = `${opt.label} ⇅`;
       closeSortDropdown();
+      window.scrollTo(0, 0);
       loadInitialGrid();
     });
   });
@@ -265,6 +266,7 @@ function shuffleAgain() {
   sortDir = "auto";
   const sortBtn = document.getElementById("sortBtn");
   if (sortBtn) sortBtn.textContent = "Random ⇅";
+  window.scrollTo(0, 0);
   loadInitialGrid();
 }
 

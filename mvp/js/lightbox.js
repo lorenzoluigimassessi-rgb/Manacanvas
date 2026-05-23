@@ -104,10 +104,15 @@ function openLightbox(card, mode = 'feed') {
 
   setTimeout(() => { const h = document.getElementById("zoomHint"); if (h) h.style.opacity = "0"; }, 3000);
 
-  // Close — always goes back to feed
-  document.getElementById("lbClose").addEventListener("click", closeLightbox);
+  // Close — surprise mode returns to welcome, feed mode stays on feed
+  function handleClose() {
+    closeLightbox();
+    if (isSurprise) showWelcome();
+  }
+
+  document.getElementById("lbClose").addEventListener("click", handleClose);
   document.getElementById("lightboxOverlay").addEventListener("click", (e) => {
-    if (e.target.id === "lightboxOverlay") closeLightbox();
+    if (e.target.id === "lightboxOverlay") handleClose();
   });
   document.addEventListener("keydown", handleLbKey);
 
@@ -210,7 +215,11 @@ function openLightbox(card, mode = 'feed') {
         swipeTarget.style.transition = 'none';
         swipeTarget.style.transform  = '';
         swipeTarget.style.opacity    = '1';
-        if (dx < 0) goNext(); else goPrev();
+        if (dx < 0) goNext();
+        else {
+          if (isSurprise) { closeLightbox(); showWelcome(); }
+          else goPrev();
+        }
       }, 220);
       return;
     }
@@ -312,7 +321,10 @@ function flashArrow(id) {
 }
 
 function handleLbKey(e) {
-  if (e.key === "Escape") closeLightbox();
+  if (e.key === "Escape") {
+    closeLightbox();
+    if (_lbMode === 'surprise') showWelcome();
+  }
   if (e.key === "ArrowRight") { flashArrow('lbNext'); document.getElementById("lbNext")?.click(); }
   if (e.key === "ArrowLeft")  { flashArrow('lbPrev'); document.getElementById("lbPrev")?.click(); }
 }

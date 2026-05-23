@@ -96,24 +96,25 @@ document.getElementById("randomFeedBtn").addEventListener("click", async () => {
   if (card) openLightbox(card);
 });
 
-// Restore filter state from localStorage if available
 function restoreFilters() {
   const saved = localStorage.getItem("mc_filters");
   if (!saved) { loadInitialGrid(); return; }
   try {
     const f = JSON.parse(saved);
-    activeArtist    = f.activeArtist    || [];
-    activeType      = f.activeType      || [];
-    activeCardType  = f.activeCardType  || [];
-    activeColour    = f.activeColour    || [];
-    activeSets      = f.activeSets      || [];
-    activeStyles    = f.activeStyles    || [];
+    activeArtist    = Array.isArray(f.activeArtist)   ? f.activeArtist   : (f.activeArtist   ? [f.activeArtist]   : []);
+    activeType      = Array.isArray(f.activeType)     ? f.activeType     : (f.activeType     ? [f.activeType]     : []);
+    activeCardType  = Array.isArray(f.activeCardType) ? f.activeCardType : (f.activeCardType ? [f.activeCardType] : []);
+    activeColour    = Array.isArray(f.activeColour)   ? f.activeColour   : (f.activeColour   ? [f.activeColour]   : []);
+    activeSets      = Array.isArray(f.activeSets)     ? f.activeSets     : [];
+    activeStyles    = Array.isArray(f.activeStyles)   ? f.activeStyles   : [];
     activeYearMin   = f.activeYearMin   || null;
     activeYearMax   = f.activeYearMax   || null;
     activeSearch    = f.activeSearch    || null;
     if (f.sortOrder) sortOrder = f.sortOrder;
     if (f.sortDir)   sortDir   = f.sortDir;
-  } catch(e) { /* ignore corrupt data */ }
+  } catch(e) {
+    localStorage.removeItem("mc_filters");
+  }
   loadInitialGrid();
 }
 

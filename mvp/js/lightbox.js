@@ -42,13 +42,15 @@ function openLightbox(card, mode = 'feed') {
   const disabledTitle = !hasArtCrop ? 'title="Art-only view unavailable for this card"' : '';
 
   const isSurprise = mode === 'surprise';
-  const gradient   = getManaGradient(card.colors);
 
-  // Background style
+  // Surprise mode: blurred art fills background
   const bgStyle = isSurprise
-    ? `style="background:${gradient};"`
+    ? `style="background:#0c0c0f;"`
     : `style="background:rgba(0,0,0,0.95);"`;
 
+  const blurBgHtml = isSurprise
+    ? `<div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>`
+    : '';
   // Prev/next arrows — feed mode only, inside art-container
   const arrowsHtml = !isSurprise ? `
     <button class="lb-nav-arrow" id="lbPrev">‹</button>
@@ -62,7 +64,10 @@ function openLightbox(card, mode = 'feed') {
         <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
         <button id="toggleFrame">With Frame</button>
       </div>
-      <button class="random-btn" id="lbRandom" title="Discover a random artwork"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me</button>
+      <button class="random-btn-primary" id="lbRandom">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg>
+        Surprise Me
+      </button>
     </div>
   ` : `
     <div class="lightbox-actions">
@@ -74,12 +79,13 @@ function openLightbox(card, mode = 'feed') {
   `;
 
   const hintText = isSurprise
-    ? 'Scroll to zoom · Drag to pan · Double-click to reset · R for random'
+    ? 'Scroll to zoom · Drag to pan · R for random'
     : 'Scroll to zoom · Drag to pan · ← → to browse';
 
   const lightbox = document.getElementById("lightbox");
   lightbox.innerHTML = `
     <div class="lightbox" id="lightboxOverlay" ${bgStyle}>
+      ${blurBgHtml}
       <button class="close-btn" id="lbClose">✕</button>
       <div class="art-container" id="artContainer">
         ${arrowsHtml}
@@ -252,7 +258,7 @@ async function loadRandomCard() {
     openLightbox(card, 'surprise');
   } else {
     if (img) img.style.opacity = "1";
-    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`; }
+    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`; }
   }
 }
 

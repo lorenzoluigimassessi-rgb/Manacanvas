@@ -726,6 +726,50 @@ body {
   padding: 1rem;
 }
 
+/* Surprise mode — blurred art background */
+.lb-blur-bg {
+  position: absolute;
+  inset: -20px;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(40px) brightness(0.35) saturate(1.2);
+  transform: scale(1.1);
+  pointer-events: none;
+}
+
+/* Ensure lightbox content sits above blur bg */
+.lightbox > *:not(.lb-blur-bg) { position: relative; z-index: 1; }
+
+/* Surprise Me — primary prominent button */
+.random-btn-primary {
+  margin-top: 1rem;
+  background: #f0f0f0;
+  border: none;
+  color: #0c0c0f;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.65rem 2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Josefin Sans', sans-serif;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.random-btn-primary:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.random-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
 /* Lightbox */
 .lightbox {
   position: fixed;

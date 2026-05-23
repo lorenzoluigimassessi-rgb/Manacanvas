@@ -70,7 +70,7 @@ async function initFilters() {
   document.getElementById("typeBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleDropdown("type"); });
   document.getElementById("setBtn").addEventListener("click",      (e) => { e.stopPropagation(); toggleDropdown("set"); });
   document.getElementById("styleBtn").addEventListener("click",    (e) => { e.stopPropagation(); toggleDropdown("style"); });
-  document.getElementById("moreBtn").addEventListener("click",     (e) => { e.stopPropagation(); openMoreModal(); });
+  document.getElementById("moreBtn").addEventListener("click",     (e) => { e.stopPropagation(); closeDropdown(); closeViewDropdown(); closeSortDropdown(); openMoreModal(); });
   document.getElementById("sortBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleSort(); });
   document.getElementById("viewBtn").addEventListener("click",     (e) => { e.stopPropagation(); toggleViewDropdown(); });
 

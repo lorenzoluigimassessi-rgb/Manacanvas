@@ -36,7 +36,7 @@ async function renderWelcome() {
       <div class="welcome-overlay"></div>
       <div class="welcome-hero">
         <h1 class="welcome-title">MANACANVAS</h1>
-        <p class="welcome-subtitle">Discover 30 years of Magic: The Gathering artwork</p>
+        <p class="welcome-subtitle">Discover the art of Magic:&#174; The Gathering</p>
         <button class="welcome-cta" onclick="startSurprise()">Surprise Me</button>
         <p class="welcome-draw-separator">or</p>
         <button class="welcome-draw-cta" onclick="startBrowse()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Browse the Gallery</button>

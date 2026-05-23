@@ -706,8 +706,14 @@ body {
 
 /* Empty state */
 .empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
   text-align: center;
-  padding: 4rem 2rem;
+  padding: 2rem;
   color: var(--text-secondary);
 }
 
@@ -989,8 +995,8 @@ body {
 
 .lb-nav-arrow:hover { background: rgba(30,30,40,0.8); color: #f0f0f0; }
 .lb-nav-arrow.active { background: rgba(60,60,80,0.9); color: #f0f0f0; }
-#lbPrev { position: fixed; left: calc(10vw - 44px); top: 50%; transform: translateY(-50%); }
-#lbNext { position: fixed; right: calc(10vw - 44px); top: 50%; transform: translateY(-50%); }
+#lbPrev { position: fixed; left: calc(10vw - 20px); top: 50%; transform: translateY(-50%); }
+#lbNext { position: fixed; right: calc(10vw - 20px); top: 50%; transform: translateY(-50%); }
 #lbPrev.active { transform: translateY(-50%) scale(0.92); }
 #lbNext.active { transform: translateY(-50%) scale(0.92); }
 .lb-nav-arrow.hidden { display: none; }

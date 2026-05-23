@@ -29,7 +29,7 @@ async function loadInitialGrid() {
   const { data, hasMore } = await fetchCards(query);
   grid.innerHTML = "";
   if (!data.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><h2>No artwork found</h2><p>Try adjusting your filters or clearing them to browse all art.</p></div>`;
+    grid.innerHTML = `<div class="empty-state"><h2>No artwork found</h2><p>Try adjusting your filters or clearing them to browse all art.</p></div>`;
     return;
   }
   filteredCards = data;

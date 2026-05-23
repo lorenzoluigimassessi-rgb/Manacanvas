@@ -735,14 +735,15 @@ function updateChips() {
   const hasFilters = chips.length > 0;
 
   // Clear all — row-2, next to filter buttons
-  if (clearBtn) clearBtn.style.display = hasFilters ? "inline-flex" : "none";
+  // Clear all — row-2, desktop only, next to filter buttons
+  if (clearBtn) clearBtn.style.display = (!isMobile() && hasFilters) ? "inline-flex" : "none";
 
   // Chip bar — row-3, desktop only
   chipBar.style.display = (!isMobile() && hasFilters) ? "flex" : "none";
 
-  // Mobile inline clear
+  // Mobile inline clear — next to Filters button
   const mobileClear = document.getElementById("mobileClearBtn");
-  if (mobileClear) mobileClear.style.display = hasFilters ? "inline-flex" : "none";
+  if (mobileClear) mobileClear.style.display = (isMobile() && hasFilters) ? "inline-flex" : "none";
 
   // Remove any leftover desktop badge
   const badge = document.getElementById("desktopFilterBadge");

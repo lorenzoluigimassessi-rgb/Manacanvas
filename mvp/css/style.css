@@ -726,6 +726,40 @@ body {
   padding: 1rem;
 }
 
+/* Transition screen */
+#transition {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: #0c0c0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+#transition.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.transition-dice {
+  width: 48px;
+  height: 48px;
+  color: rgba(240,240,240,0.5);
+  animation: diceRoll 900ms ease-in-out;
+}
+
+@keyframes diceRoll {
+  0%   { transform: rotate(0deg) scale(0.8);  opacity: 0; }
+  20%  { opacity: 1; }
+  40%  { transform: rotate(180deg) scale(1.1); }
+  70%  { transform: rotate(320deg) scale(0.95); }
+  100% { transform: rotate(360deg) scale(1);  opacity: 0.8; }
+}
+
 /* Surprise mode — blurred art background */
 .lb-blur-bg {
   position: absolute;

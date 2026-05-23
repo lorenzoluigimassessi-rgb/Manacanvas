@@ -43,14 +43,9 @@ function openLightbox(card, mode = 'feed') {
 
   const isSurprise = mode === 'surprise';
 
-  // Surprise mode: blurred art fills background
-  const bgStyle = isSurprise
-    ? `style="background:#0c0c0f;"`
-    : `style="background:rgba(0,0,0,0.95);"`;
-
-  const blurBgHtml = isSurprise
-    ? `<div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>`
-    : '';
+  // Both modes use blurred art background
+  const bgStyle = `style="background:#0c0c0f;"`;
+  const blurBgHtml = `<div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>`;
   // Prev/next arrows — feed mode only, inside art-container
   const arrowsHtml = !isSurprise ? `
     <button class="lb-nav-arrow" id="lbPrev">‹</button>

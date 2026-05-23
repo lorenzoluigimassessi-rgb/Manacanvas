@@ -56,20 +56,33 @@ function showWelcome() {
   renderWelcome();
 }
 
+function showTransition(callback) {
+  const el = document.getElementById('transition');
+  el.classList.add('active');
+  // Run callback after animation completes
+  setTimeout(() => {
+    callback();
+    setTimeout(() => el.classList.remove('active'), 400);
+  }, 900);
+}
+
 function startBrowse() {
   localStorage.setItem("mc_entered", "1");
-  welcomeEl.style.display = "none";
-  appShell.style.display = "block";
-  loadInitialGrid();
+  showTransition(() => {
+    welcomeEl.style.display = "none";
+    appShell.style.display = "block";
+    loadInitialGrid();
+  });
 }
 
 function startSurprise() {
   localStorage.setItem("mc_entered", "1");
-  welcomeEl.style.display = "none";
-  appShell.style.display = "block";
-  loadInitialGrid();
-  // Open a random card in the lightbox once the grid loads
-  fetchRandomCard().then(card => { if (card) openLightbox(card, 'surprise'); });
+  showTransition(() => {
+    welcomeEl.style.display = "none";
+    appShell.style.display = "block";
+    loadInitialGrid();
+    fetchRandomCard().then(card => { if (card) openLightbox(card, 'surprise'); });
+  });
 }
 
 // On load: skip welcome if user has been here before

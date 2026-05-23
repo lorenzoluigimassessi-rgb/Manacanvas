@@ -39,11 +39,15 @@ function openLightbox(card, mode = 'feed') {
 
   const blurBgHtml = `<div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>`;
 
+  // History/edge state — computed once, used by both arrows
+  const noSurpriseHistory = isSurprise && (!window._surpriseHistory || window._surpriseHistory.length === 0);
+  const feedAtStart = !isSurprise && filteredCards.findIndex(c => c.id === card.id) <= 0;
+  const feedAtEnd   = !isSurprise && filteredCards.findIndex(c => c.id === card.id) >= filteredCards.length - 1;
+
   // Desktop arrows
-  const surprisePrevHidden = noSurpriseHistory ? 'hidden' : '';
   const arrowsHtml = `
-    <button class="lb-nav-arrow ${surprisePrevHidden}" id="lbPrev">‹</button>
-    <button class="lb-nav-arrow" id="lbNext">›</button>
+    <button class="lb-nav-arrow ${noSurpriseHistory || feedAtStart ? 'hidden' : ''}" id="lbPrev">‹</button>
+    <button class="lb-nav-arrow ${feedAtEnd ? 'hidden' : ''}" id="lbNext">›</button>
   `;
 
   const actionsHtml = `
@@ -58,10 +62,8 @@ function openLightbox(card, mode = 'feed') {
   const showFte = false; const fteHtml = '';
 
   // Ghost arrows — overlaid on art-container, mobile only
-  // In surprise: hide prev if no history yet
-  const noSurpriseHistory = isSurprise && (!window._surpriseHistory || window._surpriseHistory.length === 0);
-  const ghostPrevHidden = (noSurpriseHistory || (filteredCards.findIndex(c => c.id === card.id) <= 0 && !isSurprise)) ? 'hidden' : '';
-  const ghostNextHidden = (!isSurprise && filteredCards.findIndex(c => c.id === card.id) >= filteredCards.length - 1) ? 'hidden' : '';
+  const ghostPrevHidden = (noSurpriseHistory || feedAtStart) ? 'hidden' : '';
+  const ghostNextHidden = feedAtEnd ? 'hidden' : '';
 
   // Swipe hint — mobile only, surprise mode, first open per session
   const showSwipeHint = isSurprise && !sessionStorage.getItem('lb_swipe_hint_shown');

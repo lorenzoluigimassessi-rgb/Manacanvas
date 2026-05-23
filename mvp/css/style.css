@@ -1063,6 +1063,8 @@ body {
   .random-feed-btn { display: none; }
   .filter-btn { height: 44px; padding: 0 1rem; font-size: 0.88rem; }
   .mobile-filters-btn { height: 44px; padding: 0 1rem; font-size: 0.88rem; }
+  .shuffle-again-btn { height: 44px; padding: 0 1rem; font-size: 0.88rem; }
+  .mobile-clear-btn { height: 44px; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; padding: 1rem; }
   .grid.grid-sm { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
   .grid.grid-lg { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
@@ -1501,7 +1503,6 @@ body {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  height: 30px;
 }
 
 .mobile-clear-btn {

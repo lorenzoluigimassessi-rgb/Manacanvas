@@ -59,7 +59,6 @@ function showWelcome() {
 function showTransition(callback) {
   const el = document.getElementById('transition');
   el.classList.add('active');
-  // Run callback after animation completes
   setTimeout(() => {
     callback();
     setTimeout(() => el.classList.remove('active'), 400);
@@ -77,11 +76,18 @@ function startBrowse() {
 
 function startSurprise() {
   localStorage.setItem("mc_entered", "1");
-  showTransition(() => {
-    welcomeEl.style.display = "none";
-    appShell.style.display = "block";
-    loadInitialGrid();
-    fetchRandomCard().then(card => { if (card) openLightbox(card, 'surprise'); });
+  const el = document.getElementById('transition');
+  const dice = el.querySelector('.transition-dice');
+  el.classList.add('active');
+  // After roll completes, switch to pulse while fetching
+  setTimeout(() => { dice.classList.add('pulse'); }, 900);
+  welcomeEl.style.display = "none";
+  appShell.style.display = "block";
+  loadInitialGrid();
+  fetchRandomCard().then(card => {
+    dice.classList.remove('pulse');
+    el.classList.remove('active');
+    if (card) openLightbox(card, 'surprise');
   });
 }
 

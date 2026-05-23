@@ -760,6 +760,15 @@ body {
   100% { transform: rotate(360deg) scale(1);  opacity: 0.8; }
 }
 
+.transition-dice.pulse {
+  animation: dicePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dicePulse {
+  0%, 100% { transform: scale(1);    opacity: 0.5; }
+  50%       { transform: scale(1.12); opacity: 0.9; }
+}
+
 /* Surprise mode — blurred art background */
 .lb-blur-bg {
   position: absolute;

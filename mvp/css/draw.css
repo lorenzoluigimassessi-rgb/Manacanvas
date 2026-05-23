@@ -385,8 +385,8 @@
 
 /* --- Welcome page Draw CTA additions --- */
 .welcome-draw-separator {
-  font-size: 0.78rem;
-  color: rgba(240,240,240,0.3);
+  font-size: 0.75rem;
+  color: rgba(240,240,240,0.25);
   letter-spacing: 2px;
   text-transform: uppercase;
   margin: 1rem 0 0.8rem;
@@ -401,50 +401,13 @@
   letter-spacing: 2px;
   cursor: pointer;
   padding: 0.4rem 0;
-  position: relative;
+  color: rgba(240,240,240,0.65);
+  transition: color 200ms;
   display: inline-block;
-
-  /* Mana shimmer via background-clip */
-  background: linear-gradient(90deg,
-    #c8b87a, #7ab8c8, #9a7ac8, #c87a7a, #7ac87a, #c8b87a
-  );
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: manaShimmer 6s linear infinite;
 }
 
 .welcome-draw-cta:hover {
-  animation-duration: 1.5s;
-}
-
-@keyframes manaShimmer {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 300% 50%; }
-}
-
-/* Spark burst on ✦ glyph — CSS only */
-.welcome-draw-cta::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -0.2em;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(200,184,122,0.6);
-  transform: translate(-50%, -50%) scale(0);
-  pointer-events: none;
-}
-
-.welcome-draw-cta:hover::after {
-  animation: sparkBurst 400ms ease-out forwards;
-}
-
-@keyframes sparkBurst {
-  0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+  color: rgba(240,240,240,0.95);
 }
 
 /* --- Browse feed Draw pill (mobile) --- */
@@ -462,54 +425,38 @@
 #drawPillMobile.scroll-hidden { transform: translateX(-50%) translateY(80px); opacity: 0.4; }
 
 .draw-pill-btn {
-  background: rgba(12,12,15,0.85);
-  border: 1px solid transparent;
-  border-radius: 24px;
-  padding: 0.55rem 1.2rem;
+  background: #16161f;
+  border: 1px solid #4a4a60;
+  border-radius: 4px;
+  height: 32px;
+  padding: 0 10px;
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.85rem;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  color: #c8c8e0;
   cursor: pointer;
   white-space: nowrap;
-  backdrop-filter: blur(8px);
-  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 150ms, border-color 150ms, color 150ms;
+  flex-shrink: 0;
+}
 
-  /* Gradient border via background-origin trick */
-  background-clip: padding-box;
-  box-shadow: 0 0 0 1px rgba(200,184,122,0.3);
-
-  /* Shimmer text */
-  background: linear-gradient(90deg,
-    #c8b87a, #7ab8c8, #9a7ac8, #c87a7a, #7ac87a, #c8b87a
-  );
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: manaShimmer 6s linear infinite;
+.draw-pill-btn:hover {
+  background: #1e1e2e;
+  border-color: #8080a8;
+  color: #e8e8f8;
 }
 
 .draw-pill-btn:active {
-  animation: pillPulse 150ms ease-out;
-}
-
-@keyframes pillPulse {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.08); }
-  100% { transform: scale(1); }
+  transform: scale(0.97);
 }
 
 /* --- Browse feed Draw pill (desktop) --- */
 #drawPillDesktop {
-  display: none;
-}
-
-/* shown via JS when appShell is active */
-#drawPillDesktop.visible {
   display: inline-flex;
 }
-
-/* Reuse draw-pill-btn styles */
 
 /* --- Lightbox prev/next arrows --- */
 .lb-nav-arrow {

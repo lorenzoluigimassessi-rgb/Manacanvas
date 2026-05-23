@@ -27,7 +27,6 @@
     }
 
     if (desktopPill) {
-      desktopPill.classList.add('visible');
       desktopPill.addEventListener('click', enterDrawMode);
     }
   }

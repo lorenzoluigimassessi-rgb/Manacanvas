@@ -86,7 +86,7 @@ document.getElementById("randomFeedBtn").addEventListener("click", async () => {
   btn.textContent = "↻";
   const card = await fetchRandomCard();
   btn.disabled = false;
-  btn.textContent = "↺ Random Artwork";
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`;
   if (card) openLightbox(card);
 });
 

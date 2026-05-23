@@ -680,20 +680,48 @@ function clearYear() {
 }
 
 function updateChips() {
-  const activeCount = activeArtist.length + activeType.length + activeCardType.length +
-    activeColour.length + activeStyles.length + activeSets.length +
-    (activeYearMin || activeYearMax ? 1 : 0);
-
-  // Clear button — show when any filter OR search is active
+  const chipBar = document.getElementById("chipBar");
+  const chipList = document.getElementById("chipList");
   const clearBtn = document.getElementById("clearFiltersBtn");
-  if (clearBtn) clearBtn.style.display = (activeCount > 0 || activeSearch) ? "inline-flex" : "none";
+  if (!chipBar || !chipList) { updateMoreBadge(); return; }
 
-  // Desktop: update count badge on filter area
-  updateDesktopBadge(activeCount);
+  const chips = [];
+
+  if (activeArtist.length)
+    chips.push({ label: activeArtist.length === 1 ? activeArtist[0] : `Artists (${activeArtist.length})`, clear: () => clearArtist() });
+  if (activeType.length)
+    chips.push({ label: activeType.length === 1 ? activeType[0] : `Creatures (${activeType.length})`, clear: () => clearType() });
+  if (activeSets.length) {
+    const setLabel = activeSets.length === 1 ? (setList.find(s => s.code === activeSets[0])?.name || "1 Set") : `Sets (${activeSets.length})`;
+    chips.push({ label: setLabel, clear: () => clearAllSets() });
+  }
+  if (activeStyles.length)
+    chips.push({ label: activeStyles.length === 1 ? ART_STYLES[activeStyles[0]].name : `Style (${activeStyles.length})`, clear: () => { activeStyles = []; const btn = document.getElementById("styleBtn"); if (btn) { btn.textContent = "Art Style ▾"; btn.classList.remove("active"); } updateChips(); loadInitialGrid(); } });
+  if (activeCardType.length)
+    chips.push({ label: activeCardType.length === 1 ? activeCardType[0] : `Type (${activeCardType.length})`, clear: () => clearCardType() });
+  if (activeColour.length)
+    chips.push({ label: activeColour.length === 1 ? (MANA_TYPES.find(m => m.code === activeColour[0])?.label || activeColour[0]) : `Mana (${activeColour.length})`, clear: () => clearColour() });
+  if (activeYearMin || activeYearMax)
+    chips.push({ label: `${activeYearMin || 1993}–${activeYearMax || new Date().getFullYear()}`, clear: () => { activeYearMin = null; activeYearMax = null; updateMoreBadge(); updateChips(); loadInitialGrid(); } });
+  if (activeSearch)
+    chips.push({ label: `"${activeSearch}"`, clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; updateChips(); loadInitialGrid(); } });
+
+  const hasFilters = chips.length > 0;
+  chipBar.style.display = (!isMobile() && hasFilters) ? "flex" : "none";
+  if (clearBtn) clearBtn.style.display = hasFilters ? "inline-flex" : "none";
+
+  chipList.innerHTML = "";
+  chips.forEach(chip => {
+    const el = document.createElement("div");
+    el.className = "filter-chip";
+    el.innerHTML = `<span>${chip.label}</span><span class="chip-remove" title="Remove">✕</span>`;
+    el.querySelector(".chip-remove").addEventListener("click", chip.clear);
+    chipList.appendChild(el);
+  });
+
+  updateDesktopBadge(chips.length);
   updateMoreBadge();
-
-  // Mobile: update drawer badge
-  updateDrawerBadge(activeCount);
+  updateDrawerBadge(chips.length);
 }
 
 function updateDesktopBadge(count) {

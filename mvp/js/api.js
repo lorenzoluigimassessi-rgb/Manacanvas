@@ -17,10 +17,11 @@ const SORT_OPTIONS = [
 async function fetchCards(query = "t:creature", page = 1) {
   isLoading = true;
   const isRandom = sortOrder === "random";
-  // For shuffle, fetch with released order then shuffle client-side
+  // For shuffle, pick a random page from the catalogue (~170 pages of illustrated cards)
+  const randomPage = isRandom ? Math.floor(Math.random() * 170) + 1 : page;
   const order = isRandom ? "released" : sortOrder;
   const dir = isRandom ? "asc" : sortDir;
-  const url = nextPageUrl || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&order=${order}&dir=${dir}&page=${page}`;
+  const url = (!isRandom && nextPageUrl) || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&order=${order}&dir=${dir}&page=${randomPage}`;
   try {
     const res = await fetch(url);
     if (!res.ok) return { data: [], hasMore: false };

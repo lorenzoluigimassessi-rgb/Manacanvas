@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>ManaCanvas — Draw</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0c0c0f;
+      font-family: 'Josefin Sans', sans-serif;
+      color: #f0f0f0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Entry button ── */
+    #entryBtn {
+      background: #16161f;
+      border: 1px solid #4a4a60;
+      color: #c8c8e0;
+      padding: 0.9rem 2.5rem;
+      border-radius: 4px;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background 150ms, border-color 150ms;
+    }
+    #entryBtn:hover { background: #1e1e2e; border-color: #8080a8; color: #e8e8f8; }
+
+    /* ── Draw overlay ── */
+    #draw {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      overflow: hidden;
+      background: #0c0c0f;
+    }
+    #draw.open { display: block; }
+
+    /* Gradient bg */
+    #dGrad {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      transition: background 300ms ease;
+    }
+
+    /* Art */
+    #dArt {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      will-change: transform;
+    }
+    #dArt img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    /* Incoming art (for transitions) */
+    #dIn {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #dIn img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Loading */
+    #dLoad {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      background: #0c0c0f;
+    }
+    #dLoad.hidden { display: none; }
+    #dLoad .spinner {
+      width: 48px; height: 64px;
+      border: 1.5px solid rgba(240,240,240,0.15);
+      border-radius: 6px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    #dLoad p {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(240,240,240,0.3);
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 0.2; transform: scale(0.96); }
+      50%      { opacity: 0.6; transform: scale(1); }
+    }
+
+    /* Chrome */
+    #dChrome {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+    }
+    #dChrome > * { pointer-events: auto; }
+
+    /* Exit */
+    #dExit {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(12,12,15,0.6);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(240,240,240,0.7);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 150ms;
+      backdrop-filter: blur(4px);
+    }
+    #dExit:hover { background: rgba(30,30,40,0.85); color: #f0f0f0; }
+
+    /* Toggle */
+    #dToggle {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      background: rgba(12,12,15,0.7);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+    #dToggle button {
+      background: transparent;
+      border: none;
+      color: rgba(240,240,240,0.45);
+      padding: 0.4rem 1.1rem;
+      font-size: 0.75rem;
+      font-family: 'Josefin Sans', sans-serif;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background 150ms, color 150ms;
+    }
+    #dToggle button.active {
+      background: rgba(255,255,255,0.1);
+      color: rgba(240,240,240,0.9);
+    }
+
+    /* Desktop arrows */
+    .darrow {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      width: 44px; height: 64px;
+      background: rgba(12,12,15,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(240,240,240,0.6);
+      border-radius: 4px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity 200ms, background 150ms;
+      backdrop-filter: blur(4px);
+    }
+    .darrow:hover { background: rgba(30,30,40,0.7); color: #f0f0f0; }
+    #dPrev { left: 0.75rem; }
+    #dNext { right: 0.75rem; }
+
+    /* Card name overlay (bottom left, idle) */
+    #dMeta {
+      position: absolute;
+      bottom: 4.5rem;
+      left: 1.2rem;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 300ms;
+    }
+    #dMeta.visible { opacity: 1; }
+    #dMeta .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: rgba(240,240,240,0.8);
+      letter-spacing: 0.5px;
+    }
+    #dMeta .card-artist {
+      font-size: 0.7rem;
+      color: rgba(240,240,240,0.35);
+      margin-top: 0.2rem;
+    }
+
+    /* Detail panel */
+    #dDetail {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      align-items: flex-end;
+      pointer-events: none;
+    }
+    #dDetail.open { pointer-events: auto; }
+    #dDetailBg {
+      position: absolute;
+      inset: 0;
+      background: rgba(12,12,15,0.5);
+      opacity: 0;
+      transition: opacity 200ms;
+    }
+    #dDetail.open #dDetailBg { opacity: 1; }
+    #dDetailPanel {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      background: rgba(12,12,15,0.94);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px 12px 0 0;
+      padding: 1.5rem 1.5rem 2.5rem;
+      transform: translateY(100%);
+      transition: transform 320ms cubic-bezier(0.34,1.56,0.64,1);
+      backdrop-filter: blur(16px);
+    }
+    #dDetail.open #dDetailPanel { transform: translateY(0); }
+    .dp-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .dp-meta {
+      font-size: 0.8rem;
+      color: rgba(240,240,240,0.45);
+      margin-bottom: 1.2rem;
+    }
+    .dp-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .dp-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(240,240,240,0.7);
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-family: 'Josefin Sans', sans-serif;
+      cursor: pointer;
+      transition: border-color 150ms, color 150ms;
+    }
+    .dp-btn:hover { border-color: rgba(255,255,255,0.5); color: #f0f0f0; }
+    .dp-back {
+      background: none; border: none;
+      color: rgba(240,240,240,0.35);
+      font-size: 0.75rem;
+      font-family: 'Josefin Sans', sans-serif;
+      cursor: pointer;
+      transition: color 150ms;
+    }
+    .dp-back:hover { color: rgba(240,240,240,0.8); }
+
+    /* Swipe hint */
+    #dHint {
+      position: absolute;
+      bottom: 4.5rem;
+      right: 1.2rem;
+      z-index: 10;
+      font-size: 0.65rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(240,240,240,0.2);
+      pointer-events: none;
+      transition: opacity 1s;
+    }
+
+    @media (max-width: 768px) {
+      #dToggle { bottom: calc(1.5rem + env(safe-area-inset-bottom)); }
+      .darrow  { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <button id="entryBtn">✦ Draw a card</button>
+
+  <div id="draw">
+    <div id="dGrad"></div>
+    <div id="dArt"><img src="" alt=""></div>
+    <div id="dIn"><img src="" alt=""></div>
+
+    <div id="dLoad">
+      <div class="spinner"></div>
+      <p>Drawing...</p>
+    </div>
+
+    <div id="dChrome">
+      <button id="dExit">✕</button>
+      <button class="darrow" id="dPrev">‹</button>
+      <button class="darrow" id="dNext">›</button>
+      <div id="dToggle">
+        <button id="tArt" class="active">Art</button>
+        <button id="tCard">Card</button>
+      </div>
+      <div id="dMeta">
+        <div class="card-name" id="dName"></div>
+        <div class="card-artist" id="dArtist"></div>
+      </div>
+      <div id="dHint">Swipe or use ← →</div>
+    </div>
+
+    <div id="dDetail">
+      <div id="dDetailBg"></div>
+      <div id="dDetailPanel">
+        <div class="dp-name" id="dpName"></div>
+        <div class="dp-meta" id="dpMeta"></div>
+        <div class="dp-actions" id="dpActions"></div>
+        <button class="dp-back" id="dpBack">← Back to Draw</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ── Gradients ──────────────────────────────────────────────────────────────
+  const GRADIENTS = {
+    W: 'linear-gradient(160deg,#2a2318,#3d3420,#1a1610)',
+    U: 'linear-gradient(160deg,#0a1628,#0d2240,#061018)',
+    B: 'linear-gradient(160deg,#0e0a18,#1a1030,#080610)',
+    R: 'linear-gradient(160deg,#1e0c08,#2e1408,#180a06)',
+    G: 'linear-gradient(160deg,#081a0c,#0e2810,#061208)',
+    M: 'linear-gradient(160deg,#1e1808,#2e2410,#181206)',
+    C: 'linear-gradient(160deg,#141420,#1e1e2e,#0e0e18)',
+  };
+
+  function gradient(colors) {
+    if (!colors || !colors.length) return GRADIENTS.C;
+    if (colors.length > 1) return GRADIENTS.M;
+    return GRADIENTS[colors[0]] || GRADIENTS.C;
+  }
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  const BATCH   = 8;
+  const THRESH  = 0.28;
+  let queue     = [];
+  let history   = [];
+  let idx       = -1;
+  let mode      = 'art';
+  let fetching  = false;
+  let open      = false;
+
+  let sx = 0, sy = 0, cx = 0;
+  let dragging = false, dir = null;
+  let arrowT = null, metaT = null;
+
+  // ── DOM refs ───────────────────────────────────────────────────────────────
+  const draw    = document.getElementById('draw');
+  const grad    = document.getElementById('dGrad');
+  const art     = document.getElementById('dArt');
+  const artImg  = art.querySelector('img');
+  const inc     = document.getElementById('dIn');
+  const incImg  = inc.querySelector('img');
+  const loading = document.getElementById('dLoad');
+  const meta    = document.getElementById('dMeta');
+  const hint    = document.getElementById('dHint');
+
+  // ── Entry ──────────────────────────────────────────────────────────────────
+  document.getElementById('entryBtn').addEventListener('click', enter);
+
+  async function enter() {
+    if (open) return;
+    open = true;
+    queue = []; history = []; idx = -1; mode = 'art';
+    syncToggle();
+
+    draw.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    loading.classList.remove('hidden');
+    meta.classList.remove('visible');
+
+    await fetchBatch();
+    loading.classList.add('hidden');
+    showCard();
+    bindEvents();
+
+    // Hide hint after 4s
+    setTimeout(() => { hint.style.opacity = '0'; }, 4000);
+  }
+
+  function exit() {
+    if (!open) return;
+    open = false;
+    draw.classList.remove('open');
+    document.body.style.overflow = '';
+    unbindEvents();
+    closeDetail();
+    stopParallax();
+  }
+
+  // ── Cards ──────────────────────────────────────────────────────────────────
+  function showCard() {
+    const card = queue.shift();
+    if (!card) return;
+    history.push(card);
+    idx = history.length - 1;
+    render(card);
+    startParallax();
+    prefetchCheck();
+  }
+
+  function render(card) {
+    const url = imgUrl(card);
+    grad.style.background = gradient(card.colors);
+    artImg.src = url;
+    // Update meta
+    document.getElementById('dName').textContent   = card.name || '';
+    document.getElementById('dArtist').textContent = card.artist ? `by ${card.artist}` : '';
+    meta.classList.add('visible');
+    // Hide meta after 3s
+    clearTimeout(metaT);
+    metaT = setTimeout(() => meta.classList.remove('visible'), 3000);
+  }
+
+  function imgUrl(card) {
+    const u = card.image_uris || card.card_faces?.[0]?.image_uris || {};
+    return mode === 'card' ? (u.normal || u.art_crop || '') : (u.art_crop || u.normal || '');
+  }
+
+  // ── Navigation ─────────────────────────────────────────────────────────────
+  function next() {
+    if (idx < history.length - 1) {
+      idx++;
+      transition(history[idx], 'next');
+      return;
+    }
+    if (!queue.length) return;
+    const card = queue.shift();
+    history.push(card);
+    idx = history.length - 1;
+    transition(card, 'next');
+    prefetchCheck();
+  }
+
+  function prev() {
+    if (idx <= 0) return;
+    idx--;
+    transition(history[idx], 'prev');
+  }
+
+  function transition(card, dir) {
+    const url   = imgUrl(card);
+    const fromX = dir === 'next' ? '100%' : '-100%';
+    const toX   = dir === 'next' ? '-100%' : '100%';
+
+    incImg.src            = url;
+    inc.style.transition  = 'none';
+    inc.style.transform   = `translateX(${fromX})`;
+    inc.style.opacity     = '1';
+    grad.style.background = gradient(card.colors);
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      art.style.transition = 'transform 280ms ease-in-out, opacity 280ms ease-in-out';
+      inc.style.transition = 'transform 280ms ease-in-out';
+      art.style.transform  = `translateX(${toX})`;
+      art.style.opacity    = '0';
+      inc.style.transform  = 'translateX(0)';
+    }));
+
+    setTimeout(() => {
+      artImg.src           = url;
+      art.style.transition = 'none';
+      art.style.transform  = '';
+      art.style.opacity    = '1';
+      inc.style.transition = 'none';
+      inc.style.transform  = `translateX(${fromX})`;
+      inc.style.opacity    = '0';
+      // Update meta
+      document.getElementById('dName').textContent   = card.name || '';
+      document.getElementById('dArtist').textContent = card.artist ? `by ${card.artist}` : '';
+      meta.classList.add('visible');
+      clearTimeout(metaT);
+      metaT = setTimeout(() => meta.classList.remove('visible'), 3000);
+    }, 300);
+  }
+
+  // ── Toggle ─────────────────────────────────────────────────────────────────
+  function syncToggle() {
+    document.getElementById('tArt').classList.toggle('active',  mode === 'art');
+    document.getElementById('tCard').classList.toggle('active', mode === 'card');
+  }
+
+  document.getElementById('tArt').addEventListener('click', () => {
+    mode = 'art'; syncToggle();
+    if (history[idx]) render(history[idx]);
+  });
+  document.getElementById('tCard').addEventListener('click', () => {
+    mode = 'card'; syncToggle();
+    if (history[idx]) render(history[idx]);
+  });
+
+  // ── Drag ───────────────────────────────────────────────────────────────────
+  function dragStart(x, y) { sx = x; sy = y; cx = x; dragging = true; dir = null; }
+
+  function dragMove(x, y) {
+    if (!dragging) return;
+    cx = x;
+    const dx = x - sx, dy = y - sy;
+    if (!dir) {
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8)
+        dir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
+      return;
+    }
+    if (dir === 'v') return;
+
+    const tilt = (dx / window.innerWidth) * 4;
+    art.style.transition = 'none';
+    art.style.transform  = `translateX(${dx}px) rotate(${tilt}deg)`;
+
+    // Peek
+    const peek = dx < 0
+      ? (idx < history.length - 1 ? history[idx + 1] : queue[0])
+      : (idx > 0 ? history[idx - 1] : null);
+    if (peek) {
+      const pu = imgUrl(peek);
+      if (incImg.src !== pu) incImg.src = pu;
+      const prog = Math.min(Math.abs(dx) / (window.innerWidth * THRESH), 1);
+      inc.style.transition = 'none';
+      inc.style.transform  = `translateX(calc(${dx < 0 ? '100%' : '-100%'} + ${dx < 0 ? -1 : 1} * ${Math.abs(dx) * 0.25}px))`;
+      inc.style.opacity    = String(prog * 0.7);
+    }
+  }
+
+  function dragEnd(x, y) {
+    if (!dragging) return;
+    dragging = false;
+    const dx = x - sx, dy = y - sy;
+
+    if (dir === 'v' && dy > 80) { reset(); exit(); return; }
+    if (dir !== 'h') { snapBack(); return; }
+    if (Math.abs(dx) >= window.innerWidth * THRESH) {
+      reset();
+      if (dx < 0) next(); else prev();
+    } else { snapBack(); }
+  }
+
+  function reset() {
+    art.style.transition = 'none';
+    art.style.transform  = '';
+    art.style.opacity    = '1';
+    inc.style.opacity    = '0';
+  }
+
+  function snapBack() {
+    art.style.transition = 'transform 220ms cubic-bezier(0.34,1.56,0.64,1), opacity 220ms ease';
+    art.style.transform  = '';
+    art.style.opacity    = '1';
+    inc.style.transition = 'opacity 220ms ease';
+    inc.style.opacity    = '0';
+    setTimeout(() => { art.style.transition = ''; inc.style.transition = ''; }, 220);
+  }
+
+  // ── Arrows ─────────────────────────────────────────────────────────────────
+  function showArrows() {
+    document.getElementById('dPrev').style.opacity = idx > 0 ? '1' : '0';
+    document.getElementById('dNext').style.opacity = '1';
+    clearTimeout(arrowT);
+    arrowT = setTimeout(() => {
+      document.getElementById('dPrev').style.opacity = '0';
+      document.getElementById('dNext').style.opacity = '0';
+    }, 2000);
+  }
+
+  // ── Detail panel ───────────────────────────────────────────────────────────
+  function openDetail() {
+    if (Math.abs(cx - sx) > 8) return;
+    const card = history[idx];
+    if (!card) return;
+    document.getElementById('dpName').textContent = card.name || '';
+    document.getElementById('dpMeta').textContent = [
+      card.artist ? `Illustrated by ${card.artist}` : '',
+      card.set_name || '',
+      card.released_at ? card.released_at.slice(0,4) : ''
+    ].filter(Boolean).join(' · ');
+
+    const actions = document.getElementById('dpActions');
+    actions.innerHTML = '';
+    if (card.artist) {
+      const b = document.createElement('button');
+      b.className = 'dp-btn';
+      b.textContent = 'Browse by artist';
+      b.onclick = () => { closeDetail(); exit(); alert(`Filter by artist: ${card.artist}`); };
+      actions.appendChild(b);
+    }
+    if (card.set_name) {
+      const b = document.createElement('button');
+      b.className = 'dp-btn';
+      b.textContent = 'Browse by set';
+      b.onclick = () => { closeDetail(); exit(); alert(`Filter by set: ${card.set_name}`); };
+      actions.appendChild(b);
+    }
+
+    document.getElementById('dDetail').classList.add('open');
+  }
+
+  function closeDetail() {
+    document.getElementById('dDetail').classList.remove('open');
+  }
+
+  document.getElementById('dpBack').addEventListener('click', closeDetail);
+  document.getElementById('dDetailBg').addEventListener('click', closeDetail);
+
+  // ── Parallax ───────────────────────────────────────────────────────────────
+  let pActive = false, pRAF = null;
+  let tX = 0, tY = 0, pX = 0, pY = 0;
+
+  function startParallax() {
+    pActive = true;
+    window.addEventListener('mousemove', onPMouse);
+    pLoop();
+  }
+  function stopParallax() {
+    pActive = false;
+    window.removeEventListener('mousemove', onPMouse);
+    cancelAnimationFrame(pRAF);
+    art.style.transform  = '';
+    grad.style.transform = '';
+  }
+  function onPMouse(e) {
+    tX = (e.clientX - window.innerWidth  / 2) / (window.innerWidth  / 2);
+    tY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+  }
+  function pLoop() {
+    if (!pActive) return;
+    pX += (tX - pX) * 0.06;
+    pY += (tY - pY) * 0.06;
+    if (!dragging) {
+      art.style.transform  = `translate(${pX * 5}px, ${pY * 5}px)`;
+      grad.style.transform = `translate(${-pX * 2}px, ${-pY * 2}px)`;
+    }
+    pRAF = requestAnimationFrame(pLoop);
+  }
+
+  // ── API ────────────────────────────────────────────────────────────────────
+  async function fetchBatch() {
+    if (fetching) return;
+    fetching = true;
+    const calls = Array.from({ length: BATCH }, () =>
+      fetch('https://api.scryfall.com/cards/random?q=has:illustration')
+        .then(r => r.json()).catch(() => null)
+    );
+    const res = await Promise.all(calls);
+    queue.push(...res.filter(Boolean));
+    fetching = false;
+  }
+
+  function prefetchCheck() {
+    if (queue.length <= 2 && !fetching) fetchBatch();
+  }
+
+  // ── Events ─────────────────────────────────────────────────────────────────
+  function bindEvents() {
+    draw.addEventListener('touchstart',  onTS, { passive: true });
+    draw.addEventListener('touchmove',   onTM, { passive: true });
+    draw.addEventListener('touchend',    onTE);
+    draw.addEventListener('mousedown',   onMD);
+    draw.addEventListener('mousemove',   showArrows);
+    draw.addEventListener('wheel',       onW, { passive: true });
+    window.addEventListener('mousemove', onWM);
+    window.addEventListener('mouseup',   onWU);
+    window.addEventListener('keydown',   onK);
+    document.getElementById('dExit').addEventListener('click', exit);
+    document.getElementById('dPrev').addEventListener('click', prev);
+    document.getElementById('dNext').addEventListener('click', next);
+    art.addEventListener('click', openDetail);
+  }
+
+  function unbindEvents() {
+    draw.removeEventListener('touchstart',  onTS);
+    draw.removeEventListener('touchmove',   onTM);
+    draw.removeEventListener('touchend',    onTE);
+    draw.removeEventListener('mousedown',   onMD);
+    draw.removeEventListener('mousemove',   showArrows);
+    draw.removeEventListener('wheel',       onW);
+    window.removeEventListener('mousemove', onWM);
+    window.removeEventListener('mouseup',   onWU);
+    window.removeEventListener('keydown',   onK);
+  }
+
+  function onTS(e) { dragStart(e.touches[0].clientX, e.touches[0].clientY); }
+  function onTM(e) { dragMove(e.touches[0].clientX, e.touches[0].clientY); }
+  function onTE(e) { dragEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY); }
+  function onMD(e) { dragStart(e.clientX, e.clientY); }
+  function onWM(e) { if (dragging) dragMove(e.clientX, e.clientY); }
+  function onWU(e) { if (dragging) dragEnd(e.clientX, e.clientY); }
+  function onW(e)  { if (e.deltaY > 0) next(); }
+  function onK(e) {
+    if (!open) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
+    if (e.key === 'Escape') {
+      if (document.getElementById('dDetail').classList.contains('open')) closeDetail();
+      else exit();
+    }
+  }
+  </script>
+</body>
+</html>

@@ -1,53 +1,41 @@
-// draw-overlay.js — Draw detail overlay
+// draw-overlay.js — detail overlay
 
-function openDrawDetail(e) {
-  // Don't open if user was dragging
-  if (Math.abs(dragCurrentX - dragStartX) > 8) return;
-
-  const card = drawHistory[drawHistoryIndex];
+function openDetail() {
+  const card = drawHistory[drawIdx];
   if (!card) return;
 
-  const setName = card.set_name || '';
-  const year = card.released_at ? card.released_at.slice(0, 4) : '';
-  const artist = card.artist || '';
+  const setName  = card.set_name || '';
+  const year     = card.released_at ? card.released_at.slice(0, 4) : '';
+  const artist   = card.artist || '';
   const manaCost = card.mana_cost || '';
 
-  // Render mana symbols
-  const manaHtml = manaCost
-    ? manaCost.replace(/\{([^}]+)\}/g, (_, sym) => {
-        const code = sym.toLowerCase().replace('/', '');
-        return `<img class="mana-symbol-btn" src="https://svgs.scryfall.io/card-symbols/${code}.svg" alt="${sym}" onerror="this.style.display='none'">`;
-      })
-    : '';
+  const manaHtml = manaCost.replace(/\{([^}]+)\}/g, (_, sym) => {
+    const code = sym.toLowerCase().replace('/', '');
+    return `<img class="mana-symbol-btn" src="https://svgs.scryfall.io/card-symbols/${code}.svg" alt="${sym}" onerror="this.style.display='none'">`;
+  });
 
-  const detail = document.getElementById('drawDetail');
-  detail.querySelector('#drawDetailPanel').innerHTML = `
+  const panel = document.getElementById('drawDetailPanel');
+  panel.innerHTML = `
     <div class="draw-detail-name">${card.name || ''}</div>
     <div class="draw-detail-meta">
-      ${artist ? `Illustrated by ${artist}` : ''}
-      ${setName ? ` · ${setName}` : ''}
-      ${year ? ` · ${year}` : ''}
+      ${artist ? `Illustrated by ${artist}` : ''}${setName ? ` · ${setName}` : ''}${year ? ` · ${year}` : ''}
     </div>
     ${manaHtml ? `<div class="draw-detail-mana">${manaHtml}</div>` : ''}
     <div class="draw-detail-actions">
-      ${artist ? `<button class="draw-browse-btn" id="drawBrowseArtist">Browse by artist</button>` : ''}
-      ${setName ? `<button class="draw-browse-btn" id="drawBrowseSet">Browse by set</button>` : ''}
+      ${artist   ? `<button class="draw-browse-btn" id="detailBrowseArtist">Browse by artist</button>` : ''}
+      ${setName  ? `<button class="draw-browse-btn" id="detailBrowseSet">Browse by set</button>`       : ''}
     </div>
-    <button class="draw-detail-back" id="drawDetailBack">← Back to Draw</button>
+    <button class="draw-detail-back" id="detailBack">\u2190 Back to Draw</button>
   `;
 
-  detail.classList.add('active');
+  document.getElementById('drawDetail').classList.add('active');
 
-  // Backdrop click → close
-  document.getElementById('drawDetailBackdrop').addEventListener('click', closeDrawDetail, { once: true });
+  document.getElementById('detailBack').addEventListener('click', closeDetail);
+  document.getElementById('drawDetailBackdrop').addEventListener('click', closeDetail, { once: true });
 
-  // Back button
-  document.getElementById('drawDetailBack').addEventListener('click', closeDrawDetail);
-
-  // Browse shortcuts
   if (artist) {
-    document.getElementById('drawBrowseArtist').addEventListener('click', () => {
-      closeDrawDetail();
+    document.getElementById('detailBrowseArtist').addEventListener('click', () => {
+      closeDetail();
       exitDrawMode();
       activeArtist = [card.artist];
       updateChips();
@@ -55,25 +43,16 @@ function openDrawDetail(e) {
     });
   }
   if (setName) {
-    document.getElementById('drawBrowseSet').addEventListener('click', () => {
-      closeDrawDetail();
+    document.getElementById('detailBrowseSet').addEventListener('click', () => {
+      closeDetail();
       exitDrawMode();
       activeSets = [card.set];
       updateChips();
       loadInitialGrid();
     });
   }
-
-  // Escape key
-  window.addEventListener('keydown', onDetailKey);
 }
 
-function closeDrawDetail() {
-  const detail = document.getElementById('drawDetail');
-  detail.classList.remove('active');
-  window.removeEventListener('keydown', onDetailKey);
-}
-
-function onDetailKey(e) {
-  if (e.key === 'Escape') closeDrawDetail();
+function closeDetail() {
+  document.getElementById('drawDetail').classList.remove('active');
 }

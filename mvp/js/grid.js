@@ -13,6 +13,12 @@ let activeYearMax = null;
 let activeSearch = null;
 
 async function loadInitialGrid() {
+  // Save current filter state to localStorage
+  localStorage.setItem("mc_filters", JSON.stringify({
+    activeArtist, activeType, activeCardType, activeColour,
+    activeSets, activeStyles, activeYearMin, activeYearMax, activeSearch,
+    sortOrder, sortDir
+  }));
   showShimmers();
   resetPagination();
   const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch);
@@ -90,5 +96,26 @@ document.getElementById("randomFeedBtn").addEventListener("click", async () => {
   if (card) openLightbox(card);
 });
 
+// Restore filter state from localStorage if available
+function restoreFilters() {
+  const saved = localStorage.getItem("mc_filters");
+  if (!saved) { loadInitialGrid(); return; }
+  try {
+    const f = JSON.parse(saved);
+    activeArtist    = f.activeArtist    || null;
+    activeType      = f.activeType      || null;
+    activeCardType  = f.activeCardType  || null;
+    activeColour    = f.activeColour    || null;
+    activeSets      = f.activeSets      || [];
+    activeStyles    = f.activeStyles    || [];
+    activeYearMin   = f.activeYearMin   || null;
+    activeYearMax   = f.activeYearMax   || null;
+    activeSearch    = f.activeSearch    || null;
+    if (f.sortOrder) sortOrder = f.sortOrder;
+    if (f.sortDir)   sortDir   = f.sortDir;
+  } catch(e) { /* ignore corrupt data */ }
+  loadInitialGrid();
+}
+
 // Init
-loadInitialGrid();
+restoreFilters();

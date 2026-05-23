@@ -1033,6 +1033,7 @@ function clearAllFilters() {
   if (searchBar) searchBar.value = "";
   if (searchClear) searchClear.style.display = "none";
   hideSearchSuggestions();
+  localStorage.removeItem("mc_filters");
   updateChips();
   loadInitialGrid();
   closeDrawer();

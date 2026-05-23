@@ -48,15 +48,24 @@ async function renderWelcome() {
 }
 
 function showWelcome() {
+  localStorage.removeItem("mc_entered");
+  localStorage.removeItem("mc_filters");
   appShell.style.display = "none";
   welcomeEl.style.display = "block";
   renderWelcome();
 }
 
 function startBrowse() {
+  localStorage.setItem("mc_entered", "1");
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
   loadInitialGrid();
 }
 
-renderWelcome();
+// On load: skip welcome if user has been here before
+if (localStorage.getItem("mc_entered")) {
+  welcomeEl.style.display = "none";
+  appShell.style.display = "block";
+} else {
+  renderWelcome();
+}

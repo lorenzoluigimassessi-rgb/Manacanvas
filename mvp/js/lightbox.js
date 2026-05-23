@@ -79,7 +79,6 @@ function openLightbox(card, mode = 'feed') {
       <button class="lb-ghost-arrow lb-ghost-prev ${ghostPrevHidden}" id="lbGhostPrev">‹</button>
       <button class="lb-ghost-arrow lb-ghost-next ${ghostNextHidden}" id="lbGhostNext">›</button>
     </div>
-    ${swipeHintHtml}
   `;
 
   const lightbox = document.getElementById("lightbox");
@@ -104,6 +103,7 @@ function openLightbox(card, mode = 'feed') {
           ${year    ? ` · <span class="meta-link" id="lbYear">${year}</span>`    : ""}
         </div>
       </div>
+      ${swipeHintHtml}
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
     </div>
   `;
@@ -282,7 +282,7 @@ function openLightbox(card, mode = 'feed') {
     setTimeout(() => {
       const hint = document.getElementById('lbSwipeHint');
       if (hint) { hint.style.transition = 'opacity 500ms ease'; hint.style.opacity = '0'; }
-    }, 1500);
+    }, 1800);
   }
 
   const gPrev = document.getElementById('lbGhostPrev');

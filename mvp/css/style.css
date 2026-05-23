@@ -917,16 +917,18 @@ body {
   display: flex;
   gap: 0;
   margin-top: 1rem;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 4px;
   overflow: hidden;
   flex-shrink: 0;
+  background: rgba(12,12,15,0.7);
+  backdrop-filter: blur(8px);
 }
 
 .lightbox .toggle button {
   background: transparent;
   border: none;
-  color: var(--text-secondary);
+  color: rgba(240,240,240,0.55);
   padding: 0.4rem 1rem;
   font-size: 0.8rem;
   cursor: pointer;
@@ -935,11 +937,11 @@ body {
 }
 
 .lightbox .toggle button.active {
-  background: var(--surface);
-  color: var(--text-primary);
+  background: rgba(255,255,255,0.12);
+  color: rgba(240,240,240,0.95);
 }
 
-.lightbox .toggle button:hover { color: var(--text-primary); }
+.lightbox .toggle button:hover { color: rgba(240,240,240,0.9); }
 
 .lightbox .zoom-hint {
   position: absolute;

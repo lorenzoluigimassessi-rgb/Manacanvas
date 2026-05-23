@@ -974,8 +974,8 @@ body {
 }
 
 .lb-nav-arrow:hover { background: rgba(30,30,40,0.8); color: #f0f0f0; }
-#lbPrev { left: -44px; }
-#lbNext { right: -44px; }
+#lbPrev { left: -56px; }
+#lbNext { right: -56px; }
 .lb-nav-arrow.hidden { display: none; }
 
 /* Scroll to top */

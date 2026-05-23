@@ -308,13 +308,16 @@ body {
   border: 1px solid #4a4a60;
   color: #c8c8e0;
   height: 32px;
-  padding: 0 1rem;
+  padding: 0 10px;
   border-radius: 4px;
   font-size: 0.85rem;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
   letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
   flex-shrink: 0;
 }
@@ -332,6 +335,33 @@ body {
   align-items: center;
   position: relative;
 }
+
+.shuffle-again-btn {
+  background: var(--text-primary);
+  color: var(--bg);
+  border: none;
+  height: 28px;
+  padding: 0 0.9rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.shuffle-again-btn:hover {
+  background: #d0d0d0;
+  transform: translateY(-1px);
+}
+
+.shuffle-again-btn:active { transform: translateY(0); }
 
 .clear-filters-btn {
   background: transparent;
@@ -589,17 +619,30 @@ body {
 
 .lightbox .close-btn:hover { color: var(--text-primary); }
 
+.lightbox-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  flex-shrink: 0;
+}
+
 .lightbox .random-btn {
-  margin-top: 0.75rem;
+  margin-top: 1rem;
   background: #16161f;
   border: 1px solid #4a4a60;
   color: #c8c8e0;
   font-size: 0.85rem;
-  padding: 0.4rem 1.8rem;
+  padding: 0.4rem 0.7rem;
   border-radius: 4px;
   cursor: pointer;
   font-family: inherit;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
   transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
   flex-shrink: 0;
 }

@@ -2,6 +2,17 @@
 
 ---
 
+## Copy System
+
+| Element | Copy | Location |
+|---------|------|----------|
+| Feed random button | ↺ Discover | Header Row 1 |
+| Lightbox random button | ↺ Discover | Lightbox chrome |
+| Sort default | Surprise Me ⇅ | Sort dropdown |
+| Sort option label | Surprise Me | Sort dropdown list |
+
+---
+
 ## MVP 4 — Discovery & Navigation
 
 Focus: make the feed more engaging and browsable on every visit.

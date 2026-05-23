@@ -40,11 +40,13 @@ function openLightbox(card) {
           ${year ? ` · <span class="meta-link" id="lbYear">${year}</span>` : ""}
         </div>
       </div>
-      <div class="toggle">
-        <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
-        <button id="toggleFrame">With Frame</button>
+      <div class="lightbox-actions">
+        <div class="toggle">
+          <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
+          <button id="toggleFrame">With Frame</button>
+        </div>
+        <button class="random-btn" id="lbRandom" title="Discover a random artwork"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me</button>
       </div>
-      <button class="random-btn" id="lbRandom" title="Discover a random artwork">↺ Random</button>
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · Double-click to reset · R for random</div>
     </div>
   `;
@@ -234,7 +236,7 @@ async function loadRandomCard() {
   } else {
     // Network error — restore button
     if (img) img.style.opacity = "1";
-    if (btn) { btn.disabled = false; btn.textContent = "↺ Random"; }
+    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`; }
   }
 }
 

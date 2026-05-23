@@ -3,22 +3,45 @@ let currentSearch = null;
 let nextPageUrl = null;
 let isLoading = false;
 
-let sortOrder = "asc";
+let sortOrder = "random"; // default: Shuffle
+let sortDir = "auto";
+
+const SORT_OPTIONS = [
+  { label: "Shuffle",      order: "random",   dir: "auto" },
+  { label: "Newest First", order: "released", dir: "desc" },
+  { label: "Oldest First", order: "released", dir: "asc"  },
+  { label: "A → Z",        order: "name",     dir: "asc"  },
+  { label: "Z → A",        order: "name",     dir: "desc" },
+];
 
 async function fetchCards(query = "t:creature", page = 1) {
   isLoading = true;
-  const url = nextPageUrl || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&order=released&dir=${sortOrder}&page=${page}`;
+  const isRandom = sortOrder === "random";
+  // For shuffle, fetch with released order then shuffle client-side
+  const order = isRandom ? "released" : sortOrder;
+  const dir = isRandom ? "asc" : sortDir;
+  const url = nextPageUrl || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&order=${order}&dir=${dir}&page=${page}`;
   try {
     const res = await fetch(url);
     if (!res.ok) return { data: [], hasMore: false };
     const json = await res.json();
     nextPageUrl = json.has_more ? json.next_page : null;
     isLoading = false;
-    return { data: json.data || [], hasMore: json.has_more || false };
+    const data = json.data || [];
+    return { data: isRandom ? shuffleArray(data) : data, hasMore: json.has_more || false };
   } catch (e) {
     isLoading = false;
     return { data: [], hasMore: false };
   }
+}
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 function resetPagination() {

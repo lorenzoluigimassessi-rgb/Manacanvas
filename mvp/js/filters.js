@@ -753,7 +753,7 @@ function updateChips() {
   chips.forEach(chip => {
     const el = document.createElement("div");
     el.className = "filter-chip";
-    el.innerHTML = `${chip.icon}<span>${chip.label}</span><span class="chip-remove" title="Remove">\u2715</span>`;
+    el.innerHTML = `${chip.icon}<span>${chip.label}</span><span class="chip-remove" title="Remove"><svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg></span>`;
     el.querySelector(".chip-remove").addEventListener("click", chip.clear);
     chipList.appendChild(el);
   });

@@ -39,11 +39,8 @@ function openLightbox(card, mode = 'feed') {
   const blurBgHtml = `<div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>`;
 
   // Desktop arrows — feed mode only
-  const arrowsHtml = !isSurprise ? `
+  const arrowsHtml = `
     <button class="lb-nav-arrow" id="lbPrev">‹</button>
-    <button class="lb-nav-arrow" id="lbNext">›</button>
-  ` : `
-    <button class="lb-nav-arrow hidden" id="lbPrev">‹</button>
     <button class="lb-nav-arrow" id="lbNext">›</button>
   `;
 
@@ -59,11 +56,11 @@ function openLightbox(card, mode = 'feed') {
   const showFte = false; const fteHtml = '';
 
   // Ghost arrows — overlaid on art-container, mobile only
-  const ghostPrevHidden = isSurprise || filteredCards.findIndex(c => c.id === card.id) <= 0 ? 'hidden' : '';
+  const ghostPrevHidden = filteredCards.findIndex(c => c.id === card.id) <= 0 && !isSurprise ? 'hidden' : '';
   const ghostNextHidden = (!isSurprise && filteredCards.findIndex(c => c.id === card.id) >= filteredCards.length - 1) ? 'hidden' : '';
   const ghostArrowsHtml = `
     <div class="lb-ghost-arrows" id="lbGhostArrows">
-      <button class="lb-ghost-arrow lb-ghost-prev ${isSurprise ? 'hidden' : ghostPrevHidden}" id="lbGhostPrev">‹</button>
+      <button class="lb-ghost-arrow lb-ghost-prev ${ghostPrevHidden}" id="lbGhostPrev">‹</button>
       <button class="lb-ghost-arrow lb-ghost-next ${ghostNextHidden}" id="lbGhostNext">›</button>
     </div>
   `;
@@ -283,7 +280,7 @@ function openLightbox(card, mode = 'feed') {
     const dx = scX - swX;
     if (swDir !== 'h' || Math.abs(dx) < window.innerWidth * 0.2) return;
     const goingNext = dx < 0;
-    if (!goingNext && _lbMode === 'surprise') { closeLightbox(); showWelcome(); return; }
+    if (!goingNext && _lbMode === 'surprise') { goPrev(); return; }
     const target = getSwipeCard(goingNext);
     if (!target) return;
     if (goingNext && _lbMode === 'surprise' && window._surpriseQueue) window._surpriseQueue.shift();

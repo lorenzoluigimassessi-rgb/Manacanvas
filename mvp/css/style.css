@@ -828,11 +828,14 @@ body {
 
 .random-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* FTE overlay — Tinder-style split screen, shown on every open */
+/* FTE overlay — Tinder-style split screen, first open only */
 .lb-fte-overlay {
   display: none;
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 35%;
   z-index: 5;
   pointer-events: none;
 }
@@ -846,12 +849,12 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  background: rgba(12,12,15,0.55);
+  gap: 0.5rem;
+  background: rgba(12,12,15,0.6);
 }
 
-.lb-fte-overlay .fte-half.fte-left  { left: 0;   border-right: 1px dashed rgba(255,255,255,0.15); }
-.lb-fte-overlay .fte-half.fte-right { right: 0; }
+.lb-fte-overlay .fte-half.fte-left  { left: 0;  padding-right: 1.5rem; border-right: 1px dashed rgba(255,255,255,0.15); }
+.lb-fte-overlay .fte-half.fte-right { right: 0; padding-left: 1.5rem; }
 
 .lb-fte-icon {
   font-size: 2rem;

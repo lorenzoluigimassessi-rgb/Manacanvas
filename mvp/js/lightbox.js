@@ -58,8 +58,9 @@ function openLightbox(card, mode = 'feed') {
     </div>
   `;
 
-  // FTE overlay — shown on every open, fades out after 2s
-  const fteHtml = `
+  // FTE overlay — first open only, fades out after 2s then hidden permanently
+  const showFte = !sessionStorage.getItem('lb_fte_shown');
+  const fteHtml = showFte ? `
     <div class="lb-fte-overlay" id="lbFteOverlay">
       <div class="fte-half fte-left">
         <div class="lb-fte-icon">←</div>
@@ -70,7 +71,7 @@ function openLightbox(card, mode = 'feed') {
         <div class="lb-fte-label">Next</div>
       </div>
     </div>
-  `;
+  ` : '';
 
   const lightbox = document.getElementById("lightbox");
   lightbox.innerHTML = `
@@ -97,11 +98,14 @@ function openLightbox(card, mode = 'feed') {
 
   document.body.style.overflow = "hidden";
 
-  // Fade out FTE after 2s
-  setTimeout(() => {
-    const fte = document.getElementById("lbFteOverlay");
-    if (fte) { fte.style.opacity = '0'; fte.style.transition = 'opacity 400ms ease'; }
-  }, 2000);
+  // Fade out FTE after 2s, mark as shown
+  if (showFte) {
+    sessionStorage.setItem('lb_fte_shown', '1');
+    setTimeout(() => {
+      const fte = document.getElementById("lbFteOverlay");
+      if (fte) { fte.style.opacity = '0'; fte.style.transition = 'opacity 400ms ease'; }
+    }, 2000);
+  }
 
   setTimeout(() => { const h = document.getElementById("zoomHint"); if (h) h.style.opacity = "0"; }, 3000);
 

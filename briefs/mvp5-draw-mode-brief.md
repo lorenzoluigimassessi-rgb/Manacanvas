@@ -65,11 +65,46 @@ The name "Draw" is intentional: it references the MTG mechanic (drawing a card),
 - Welcome page "Draw a card" CTA
 - Floating Draw button on the Browse feed (desktop: header next to search, mobile: floating bottom pill)
 
+**Default visual: art crop**
+The art crop (`image_uris.art_crop` from Scryfall) fills the screen edge-to-edge. No card frame, no text, no mana cost — pure illustration. This is the primary Draw experience.
+
+A subtle toggle (bottom center, unobtrusive) allows switching to the full card frame view (`image_uris.normal`) for users who want to see the complete card. The toggle state persists within the session but resets on re-entry.
+
 **Core interaction:**
-- Full-screen single card view — art fills the screen
-- Swipe left or right (or keyboard arrow) → next random card
+- Full-screen single card view — art crop fills the screen
+- Swipe left → next new card
+- Swipe right → previous card (within session history, capped at 20)
 - Tap/click the art → expand to detail overlay (not the full Browse lightbox)
 - Swipe down or press Escape → exit Draw mode, return to Browse feed
+- Session history resets on re-entry — always starts fresh across sessions
+
+**Mobile interactions:**
+- Swipe left → next new card
+- Swipe right → previous card in session history
+- Swipe down → exit Draw mode
+- Tap → open detail overlay
+- Visible X button → exit Draw mode
+
+**Desktop interactions:**
+
+| Input | Action |
+|---|---|
+| `→` or `↓` | Next card |
+| `←` or `↑` | Previous card |
+| `Escape` | Exit Draw mode |
+| Hover arrow `›` right edge | Next card |
+| Hover arrow `‹` left edge | Previous card |
+| Two-finger trackpad swipe | Next / previous |
+| Scroll wheel | Next card |
+| Click card | Open detail overlay |
+
+Hover arrows invisible at rest, appear on mouse movement, disappear after 2s of inactivity.
+
+**Session history:**
+- Capped at 20 cards
+- Swipe right navigates back through history
+- Swipe left from oldest history card fetches a new card
+- History cleared on re-entry — always fresh across sessions
 
 **Visual language — mana colour gradients:**
 Use the card's colour identity to drive a background gradient. Sourced from the card's `colors` array in the Scryfall API response — no client-side image processing needed.
@@ -93,9 +128,12 @@ The gradient sits behind the card art as a full-screen background, giving each c
 - Close → returns to Draw mode on the same card
 
 **Transition animation:**
-- Swipe: outgoing card slides and fades, incoming card slides in from the opposite side
-- Follows the finger during the gesture on mobile (rubber-band physics)
-- On desktop: arrow key or click triggers a smooth slide transition
+- Swipe left: outgoing card slides left and fades, incoming slides in from the right
+- Swipe right: outgoing card slides right and fades, incoming slides in from the left
+- Card follows the finger in real time on mobile — snaps back if threshold (~30% screen width) not met
+- Incoming card peeks from the edge during drag to signal another card is always waiting
+- Transition duration ~280ms
+- On desktop: triggered instantly on input, no drag simulation
 
 ---
 
@@ -156,11 +194,11 @@ Add prev/next navigation to the lightbox:
 
 ## Open Questions for UX Agent
 
-1. Should Draw mode remember the last card seen across sessions, or always start fresh?
-2. Should there be any filtering within Draw mode (e.g. "Draw from Innistrad only") or is that strictly a Browse concern?
-3. How many cards should be pre-fetched in Draw mode to ensure seamless swiping without loading gaps?
-4. Should the detail overlay in Draw mode allow saving/favouriting (MVP 6 feature) or is that out of scope for MVP 5?
-5. What is the right exit gesture on mobile — swipe down, a visible X button, or both?
+1. Should Draw mode remember the last card seen across sessions, or always start fresh? — *Always fresh on re-entry. Within a session, history stack of up to 20 cards is kept.*
+2. Should filtering be possible within Draw mode? — *No. Browse concern only.*
+3. How many cards to pre-fetch for seamless swiping? — *Batch of 10, fetch next batch when 3 remain.*
+4. Should the detail overlay support favouriting? — *Out of scope, MVP 6.*
+5. Mobile exit gesture — swipe down, X button, or both? — *Both.*
 
 ---
 

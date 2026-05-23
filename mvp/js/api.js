@@ -17,8 +17,9 @@ const SORT_OPTIONS = [
 async function fetchCards(query = "t:creature", page = 1) {
   isLoading = true;
   const isRandom = sortOrder === "random";
-  // For shuffle, pick a random page from the catalogue (~170 pages of illustrated cards)
-  const randomPage = isRandom ? Math.floor(Math.random() * 170) + 1 : page;
+  // Only use random page offset for the default unfiltered query
+  const isDefaultQuery = query === "t:creature has:illustration";
+  const randomPage = (isRandom && isDefaultQuery) ? Math.floor(Math.random() * 170) + 1 : page;
   const order = isRandom ? "released" : sortOrder;
   const dir = isRandom ? "asc" : sortDir;
   const url = (!isRandom && nextPageUrl) || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&order=${order}&dir=${dir}&page=${randomPage}`;

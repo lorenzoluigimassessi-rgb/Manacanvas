@@ -176,9 +176,22 @@ function openLightbox(card, mode = 'feed') {
   }
 
   // ── Mobile swipe — full screen, whole lightbox moves ───────────────────────
-  const swipeTarget = document.getElementById("lightboxOverlay");
-  const artContainer = document.getElementById("artContainer");
+  const swipeTarget = document.getElementById('lightboxOverlay');
+  const artContainer = document.getElementById('artContainer');
   let swX = 0, swY = 0, scX = 0, swiping = false, swDir = null;
+  let peekEl = null;
+
+  function getPeekCard(dx) {
+    if (dx < 0) {
+      if (isSurprise) return (window._surpriseQueue || [])[0] || null;
+      const idx = filteredCards.findIndex(c => c.id === card.id);
+      return idx < filteredCards.length - 1 ? filteredCards[idx + 1] : null;
+    } else {
+      if (isSurprise) return null;
+      const idx = filteredCards.findIndex(c => c.id === card.id);
+      return idx > 0 ? filteredCards[idx - 1] : null;
+    }
+  }
 
   swipeTarget.addEventListener('touchstart', (e) => {
     if (e.target.closest('button, a, .toggle, .meta-link')) return;
@@ -194,9 +207,26 @@ function openLightbox(card, mode = 'feed') {
     scX = e.touches[0].clientX;
     if (!swDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
       swDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
-    if (swDir === 'h') {
-      swipeTarget.style.transform = `translateX(${dx}px)`;
-      swipeTarget.style.opacity   = String(Math.max(0.3, 1 - Math.abs(dx) / (window.innerWidth * 1.2)));
+    if (swDir !== 'h') return;
+
+    // Slide current overlay with finger — no opacity change
+    swipeTarget.style.transform = 'translateX(' + dx + 'px)';
+
+    // Create/update peek card behind current overlay
+    const peekCard = getPeekCard(dx);
+    if (peekCard) {
+      if (!peekEl) {
+        peekEl = document.createElement('div');
+        peekEl.style.cssText = 'position:fixed;inset:0;z-index:199;background:#0c0c0f;overflow:hidden;';
+        const peekArt = peekCard.image_uris && peekCard.image_uris.art_crop
+          ? peekCard.image_uris.art_crop
+          : (peekCard.image_uris && peekCard.image_uris.normal) || '';
+        peekEl.innerHTML = '<div style="position:absolute;inset:-20px;background-image:url(' + JSON.stringify(peekArt) + ');background-size:cover;background-position:center;filter:blur(40px) brightness(0.35) saturate(1.2);transform:scale(1.1)"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><img src="' + peekArt + '" style="max-width:80vw;max-height:70vh;object-fit:contain;border-radius:6px;"></div>';
+        document.body.appendChild(peekEl);
+      }
+      // Peek slides in from the opposite edge
+      const peekOffset = dx < 0 ? window.innerWidth + dx : -window.innerWidth + dx;
+      peekEl.style.transform = 'translateX(' + peekOffset + 'px)';
     }
   }, { passive: true });
 
@@ -208,13 +238,16 @@ function openLightbox(card, mode = 'feed') {
 
     if (swDir === 'h' && Math.abs(dx) >= threshold) {
       const exitX = dx < 0 ? '-110%' : '110%';
-      swipeTarget.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
-      swipeTarget.style.transform  = `translateX(${exitX})`;
-      swipeTarget.style.opacity    = '0';
+      swipeTarget.style.transition = 'transform 220ms ease-in';
+      swipeTarget.style.transform  = 'translateX(' + exitX + ')';
+      if (peekEl) {
+        peekEl.style.transition = 'transform 220ms ease-in';
+        peekEl.style.transform  = 'translateX(0)';
+      }
       setTimeout(() => {
+        if (peekEl) { peekEl.remove(); peekEl = null; }
         swipeTarget.style.transition = 'none';
         swipeTarget.style.transform  = '';
-        swipeTarget.style.opacity    = '1';
         if (dx < 0) goNext();
         else {
           if (isSurprise) { closeLightbox(); showWelcome(); }
@@ -225,9 +258,14 @@ function openLightbox(card, mode = 'feed') {
     }
 
     // Snap back
-    swipeTarget.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1), opacity 200ms ease';
+    swipeTarget.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1)';
     swipeTarget.style.transform  = '';
-    swipeTarget.style.opacity    = '1';
+    if (peekEl) {
+      peekEl.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1)';
+      const peekStart = dx < 0 ? window.innerWidth : -window.innerWidth;
+      peekEl.style.transform = 'translateX(' + peekStart + 'px)';
+      setTimeout(() => { if (peekEl) { peekEl.remove(); peekEl = null; } }, 300);
+    }
     setTimeout(() => { swipeTarget.style.transition = ''; }, 300);
   });
 

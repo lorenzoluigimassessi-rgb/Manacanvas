@@ -53,7 +53,17 @@ function openLightbox(card, mode = 'feed') {
     </div>
   `;
 
-  const showFte = false; const fteHtml = ''; // replaced by mobile nav bar
+  const showFte = false; const fteHtml = '';
+
+  // Ghost arrows — overlaid on art-container, mobile only
+  const ghostPrevHidden = (!isSurprise && filteredCards.findIndex(c => c.id === card.id) <= 0) ? 'hidden' : '';
+  const ghostNextHidden = (!isSurprise && filteredCards.findIndex(c => c.id === card.id) >= filteredCards.length - 1) ? 'hidden' : '';
+  const ghostArrowsHtml = `
+    <div class="lb-ghost-arrows" id="lbGhostArrows">
+      <button class="lb-ghost-arrow lb-ghost-prev ${isSurprise ? 'hidden' : ghostPrevHidden}" id="lbGhostPrev">‹</button>
+      <button class="lb-ghost-arrow lb-ghost-next ${ghostNextHidden}" id="lbGhostNext">›</button>
+    </div>
+  `;
 
   const lightbox = document.getElementById("lightbox");
   lightbox.style.background = '#0c0c0f';
@@ -64,6 +74,7 @@ function openLightbox(card, mode = 'feed') {
       ${arrowsHtml}
       <div class="art-container" id="artContainer">
         <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
+        ${ghostArrowsHtml}
       </div>
       <div class="meta">
         <div class="name">${card.name}</div>
@@ -74,11 +85,6 @@ function openLightbox(card, mode = 'feed') {
         </div>
       </div>
       ${actionsHtml}
-      <div class="lb-mobile-nav" id="lbMobileNav">
-        <button class="lb-mobile-arrow" id="lbMobilePrev">‹</button>
-        <span class="lb-mobile-meta" id="lbMobileMeta">${card.name} · ${card.artist || 'Unknown'}</span>
-        <button class="lb-mobile-arrow" id="lbMobileNext">›</button>
-      </div>
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
     </div>
   `;
@@ -173,6 +179,21 @@ function openLightbox(card, mode = 'feed') {
       img.style.transition = bg.style.transition = 'opacity 220ms ease';
       img.style.opacity = bg.style.opacity = '1';
 
+      // Update ghost arrow visibility
+      const gP = document.getElementById('lbGhostPrev');
+      const gN = document.getElementById('lbGhostNext');
+      if (gP && gN) {
+        if (nextMode === 'surprise') {
+          gP.classList.add('hidden');
+          gN.classList.remove('hidden');
+        } else {
+          const idx = filteredCards.findIndex(c => c.id === nextCard.id);
+          idx <= 0 ? gP.classList.add('hidden') : gP.classList.remove('hidden');
+          idx >= filteredCards.length - 1 ? gN.classList.add('hidden') : gN.classList.remove('hidden');
+        }
+      }
+      showGhostArrows();
+
       // Re-warm surprise queue
       if (nextMode === 'surprise') {
         if (!window._surpriseQueue) window._surpriseQueue = [];
@@ -203,24 +224,24 @@ function openLightbox(card, mode = 'feed') {
     }
   }
 
-  // ── Mobile nav bar arrows ───────────────────────────────────────────────────
-  const mPrev = document.getElementById('lbMobilePrev');
-  const mNext = document.getElementById('lbMobileNext');
-
-  if (mPrev && mNext) {
-    // Initial state
-    if (isSurprise) {
-      mPrev.style.opacity = '0.25'; mPrev.style.pointerEvents = 'none';
-    } else {
-      const idx = filteredCards.findIndex(c => c.id === card.id);
-      if (idx <= 0) { mPrev.style.opacity = '0.25'; mPrev.style.pointerEvents = 'none'; }
-      if (idx >= filteredCards.length - 1) { mNext.style.opacity = '0.25'; mNext.style.pointerEvents = 'none'; }
-    }
-    mPrev.addEventListener('click', goPrev);
-    mNext.addEventListener('click', goNext);
+  // Ghost arrows — fade out after 2s, tap anywhere to bring back
+  let ghostTimer = null;
+  function showGhostArrows() {
+    const g = document.getElementById('lbGhostArrows');
+    if (!g) return;
+    g.style.opacity = '1';
+    clearTimeout(ghostTimer);
+    ghostTimer = setTimeout(() => { if (g) g.style.opacity = '0'; }, 2000);
   }
+  showGhostArrows();
+  document.getElementById('lightboxOverlay').addEventListener('touchstart', showGhostArrows, { passive: true });
 
-  // ── Swipe on art zone (art-container + blur bg) ─────────────────────────────
+  const gPrev = document.getElementById('lbGhostPrev');
+  const gNext = document.getElementById('lbGhostNext');
+  if (gPrev) gPrev.addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });
+  if (gNext) gNext.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
+
+  // ── Swipe on art zone ───────────────────────────────────────────────────
   const swipeZone = document.getElementById('lightboxOverlay');
   let swX = 0, swY = 0, scX = 0, swiping = false, swDir = null;
 

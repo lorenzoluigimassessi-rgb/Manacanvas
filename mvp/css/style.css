@@ -884,7 +884,6 @@ body {
   justify-content: center;
   overflow: hidden;
   padding: env(safe-area-inset-top, 2rem) 0 env(safe-area-inset-bottom, 2rem);
-  animation: fadeIn var(--transition-normal) ease;
 }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

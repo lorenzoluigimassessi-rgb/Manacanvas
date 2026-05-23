@@ -69,6 +69,7 @@ function openLightbox(card, mode = 'feed') {
   ` : '';
 
   const lightbox = document.getElementById("lightbox");
+  lightbox.style.background = '#0c0c0f';
   lightbox.innerHTML = `
     <div class="lightbox" id="lightboxOverlay" style="background:#0c0c0f;">
       ${blurBgHtml}
@@ -143,16 +144,21 @@ function openLightbox(card, mode = 'feed') {
   function transitionTo(nextCard, dir, nextMode) {
     const overlay = document.getElementById("lightboxOverlay");
     if (!overlay) return;
-    const exitX = dir === 'next' ? '-100%' : '100%';
-    overlay.style.transition = 'transform 280ms ease-in-out, opacity 280ms ease-in-out';
+    const exitX = dir === 'next' ? '-110%' : '110%';
+    const enterX = dir === 'next' ? '110%' : '-110%';
+    overlay.style.transition = 'transform 240ms ease-in';
     overlay.style.transform  = `translateX(${exitX})`;
-    overlay.style.opacity    = '0';
     setTimeout(() => {
-      overlay.style.transition = 'none';
-      overlay.style.transform  = '';
-      overlay.style.opacity    = '1';
       openLightbox(nextCard, nextMode);
-    }, 280);
+      const newOverlay = document.getElementById("lightboxOverlay");
+      if (!newOverlay) return;
+      newOverlay.style.transition = 'none';
+      newOverlay.style.transform  = `translateX(${enterX})`;
+      // force reflow then slide in
+      newOverlay.getBoundingClientRect();
+      newOverlay.style.transition = 'transform 240ms ease-out';
+      newOverlay.style.transform  = '';
+    }, 240);
   }
 
   // ── Desktop arrows ──────────────────────────────────────────────────────────
@@ -237,21 +243,43 @@ function openLightbox(card, mode = 'feed') {
     const threshold = window.innerWidth * 0.25;
 
     if (swDir === 'h' && Math.abs(dx) >= threshold) {
-      const exitX = dx < 0 ? '-110%' : '110%';
+      const goingNext = dx < 0;
+      const targetCard = getPeekCard(dx);
+
+      // Handle surprise swipe-right = back to welcome (no peek card)
+      if (!targetCard && goingNext === false && isSurprise) {
+        swipeTarget.style.transition = 'transform 220ms ease-in';
+        swipeTarget.style.transform  = 'translateX(110%)';
+        setTimeout(() => { closeLightbox(); showWelcome(); }, 220);
+        return;
+      }
+
+      if (!targetCard) {
+        // no card in that direction — snap back
+        swipeTarget.style.transition = 'transform 300ms cubic-bezier(0.34,1.56,0.64,1)';
+        swipeTarget.style.transform  = '';
+        return;
+      }
+
+      const exitX = goingNext ? '-110%' : '110%';
+
+      // Animate current overlay off, peek slides to 0
       swipeTarget.style.transition = 'transform 220ms ease-in';
       swipeTarget.style.transform  = 'translateX(' + exitX + ')';
       if (peekEl) {
         peekEl.style.transition = 'transform 220ms ease-in';
         peekEl.style.transform  = 'translateX(0)';
       }
+
       setTimeout(() => {
-        if (peekEl) { peekEl.remove(); peekEl = null; }
-        swipeTarget.style.transition = 'none';
-        swipeTarget.style.transform  = '';
-        if (dx < 0) goNext();
-        else {
-          if (isSurprise) { closeLightbox(); showWelcome(); }
-          else goPrev();
+        // peekEl is now covering the screen — open new lightbox underneath it
+        if (isSurprise && goingNext && window._surpriseQueue) window._surpriseQueue.shift();
+        openLightbox(targetCard, isSurprise ? 'surprise' : 'feed');
+        // now fade peekEl out so new lightbox is revealed seamlessly
+        if (peekEl) {
+          peekEl.style.transition = 'opacity 80ms ease';
+          peekEl.style.opacity = '0';
+          setTimeout(() => { if (peekEl) { peekEl.remove(); peekEl = null; } }, 80);
         }
       }, 220);
       return;

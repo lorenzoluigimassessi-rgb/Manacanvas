@@ -101,7 +101,7 @@ body {
 
 .welcome-draw-cta {
   background: transparent;
-  border: 1px solid rgba(240,240,240,0.55);
+  border: 1px solid rgba(240,240,240,0.85);
   border-radius: 4px;
   font-family: 'Josefin Sans', sans-serif;
   font-size: 1rem;

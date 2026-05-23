@@ -1151,15 +1151,23 @@ body {
   color: var(--text-primary);
 }
 
-.more-modal-clear {
-  font-size: 0.78rem;
+.more-modal-close {
+  background: none;
+  border: none;
   color: var(--text-secondary);
+  font-size: 1.1rem;
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  padding: 0;
+  line-height: 1;
+  transition: color var(--transition-fast);
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.more-modal-clear:hover { color: var(--text-primary); }
+.more-modal-close:hover { color: var(--text-primary); }
 
 .more-modal-body {
   overflow-y: auto;
@@ -1222,21 +1230,36 @@ body {
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
+.more-modal-clear {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.more-modal-clear:hover { color: var(--text-primary); }
+
 .more-modal-apply {
-  width: 100%;
   background: var(--text-primary);
   color: var(--bg);
   border: none;
   border-radius: 4px;
-  padding: 0.75rem;
+  padding: 0.65rem 1.5rem;
   font-size: 0.85rem;
   font-weight: 600;
   font-family: inherit;
   letter-spacing: 0.5px;
   cursor: pointer;
   transition: background var(--transition-fast);
+  white-space: nowrap;
 }
 
 .more-modal-apply:hover { background: #d0d0d0; }

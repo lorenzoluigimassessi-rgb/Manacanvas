@@ -1009,8 +1009,8 @@ function renderFlatSheet() {
   const curMin = activeYearMin || minY, curMax = activeYearMax || maxY;
 
   // Active count for badge
-  const activeCount = [activeArtist, activeType, activeCardType, activeColour]
-    .filter(Boolean).length + activeStyles.length + activeSets.length +
+  const activeCount = activeArtist.length + activeType.length + activeCardType.length +
+    activeColour.length + activeStyles.length + activeSets.length +
     (activeYearMin || activeYearMax ? 1 : 0);
   updateDrawerBadge(activeCount);
 

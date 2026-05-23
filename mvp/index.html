@@ -49,10 +49,11 @@
     <div class="more-modal" id="moreModal" style="display:none;">
       <div class="more-modal-header">
         <span class="more-modal-title">More Filters</span>
-        <span class="more-modal-clear" onclick="clearMoreFilters()">Clear</span>
+        <button class="more-modal-close" onclick="closeMoreModal()">✕</button>
       </div>
       <div class="more-modal-body" id="moreModalBody"></div>
       <div class="more-modal-footer">
+        <span class="more-modal-clear" onclick="clearMoreFilters()">Clear all</span>
         <button class="more-modal-apply" onclick="applyMoreModal()">Show Results</button>
       </div>
     </div>

@@ -8,6 +8,7 @@ let activeType = [];
 let activeCardType = [];
 let activeColour = [];
 let activeSets = [];
+let activeStyles = [];
 let activeYearMin = null;
 let activeYearMax = null;
 let activeSearch = null;
@@ -21,7 +22,7 @@ async function loadInitialGrid() {
   }));
   showShimmers();
   resetPagination();
-  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch);
+  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, (typeof ART_STYLES !== 'undefined' ? activeStyles.map(i => ART_STYLES[i]) : []), activeYearMin, activeYearMax, activeSearch);
   const { data, hasMore } = await fetchCards(query);
   grid.innerHTML = "";
   if (!data.length) {

@@ -606,8 +606,6 @@ function clearColour() {
   updateMoreBadge(); updateChips(); loadInitialGrid();
 }
 
-let activeStyles = [];
-
 function toggleStyle(idx) {
   const i = activeStyles.indexOf(idx);
   if (i === -1) { activeStyles.push(idx); } else { activeStyles.splice(i, 1); }

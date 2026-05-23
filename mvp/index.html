@@ -67,37 +67,38 @@
     <!-- Mobile Draw pill -->
     <div id="drawPillMobile"><button class="draw-pill-btn">✦ Draw</button></div>
 
-    <!-- Draw mode overlay -->
-    <div id="drawMode">
-      <div id="drawGradient"></div>
-      <div id="drawArt"><img src="" alt=""></div>
-      <div id="drawArtIncoming"><img src="" alt=""></div>
-      <div id="drawShimmer"></div>
-      <div id="drawLoading">
-        <div class="loading-gradient"></div>
-        <img class="loading-card" src="assets/card-silhouette.svg" alt="">
-      </div>
-      <div id="drawRitual">
-        <img id="ritualCard" src="assets/card-silhouette.svg" alt="">
-      </div>
-      <div id="drawChrome">
-        <button id="drawExit">✕</button>
-        <button class="draw-arrow" id="drawArrowPrev">‹</button>
-        <button class="draw-arrow" id="drawArrowNext">›</button>
-        <div id="drawToggle">
-          <button id="drawToggleArt" class="active">Art</button>
-          <button id="drawToggleFrame">Card</button>
-        </div>
-      </div>
-      <div id="drawDetail">
-        <div id="drawDetailBackdrop"></div>
-        <div id="drawDetailPanel"></div>
-      </div>
-    </div>
     <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
     <footer class="site-footer">
       <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images © Wizards of the Coast.</p>
     </footer>
+  </div><!-- end appShell -->
+
+  <!-- Draw mode overlay — outside appShell so position:fixed works regardless of parent visibility -->
+  <div id="drawMode">
+    <div id="drawGradient"></div>
+    <div id="drawArt"><img src="" alt=""></div>
+    <div id="drawArtIncoming"><img src="" alt=""></div>
+    <div id="drawShimmer"></div>
+    <div id="drawLoading">
+      <div class="loading-gradient"></div>
+      <img class="loading-card" src="assets/card-silhouette.svg" alt="">
+    </div>
+    <div id="drawRitual">
+      <img id="ritualCard" src="assets/card-silhouette.svg" alt="">
+    </div>
+    <div id="drawChrome">
+      <button id="drawExit">✕</button>
+      <button class="draw-arrow" id="drawArrowPrev">‹</button>
+      <button class="draw-arrow" id="drawArrowNext">›</button>
+      <div id="drawToggle">
+        <button id="drawToggleArt" class="active">Art</button>
+        <button id="drawToggleFrame">Card</button>
+      </div>
+    </div>
+    <div id="drawDetail">
+      <div id="drawDetailBackdrop"></div>
+      <div id="drawDetailPanel"></div>
+    </div>
   </div>
 
   <script src="js/welcome.js"></script>

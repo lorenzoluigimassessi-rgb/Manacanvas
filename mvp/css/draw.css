@@ -1,0 +1,548 @@
+/* ============================================================
+   draw.css — Draw mode styles. Never imported into style.css.
+   ============================================================ */
+
+/* --- Mana gradient variables --- */
+:root {
+  --draw-gradient-W: linear-gradient(160deg, #2a2318 0%, #3d3420 40%, #1a1610 100%);
+  --draw-gradient-U: linear-gradient(160deg, #0a1628 0%, #0d2240 40%, #061018 100%);
+  --draw-gradient-B: linear-gradient(160deg, #0e0a18 0%, #1a1030 40%, #080610 100%);
+  --draw-gradient-R: linear-gradient(160deg, #1e0c08 0%, #2e1408 40%, #180a06 100%);
+  --draw-gradient-G: linear-gradient(160deg, #081a0c 0%, #0e2810 40%, #061208 100%);
+  --draw-gradient-M: linear-gradient(160deg, #1e1808 0%, #2e2410 40%, #181206 100%);
+  --draw-gradient-C: linear-gradient(160deg, #141420 0%, #1e1e2e 40%, #0e0e18 100%);
+  --draw-gradient-L: linear-gradient(160deg, #14100c 0%, #201810 40%, #100c08 100%);
+}
+
+/* --- Draw overlay shell --- */
+#drawMode {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  overflow: hidden;
+  background: #0c0c0f;
+}
+
+#drawMode.active { display: block; }
+
+/* --- Gradient background layer --- */
+#drawGradient {
+  position: absolute;
+  inset: 0;
+  transition: background 280ms ease-in-out;
+  z-index: 0;
+}
+
+/* --- Art layer --- */
+#drawArt {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+#drawArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* --- Incoming card layer (for transitions) --- */
+#drawArtIncoming {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+}
+
+#drawArtIncoming img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* --- Edge shimmer overlay --- */
+#drawShimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    transparent 30%,
+    rgba(255,255,255,0.06) 50%,
+    transparent 70%,
+    transparent 100%
+  );
+  background-size: 200% 200%;
+  background-position: -100% -100%;
+}
+
+#drawShimmer.playing {
+  animation: shimmerSweep 600ms ease-out forwards;
+}
+
+@keyframes shimmerSweep {
+  0%   { opacity: 0; background-position: -100% -100%; }
+  20%  { opacity: 1; }
+  100% { opacity: 0; background-position: 200% 200%; }
+}
+
+/* --- Chrome layer (UI controls) --- */
+#drawChrome {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#drawChrome > * { pointer-events: auto; }
+
+/* Exit button (mobile + desktop) */
+#drawExit {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(12,12,15,0.6);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(240,240,240,0.7);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms, color 150ms;
+  backdrop-filter: blur(4px);
+}
+
+#drawExit:hover { background: rgba(30,30,40,0.8); color: #f0f0f0; }
+
+/* Art/Card toggle */
+#drawToggle {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  background: rgba(12,12,15,0.7);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+#drawToggle button {
+  background: transparent;
+  border: none;
+  color: rgba(240,240,240,0.5);
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  font-family: 'Josefin Sans', sans-serif;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+  white-space: nowrap;
+}
+
+#drawToggle button.active {
+  background: rgba(255,255,255,0.1);
+  color: rgba(240,240,240,0.9);
+}
+
+/* Hover arrows (desktop) */
+.draw-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(12,12,15,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(240,240,240,0.6);
+  width: 44px;
+  height: 64px;
+  border-radius: 4px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 200ms ease, background 150ms;
+  backdrop-filter: blur(4px);
+}
+
+.draw-arrow:hover { background: rgba(30,30,40,0.7); color: #f0f0f0; }
+#drawArrowPrev { left: 0.75rem; }
+#drawArrowNext { right: 0.75rem; }
+
+/* --- Entry ritual --- */
+#drawRitual {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0c0c0f;
+  cursor: pointer;
+}
+
+#drawRitual.hidden { display: none; }
+
+#ritualCard {
+  width: 120px;
+  color: rgba(240,240,240,0.4);
+  transform-style: preserve-3d;
+  perspective: 600px;
+}
+
+#ritualCard.flip {
+  animation: ritualFlip 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes ritualFlip {
+  0%   { transform: rotateY(0deg) scale(0.85); opacity: 0.4; }
+  50%  { transform: rotateY(90deg) scale(0.9); opacity: 0.8; }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+
+#ritualCard.expand {
+  animation: ritualExpand 300ms ease-out forwards;
+}
+
+@keyframes ritualExpand {
+  0%   { transform: scale(1); opacity: 1; }
+  100% { transform: scale(20); opacity: 0; }
+}
+
+/* --- Loading state --- */
+#drawLoading {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0c0c0f;
+}
+
+#drawLoading.hidden { display: none; }
+
+#drawLoading .loading-card {
+  width: 80px;
+  color: rgba(240,240,240,0.25);
+  animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.97); }
+  50%       { opacity: 0.5; transform: scale(1); }
+}
+
+#drawLoading .loading-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #0a1628, #0e0a18, #1e0c08, #081a0c, #0a1628);
+  background-size: 400% 400%;
+  animation: gradientCycle 6s linear infinite;
+  z-index: -1;
+}
+
+@keyframes gradientCycle {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* --- Detail overlay --- */
+#drawDetail {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+#drawDetail.active { pointer-events: auto; }
+
+#drawDetailBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12,12,15,0.4);
+  opacity: 0;
+  transition: opacity 200ms;
+}
+
+#drawDetail.active #drawDetailBackdrop { opacity: 1; }
+
+#drawDetailPanel {
+  position: relative;
+  width: 100%;
+  background: rgba(12,12,15,0.92);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 1.5rem 1.5rem 2.5rem;
+  transform: translateY(100%);
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(12px);
+}
+
+#drawDetail.active #drawDetailPanel {
+  transform: translateY(0);
+}
+
+.draw-detail-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #f0f0f0;
+  margin-bottom: 0.4rem;
+}
+
+.draw-detail-meta {
+  font-size: 0.82rem;
+  color: rgba(240,240,240,0.5);
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.3px;
+}
+
+.draw-detail-mana {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.draw-detail-mana img {
+  width: 20px;
+  height: 20px;
+}
+
+.draw-detail-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+
+.draw-browse-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(240,240,240,0.7);
+  padding: 0.45rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-family: 'Josefin Sans', sans-serif;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms, background 150ms;
+}
+
+.draw-browse-btn:hover {
+  border-color: rgba(255,255,255,0.5);
+  color: #f0f0f0;
+  background: rgba(255,255,255,0.05);
+}
+
+.draw-detail-back {
+  background: none;
+  border: none;
+  color: rgba(240,240,240,0.4);
+  font-size: 0.78rem;
+  font-family: 'Josefin Sans', sans-serif;
+  cursor: pointer;
+  padding: 0;
+  letter-spacing: 0.3px;
+  transition: color 150ms;
+}
+
+.draw-detail-back:hover { color: rgba(240,240,240,0.8); }
+
+/* Desktop: center panel */
+@media (min-width: 769px) {
+  #drawDetailPanel {
+    max-width: 480px;
+    margin: 0 auto;
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+/* --- Welcome page Draw CTA additions --- */
+.welcome-draw-separator {
+  font-size: 0.78rem;
+  color: rgba(240,240,240,0.3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 1rem 0 0.8rem;
+}
+
+.welcome-draw-cta {
+  background: none;
+  border: none;
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  cursor: pointer;
+  padding: 0.4rem 0;
+  position: relative;
+  display: inline-block;
+
+  /* Mana shimmer via background-clip */
+  background: linear-gradient(90deg,
+    #c8b87a, #7ab8c8, #9a7ac8, #c87a7a, #7ac87a, #c8b87a
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: manaShimmer 6s linear infinite;
+}
+
+.welcome-draw-cta:hover {
+  animation-duration: 1.5s;
+}
+
+@keyframes manaShimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* Spark burst on ✦ glyph — CSS only */
+.welcome-draw-cta::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -0.2em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(200,184,122,0.6);
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+}
+
+.welcome-draw-cta:hover::after {
+  animation: sparkBurst 400ms ease-out forwards;
+}
+
+@keyframes sparkBurst {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+}
+
+/* --- Browse feed Draw pill (mobile) --- */
+#drawPillMobile {
+  position: fixed;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  z-index: 100;
+  display: none;
+  transition: transform 250ms ease, opacity 250ms ease;
+}
+
+#drawPillMobile.visible { display: flex; }
+#drawPillMobile.scroll-hidden { transform: translateX(-50%) translateY(80px); opacity: 0.4; }
+
+.draw-pill-btn {
+  background: rgba(12,12,15,0.85);
+  border: 1px solid transparent;
+  border-radius: 24px;
+  padding: 0.55rem 1.2rem;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  position: relative;
+
+  /* Gradient border via background-origin trick */
+  background-clip: padding-box;
+  box-shadow: 0 0 0 1px rgba(200,184,122,0.3);
+
+  /* Shimmer text */
+  background: linear-gradient(90deg,
+    #c8b87a, #7ab8c8, #9a7ac8, #c87a7a, #7ac87a, #c8b87a
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: manaShimmer 6s linear infinite;
+}
+
+.draw-pill-btn:active {
+  animation: pillPulse 150ms ease-out;
+}
+
+@keyframes pillPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* --- Browse feed Draw pill (desktop) --- */
+#drawPillDesktop {
+  display: none;
+}
+
+/* shown via JS when appShell is active */
+#drawPillDesktop.visible {
+  display: inline-flex;
+}
+
+/* Reuse draw-pill-btn styles */
+
+/* --- Lightbox prev/next arrows --- */
+.lb-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(12,12,15,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(240,240,240,0.6);
+  width: 40px;
+  height: 60px;
+  border-radius: 4px;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 200ms ease, background 150ms;
+  z-index: 210;
+  backdrop-filter: blur(4px);
+}
+
+.lb-nav-arrow:hover { background: rgba(30,30,40,0.7); color: #f0f0f0; }
+#lbPrev { left: 0.5rem; }
+#lbNext { right: 0.5rem; }
+
+.lightbox:hover .lb-nav-arrow { opacity: 1; }
+.lb-nav-arrow.hidden { display: none; }
+
+@media (max-width: 768px) {
+  #drawToggle { bottom: calc(1.5rem + env(safe-area-inset-bottom)); }
+  #drawExit { top: calc(0.75rem + env(safe-area-inset-top)); }
+  .draw-arrow { display: none; }
+  .lb-nav-arrow { display: none; }
+}

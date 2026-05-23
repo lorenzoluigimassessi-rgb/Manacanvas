@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/draw.css">
 </head>
 <body>
   <div id="welcome"></div>
@@ -21,7 +22,7 @@
           <span class="search-clear" id="searchClear" style="display:none;">✕</span>
           <div class="search-suggestions" id="searchSuggestions" style="display:none;"></div>
         </div>
-        <button class="random-feed-btn" id="randomFeedBtn" title="Discover a random artwork"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me</button>
+        <button class="draw-pill-btn" id="drawPillDesktop">✦ Draw</button>
       </div>
       <div class="header-row-2">
         <div class="filters" id="filters"></div>
@@ -62,6 +63,37 @@
     <main class="grid" id="grid"></main>
     <div class="loading-more" id="loader" style="display:none;">Loading more artwork...</div>
     <div id="lightbox"></div>
+
+    <!-- Mobile Draw pill -->
+    <div id="drawPillMobile"><button class="draw-pill-btn">✦ Draw</button></div>
+
+    <!-- Draw mode overlay -->
+    <div id="drawMode">
+      <div id="drawGradient"></div>
+      <div id="drawArt"><img src="" alt=""></div>
+      <div id="drawArtIncoming"><img src="" alt=""></div>
+      <div id="drawShimmer"></div>
+      <div id="drawLoading">
+        <div class="loading-gradient"></div>
+        <img class="loading-card" src="assets/card-silhouette.svg" alt="">
+      </div>
+      <div id="drawRitual">
+        <img id="ritualCard" src="assets/card-silhouette.svg" alt="">
+      </div>
+      <div id="drawChrome">
+        <button id="drawExit">✕</button>
+        <button class="draw-arrow" id="drawArrowPrev">‹</button>
+        <button class="draw-arrow" id="drawArrowNext">›</button>
+        <div id="drawToggle">
+          <button id="drawToggleArt" class="active">Art</button>
+          <button id="drawToggleFrame">Card</button>
+        </div>
+      </div>
+      <div id="drawDetail">
+        <div id="drawDetailBackdrop"></div>
+        <div id="drawDetailPanel"></div>
+      </div>
+    </div>
     <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
     <footer class="site-footer">
       <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images © Wizards of the Coast.</p>
@@ -73,5 +105,10 @@
   <script src="js/grid.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/lightbox.js"></script>
+  <script src="js/draw/gradients.js"></script>
+  <script src="js/draw/shimmer.js"></script>
+  <script src="js/draw/draw.js"></script>
+  <script src="js/draw/draw-overlay.js"></script>
+  <script src="js/draw/draw-pills.js"></script>
 </body>
 </html>

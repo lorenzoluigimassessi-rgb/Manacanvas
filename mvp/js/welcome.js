@@ -25,21 +25,21 @@ async function fetchRandomArt() {
 }
 
 async function renderWelcome() {
-  // Show page instantly
   welcomeEl.innerHTML = `
     <div class="welcome-page" id="welcomeBg">
       <div class="welcome-overlay"></div>
       <div class="welcome-hero">
         <h1 class="welcome-title">MANACANVAS</h1>
         <p class="welcome-subtitle">Discover 30 years of Magic: The Gathering artwork</p>
-        <button class="welcome-cta" onclick="startBrowse()">Start Browsing →</button>
+        <button class="welcome-cta" onclick="startBrowse()">Browse the Gallery</button>
+        <p class="welcome-draw-separator">or</p>
+        <button class="welcome-draw-cta" onclick="startDraw()">✦ Draw a card</button>
       </div>
       <footer class="site-footer welcome-footer">
         <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images © Wizards of the Coast.</p>
       </footer>
     </div>
   `;
-  // Load background art without blocking
   fetchRandomArt().then(artUrl => {
     if (!artUrl) return;
     const bg = document.getElementById("welcomeBg");
@@ -60,6 +60,14 @@ function startBrowse() {
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
   loadInitialGrid();
+}
+
+function startDraw() {
+  localStorage.setItem("mc_entered", "1");
+  welcomeEl.style.display = "none";
+  appShell.style.display = "block";
+  loadInitialGrid();
+  enterDrawMode();
 }
 
 // On load: skip welcome if user has been here before

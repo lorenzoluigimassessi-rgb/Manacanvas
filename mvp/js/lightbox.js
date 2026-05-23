@@ -29,6 +29,8 @@ function openLightbox(card) {
   lightbox.innerHTML = `
     <div class="lightbox" id="lightboxOverlay">
       <button class="close-btn" id="lbClose">✕</button>
+      <button class="lb-nav-arrow" id="lbPrev">‹</button>
+      <button class="lb-nav-arrow" id="lbNext">›</button>
       <div class="art-container" id="artContainer">
         <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
       </div>
@@ -45,9 +47,8 @@ function openLightbox(card) {
           <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
           <button id="toggleFrame">With Frame</button>
         </div>
-        <button class="random-btn" id="lbRandom" title="Discover a random artwork"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me</button>
       </div>
-      <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · Double-click to reset · R for random</div>
+      <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · Double-click to reset</div>
     </div>
   `;
 
@@ -63,6 +64,31 @@ function openLightbox(card) {
     if (e.target.id === "lightboxOverlay") closeLightbox();
   });
   document.addEventListener("keydown", handleLbKey);
+
+  // Prev/next nav
+  const lbPrev = document.getElementById("lbPrev");
+  const lbNext = document.getElementById("lbNext");
+  const currentIndex = typeof filteredCards !== 'undefined' ? filteredCards.indexOf(card) : -1;
+  if (currentIndex <= 0) lbPrev.classList.add('hidden');
+  if (currentIndex === -1 || (typeof filteredCards !== 'undefined' && currentIndex >= filteredCards.length - 1)) lbNext.classList.add('hidden');
+
+  lbPrev.addEventListener('click', () => {
+    if (currentIndex > 0) openLightbox(filteredCards[currentIndex - 1]);
+  });
+  lbNext.addEventListener('click', () => {
+    if (typeof filteredCards !== 'undefined' && currentIndex < filteredCards.length - 1) openLightbox(filteredCards[currentIndex + 1]);
+  });
+
+  // Mobile swipe on art for prev/next
+  let lbSwipeStartX = 0;
+  const artContainer = document.getElementById("artContainer");
+  artContainer.addEventListener('touchstart', (e) => { lbSwipeStartX = e.touches[0].clientX; }, { passive: true });
+  artContainer.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - lbSwipeStartX;
+    if (Math.abs(dx) < 40) return;
+    if (dx < 0 && currentIndex < filteredCards.length - 1) openLightbox(filteredCards[currentIndex + 1]);
+    if (dx > 0 && currentIndex > 0) openLightbox(filteredCards[currentIndex - 1]);
+  });
 
   // Frame toggle
   const img = document.getElementById("lbImage");
@@ -223,26 +249,10 @@ function getTouchCenter(touches) {
   return { x: (touches[0].clientX + touches[1].clientX) / 2, y: (touches[0].clientY + touches[1].clientY) / 2 };
 }
 
-async function loadRandomCard() {
-  const btn = document.getElementById("lbRandom");
-  const img = document.getElementById("lbImage");
-  if (!btn || btn.disabled) return;
-  btn.disabled = true;
-  btn.textContent = "↻";
-  if (img) img.style.opacity = "0.5";
-  const card = await fetchRandomCard();
-  if (card) {
-    openLightbox(card);
-  } else {
-    // Network error — restore button
-    if (img) img.style.opacity = "1";
-    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`; }
-  }
-}
-
 function handleLbKey(e) {
   if (e.key === "Escape") closeLightbox();
-  if (e.key === "r" || e.key === "R") loadRandomCard();
+  if (e.key === "ArrowRight") document.getElementById("lbNext")?.click();
+  if (e.key === "ArrowLeft")  document.getElementById("lbPrev")?.click();
 }
 
 function closeLightbox() {

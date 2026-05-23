@@ -249,7 +249,7 @@ body {
 .view-dropdown-item.active::after { content: " ✓"; margin-left: auto; opacity: 0.6; }
 
 .header h1 {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 600;
   letter-spacing: 3px;
   color: var(--text-primary);
@@ -835,23 +835,57 @@ body {
   bottom: 5rem;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.72rem;
-  letter-spacing: 2px;
-  color: rgba(240,240,240,0.45);
+  font-size: 0.68rem;
+  letter-spacing: 1.5px;
+  color: rgba(240,240,240,0.4);
   pointer-events: none;
-  animation: swipeHintFade 2.5s ease forwards;
+  animation: swipeHintFade 3s ease forwards;
   white-space: nowrap;
 }
 
+/* FTE overlay — arrows + text, first open only */
+.lb-fte {
+  display: none;
+  position: absolute;
+  bottom: 7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  pointer-events: none;
+  animation: swipeHintFade 3s ease forwards;
+}
+
+.lb-fte-arrow {
+  font-size: 1.4rem;
+  color: rgba(240,240,240,0.6);
+  animation: fteArrowBounce 1s ease-in-out infinite;
+}
+
+.lb-fte-text {
+  font-size: 0.68rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(240,240,240,0.45);
+  white-space: nowrap;
+}
+
+@keyframes fteArrowBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
 @keyframes swipeHintFade {
-  0%   { opacity: 0; transform: translateX(-50%) translateY(4px); }
-  20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
   70%  { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @media (max-width: 768px) {
   .lb-swipe-hint { display: block; }
+  .lb-fte        { display: flex; }
 }
 
 /* Lightbox */
@@ -864,8 +898,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow-y: auto;
-  padding: 2rem 0;
+  overflow: hidden;
+  padding: env(safe-area-inset-top, 2rem) 0 env(safe-area-inset-bottom, 2rem);
   animation: fadeIn var(--transition-normal) ease;
 }
 
@@ -944,7 +978,7 @@ body {
 
 .lightbox .meta {
   text-align: center;
-  margin-top: 1.2rem;
+  margin-top: 1.6rem;
   flex-shrink: 0;
 }
 
@@ -1161,8 +1195,9 @@ body {
   .lightbox .toggle button { padding: 0.5rem 1.2rem; font-size: 0.85rem; min-height: 44px; }
   .lightbox .random-btn { min-height: 44px; padding: 0 2rem; }
   .lightbox .close-btn { font-size: 1.6rem; top: 0.8rem; right: 1rem; min-width: 44px; min-height: 44px; display:flex; align-items:center; justify-content:flex-end; }
-  .lightbox .zoom-hint { font-size: 0.7rem; }
+  .lightbox .zoom-hint { display: none; }
   .lb-nav-arrow { display: none; }
+  .random-btn-primary { font-size: 1rem; padding: 0.85rem 2rem; }
   .welcome-title { font-size: 2.8rem; letter-spacing: 5px; }
   .welcome-subtitle { font-size: 0.85rem; letter-spacing: 2px; }
   .welcome-cta { width: 100%; max-width: 280px; height: 52px; }

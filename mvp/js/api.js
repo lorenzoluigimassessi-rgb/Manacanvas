@@ -95,8 +95,12 @@ async function fetchRandomCard() {
   const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch);
   try {
     const res = await fetch(`${API_BASE}/cards/random?q=${encodeURIComponent(query)}`);
-    if (res.ok) return await res.json();
-    // Fallback to truly random if filtered query returns no results
+    if (res.ok) {
+      const card = await res.json();
+      // Pre-fetch next random card in background
+      setTimeout(() => fetch(`${API_BASE}/cards/random?q=${encodeURIComponent(query)}`).catch(() => {}), 100);
+      return card;
+    }
     const fallback = await fetch(`${API_BASE}/cards/random?q=has:illustration`);
     return fallback.ok ? await fallback.json() : null;
   } catch (e) {

@@ -393,24 +393,30 @@
 }
 
 .welcome-draw-cta {
-  background: none;
-  border: none;
-  font-family: 'Cinzel', serif;
+  background: transparent;
+  border: 1px solid rgba(240,240,240,0.3);
+  border-radius: 4px;
+  font-family: 'Josefin Sans', sans-serif;
   font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: 2px;
+  font-weight: 400;
+  letter-spacing: 1px;
   cursor: pointer;
-  padding: 0.4rem 0;
-  color: rgba(240,240,240,0.65);
-  transition: color 200ms;
+  padding: 0.9rem 3rem;
+  color: rgba(240,240,240,0.7);
+  transition: border-color 200ms, color 200ms;
   display: inline-block;
 }
 
 .welcome-draw-cta:hover {
-  color: rgba(240,240,240,0.95);
+  border-color: rgba(240,240,240,0.7);
+  color: #f0f0f0;
 }
 
-/* --- Browse feed Draw pill (mobile) --- */
+@media (max-width: 768px) {
+  .welcome-draw-cta { width: 100%; max-width: 280px; min-height: 48px; }
+}
+
+/* --- Browse feed Draw pill (mobile only) --- */
 #drawPillMobile {
   position: fixed;
   bottom: calc(1.5rem + env(safe-area-inset-bottom));
@@ -423,6 +429,10 @@
 
 #drawPillMobile.visible { display: flex; }
 #drawPillMobile.scroll-hidden { transform: translateX(-50%) translateY(80px); opacity: 0.4; }
+
+@media (min-width: 769px) {
+  #drawPillMobile { display: none !important; }
+}
 
 .draw-pill-btn {
   background: #16161f;

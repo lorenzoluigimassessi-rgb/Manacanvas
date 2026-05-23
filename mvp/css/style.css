@@ -828,65 +828,50 @@ body {
 
 .random-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Mobile swipe hint in feed lightbox */
-.lb-swipe-hint {
+/* FTE overlay — shown on every lightbox open, fades out after 2s */
+.lb-fte-overlay {
   display: none;
   position: absolute;
-  bottom: 5rem;
+  bottom: 5.5rem;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.68rem;
-  letter-spacing: 1.5px;
-  color: rgba(240,240,240,0.4);
-  pointer-events: none;
-  animation: swipeHintFade 3s ease forwards;
-  white-space: nowrap;
-}
-
-/* FTE overlay — arrows + text, first open only */
-.lb-fte {
-  display: none;
-  position: absolute;
-  bottom: 7rem;
-  left: 50%;
-  transform: translateX(-50%);
+  background: rgba(12,12,15,0.72);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 0.7rem 1.2rem;
   flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   pointer-events: none;
-  animation: swipeHintFade 3s ease forwards;
+  backdrop-filter: blur(8px);
+  z-index: 5;
 }
 
-.lb-fte-arrow {
-  font-size: 1.4rem;
-  color: rgba(240,240,240,0.6);
-  animation: fteArrowBounce 1s ease-in-out infinite;
+.lb-fte-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
-.lb-fte-text {
-  font-size: 0.68rem;
-  letter-spacing: 1.5px;
+.lb-fte-icon {
+  font-size: 0.9rem;
+  color: rgba(240,240,240,0.8);
+  width: 16px;
+  text-align: center;
+}
+
+.lb-fte-label {
+  font-size: 0.7rem;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: rgba(240,240,240,0.45);
-  white-space: nowrap;
-}
-
-@keyframes fteArrowBounce {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-6px); }
-}
-
-@keyframes swipeHintFade {
-  0%   { opacity: 0; }
-  15%  { opacity: 1; }
-  70%  { opacity: 1; }
-  100% { opacity: 0; }
+  color: rgba(240,240,240,0.5);
 }
 
 @media (max-width: 768px) {
-  .lb-swipe-hint { display: block; }
-  .lb-fte        { display: flex; }
+  .lb-fte-overlay { display: flex; }
 }
+
+/* Remove old FTE/swipe hint classes */
+.lb-swipe-hint, .lb-fte, .lb-fte-arrow, .lb-fte-text { display: none !important; }
 
 /* Lightbox */
 .lightbox {

@@ -10,7 +10,6 @@ let dragStartY = 0;
 let lastTx = 0;
 let lastTy = 0;
 
-// Mana colour → gradient (for surprise mode)
 const LB_GRADIENTS = {
   W: 'linear-gradient(160deg,#2a2318,#3d3420,#1a1610)',
   U: 'linear-gradient(160deg,#0a1628,#0d2240,#061018)',
@@ -33,27 +32,23 @@ function openLightbox(card, mode = 'feed') {
   currentMode = "art";
   scale = 1; translateX = 0; translateY = 0;
 
-  const artCrop   = card.image_uris?.art_crop  || card.card_faces?.[0]?.image_uris?.art_crop;
-  const normal    = card.image_uris?.normal    || card.card_faces?.[0]?.image_uris?.normal;
+  const artCrop  = card.image_uris?.art_crop  || card.card_faces?.[0]?.image_uris?.art_crop;
+  const normal   = card.image_uris?.normal    || card.card_faces?.[0]?.image_uris?.normal;
   const hasArtCrop = !!artCrop;
-  const setName   = card.set_name || "";
-  const year      = card.released_at ? card.released_at.slice(0, 4) : "";
+  const setName  = card.set_name || "";
+  const year     = card.released_at ? card.released_at.slice(0, 4) : "";
   const disabledAttr  = !hasArtCrop ? 'style="opacity:0.4;cursor:not-allowed;"' : '';
   const disabledTitle = !hasArtCrop ? 'title="Art-only view unavailable for this card"' : '';
-
   const isSurprise = mode === 'surprise';
 
-  // Both modes use blurred art background
-  const bgStyle = `style="background:#0c0c0f;"`;
   const blurBgHtml = `<div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>`;
-  // Prev/next arrows — feed mode only, outside art-container
-  const arrowsHtml = !isSurprise ? `
+
+  // Desktop arrows — both modes
+  const arrowsHtml = `
     <button class="lb-nav-arrow" id="lbPrev">‹</button>
     <button class="lb-nav-arrow" id="lbNext">›</button>
-  ` : '';
+  `;
 
-  // Actions row
-  // Both modes: same toggle-only actions
   const actionsHtml = `
     <div class="lightbox-actions">
       <div class="toggle">
@@ -62,16 +57,18 @@ function openLightbox(card, mode = 'feed') {
       </div>
     </div>
   `;
-  const hintText = isSurprise
-    ? 'Scroll to zoom · Drag to pan · R for random'
-    : 'Scroll to zoom · Drag to pan · ← → to browse';
 
-  const swipeHintHtml = `<div class="lb-swipe-hint" id="lbSwipeHint">↑ swipe up to close · ← → to browse</div>
-     <div class="lb-fte" id="lbFte"><div class="lb-fte-arrow">↑</div><div class="lb-fte-text">Swipe up to close</div></div>`;
+  // FTE overlay — shown on every open, fades out after 2s
+  const fteHtml = `
+    <div class="lb-fte-overlay" id="lbFteOverlay">
+      <div class="lb-fte-row"><span class="lb-fte-icon">↑</span><span class="lb-fte-label">Next</span></div>
+      <div class="lb-fte-row"><span class="lb-fte-icon">↓</span><span class="lb-fte-label">Previous</span></div>
+    </div>
+  `;
 
   const lightbox = document.getElementById("lightbox");
   lightbox.innerHTML = `
-    <div class="lightbox" id="lightboxOverlay" ${bgStyle}>
+    <div class="lightbox" id="lightboxOverlay" style="background:#0c0c0f;">
       ${blurBgHtml}
       <button class="close-btn" id="lbClose">✕</button>
       ${arrowsHtml}
@@ -87,12 +84,19 @@ function openLightbox(card, mode = 'feed') {
         </div>
       </div>
       ${actionsHtml}
-      ${swipeHintHtml || ''}
-      <div class="zoom-hint" id="zoomHint">${hintText}</div>
+      ${fteHtml}
+      <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ↑↓ to browse</div>
     </div>
   `;
 
   document.body.style.overflow = "hidden";
+
+  // Fade out FTE after 2s
+  setTimeout(() => {
+    const fte = document.getElementById("lbFteOverlay");
+    if (fte) { fte.style.opacity = '0'; fte.style.transition = 'opacity 400ms ease'; }
+  }, 2000);
+
   setTimeout(() => { const h = document.getElementById("zoomHint"); if (h) h.style.opacity = "0"; }, 3000);
 
   // Close
@@ -102,179 +106,101 @@ function openLightbox(card, mode = 'feed') {
   });
   document.addEventListener("keydown", handleLbKey);
 
-  // Prev/next — feed mode
-  if (!isSurprise) {
-    const lbPrev = document.getElementById("lbPrev");
-    const lbNext = document.getElementById("lbNext");
-    const currentIndex = filteredCards.findIndex(c => c.id === card.id);
-
-    if (currentIndex <= 0) lbPrev.classList.add('hidden');
-    if (currentIndex === -1 || currentIndex >= filteredCards.length - 1) lbNext.classList.add('hidden');
-
-    lbPrev.addEventListener('click', () => {
-      if (currentIndex > 0) openLightbox(filteredCards[currentIndex - 1], 'feed');
-    });
-    lbNext.addEventListener('click', () => {
-      if (currentIndex < filteredCards.length - 1) openLightbox(filteredCards[currentIndex + 1], 'feed');
-    });
-
-    // Mobile swipe — left/right = prev/next, up = close
-    let swipeStartX = 0, swipeStartY = 0, swipeCurX = 0, swipeCurY = 0;
-    let swiping = false, swipeDir = null;
-    const artContainer = document.getElementById("artContainer");
-
-    // FTE hint — show arrows + 'swipe up to close' on first open
-    const isFirstOpen = !sessionStorage.getItem('lb_swipe_hinted');
-    if (isFirstOpen) {
-      sessionStorage.setItem('lb_swipe_hinted', '1');
-      // Nudge up slightly to hint swipe-up
-      setTimeout(() => {
-        artContainer.style.transition = 'transform 300ms ease-out';
-        artContainer.style.transform  = 'translateY(-14px)';
-        setTimeout(() => {
-          artContainer.style.transition = 'transform 400ms cubic-bezier(0.34,1.56,0.64,1)';
-          artContainer.style.transform  = '';
-          setTimeout(() => { artContainer.style.transition = ''; }, 400);
-        }, 320);
-      }, 700);
+  // ── Navigation helpers ──────────────────────────────────────────────────────
+  function goNext() {
+    if (isSurprise) {
+      if (!window._surpriseQueue) window._surpriseQueue = [];
+      const next = window._surpriseQueue.shift();
+      if (next) openLightbox(next, 'surprise');
+      else fetchRandomCard().then(c => { if (c) openLightbox(c, 'surprise'); });
+    } else {
+      const idx = filteredCards.findIndex(c => c.id === card.id);
+      if (idx < filteredCards.length - 1) openLightbox(filteredCards[idx + 1], 'feed');
     }
-
-    artContainer.addEventListener('touchstart', (e) => {
-      swipeStartX = e.touches[0].clientX;
-      swipeStartY = e.touches[0].clientY;
-      swipeCurX   = swipeStartX;
-      swipeCurY   = swipeStartY;
-      swiping     = true;
-      swipeDir    = null;
-      artContainer.style.transition = 'none';
-    }, { passive: true });
-
-    artContainer.addEventListener('touchmove', (e) => {
-      if (!swiping) return;
-      const dx = e.touches[0].clientX - swipeStartX;
-      const dy = e.touches[0].clientY - swipeStartY;
-      swipeCurX = e.touches[0].clientX;
-      swipeCurY = e.touches[0].clientY;
-      if (!swipeDir) {
-        if (Math.abs(dx) > 8 || Math.abs(dy) > 8)
-          swipeDir = Math.abs(dy) >= Math.abs(dx) ? 'v' : 'h';
-        return;
-      }
-      if (swipeDir === 'v' && dy < 0) {
-        // Swipe up — drag card up with opacity fade
-        artContainer.style.transform = `translateY(${dy}px)`;
-        artContainer.style.opacity   = String(Math.max(0, 1 + dy / (window.innerHeight * 0.4)));
-      } else if (swipeDir === 'h') {
-        const tilt = (dx / window.innerWidth) * 3;
-        artContainer.style.transform = `translateX(${dx}px) rotate(${tilt}deg)`;
-        artContainer.style.opacity   = String(1 - Math.abs(dx) / (window.innerWidth * 1.5));
-      }
-    }, { passive: true });
-
-    artContainer.addEventListener('touchend', () => {
-      if (!swiping) return;
-      swiping = false;
-      const dx = swipeCurX - swipeStartX;
-      const dy = swipeCurY - swipeStartY;
-
-      if (swipeDir === 'v' && dy < 0 && Math.abs(dy) > window.innerHeight * 0.18) {
-        // Commit swipe up — slide out upward then close
-        artContainer.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
-        artContainer.style.transform  = 'translateY(-110%)';
-        artContainer.style.opacity    = '0';
-        setTimeout(() => closeLightbox(), 220);
-        return;
-      }
-
-      if (swipeDir === 'h' && Math.abs(dx) >= window.innerWidth * 0.28) {
-        const exitX = dx < 0 ? '-110%' : '110%';
-        artContainer.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
-        artContainer.style.transform  = `translateX(${exitX})`;
-        artContainer.style.opacity    = '0';
-        setTimeout(() => {
-          artContainer.style.transition = 'none';
-          artContainer.style.transform  = '';
-          artContainer.style.opacity    = '1';
-          if (dx < 0 && currentIndex < filteredCards.length - 1)
-            openLightbox(filteredCards[currentIndex + 1], 'feed');
-          else if (dx > 0 && currentIndex > 0)
-            openLightbox(filteredCards[currentIndex - 1], 'feed');
-        }, 220);
-        return;
-      }
-
-      // Snap back
-      artContainer.style.transition = 'transform 280ms cubic-bezier(0.34,1.56,0.64,1), opacity 280ms ease';
-      artContainer.style.transform  = '';
-      artContainer.style.opacity    = '1';
-      setTimeout(() => { artContainer.style.transition = ''; }, 280);
-    });
   }
 
-  // Surprise Me button removed — swipe navigates instead
-  // Pre-fetch a small surprise queue for swipe navigation
+  function goPrev() {
+    if (isSurprise) {
+      closeLightbox();
+    } else {
+      const idx = filteredCards.findIndex(c => c.id === card.id);
+      if (idx > 0) openLightbox(filteredCards[idx - 1], 'feed');
+    }
+  }
+
+  // ── Desktop arrows ──────────────────────────────────────────────────────────
+  const lbPrev = document.getElementById("lbPrev");
+  const lbNext = document.getElementById("lbNext");
+
+  if (!isSurprise) {
+    const currentIndex = filteredCards.findIndex(c => c.id === card.id);
+    if (currentIndex <= 0) lbPrev.classList.add('hidden');
+    if (currentIndex === -1 || currentIndex >= filteredCards.length - 1) lbNext.classList.add('hidden');
+  }
+
+  lbPrev.addEventListener('click', goPrev);
+  lbNext.addEventListener('click', goNext);
+
+  // Pre-warm surprise queue
   if (isSurprise) {
     if (!window._surpriseQueue) window._surpriseQueue = [];
-    // Pre-warm queue in background
     if (window._surpriseQueue.length < 2) {
       Promise.all([fetchRandomCard(), fetchRandomCard()])
         .then(cards => { window._surpriseQueue.push(...cards.filter(Boolean)); });
     }
-
-    // Mobile swipe for surprise mode
-    const artContainerS = document.getElementById("artContainer");
-    let ssX = 0, ssY = 0, scX = 0, scY = 0, sSwiping = false, sDir = null;
-
-    artContainerS.addEventListener('touchstart', (e) => {
-      ssX = e.touches[0].clientX; ssY = e.touches[0].clientY;
-      scX = ssX; scY = ssY; sSwiping = true; sDir = null;
-      artContainerS.style.transition = 'none';
-    }, { passive: true });
-
-    artContainerS.addEventListener('touchmove', (e) => {
-      if (!sSwiping) return;
-      const dx = e.touches[0].clientX - ssX, dy = e.touches[0].clientY - ssY;
-      scX = e.touches[0].clientX; scY = e.touches[0].clientY;
-      if (!sDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
-        sDir = Math.abs(dy) >= Math.abs(dx) ? 'v' : 'h';
-      if (sDir === 'v' && dy < 0) {
-        artContainerS.style.transform = `translateY(${dy}px)`;
-        artContainerS.style.opacity = String(Math.max(0, 1 + dy / (window.innerHeight * 0.4)));
-      } else if (sDir === 'h') {
-        artContainerS.style.transform = `translateX(${dx}px) rotate(${(dx / window.innerWidth) * 3}deg)`;
-        artContainerS.style.opacity = String(1 - Math.abs(dx) / (window.innerWidth * 1.5));
-      }
-    }, { passive: true });
-
-    artContainerS.addEventListener('touchend', () => {
-      if (!sSwiping) return;
-      sSwiping = false;
-      const dx = scX - ssX, dy = scY - ssY;
-      if (sDir === 'v' && dy < 0 && Math.abs(dy) > window.innerHeight * 0.18) {
-        artContainerS.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
-        artContainerS.style.transform = 'translateY(-110%)';
-        artContainerS.style.opacity = '0';
-        setTimeout(() => closeLightbox(), 220);
-        return;
-      }
-      if (sDir === 'h' && Math.abs(dx) >= window.innerWidth * 0.28) {
-        artContainerS.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
-        artContainerS.style.transform = `translateX(${dx < 0 ? '-110%' : '110%'})`;
-        artContainerS.style.opacity = '0';
-        setTimeout(() => {
-          const next = window._surpriseQueue.shift();
-          if (next) openLightbox(next, 'surprise');
-          else fetchRandomCard().then(c => { if (c) openLightbox(c, 'surprise'); });
-        }, 220);
-        return;
-      }
-      artContainerS.style.transition = 'transform 280ms cubic-bezier(0.34,1.56,0.64,1), opacity 280ms ease';
-      artContainerS.style.transform = ''; artContainerS.style.opacity = '1';
-      setTimeout(() => { artContainerS.style.transition = ''; }, 280);
-    });
   }
 
-  // Frame toggle
+  // ── Mobile swipe — up=next, down=prev/close ─────────────────────────────────
+  const artContainer = document.getElementById("artContainer");
+  let swX = 0, swY = 0, scX = 0, scY = 0, swiping = false, swDir = null;
+
+  artContainer.addEventListener('touchstart', (e) => {
+    swX = e.touches[0].clientX; swY = e.touches[0].clientY;
+    scX = swX; scY = swY; swiping = true; swDir = null;
+    artContainer.style.transition = 'none';
+  }, { passive: true });
+
+  artContainer.addEventListener('touchmove', (e) => {
+    if (!swiping) return;
+    const dx = e.touches[0].clientX - swX;
+    const dy = e.touches[0].clientY - swY;
+    scX = e.touches[0].clientX; scY = e.touches[0].clientY;
+    if (!swDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
+      swDir = Math.abs(dy) >= Math.abs(dx) ? 'v' : 'h';
+    if (swDir === 'v') {
+      artContainer.style.transform = `translateY(${dy}px)`;
+      artContainer.style.opacity   = String(Math.max(0.2, 1 - Math.abs(dy) / (window.innerHeight * 0.6)));
+    }
+  }, { passive: true });
+
+  artContainer.addEventListener('touchend', () => {
+    if (!swiping) return;
+    swiping = false;
+    const dy = scY - swY;
+    const threshold = window.innerHeight * 0.18;
+
+    if (swDir === 'v' && Math.abs(dy) >= threshold) {
+      const exitY = dy < 0 ? '-110%' : '110%';
+      artContainer.style.transition = 'transform 220ms ease-in, opacity 220ms ease-in';
+      artContainer.style.transform  = `translateY(${exitY})`;
+      artContainer.style.opacity    = '0';
+      setTimeout(() => {
+        artContainer.style.transition = 'none';
+        artContainer.style.transform  = '';
+        artContainer.style.opacity    = '1';
+        if (dy < 0) goNext(); else goPrev();
+      }, 220);
+      return;
+    }
+
+    // Snap back
+    artContainer.style.transition = 'transform 280ms cubic-bezier(0.34,1.56,0.64,1), opacity 280ms ease';
+    artContainer.style.transform  = '';
+    artContainer.style.opacity    = '1';
+    setTimeout(() => { artContainer.style.transition = ''; }, 280);
+  });
+
+  // ── Frame toggle ────────────────────────────────────────────────────────────
   const img = document.getElementById("lbImage");
   document.getElementById("toggleArt").addEventListener("click", () => {
     if (!hasArtCrop) return;
@@ -292,27 +218,24 @@ function openLightbox(card, mode = 'feed') {
     resetZoom();
   });
 
-  // Meta links
+  // ── Meta links ──────────────────────────────────────────────────────────────
   document.getElementById("lbArtist").addEventListener("click", () => {
-    closeLightbox();
-    activeArtist = [card.artist];
+    closeLightbox(); activeArtist = [card.artist];
     if (!isMobile()) { const btn = document.getElementById("artistBtn"); if (btn) { btn.textContent = card.artist + " ▾"; btn.classList.add("active"); } }
     updateChips(); loadInitialGrid();
   });
   if (setName) document.getElementById("lbSet").addEventListener("click", () => {
-    closeLightbox();
-    activeSets = [card.set];
+    closeLightbox(); activeSets = [card.set];
     if (!isMobile()) { const s = setList.find(s => s.code === card.set); const btn = document.getElementById("setBtn"); if (btn) { btn.textContent = (s ? s.name : setName) + " ▾"; btn.classList.add("active"); } }
     updateChips(); loadInitialGrid();
   });
   if (year) document.getElementById("lbYear").addEventListener("click", () => {
-    closeLightbox();
-    activeYearMin = parseInt(year); activeYearMax = parseInt(year);
+    closeLightbox(); activeYearMin = parseInt(year); activeYearMax = parseInt(year);
     if (!isMobile()) { const btn = document.getElementById("yearBtn"); if (btn) { btn.textContent = `${year}–${year}`; btn.classList.add("active"); } }
     updateChips(); loadInitialGrid();
   });
 
-  // Zoom — desktop only
+  // ── Zoom — desktop only ─────────────────────────────────────────────────────
   const isTouchDevice = 'ontouchstart' in window;
   const container = document.getElementById("artContainer");
   if (!isTouchDevice) {
@@ -365,22 +288,6 @@ function getTouchDist(touches) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-async function loadRandomCard() {
-  const btn = document.getElementById("lbRandom");
-  const img = document.getElementById("lbImage");
-  if (!btn || btn.disabled) return;
-  btn.disabled = true;
-  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:lbSpin 0.8s linear infinite"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>`;
-  if (img) img.style.opacity = "0.5";
-  const card = await fetchRandomCard();
-  if (card) {
-    openLightbox(card, 'surprise');
-  } else {
-    if (img) img.style.opacity = "1";
-    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/></svg> Surprise Me`; }
-  }
-}
-
 function flashArrow(id) {
   const btn = document.getElementById(id);
   if (!btn || btn.classList.contains('hidden')) return;
@@ -390,8 +297,8 @@ function flashArrow(id) {
 
 function handleLbKey(e) {
   if (e.key === "Escape") closeLightbox();
-  if (e.key === "ArrowRight") { flashArrow('lbNext'); document.getElementById("lbNext")?.click(); }
-  if (e.key === "ArrowLeft")  { flashArrow('lbPrev'); document.getElementById("lbPrev")?.click(); }
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") { flashArrow('lbNext'); document.getElementById("lbNext")?.click(); }
+  if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   { flashArrow('lbPrev'); document.getElementById("lbPrev")?.click(); }
 }
 
 function closeLightbox() {

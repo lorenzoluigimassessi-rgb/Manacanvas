@@ -871,23 +871,30 @@ body {
 }
 
 /* Swipe hint — mobile surprise mode, first open only */
-.lb-swipe-hint-text {
+.lb-swipe-hint-pill {
   display: none;
   position: absolute;
-  bottom: 1.2rem;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 0.72rem;
+  bottom: 1.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12,12,15,0.72);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.7rem;
   font-weight: 400;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: rgba(240,240,240,0.55);
+  color: rgba(240,240,240,0.7);
   pointer-events: none;
   z-index: 6;
+  white-space: nowrap;
+  align-items: center;
+  gap: 0.4rem;
 }
 @media (max-width: 768px) {
-  .lb-swipe-hint-text { display: block; }
+  .lb-swipe-hint-pill { display: flex; }
 }
 
 

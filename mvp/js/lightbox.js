@@ -65,9 +65,14 @@ function openLightbox(card, mode = 'feed') {
   const ghostPrevHidden = (noSurpriseHistory || feedAtStart) ? 'hidden' : '';
   const ghostNextHidden = feedAtEnd ? 'hidden' : '';
 
-  // Swipe hint — mobile only, surprise mode, first open per session
-  const showSwipeHint = isSurprise && !sessionStorage.getItem('lb_swipe_hint_shown');
-  const swipeHintHtml = showSwipeHint ? `<div class="lb-swipe-hint-text" id="lbSwipeHint">Swipe for more →</div>` : '';
+  // Swipe hint — mobile only, first open per session
+  const showSwipeHint = isSurprise
+    ? !sessionStorage.getItem('lb_swipe_hint_shown')
+    : !sessionStorage.getItem('lb_feed_hint_shown');
+  const swipeHintCopy = isSurprise
+    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M5 12h14M15 6l6 6-6 6"/></svg> Keep swiping`
+    : `<svg width="16" height="10" viewBox="0 0 24 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M1 5h22M5 1L1 5l4 4M19 1l4 4-4 4"/></svg> Swipe to browse`;
+  const swipeHintHtml = showSwipeHint ? `<div class="lb-swipe-hint-pill" id="lbSwipeHint">${swipeHintCopy}</div>` : '';
 
   const ghostArrowsHtml = `
     <div class="lb-ghost-arrows" id="lbGhostArrows">
@@ -271,11 +276,11 @@ function openLightbox(card, mode = 'feed') {
 
   // Swipe hint — fade after 2s, mark session so it never shows again
   if (showSwipeHint) {
-    sessionStorage.setItem('lb_swipe_hint_shown', '1');
+    sessionStorage.setItem(isSurprise ? 'lb_swipe_hint_shown' : 'lb_feed_hint_shown', '1');
     setTimeout(() => {
       const hint = document.getElementById('lbSwipeHint');
       if (hint) { hint.style.transition = 'opacity 500ms ease'; hint.style.opacity = '0'; }
-    }, 2000);
+    }, 1500);
   }
 
   const gPrev = document.getElementById('lbGhostPrev');

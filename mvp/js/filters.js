@@ -1265,6 +1265,45 @@ function resetAllState() {
   sortDir = "auto";
 }
 
+function syncFilterUI() {
+  if (isMobile()) return; // mobile uses chips + drawer badge, no persistent button labels
+
+  const sortBtn = document.getElementById('sortBtn');
+  if (sortBtn) {
+    const opt = SORT_OPTIONS.find(o => o.order === sortOrder && o.dir === sortDir);
+    if (opt) sortBtn.textContent = `${opt.label} ⇅`;
+  }
+
+  const artistBtn = document.getElementById('artistBtn');
+  if (artistBtn && activeArtist.length) {
+    artistBtn.textContent = activeArtist.length === 1 ? `${activeArtist[0]} ▾` : `Artists (${activeArtist.length}) ▾`;
+    artistBtn.classList.add('active');
+  }
+
+  const typeBtn = document.getElementById('typeBtn');
+  if (typeBtn && activeType.length) {
+    typeBtn.textContent = activeType.length === 1 ? `${activeType[0]} ▾` : `Creatures (${activeType.length}) ▾`;
+    typeBtn.classList.add('active');
+  }
+
+  const setBtn = document.getElementById('setBtn');
+  if (setBtn && activeSets.length) {
+    loadSetsIfNeeded().then(() => {
+      const s = setList.find(s => s.code === activeSets[0]);
+      setBtn.textContent = activeSets.length === 1 ? (s?.name || '1 Set') + ' ▾' : `Sets (${activeSets.length}) ▾`;
+      setBtn.classList.add('active');
+    });
+  }
+
+  const styleBtn = document.getElementById('styleBtn');
+  if (styleBtn && activeStyles.length) {
+    styleBtn.textContent = activeStyles.length === 1 ? ART_STYLES[activeStyles[0]].name + ' ▾' : `Style (${activeStyles.length}) ▾`;
+    styleBtn.classList.add('active');
+  }
+
+  updateMoreBadge();
+}
+
 function clearAllFilters() {
   activeArtist = []; activeType = []; activeCardType = [];
   activeColour = []; activeSets = []; activeStyles = [];
@@ -1306,6 +1345,9 @@ function clearAllFilters() {
 }
 
 // Init
-initFilters();
+initFilters().then(() => {
+  // Sync button labels to match any state restored from localStorage before initFilters ran
+  syncFilterUI();
+});
 initSearch();
 initDrawer();

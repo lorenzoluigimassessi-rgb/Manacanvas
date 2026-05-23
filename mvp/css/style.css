@@ -870,6 +870,26 @@ body {
   .lb-ghost-arrows { display: block; }
 }
 
+/* Swipe hint — mobile surprise mode, first open only */
+.lb-swipe-hint-text {
+  display: none;
+  position: absolute;
+  bottom: 1.2rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(240,240,240,0.55);
+  pointer-events: none;
+  z-index: 6;
+}
+@media (max-width: 768px) {
+  .lb-swipe-hint-text { display: block; }
+}
+
 
 .lb-fte-overlay {
   display: none;

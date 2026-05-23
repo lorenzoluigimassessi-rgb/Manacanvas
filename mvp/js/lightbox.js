@@ -57,13 +57,21 @@ function openLightbox(card, mode = 'feed') {
   const showFte = false; const fteHtml = '';
 
   // Ghost arrows — overlaid on art-container, mobile only
-  const ghostPrevHidden = filteredCards.findIndex(c => c.id === card.id) <= 0 && !isSurprise ? 'hidden' : '';
+  // In surprise: hide prev if no history yet
+  const noSurpriseHistory = isSurprise && (!window._surpriseHistory || window._surpriseHistory.length === 0);
+  const ghostPrevHidden = (noSurpriseHistory || (filteredCards.findIndex(c => c.id === card.id) <= 0 && !isSurprise)) ? 'hidden' : '';
   const ghostNextHidden = (!isSurprise && filteredCards.findIndex(c => c.id === card.id) >= filteredCards.length - 1) ? 'hidden' : '';
+
+  // Swipe hint — mobile only, surprise mode, first open per session
+  const showSwipeHint = isSurprise && !sessionStorage.getItem('lb_swipe_hint_shown');
+  const swipeHintHtml = showSwipeHint ? `<div class="lb-swipe-hint-text" id="lbSwipeHint">Swipe for more →</div>` : '';
+
   const ghostArrowsHtml = `
     <div class="lb-ghost-arrows" id="lbGhostArrows">
       <button class="lb-ghost-arrow lb-ghost-prev ${ghostPrevHidden}" id="lbGhostPrev">‹</button>
       <button class="lb-ghost-arrow lb-ghost-next ${ghostNextHidden}" id="lbGhostNext">›</button>
     </div>
+    ${swipeHintHtml}
   `;
 
   const lightbox = document.getElementById("lightbox");
@@ -193,7 +201,10 @@ function openLightbox(card, mode = 'feed') {
       const gN = document.getElementById('lbGhostNext');
       if (gP && gN) {
         if (nextMode === 'surprise') {
-          gP.classList.add('hidden');
+          // Show prev only if there's history to go back to
+          window._surpriseHistory && window._surpriseHistory.length > 0
+            ? gP.classList.remove('hidden')
+            : gP.classList.add('hidden');
           gN.classList.remove('hidden');
         } else {
           const idx = filteredCards.findIndex(c => c.id === nextCard.id);
@@ -246,6 +257,15 @@ function openLightbox(card, mode = 'feed') {
   }
   showGhostArrows();
   document.getElementById('lightboxOverlay').addEventListener('touchstart', showGhostArrows, { passive: true });
+
+  // Swipe hint — fade after 2s, mark session so it never shows again
+  if (showSwipeHint) {
+    sessionStorage.setItem('lb_swipe_hint_shown', '1');
+    setTimeout(() => {
+      const hint = document.getElementById('lbSwipeHint');
+      if (hint) { hint.style.transition = 'opacity 500ms ease'; hint.style.opacity = '0'; }
+    }, 2000);
+  }
 
   const gPrev = document.getElementById('lbGhostPrev');
   const gNext = document.getElementById('lbGhostNext');

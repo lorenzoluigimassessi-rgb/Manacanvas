@@ -18,7 +18,7 @@
       justify-content: center;
     }
 
-    /* ── Entry button ── */
+    /* ── Entry ── */
     #entryBtn {
       background: #16161f;
       border: 1px solid #4a4a60;
@@ -39,47 +39,134 @@
       inset: 0;
       z-index: 100;
       display: none;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
-      background: #0c0c0f;
     }
-    #draw.open { display: block; }
+    #draw.open { display: flex; }
 
-    /* Gradient bg */
+    /* Gradient background — fills whole screen */
     #dGrad {
       position: absolute;
       inset: 0;
       z-index: 0;
-      transition: background 300ms ease;
+      transition: background 400ms ease;
+      background: #0c0c0f;
     }
 
-    /* Art */
-    #dArt {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      will-change: transform;
-    }
-    #dArt img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
+    /* Card stage — centered, constrained */
+    #dStage {
+      position: relative;
+      z-index: 2;
+      width: min(92vw, 560px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
       user-select: none;
+    }
+
+    /* Art card */
+    #dArt {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+      will-change: transform;
+      cursor: pointer;
+      position: relative;
+    }
+
+    #dArt img {
+      width: 100%;
+      display: block;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      background: #1a1a22;
       -webkit-user-drag: none;
       pointer-events: none;
     }
 
-    /* Incoming art (for transitions) */
+    /* Incoming card — sits behind current during transition */
     #dIn {
       position: absolute;
       inset: 0;
-      z-index: 2;
+      border-radius: 8px;
+      overflow: hidden;
       opacity: 0;
       pointer-events: none;
+      z-index: -1;
     }
     #dIn img {
-      width: 100%; height: 100%;
+      width: 100%;
+      aspect-ratio: 4/3;
       object-fit: cover;
       display: block;
+    }
+
+    /* Card meta below the art */
+    #dMeta {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      opacity: 0;
+      transition: opacity 300ms;
+      padding: 0 0.2rem;
+    }
+    #dMeta.visible { opacity: 1; }
+    #dMeta .left { flex: 1; min-width: 0; }
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: rgba(240,240,240,0.85);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-sub {
+      font-size: 0.7rem;
+      color: rgba(240,240,240,0.35);
+      margin-top: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Toggle */
+    #dToggle {
+      display: flex;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    #dToggle button {
+      background: transparent;
+      border: none;
+      color: rgba(240,240,240,0.35);
+      padding: 0.3rem 0.85rem;
+      font-size: 0.7rem;
+      font-family: 'Josefin Sans', sans-serif;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background 150ms, color 150ms;
+    }
+    #dToggle button.active {
+      background: rgba(255,255,255,0.1);
+      color: rgba(240,240,240,0.85);
+    }
+
+    /* Swipe hint */
+    #dHint {
+      font-size: 0.62rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(240,240,240,0.18);
+      transition: opacity 1s;
     }
 
     /* Loading */
@@ -91,92 +178,57 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 1.5rem;
+      gap: 1.2rem;
       background: #0c0c0f;
     }
     #dLoad.hidden { display: none; }
-    #dLoad .spinner {
-      width: 48px; height: 64px;
+    .spinner {
+      width: 40px; height: 54px;
       border: 1.5px solid rgba(240,240,240,0.15);
-      border-radius: 6px;
+      border-radius: 5px;
       animation: pulse 1.4s ease-in-out infinite;
     }
     #dLoad p {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: rgba(240,240,240,0.3);
+      color: rgba(240,240,240,0.25);
     }
     @keyframes pulse {
-      0%,100% { opacity: 0.2; transform: scale(0.96); }
-      50%      { opacity: 0.6; transform: scale(1); }
+      0%,100% { opacity: 0.2; transform: scale(0.95); }
+      50%      { opacity: 0.55; transform: scale(1); }
     }
-
-    /* Chrome */
-    #dChrome {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      pointer-events: none;
-    }
-    #dChrome > * { pointer-events: auto; }
 
     /* Exit */
     #dExit {
       position: absolute;
       top: 1rem; right: 1rem;
-      width: 36px; height: 36px;
+      z-index: 10;
+      width: 34px; height: 34px;
       border-radius: 50%;
-      background: rgba(12,12,15,0.6);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(240,240,240,0.7);
-      font-size: 1rem;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 150ms;
-      backdrop-filter: blur(4px);
-    }
-    #dExit:hover { background: rgba(30,30,40,0.85); color: #f0f0f0; }
-
-    /* Toggle */
-    #dToggle {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      background: rgba(12,12,15,0.7);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 20px;
-      overflow: hidden;
-      backdrop-filter: blur(8px);
-    }
-    #dToggle button {
-      background: transparent;
-      border: none;
-      color: rgba(240,240,240,0.45);
-      padding: 0.4rem 1.1rem;
-      font-size: 0.75rem;
-      font-family: 'Josefin Sans', sans-serif;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      transition: background 150ms, color 150ms;
-    }
-    #dToggle button.active {
-      background: rgba(255,255,255,0.1);
-      color: rgba(240,240,240,0.9);
-    }
-
-    /* Desktop arrows */
-    .darrow {
-      position: absolute;
-      top: 50%; transform: translateY(-50%);
-      width: 44px; height: 64px;
-      background: rgba(12,12,15,0.5);
+      background: rgba(12,12,15,0.55);
       border: 1px solid rgba(255,255,255,0.1);
       color: rgba(240,240,240,0.6);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 150ms, color 150ms;
+      backdrop-filter: blur(4px);
+    }
+    #dExit:hover { background: rgba(30,30,40,0.8); color: #f0f0f0; }
+
+    /* Desktop prev/next arrows beside the card */
+    .darrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 5;
+      width: 36px; height: 52px;
+      background: rgba(12,12,15,0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(240,240,240,0.5);
       border-radius: 4px;
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       opacity: 0;
@@ -184,38 +236,14 @@
       backdrop-filter: blur(4px);
     }
     .darrow:hover { background: rgba(30,30,40,0.7); color: #f0f0f0; }
-    #dPrev { left: 0.75rem; }
-    #dNext { right: 0.75rem; }
-
-    /* Card name overlay (bottom left, idle) */
-    #dMeta {
-      position: absolute;
-      bottom: 4.5rem;
-      left: 1.2rem;
-      z-index: 10;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 300ms;
-    }
-    #dMeta.visible { opacity: 1; }
-    #dMeta .card-name {
-      font-family: 'Cinzel', serif;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: rgba(240,240,240,0.8);
-      letter-spacing: 0.5px;
-    }
-    #dMeta .card-artist {
-      font-size: 0.7rem;
-      color: rgba(240,240,240,0.35);
-      margin-top: 0.2rem;
-    }
+    #dPrev { right: calc(100% + 0.75rem); }
+    #dNext { left:  calc(100% + 0.75rem); }
 
     /* Detail panel */
     #dDetail {
-      position: absolute;
+      position: fixed;
       inset: 0;
-      z-index: 30;
+      z-index: 50;
       display: flex;
       align-items: flex-end;
       pointer-events: none;
@@ -224,7 +252,7 @@
     #dDetailBg {
       position: absolute;
       inset: 0;
-      background: rgba(12,12,15,0.5);
+      background: rgba(12,12,15,0.55);
       opacity: 0;
       transition: opacity 200ms;
     }
@@ -234,8 +262,8 @@
       width: 100%;
       max-width: 480px;
       margin: 0 auto;
-      background: rgba(12,12,15,0.94);
-      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(14,14,20,0.96);
+      border-top: 1px solid rgba(255,255,255,0.07);
       border-radius: 12px 12px 0 0;
       padding: 1.5rem 1.5rem 2.5rem;
       transform: translateY(100%);
@@ -245,55 +273,36 @@
     #dDetail.open #dDetailPanel { transform: translateY(0); }
     .dp-name {
       font-family: 'Cinzel', serif;
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 600;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.35rem;
     }
-    .dp-meta {
-      font-size: 0.8rem;
-      color: rgba(240,240,240,0.45);
-      margin-bottom: 1.2rem;
-    }
+    .dp-meta { font-size: 0.78rem; color: rgba(240,240,240,0.4); margin-bottom: 1.2rem; }
     .dp-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
     .dp-btn {
       background: transparent;
-      border: 1px solid rgba(255,255,255,0.2);
-      color: rgba(240,240,240,0.7);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(240,240,240,0.65);
       padding: 0.4rem 0.9rem;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: 0.73rem;
       font-family: 'Josefin Sans', sans-serif;
       cursor: pointer;
       transition: border-color 150ms, color 150ms;
     }
-    .dp-btn:hover { border-color: rgba(255,255,255,0.5); color: #f0f0f0; }
+    .dp-btn:hover { border-color: rgba(255,255,255,0.45); color: #f0f0f0; }
     .dp-back {
       background: none; border: none;
-      color: rgba(240,240,240,0.35);
-      font-size: 0.75rem;
+      color: rgba(240,240,240,0.3);
+      font-size: 0.73rem;
       font-family: 'Josefin Sans', sans-serif;
       cursor: pointer;
       transition: color 150ms;
     }
-    .dp-back:hover { color: rgba(240,240,240,0.8); }
+    .dp-back:hover { color: rgba(240,240,240,0.75); }
 
-    /* Swipe hint */
-    #dHint {
-      position: absolute;
-      bottom: 4.5rem;
-      right: 1.2rem;
-      z-index: 10;
-      font-size: 0.65rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: rgba(240,240,240,0.2);
-      pointer-events: none;
-      transition: opacity 1s;
-    }
-
-    @media (max-width: 768px) {
-      #dToggle { bottom: calc(1.5rem + env(safe-area-inset-bottom)); }
-      .darrow  { display: none; }
+    @media (max-width: 600px) {
+      .darrow { display: none; }
     }
   </style>
 </head>
@@ -303,43 +312,49 @@
 
   <div id="draw">
     <div id="dGrad"></div>
-    <div id="dArt"><img src="" alt=""></div>
-    <div id="dIn"><img src="" alt=""></div>
-
     <div id="dLoad">
       <div class="spinner"></div>
       <p>Drawing...</p>
     </div>
+    <button id="dExit">✕</button>
 
-    <div id="dChrome">
-      <button id="dExit">✕</button>
+    <div id="dStage">
       <button class="darrow" id="dPrev">‹</button>
       <button class="darrow" id="dNext">›</button>
-      <div id="dToggle">
-        <button id="tArt" class="active">Art</button>
-        <button id="tCard">Card</button>
+
+      <div id="dArt">
+        <div id="dIn"><img src="" alt=""></div>
+        <img src="" alt="">
       </div>
+
       <div id="dMeta">
-        <div class="card-name" id="dName"></div>
-        <div class="card-artist" id="dArtist"></div>
+        <div class="left">
+          <div class="card-name" id="dName"></div>
+          <div class="card-sub"  id="dSub"></div>
+        </div>
+        <div id="dToggle">
+          <button id="tArt"  class="active">Art</button>
+          <button id="tCard">Card</button>
+        </div>
       </div>
+
       <div id="dHint">Swipe or use ← →</div>
     </div>
+  </div>
 
-    <div id="dDetail">
-      <div id="dDetailBg"></div>
-      <div id="dDetailPanel">
-        <div class="dp-name" id="dpName"></div>
-        <div class="dp-meta" id="dpMeta"></div>
-        <div class="dp-actions" id="dpActions"></div>
-        <button class="dp-back" id="dpBack">← Back to Draw</button>
-      </div>
+  <div id="dDetail">
+    <div id="dDetailBg"></div>
+    <div id="dDetailPanel">
+      <div class="dp-name" id="dpName"></div>
+      <div class="dp-meta" id="dpMeta"></div>
+      <div class="dp-actions" id="dpActions"></div>
+      <button class="dp-back" id="dpBack">← Back to Draw</button>
     </div>
   </div>
 
   <script>
   // ── Gradients ──────────────────────────────────────────────────────────────
-  const GRADIENTS = {
+  const GRAD = {
     W: 'linear-gradient(160deg,#2a2318,#3d3420,#1a1610)',
     U: 'linear-gradient(160deg,#0a1628,#0d2240,#061018)',
     B: 'linear-gradient(160deg,#0e0a18,#1a1030,#080610)',
@@ -348,37 +363,28 @@
     M: 'linear-gradient(160deg,#1e1808,#2e2410,#181206)',
     C: 'linear-gradient(160deg,#141420,#1e1e2e,#0e0e18)',
   };
-
-  function gradient(colors) {
-    if (!colors || !colors.length) return GRADIENTS.C;
-    if (colors.length > 1) return GRADIENTS.M;
-    return GRADIENTS[colors[0]] || GRADIENTS.C;
+  function grad(colors) {
+    if (!colors || !colors.length) return GRAD.C;
+    if (colors.length > 1) return GRAD.M;
+    return GRAD[colors[0]] || GRAD.C;
   }
 
   // ── State ──────────────────────────────────────────────────────────────────
-  const BATCH   = 8;
-  const THRESH  = 0.28;
-  let queue     = [];
-  let history   = [];
-  let idx       = -1;
-  let mode      = 'art';
-  let fetching  = false;
-  let open      = false;
-
-  let sx = 0, sy = 0, cx = 0;
-  let dragging = false, dir = null;
+  let queue = [], history = [], idx = -1;
+  let mode = 'art', open = false, fetching = false;
+  let sx = 0, sy = 0, cx = 0, dragging = false, ddir = null;
   let arrowT = null, metaT = null;
 
-  // ── DOM refs ───────────────────────────────────────────────────────────────
-  const draw    = document.getElementById('draw');
-  const grad    = document.getElementById('dGrad');
-  const art     = document.getElementById('dArt');
-  const artImg  = art.querySelector('img');
-  const inc     = document.getElementById('dIn');
-  const incImg  = inc.querySelector('img');
-  const loading = document.getElementById('dLoad');
-  const meta    = document.getElementById('dMeta');
-  const hint    = document.getElementById('dHint');
+  // ── DOM ────────────────────────────────────────────────────────────────────
+  const drawEl   = document.getElementById('draw');
+  const gradEl   = document.getElementById('dGrad');
+  const artEl    = document.getElementById('dArt');
+  const artImg   = artEl.querySelector(':scope > img');
+  const incEl    = document.getElementById('dIn');
+  const incImg   = incEl.querySelector('img');
+  const loadEl   = document.getElementById('dLoad');
+  const metaEl   = document.getElementById('dMeta');
+  const hintEl   = document.getElementById('dHint');
 
   // ── Entry ──────────────────────────────────────────────────────────────────
   document.getElementById('entryBtn').addEventListener('click', enter);
@@ -388,25 +394,21 @@
     open = true;
     queue = []; history = []; idx = -1; mode = 'art';
     syncToggle();
-
-    draw.classList.add('open');
+    drawEl.classList.add('open');
     document.body.style.overflow = 'hidden';
-    loading.classList.remove('hidden');
-    meta.classList.remove('visible');
-
+    loadEl.classList.remove('hidden');
+    metaEl.classList.remove('visible');
     await fetchBatch();
-    loading.classList.add('hidden');
+    loadEl.classList.add('hidden');
     showCard();
     bindEvents();
-
-    // Hide hint after 4s
-    setTimeout(() => { hint.style.opacity = '0'; }, 4000);
+    setTimeout(() => { hintEl.style.opacity = '0'; }, 4000);
   }
 
   function exit() {
     if (!open) return;
     open = false;
-    draw.classList.remove('open');
+    drawEl.classList.remove('open');
     document.body.style.overflow = '';
     unbindEvents();
     closeDetail();
@@ -425,16 +427,20 @@
   }
 
   function render(card) {
-    const url = imgUrl(card);
-    grad.style.background = gradient(card.colors);
-    artImg.src = url;
-    // Update meta
-    document.getElementById('dName').textContent   = card.name || '';
-    document.getElementById('dArtist').textContent = card.artist ? `by ${card.artist}` : '';
-    meta.classList.add('visible');
-    // Hide meta after 3s
+    gradEl.style.background = grad(card.colors);
+    artImg.src = imgUrl(card);
+    updateMeta(card);
+  }
+
+  function updateMeta(card) {
+    document.getElementById('dName').textContent = card.name || '';
+    document.getElementById('dSub').textContent  = [
+      card.artist ? `by ${card.artist}` : '',
+      card.set_name || ''
+    ].filter(Boolean).join(' · ');
+    metaEl.classList.add('visible');
     clearTimeout(metaT);
-    metaT = setTimeout(() => meta.classList.remove('visible'), 3000);
+    metaT = setTimeout(() => metaEl.classList.remove('visible'), 3500);
   }
 
   function imgUrl(card) {
@@ -444,15 +450,10 @@
 
   // ── Navigation ─────────────────────────────────────────────────────────────
   function next() {
-    if (idx < history.length - 1) {
-      idx++;
-      transition(history[idx], 'next');
-      return;
-    }
+    if (idx < history.length - 1) { idx++; transition(history[idx], 'next'); return; }
     if (!queue.length) return;
     const card = queue.shift();
-    history.push(card);
-    idx = history.length - 1;
+    history.push(card); idx = history.length - 1;
     transition(card, 'next');
     prefetchCheck();
   }
@@ -463,39 +464,35 @@
     transition(history[idx], 'prev');
   }
 
+  // ── Transition ─────────────────────────────────────────────────────────────
   function transition(card, dir) {
     const url   = imgUrl(card);
     const fromX = dir === 'next' ? '100%' : '-100%';
     const toX   = dir === 'next' ? '-100%' : '100%';
 
-    incImg.src            = url;
-    inc.style.transition  = 'none';
-    inc.style.transform   = `translateX(${fromX})`;
-    inc.style.opacity     = '1';
-    grad.style.background = gradient(card.colors);
+    incImg.src             = url;
+    incEl.style.transition = 'none';
+    incEl.style.transform  = `translateX(${fromX})`;
+    incEl.style.opacity    = '1';
+    gradEl.style.background = grad(card.colors);
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      art.style.transition = 'transform 280ms ease-in-out, opacity 280ms ease-in-out';
-      inc.style.transition = 'transform 280ms ease-in-out';
-      art.style.transform  = `translateX(${toX})`;
-      art.style.opacity    = '0';
-      inc.style.transform  = 'translateX(0)';
+      artEl.style.transition = 'transform 280ms ease-in-out, opacity 280ms ease-in-out';
+      incEl.style.transition = 'transform 280ms ease-in-out';
+      artEl.style.transform  = `translateX(${toX})`;
+      artEl.style.opacity    = '0';
+      incEl.style.transform  = 'translateX(0)';
     }));
 
     setTimeout(() => {
-      artImg.src           = url;
-      art.style.transition = 'none';
-      art.style.transform  = '';
-      art.style.opacity    = '1';
-      inc.style.transition = 'none';
-      inc.style.transform  = `translateX(${fromX})`;
-      inc.style.opacity    = '0';
-      // Update meta
-      document.getElementById('dName').textContent   = card.name || '';
-      document.getElementById('dArtist').textContent = card.artist ? `by ${card.artist}` : '';
-      meta.classList.add('visible');
-      clearTimeout(metaT);
-      metaT = setTimeout(() => meta.classList.remove('visible'), 3000);
+      artImg.src             = url;
+      artEl.style.transition = 'none';
+      artEl.style.transform  = '';
+      artEl.style.opacity    = '1';
+      incEl.style.transition = 'none';
+      incEl.style.transform  = `translateX(${fromX})`;
+      incEl.style.opacity    = '0';
+      updateMeta(card);
     }, 300);
   }
 
@@ -504,45 +501,40 @@
     document.getElementById('tArt').classList.toggle('active',  mode === 'art');
     document.getElementById('tCard').classList.toggle('active', mode === 'card');
   }
-
   document.getElementById('tArt').addEventListener('click', () => {
-    mode = 'art'; syncToggle();
-    if (history[idx]) render(history[idx]);
+    mode = 'art'; syncToggle(); if (history[idx]) render(history[idx]);
   });
   document.getElementById('tCard').addEventListener('click', () => {
-    mode = 'card'; syncToggle();
-    if (history[idx]) render(history[idx]);
+    mode = 'card'; syncToggle(); if (history[idx]) render(history[idx]);
   });
 
   // ── Drag ───────────────────────────────────────────────────────────────────
-  function dragStart(x, y) { sx = x; sy = y; cx = x; dragging = true; dir = null; }
+  function dragStart(x, y) { sx = x; sy = y; cx = x; dragging = true; ddir = null; }
 
   function dragMove(x, y) {
     if (!dragging) return;
     cx = x;
     const dx = x - sx, dy = y - sy;
-    if (!dir) {
+    if (!ddir) {
       if (Math.abs(dx) > 8 || Math.abs(dy) > 8)
-        dir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
+        ddir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
       return;
     }
-    if (dir === 'v') return;
+    if (ddir === 'v') return;
 
-    const tilt = (dx / window.innerWidth) * 4;
-    art.style.transition = 'none';
-    art.style.transform  = `translateX(${dx}px) rotate(${tilt}deg)`;
+    artEl.style.transition = 'none';
+    artEl.style.transform  = `translateX(${dx}px) rotate(${(dx / window.innerWidth) * 4}deg)`;
 
-    // Peek
     const peek = dx < 0
       ? (idx < history.length - 1 ? history[idx + 1] : queue[0])
       : (idx > 0 ? history[idx - 1] : null);
     if (peek) {
       const pu = imgUrl(peek);
       if (incImg.src !== pu) incImg.src = pu;
-      const prog = Math.min(Math.abs(dx) / (window.innerWidth * THRESH), 1);
-      inc.style.transition = 'none';
-      inc.style.transform  = `translateX(calc(${dx < 0 ? '100%' : '-100%'} + ${dx < 0 ? -1 : 1} * ${Math.abs(dx) * 0.25}px))`;
-      inc.style.opacity    = String(prog * 0.7);
+      const prog = Math.min(Math.abs(dx) / (window.innerWidth * 0.28), 1);
+      incEl.style.transition = 'none';
+      incEl.style.transform  = `translateX(calc(${dx < 0 ? '100%' : '-100%'} + ${dx < 0 ? -1 : 1} * ${Math.abs(dx) * 0.25}px))`;
+      incEl.style.opacity    = String(prog * 0.7);
     }
   }
 
@@ -550,29 +542,22 @@
     if (!dragging) return;
     dragging = false;
     const dx = x - sx, dy = y - sy;
-
-    if (dir === 'v' && dy > 80) { reset(); exit(); return; }
-    if (dir !== 'h') { snapBack(); return; }
-    if (Math.abs(dx) >= window.innerWidth * THRESH) {
-      reset();
-      if (dx < 0) next(); else prev();
+    if (ddir === 'v' && dy > 80) { resetArt(); exit(); return; }
+    if (ddir !== 'h') { snapBack(); return; }
+    if (Math.abs(dx) >= window.innerWidth * 0.28) {
+      resetArt(); if (dx < 0) next(); else prev();
     } else { snapBack(); }
   }
 
-  function reset() {
-    art.style.transition = 'none';
-    art.style.transform  = '';
-    art.style.opacity    = '1';
-    inc.style.opacity    = '0';
+  function resetArt() {
+    artEl.style.transition = 'none'; artEl.style.transform = ''; artEl.style.opacity = '1';
+    incEl.style.opacity = '0';
   }
-
   function snapBack() {
-    art.style.transition = 'transform 220ms cubic-bezier(0.34,1.56,0.64,1), opacity 220ms ease';
-    art.style.transform  = '';
-    art.style.opacity    = '1';
-    inc.style.transition = 'opacity 220ms ease';
-    inc.style.opacity    = '0';
-    setTimeout(() => { art.style.transition = ''; inc.style.transition = ''; }, 220);
+    artEl.style.transition = 'transform 220ms cubic-bezier(0.34,1.56,0.64,1), opacity 220ms ease';
+    artEl.style.transform = ''; artEl.style.opacity = '1';
+    incEl.style.transition = 'opacity 220ms ease'; incEl.style.opacity = '0';
+    setTimeout(() => { artEl.style.transition = ''; incEl.style.transition = ''; }, 220);
   }
 
   // ── Arrows ─────────────────────────────────────────────────────────────────
@@ -586,81 +571,64 @@
     }, 2000);
   }
 
-  // ── Detail panel ───────────────────────────────────────────────────────────
+  // ── Detail ─────────────────────────────────────────────────────────────────
   function openDetail() {
     if (Math.abs(cx - sx) > 8) return;
-    const card = history[idx];
-    if (!card) return;
+    const card = history[idx]; if (!card) return;
     document.getElementById('dpName').textContent = card.name || '';
     document.getElementById('dpMeta').textContent = [
       card.artist ? `Illustrated by ${card.artist}` : '',
       card.set_name || '',
       card.released_at ? card.released_at.slice(0,4) : ''
     ].filter(Boolean).join(' · ');
-
-    const actions = document.getElementById('dpActions');
-    actions.innerHTML = '';
+    const acts = document.getElementById('dpActions');
+    acts.innerHTML = '';
     if (card.artist) {
-      const b = document.createElement('button');
-      b.className = 'dp-btn';
+      const b = document.createElement('button'); b.className = 'dp-btn';
       b.textContent = 'Browse by artist';
-      b.onclick = () => { closeDetail(); exit(); alert(`Filter by artist: ${card.artist}`); };
-      actions.appendChild(b);
+      b.onclick = () => { closeDetail(); exit(); };
+      acts.appendChild(b);
     }
     if (card.set_name) {
-      const b = document.createElement('button');
-      b.className = 'dp-btn';
+      const b = document.createElement('button'); b.className = 'dp-btn';
       b.textContent = 'Browse by set';
-      b.onclick = () => { closeDetail(); exit(); alert(`Filter by set: ${card.set_name}`); };
-      actions.appendChild(b);
+      b.onclick = () => { closeDetail(); exit(); };
+      acts.appendChild(b);
     }
-
     document.getElementById('dDetail').classList.add('open');
   }
-
-  function closeDetail() {
-    document.getElementById('dDetail').classList.remove('open');
-  }
-
+  function closeDetail() { document.getElementById('dDetail').classList.remove('open'); }
   document.getElementById('dpBack').addEventListener('click', closeDetail);
   document.getElementById('dDetailBg').addEventListener('click', closeDetail);
 
   // ── Parallax ───────────────────────────────────────────────────────────────
-  let pActive = false, pRAF = null;
-  let tX = 0, tY = 0, pX = 0, pY = 0;
-
+  let pActive = false, pRAF = null, tX = 0, tY = 0, pX = 0, pY = 0;
   function startParallax() {
-    pActive = true;
-    window.addEventListener('mousemove', onPMouse);
-    pLoop();
+    pActive = true; window.addEventListener('mousemove', onPM); pLoop();
   }
   function stopParallax() {
-    pActive = false;
-    window.removeEventListener('mousemove', onPMouse);
+    pActive = false; window.removeEventListener('mousemove', onPM);
     cancelAnimationFrame(pRAF);
-    art.style.transform  = '';
-    grad.style.transform = '';
+    artEl.style.transform = ''; gradEl.style.transform = '';
   }
-  function onPMouse(e) {
+  function onPM(e) {
     tX = (e.clientX - window.innerWidth  / 2) / (window.innerWidth  / 2);
     tY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
   }
   function pLoop() {
     if (!pActive) return;
-    pX += (tX - pX) * 0.06;
-    pY += (tY - pY) * 0.06;
+    pX += (tX - pX) * 0.06; pY += (tY - pY) * 0.06;
     if (!dragging) {
-      art.style.transform  = `translate(${pX * 5}px, ${pY * 5}px)`;
-      grad.style.transform = `translate(${-pX * 2}px, ${-pY * 2}px)`;
+      artEl.style.transform  = `translate(${pX * 4}px,${pY * 4}px)`;
+      gradEl.style.transform = `translate(${-pX * 2}px,${-pY * 2}px)`;
     }
     pRAF = requestAnimationFrame(pLoop);
   }
 
   // ── API ────────────────────────────────────────────────────────────────────
   async function fetchBatch() {
-    if (fetching) return;
-    fetching = true;
-    const calls = Array.from({ length: BATCH }, () =>
+    if (fetching) return; fetching = true;
+    const calls = Array.from({ length: 8 }, () =>
       fetch('https://api.scryfall.com/cards/random?q=has:illustration')
         .then(r => r.json()).catch(() => null)
     );
@@ -668,40 +636,35 @@
     queue.push(...res.filter(Boolean));
     fetching = false;
   }
-
-  function prefetchCheck() {
-    if (queue.length <= 2 && !fetching) fetchBatch();
-  }
+  function prefetchCheck() { if (queue.length <= 2 && !fetching) fetchBatch(); }
 
   // ── Events ─────────────────────────────────────────────────────────────────
   function bindEvents() {
-    draw.addEventListener('touchstart',  onTS, { passive: true });
-    draw.addEventListener('touchmove',   onTM, { passive: true });
-    draw.addEventListener('touchend',    onTE);
-    draw.addEventListener('mousedown',   onMD);
-    draw.addEventListener('mousemove',   showArrows);
-    draw.addEventListener('wheel',       onW, { passive: true });
-    window.addEventListener('mousemove', onWM);
-    window.addEventListener('mouseup',   onWU);
-    window.addEventListener('keydown',   onK);
+    drawEl.addEventListener('touchstart',  onTS, { passive: true });
+    drawEl.addEventListener('touchmove',   onTM, { passive: true });
+    drawEl.addEventListener('touchend',    onTE);
+    drawEl.addEventListener('mousedown',   onMD);
+    drawEl.addEventListener('mousemove',   showArrows);
+    drawEl.addEventListener('wheel',       onW, { passive: true });
+    window.addEventListener('mousemove',   onWM);
+    window.addEventListener('mouseup',     onWU);
+    window.addEventListener('keydown',     onK);
     document.getElementById('dExit').addEventListener('click', exit);
     document.getElementById('dPrev').addEventListener('click', prev);
     document.getElementById('dNext').addEventListener('click', next);
-    art.addEventListener('click', openDetail);
+    artEl.addEventListener('click', openDetail);
   }
-
   function unbindEvents() {
-    draw.removeEventListener('touchstart',  onTS);
-    draw.removeEventListener('touchmove',   onTM);
-    draw.removeEventListener('touchend',    onTE);
-    draw.removeEventListener('mousedown',   onMD);
-    draw.removeEventListener('mousemove',   showArrows);
-    draw.removeEventListener('wheel',       onW);
-    window.removeEventListener('mousemove', onWM);
-    window.removeEventListener('mouseup',   onWU);
-    window.removeEventListener('keydown',   onK);
+    drawEl.removeEventListener('touchstart',  onTS);
+    drawEl.removeEventListener('touchmove',   onTM);
+    drawEl.removeEventListener('touchend',    onTE);
+    drawEl.removeEventListener('mousedown',   onMD);
+    drawEl.removeEventListener('mousemove',   showArrows);
+    drawEl.removeEventListener('wheel',       onW);
+    window.removeEventListener('mousemove',   onWM);
+    window.removeEventListener('mouseup',     onWU);
+    window.removeEventListener('keydown',     onK);
   }
-
   function onTS(e) { dragStart(e.touches[0].clientX, e.touches[0].clientY); }
   function onTM(e) { dragMove(e.touches[0].clientX, e.touches[0].clientY); }
   function onTE(e) { dragEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY); }

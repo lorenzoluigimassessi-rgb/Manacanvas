@@ -39,9 +39,10 @@ function openLightbox(card, mode = 'feed') {
 
   const blurBgHtml = `<div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>`;
 
-  // Desktop arrows — feed mode only
+  // Desktop arrows
+  const surprisePrevHidden = noSurpriseHistory ? 'hidden' : '';
   const arrowsHtml = `
-    <button class="lb-nav-arrow" id="lbPrev">‹</button>
+    <button class="lb-nav-arrow ${surprisePrevHidden}" id="lbPrev">‹</button>
     <button class="lb-nav-arrow" id="lbNext">›</button>
   `;
 
@@ -206,6 +207,13 @@ function openLightbox(card, mode = 'feed') {
             ? gP.classList.remove('hidden')
             : gP.classList.add('hidden');
           gN.classList.remove('hidden');
+          // Also update desktop prev arrow
+          const dP = document.getElementById('lbPrev');
+          if (dP) {
+            window._surpriseHistory && window._surpriseHistory.length > 0
+              ? dP.classList.remove('hidden')
+              : dP.classList.add('hidden');
+          }
         } else {
           const idx = filteredCards.findIndex(c => c.id === nextCard.id);
           idx <= 0 ? gP.classList.add('hidden') : gP.classList.remove('hidden');
@@ -233,6 +241,7 @@ function openLightbox(card, mode = 'feed') {
       if (currentIndex <= 0) lbPrev.classList.add('hidden');
       if (currentIndex === -1 || currentIndex >= filteredCards.length - 1) lbNext.classList.add('hidden');
     }
+    // In transitionTo, desktop prev is revealed once history exists
     lbPrev.addEventListener('click', goPrev);
     lbNext.addEventListener('click', goNext);
   }

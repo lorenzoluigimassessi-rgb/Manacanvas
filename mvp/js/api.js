@@ -7,7 +7,7 @@ let sortOrder = "random"; // default: Shuffle
 let sortDir = "auto";
 
 const SORT_OPTIONS = [
-  { label: "Shuffle",      order: "random",   dir: "auto" },
+  { label: "Random",      order: "random",   dir: "auto" },
   { label: "Newest First", order: "released", dir: "desc" },
   { label: "Oldest First", order: "released", dir: "asc"  },
   { label: "A → Z",        order: "name",     dir: "asc"  },

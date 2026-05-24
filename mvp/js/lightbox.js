@@ -35,6 +35,8 @@ function openLightbox(card, mode = 'feed') {
   const hidePrev   = noHistory || (!isSurprise && feedIdx === 0);
   const hideNext   = !isSurprise && feedIdx !== -1 && feedIdx >= filteredCards.length - 1;
 
+  const DICE_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg>`;
+
   // Swipe hint — mobile only, once per session per mode
   const hintKey = isSurprise ? 'lb_swipe_hint_shown' : 'lb_feed_hint_shown';
   const showSwipeHint = !sessionStorage.getItem(hintKey);
@@ -56,15 +58,16 @@ function openLightbox(card, mode = 'feed') {
       <button class="lb-nav-arrow ${hideNext ? 'hidden' : ''}" id="lbNext">›</button>
 
       <!-- Art -->
-      <div class="art-container" id="artContainer">
+      <div class="art-container" id="artContainer" style="overflow:hidden;">
         <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
         <!-- Desktop ghost arrows (fade in/out) -->
         <div class="lb-ghost-arrows" id="lbGhostArrows">
           <button class="lb-ghost-arrow lb-ghost-prev ${hidePrev ? 'hidden' : ''}" id="lbGhostPrev">‹</button>
           <button class="lb-ghost-arrow lb-ghost-next ${hideNext ? 'hidden' : ''}" id="lbGhostNext">›</button>
         </div>
-        <!-- Swipe hint pill — centered on art, mobile only -->
-        ${showSwipeHint ? `<div class="lb-swipe-hint-pill" id="lbSwipeHint">${swipeHintCopy}</div>` : ''}
+      </div>
+      <!-- Swipe hint pill — outside art-container so overflow:hidden doesn't clip it -->
+      ${showSwipeHint ? `<div class="lb-swipe-hint-pill" id="lbSwipeHint">${swipeHintCopy}</div>` : ''}
       </div>
 
       <!-- Toggle -->
@@ -86,20 +89,23 @@ function openLightbox(card, mode = 'feed') {
       </div>
 
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
+      ${isSurprise ? `<button class="lb-surprise-next-btn" id="lbSurpriseNextBtn">${DICE_SVG} Surprise Me Again</button>` : ''}
     </div>
   `;
 
-  // Mobile bottom nav — outside lightbox so position:fixed works
+  // Mobile bottom nav — feed mode only (surprise uses the button below)
   let mobileNav = document.getElementById('lbMobileNav');
   if (mobileNav) mobileNav.remove();
-  mobileNav = document.createElement('div');
-  mobileNav.id = 'lbMobileNav';
-  mobileNav.className = 'lb-mobile-nav';
-  mobileNav.innerHTML = `
-    <button class="lb-mobile-nav-arrow ${hidePrev ? 'invisible' : ''}" id="lbMobileNavPrev">‹</button>
-    <button class="lb-mobile-nav-arrow ${hideNext ? 'invisible' : ''}" id="lbMobileNavNext">›</button>
-  `;
-  document.body.appendChild(mobileNav);
+  if (!isSurprise) {
+    mobileNav = document.createElement('div');
+    mobileNav.id = 'lbMobileNav';
+    mobileNav.className = 'lb-mobile-nav';
+    mobileNav.innerHTML = `
+      <button class="lb-mobile-nav-arrow ${hidePrev ? 'invisible' : ''}" id="lbMobileNavPrev">‹</button>
+      <button class="lb-mobile-nav-arrow ${hideNext ? 'invisible' : ''}" id="lbMobileNavNext">›</button>
+    `;
+    document.body.appendChild(mobileNav);
+  }
 
   document.body.style.overflow = 'hidden';
   setTimeout(() => { const h = document.getElementById('zoomHint'); if (h) h.style.opacity = '0'; }, 3000);
@@ -215,8 +221,9 @@ function openLightbox(card, mode = 'feed') {
   document.getElementById('lbNext').addEventListener('click', goNext);
   document.getElementById('lbGhostPrev')?.addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });
   document.getElementById('lbGhostNext')?.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
-  document.getElementById('lbMobileNavPrev').addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });
-  document.getElementById('lbMobileNavNext').addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
+  document.getElementById('lbMobileNavPrev')?.addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });
+  document.getElementById('lbMobileNavNext')?.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
+  document.getElementById('lbSurpriseNextBtn')?.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
 
   // ── Pre-warm surprise queue ────────────────────────────────────────────────
   if (isSurprise) {

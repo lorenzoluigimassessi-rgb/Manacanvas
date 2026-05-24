@@ -2,7 +2,6 @@ const API_BASE = "https://api.scryfall.com";
 let currentSearch = null;
 let nextPageUrl = null;
 let isLoading = false;
-let _fetchController = null; // abort controller for grid fetches
 
 let sortOrder = "random";
 let sortDir = "auto";
@@ -16,13 +15,6 @@ const SORT_OPTIONS = [
 ];
 
 async function fetchCards(query = "t:creature", page = 1) {
-  // Cancel any in-flight grid fetch (small delay to avoid aborting legitimate first loads)
-  if (_fetchController) {
-    _fetchController.abort();
-  }
-  _fetchController = new AbortController();
-  const signal = _fetchController.signal;
-
   isLoading = true;
   const isRandom = sortOrder === "random";
   const randomPage = isRandom ? Math.floor(Math.random() * 100) + 1 : page;
@@ -30,15 +22,11 @@ async function fetchCards(query = "t:creature", page = 1) {
   const dir   = isRandom ? "asc"      : sortDir;
   const url   = (!isRandom && nextPageUrl) ||
     `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=${randomPage}`;
-
   try {
-    const res = await fetch(url, { signal });
+    const res = await fetch(url);
     if (!res.ok) {
       if (isRandom) {
-        const fallback = await fetch(
-          `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=1`,
-          { signal }
-        );
+        const fallback = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=1`);
         if (!fallback.ok) { isLoading = false; return { data: [], hasMore: false }; }
         const fjson = await fallback.json();
         if (fjson.object === 'error') { isLoading = false; return { data: [], hasMore: false }; }
@@ -55,7 +43,6 @@ async function fetchCards(query = "t:creature", page = 1) {
     isLoading = false;
     return { data: isRandom ? shuffleArray(json.data || []) : (json.data || []), hasMore: json.has_more || false };
   } catch (e) {
-    if (e.name === 'AbortError') { isLoading = false; return { data: [], hasMore: false }; }
     isLoading = false;
     return { data: [], hasMore: false };
   }
@@ -91,7 +78,7 @@ async function fetchCreatureTypes() { return fetchCatalog('creature-types', 'mc_
 async function fetchCardTypes()     { return fetchCatalog('card-types',     'mc_card_types');     }
 async function fetchArtistNames()   { return fetchCatalog('artist-names',   'mc_artist_names');   }
 
-// Random card — with timeout so it never hangs the UI
+// Random card — with 6s timeout so it never hangs the UI
 async function fetchRandomCard() {
   const query = buildQuery(
     activeArtist, activeType, activeCardType, activeColour,
@@ -99,7 +86,7 @@ async function fetchRandomCard() {
     activeYearMin, activeYearMax, activeSearch
   );
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 6000); // 6s max
+  const timeout = setTimeout(() => controller.abort(), 6000);
   try {
     const res = await fetch(`${API_BASE}/cards/random?q=${encodeURIComponent(query)}`, { signal: controller.signal });
     clearTimeout(timeout);
@@ -108,8 +95,7 @@ async function fetchRandomCard() {
       if (card.object === 'error') throw new Error('no results');
       return card;
     }
-    // Fallback to any illustrated card
-    const fallback = await fetch(`${API_BASE}/cards/random?q=has:illustration`, { signal: controller.signal });
+    const fallback = await fetch(`${API_BASE}/cards/random?q=has:illustration`);
     clearTimeout(timeout);
     return fallback.ok ? await fallback.json() : null;
   } catch (e) {

@@ -4,6 +4,7 @@ let currentMode = "art";
 let scale = 1, translateX = 0, translateY = 0;
 let isDragging = false, dragStartX = 0, dragStartY = 0, lastTx = 0, lastTy = 0;
 let _lbMode = 'feed';
+let _transitioning = false; // lock navigation during crossfade
 window._surpriseHistory = window._surpriseHistory || [];
 
 function getManaGradient(colors) {
@@ -34,6 +35,9 @@ function openLightbox(card, mode = 'feed') {
   const feedIdx    = !isSurprise ? filteredCards.findIndex(c => c.id === card.id) : -1;
   const hidePrev   = noHistory || (!isSurprise && feedIdx === 0);
   const hideNext   = !isSurprise && feedIdx !== -1 && feedIdx >= filteredCards.length - 1;
+  // disabled = at edge but still visible; hidden = surprise prev with no history
+  const disabledPrev = !isSurprise && feedIdx === 0;
+  const disabledNext = !isSurprise && feedIdx !== -1 && feedIdx >= filteredCards.length - 1;
 
   const IMG_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
 
@@ -61,8 +65,8 @@ function openLightbox(card, mode = 'feed') {
         <!-- Desktop ghost arrows — feed only -->
         ${!isSurprise ? `
         <div class="lb-ghost-arrows" id="lbGhostArrows">
-          <button class="lb-ghost-arrow lb-ghost-prev ${hidePrev ? 'hidden' : ''}" id="lbGhostPrev">‹</button>
-          <button class="lb-ghost-arrow lb-ghost-next ${hideNext ? 'hidden' : ''}" id="lbGhostNext">›</button>
+          <button class="lb-ghost-arrow lb-ghost-prev ${noHistory ? 'hidden' : disabledPrev ? 'lb-arrow-disabled' : ''}" id="lbGhostPrev">‹</button>
+          <button class="lb-ghost-arrow lb-ghost-next ${disabledNext ? 'lb-arrow-disabled' : ''}" id="lbGhostNext">›</button>
         </div>` : ''}
       </div>
       <!-- Swipe hint pill — outside art-container so overflow:hidden doesn't clip it -->
@@ -101,8 +105,8 @@ function openLightbox(card, mode = 'feed') {
     mobileNav.id = 'lbMobileNav';
     mobileNav.className = 'lb-mobile-nav';
     mobileNav.innerHTML = `
-      <button class="lb-mobile-nav-arrow ${hidePrev ? 'invisible' : ''}" id="lbMobileNavPrev">‹</button>
-      <button class="lb-mobile-nav-arrow ${hideNext ? 'invisible' : ''}" id="lbMobileNavNext">›</button>
+      <button class="lb-mobile-nav-arrow ${noHistory ? 'invisible' : disabledPrev ? 'lb-arrow-disabled' : ''}" id="lbMobileNavPrev">‹</button>
+      <button class="lb-mobile-nav-arrow ${disabledNext ? 'lb-arrow-disabled' : ''}" id="lbMobileNavNext">›</button>
     `;
     document.body.appendChild(mobileNav);
   } else {
@@ -131,12 +135,12 @@ function openLightbox(card, mode = 'feed') {
   if (!isSurprise) {
     const prev = document.createElement('button');
     prev.id = 'lbPrev';
-    prev.className = `lb-nav-arrow${hidePrev ? ' hidden' : ''}`;
+    prev.className = `lb-nav-arrow${noHistory ? ' hidden' : disabledPrev ? ' lb-arrow-disabled' : ''}`;
     prev.textContent = '‹';
     document.body.appendChild(prev);
     const next = document.createElement('button');
     next.id = 'lbNext';
-    next.className = `lb-nav-arrow${hideNext ? ' hidden' : ''}`;
+    next.className = `lb-nav-arrow${disabledNext ? ' lb-arrow-disabled' : ''}`;
     next.textContent = '›';
     document.body.appendChild(next);
   }
@@ -160,6 +164,7 @@ function openLightbox(card, mode = 'feed') {
 
   // ── Navigation ─────────────────────────────────────────────────────────────
   function goNext() {
+    if (_transitioning) return;
     if (_lbMode === 'surprise') {
       if (!window._surpriseQueue) window._surpriseQueue = [];
       const next = window._surpriseQueue.shift();
@@ -181,6 +186,7 @@ function openLightbox(card, mode = 'feed') {
   }
 
   function goPrev() {
+    if (_transitioning) return;
     if (_lbMode === 'surprise') {
       const prev = window._surpriseHistory.pop();
       if (prev) {
@@ -201,6 +207,7 @@ function openLightbox(card, mode = 'feed') {
     const img = document.getElementById('lbImage');
     const bg  = document.getElementById('lbBlurBg');
     if (!img || !bg) { openLightbox(nextCard, nextMode); return; }
+    _transitioning = true;
 
     const nArtCrop = nextCard.image_uris?.art_crop || nextCard.card_faces?.[0]?.image_uris?.art_crop;
     const nNormal  = nextCard.image_uris?.normal   || nextCard.card_faces?.[0]?.image_uris?.normal;
@@ -230,24 +237,26 @@ function openLightbox(card, mode = 'feed') {
 
       img.style.transition = bg.style.transition = 'opacity 220ms ease';
       img.style.opacity = bg.style.opacity = '1';
+      _transitioning = false;
 
       // Sync all arrow visibility
       const hasHistory = window._surpriseHistory.length > 0;
       const nFeedIdx   = nextMode !== 'surprise' ? filteredCards.findIndex(c => c.id === nextCard.id) : -1;
-      const nHidePrev  = (nextMode === 'surprise' && !hasHistory) || (nextMode !== 'surprise' && nFeedIdx === 0);
-      const nHideNext  = nextMode !== 'surprise' && nFeedIdx !== -1 && nFeedIdx >= filteredCards.length - 1;
+      const nHidePrev  = nextMode === 'surprise' && !hasHistory;
+      const nDisPrev   = nextMode !== 'surprise' && nFeedIdx === 0;
+      const nDisNext   = nextMode !== 'surprise' && nFeedIdx !== -1 && nFeedIdx >= filteredCards.length - 1;
 
       ['lbPrev','lbGhostPrev','lbMobileNavPrev'].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        if (id === 'lbMobileNavPrev') el.classList.toggle('invisible', nHidePrev);
-        else el.classList.toggle('hidden', nHidePrev);
+        el.classList.toggle('hidden', nHidePrev);
+        el.classList.toggle('invisible', id === 'lbMobileNavPrev' && nHidePrev);
+        el.classList.toggle('lb-arrow-disabled', nDisPrev);
       });
       ['lbNext','lbGhostNext','lbMobileNavNext'].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        if (id === 'lbMobileNavNext') el.classList.toggle('invisible', nHideNext);
-        else el.classList.toggle('hidden', nHideNext);
+        el.classList.toggle('lb-arrow-disabled', nDisNext);
       });
 
       showGhostArrows();

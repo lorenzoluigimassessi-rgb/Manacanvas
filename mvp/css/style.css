@@ -1219,6 +1219,7 @@ body {
 #lbPrev { left: 1.5rem; }
 #lbNext { right: 1.5rem; }
 .lb-nav-arrow.hidden { display: none; }
+.lb-arrow-disabled { opacity: 0.3 !important; pointer-events: none !important; }
 
 /* Ghost arrows — desktop only, inside art — now removed, using outside arrows only */
 .lb-ghost-arrows { display: none !important; }

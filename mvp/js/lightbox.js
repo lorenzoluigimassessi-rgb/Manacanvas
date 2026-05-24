@@ -16,12 +16,13 @@ function getManaGradient(colors) {
 
 function openLightbox(card, mode = 'feed') {
   currentCard = card;
-  currentMode = 'art';
+  currentMode = 'frame';
   _lbMode = mode;
   scale = 1; translateX = 0; translateY = 0;
 
   const artCrop = card.image_uris?.art_crop  || card.card_faces?.[0]?.image_uris?.art_crop;
   const normal  = card.image_uris?.normal    || card.card_faces?.[0]?.image_uris?.normal;
+  const initialSrc = normal || artCrop;
   const hasArtCrop = !!artCrop;
   const setName = card.set_name || '';
   const year    = card.released_at ? card.released_at.slice(0, 4) : '';
@@ -61,7 +62,7 @@ function openLightbox(card, mode = 'feed') {
 
       <!-- Art -->
       <div class="art-container" id="artContainer" style="overflow:hidden;">
-        <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
+        <img id="lbImage" src="${initialSrc}" alt="${card.name}" class="frame-mode">
         <!-- Desktop ghost arrows — feed only -->
         ${!isSurprise ? `
         <div class="lb-ghost-arrows" id="lbGhostArrows">
@@ -75,8 +76,8 @@ function openLightbox(card, mode = 'feed') {
       <!-- Toggle -->
       <div class="lightbox-actions">
         <div class="toggle">
-          <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
-          <button id="toggleFrame">With Frame</button>
+          <button id="toggleArt" ${disabledAttr} ${disabledTitle}>Art Only</button>
+          <button id="toggleFrame" class="active">With Frame</button>
         </div>
       </div>
 
@@ -343,18 +344,21 @@ function openLightbox(card, mode = 'feed') {
     else goPrev();
   });
 
-  // ── Frame toggle ───────────────────────────────────────────────────────────
+  // ── Frame toggle ───────────────────────────────────────────────────────────────────────────
   const img = document.getElementById('lbImage');
   document.getElementById('toggleArt').addEventListener('click', () => {
-    if (!hasArtCrop) return;
-    currentMode = 'art'; img.src = artCrop;
+    const ac = currentCard.image_uris?.art_crop || currentCard.card_faces?.[0]?.image_uris?.art_crop;
+    if (!ac) return;
+    currentMode = 'art'; img.src = ac;
     img.classList.remove('frame-mode');
     document.getElementById('toggleArt').classList.add('active');
     document.getElementById('toggleFrame').classList.remove('active');
     resetZoom();
   });
   document.getElementById('toggleFrame').addEventListener('click', () => {
-    currentMode = 'frame'; img.src = normal;
+    const n  = currentCard.image_uris?.normal  || currentCard.card_faces?.[0]?.image_uris?.normal;
+    const ac = currentCard.image_uris?.art_crop || currentCard.card_faces?.[0]?.image_uris?.art_crop;
+    currentMode = 'frame'; img.src = n || ac;
     img.classList.add('frame-mode');
     document.getElementById('toggleFrame').classList.add('active');
     document.getElementById('toggleArt').classList.remove('active');

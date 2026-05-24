@@ -11,7 +11,7 @@
   --overlay-gradient: linear-gradient(transparent, rgba(0,0,0,0.88));
   --radius: 6px;
   --radius-pill: 999px;
-  --nav-h: 48px;
+  --nav-h: 40px;
   --shadow: 0 8px 32px rgba(0,0,0,0.5);
   --transition-fast: 150ms;
   --transition-normal: 200ms;
@@ -607,6 +607,19 @@ body {
   opacity: 0.6;
 }
 
+/* search-bar inside nav-center — strip standalone styles */
+.nav-center .search-bar {
+  height: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+.nav-center .search-bar:focus { border-color: transparent; }
+
+/* search-bar standalone (legacy filter row) */
 .search-bar {
   width: 100%;
   height: 32px;

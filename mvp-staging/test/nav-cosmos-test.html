@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>ManaCanvas — Cosmos Nav Test</title>
+  <title>ManaCanvas — Nav Test</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── DARK THEME (default) ── */
     :root {
       --bg:           #0c0c0f;
       --surface:      #16161c;
@@ -23,26 +22,25 @@
       --gold-dim:     rgba(212,175,55,0.65);
       --gold-border:  rgba(212,175,55,0.3);
       --gold-bg:      rgba(212,175,55,0.08);
-      --radius-pill:  999px;
-      --header-h:     48px;
+      --h:            48px;
+      --r:            999px;
       --shadow:       0 8px 32px rgba(0,0,0,0.5);
     }
 
-    /* ── LIGHT THEME ── */
     [data-theme="light"] {
       --bg:           #f5f4f0;
       --surface:      #ffffff;
-      --surface-2:    #ebebeb;
+      --surface-2:    #e8e8e8;
       --border:       rgba(0,0,0,0.08);
-      --border-hover: rgba(0,0,0,0.18);
+      --border-hover: rgba(0,0,0,0.2);
       --text-1:       rgba(12,12,15,0.9);
-      --text-2:       rgba(12,12,15,0.4);
+      --text-2:       rgba(12,12,15,0.38);
       --text-3:       rgba(12,12,15,0.2);
-      --gold:         #a07c10;
-      --gold-dim:     rgba(160,124,16,0.7);
-      --gold-border:  rgba(160,124,16,0.3);
-      --gold-bg:      rgba(160,124,16,0.06);
-      --shadow:       0 8px 32px rgba(0,0,0,0.12);
+      --gold:         #8a6500;
+      --gold-dim:     rgba(138,101,0,0.7);
+      --gold-border:  rgba(138,101,0,0.3);
+      --gold-bg:      rgba(138,101,0,0.06);
+      --shadow:       0 8px 32px rgba(0,0,0,0.1);
     }
 
     body {
@@ -63,10 +61,9 @@
       justify-content: space-between;
       gap: 1rem;
       padding: 1.25rem 1.5rem;
-      background: transparent;
     }
 
-    /* ── LEFT: logo circle + switcher pill ── */
+    /* ── LEFT ── */
     .nav-left {
       display: flex;
       align-items: center;
@@ -74,9 +71,10 @@
       flex-shrink: 0;
     }
 
+    /* MC circle logo */
     .nav-logo {
-      width: var(--header-h);
-      height: var(--header-h);
+      width: var(--h);
+      height: var(--h);
       border-radius: 50%;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -85,112 +83,41 @@
       justify-content: center;
       cursor: pointer;
       flex-shrink: 0;
-      transition: background 150ms, border-color 150ms;
       text-decoration: none;
+      transition: background 150ms, border-color 150ms;
     }
     .nav-logo:hover { background: var(--surface-2); border-color: var(--border-hover); }
-    .nav-logo-text {
+    .nav-logo span {
       font-family: 'Cinzel', serif;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 600;
       letter-spacing: 1.5px;
       color: var(--text-1);
-      line-height: 1;
     }
 
+    /* Switcher pill: All Art | Browse | Surprise Me | ✦ Discover */
     .nav-switcher {
       display: flex;
       align-items: center;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      height: var(--header-h);
+      border-radius: var(--r);
+      height: var(--h);
       padding: 4px;
-      gap: 2px;
+      gap: 0;
     }
 
-    /* vertical divider inside switcher pill */
-    .nav-switch-sep {
+    /* separator */
+    .sw-sep {
       width: 1px;
-      height: 18px;
+      height: 16px;
       background: var(--border);
       flex-shrink: 0;
-      margin: 0 0.2rem;
+      margin: 0 2px;
     }
 
-    /* discover chip when inside the switcher pill — no extra border, blends in */
-    .nav-switcher .discover-chip {
-      border-color: var(--gold-border);
-      height: calc(var(--header-h) - 8px);
-      padding: 0 0.85rem;
-      font-size: 0.82rem;
-    }
-    .nav-switch-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-2);
-      font-family: 'Josefin Sans', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 500;
-      letter-spacing: 0.3px;
-      padding: 0.35rem 0.9rem;
-      border-radius: var(--radius-pill);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 150ms, color 150ms;
-    }
-    .nav-switch-btn:hover { color: var(--text-1); }
-    .nav-switch-btn.active {
-      background: var(--surface-2);
-      color: var(--text-1);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    }
-
-    /* ── CENTER: search + advanced ── */
-    .nav-center {
-      flex: 1;
-      max-width: 580px;
-      display: flex;
-      align-items: center;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      height: var(--header-h);
-      padding: 4px 4px 4px 1.1rem;
-      gap: 0.5rem;
-      transition: border-color 200ms;
-    }
-    .nav-center:focus-within { border-color: var(--border-hover); }
-
-    .nav-search-icon {
-      color: var(--text-2);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-    }
-
-    .nav-search-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text-1);
-      font-family: 'Josefin Sans', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 400;
-      letter-spacing: 0.2px;
-      min-width: 0;
-    }
-    .nav-search-input::placeholder { color: var(--text-2); }
-
-    .nav-divider {
-      width: 1px;
-      height: 20px;
-      background: var(--border);
-      flex-shrink: 0;
-    }
-
-    .nav-advanced-btn {
+    /* base chip — all switcher items share this */
+    .sw-btn {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
@@ -201,34 +128,131 @@
       font-size: 0.8rem;
       font-weight: 500;
       letter-spacing: 0.3px;
-      padding: 0.35rem 0.85rem;
-      border-radius: var(--radius-pill);
+      padding: 0 0.9rem;
+      height: calc(var(--h) - 8px);
+      border-radius: var(--r);
       cursor: pointer;
       white-space: nowrap;
-      height: calc(var(--header-h) - 8px);
-      transition: background 150ms, color 150ms;
+      transition: background 150ms, color 150ms, border-color 150ms;
       flex-shrink: 0;
     }
-    .nav-advanced-btn:hover { background: var(--surface-2); color: var(--text-1); }
-    .nav-advanced-btn.active { background: var(--surface-2); color: var(--text-1); }
+    .sw-btn:hover { color: var(--text-1); }
+    .sw-btn.active {
+      background: var(--surface-2);
+      color: var(--text-1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
 
-    /* ── RIGHT: theme switcher only ── */
-    .nav-right { flex-shrink: 0; }
+    /* Surprise Me — neutral bordered chip */
+    .sw-surprise {
+      border: 1px solid var(--border);
+    }
+    .sw-surprise:hover { border-color: var(--border-hover); color: var(--text-1); }
+    .sw-surprise.active { background: var(--surface-2); border-color: var(--border-hover); color: var(--text-1); }
 
-    .theme-switcher {
+    /* Discover — gold chip */
+    .sw-discover {
+      border: 1px solid var(--gold-border);
+      color: var(--gold-dim);
+      background: var(--gold-bg);
+      animation: goldPulse 3s ease-in-out infinite;
+    }
+    .sw-discover:hover {
+      background: rgba(212,175,55,0.12);
+      border-color: rgba(212,175,55,0.6);
+      color: var(--gold);
+      box-shadow: 0 0 10px rgba(212,175,55,0.15);
+      animation: none;
+    }
+    .sw-discover.active {
+      background: rgba(212,175,55,0.12);
+      border-color: rgba(212,175,55,0.6);
+      color: var(--gold);
+      animation: none;
+    }
+
+    @keyframes goldPulse {
+      0%,100% { border-color: rgba(212,175,55,0.25); }
+      50%      { border-color: rgba(212,175,55,0.5); box-shadow: 0 0 8px rgba(212,175,55,0.1); }
+    }
+
+    /* ── CENTER: search pill ── */
+    .nav-center {
+      flex: 1;
+      max-width: 560px;
       display: flex;
       align-items: center;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      height: var(--header-h);
+      border-radius: var(--r);
+      height: var(--h);
+      padding: 4px 4px 4px 1rem;
+      gap: 0.4rem;
+      transition: border-color 200ms;
+    }
+    .nav-center:focus-within { border-color: var(--border-hover); }
+
+    .search-icon {
+      color: var(--text-2);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.88rem;
+      min-width: 0;
+    }
+    .search-input::placeholder { color: var(--text-2); }
+
+    .search-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* Advanced — icon only circle button */
+    .btn-advanced {
+      width: calc(var(--h) - 8px);
+      height: calc(var(--h) - 8px);
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 150ms, color 150ms;
+    }
+    .btn-advanced:hover { background: var(--surface-2); color: var(--text-1); }
+    .btn-advanced.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* ── RIGHT: theme switcher ── */
+    .nav-right { flex-shrink: 0; }
+
+    .theme-sw {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      height: var(--h);
       padding: 4px;
       gap: 2px;
     }
 
     .theme-btn {
-      width: calc(var(--header-h) - 8px);
-      height: calc(var(--header-h) - 8px);
+      width: calc(var(--h) - 8px);
+      height: calc(var(--h) - 8px);
       border-radius: 50%;
       background: transparent;
       border: none;
@@ -238,16 +262,11 @@
       justify-content: center;
       cursor: pointer;
       transition: background 150ms, color 150ms;
-      flex-shrink: 0;
     }
     .theme-btn:hover { color: var(--text-1); }
-    .theme-btn.active {
-      background: var(--surface-2);
-      color: var(--text-1);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    }
+    .theme-btn.active { background: var(--surface-2); color: var(--text-1); }
 
-    /* ══ LENS + DISCOVER CHIPS ROW ══ */
+    /* ══ LENS CHIPS ROW ══ */
     .lens-row {
       display: flex;
       align-items: center;
@@ -258,83 +277,31 @@
     }
     .lens-row::-webkit-scrollbar { display: none; }
 
-    /* separator between lens chips and discover */
-    .lens-sep {
-      width: 1px;
-      height: 18px;
-      background: var(--border);
-      flex-shrink: 0;
-      margin: 0 0.2rem;
-    }
-
     .lens-chip {
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
       background: transparent;
       border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
+      border-radius: var(--r);
       color: var(--text-2);
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 500;
       letter-spacing: 0.3px;
-      padding: 0.32rem 0.9rem;
+      padding: 0.3rem 0.85rem;
       cursor: pointer;
       white-space: nowrap;
-      transition: background 150ms, border-color 150ms, color 150ms;
       flex-shrink: 0;
+      transition: background 150ms, border-color 150ms, color 150ms;
     }
     .lens-chip:hover { border-color: var(--border-hover); color: var(--text-1); }
-    .lens-chip.active {
-      background: var(--surface);
-      border-color: var(--border-hover);
-      color: var(--text-1);
-    }
+    .lens-chip.active { background: var(--surface); border-color: var(--border-hover); color: var(--text-1); }
 
-    /* Discover chip — gold accent, lives in lens row */
-    .discover-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      background: var(--gold-bg);
-      border: 1px solid var(--gold-border);
-      border-radius: var(--radius-pill);
-      color: var(--gold-dim);
-      font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.4px;
-      padding: 0.32rem 0.9rem;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: background 150ms, border-color 150ms, color 150ms, box-shadow 150ms;
-      animation: discoverPulse 3s ease-in-out infinite;
-    }
-    .discover-chip:hover {
-      background: rgba(212,175,55,0.12);
-      border-color: rgba(212,175,55,0.6);
-      color: var(--gold);
-      box-shadow: 0 0 12px rgba(212,175,55,0.15);
-      animation: none;
-    }
-    .discover-chip.active {
-      background: rgba(212,175,55,0.12);
-      border-color: rgba(212,175,55,0.65);
-      color: var(--gold);
-      animation: none;
-    }
-
-    @keyframes discoverPulse {
-      0%,100% { border-color: rgba(212,175,55,0.25); box-shadow: none; }
-      50%      { border-color: rgba(212,175,55,0.5);  box-shadow: 0 0 8px rgba(212,175,55,0.1); }
-    }
-
-    /* ══ MOCK CONTENT ══ */
+    /* ══ MOCK GRID ══ */
     .mock-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1rem;
-      padding: 1.5rem 1.5rem;
+      padding: 1.5rem;
     }
     .mock-card {
       background: var(--surface);
@@ -343,12 +310,12 @@
       aspect-ratio: 4/3;
       animation: shimmer 1.8s ease-in-out infinite;
     }
-    @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:0.7} }
+    @keyframes shimmer { 0%,100%{opacity:0.35} 50%{opacity:0.6} }
 
     .state-label {
       text-align: center;
-      padding: 0.6rem;
-      font-size: 0.7rem;
+      padding: 0.5rem;
+      font-size: 0.65rem;
       color: var(--text-3);
       letter-spacing: 1.5px;
       text-transform: uppercase;
@@ -359,11 +326,8 @@
       .header { padding: 0.75rem; gap: 0.5rem; }
       .nav-switcher { display: none; }
       .nav-center { max-width: none; }
-      .nav-advanced-label { display: none; }
-      /* hide desktop discover + theme on mobile */
       .nav-right { display: none; }
 
-      /* one combined floating pill: Gallery · Collections | ✦ Discover */
       .mobile-float {
         display: flex;
         align-items: center;
@@ -374,25 +338,22 @@
         z-index: 60;
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: var(--radius-pill);
+        border-radius: var(--r);
         padding: 4px;
-        gap: 2px;
+        gap: 0;
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         box-shadow: var(--shadow);
         white-space: nowrap;
       }
-      .mobile-float .nav-switch-btn { font-size: 0.82rem; padding: 0.5rem 1rem; }
-      .mobile-float .discover-chip  { font-size: 0.82rem; padding: 0.5rem 1rem; margin: 0 2px; }
-      .mobile-float .lens-sep { margin: 0 0.25rem; }
+      .mobile-float .sw-btn { font-size: 0.8rem; padding: 0 0.9rem; }
+      .mobile-float .sw-sep { margin: 0 2px; }
 
       .mock-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; padding: 1rem 0.75rem 8rem; }
       .lens-row { padding: 0.4rem 0.75rem; }
     }
 
-    @media (min-width: 769px) {
-      .mobile-float { display: none; }
-    }
+    @media (min-width: 769px) { .mobile-float { display: none; } }
 
     /* ══ DEMO BAR ══ */
     .demo-bar {
@@ -400,16 +361,15 @@
       bottom: 0; left: 0; right: 0;
       background: var(--surface);
       border-top: 1px solid var(--border);
-      padding: 0.5rem 1.5rem;
+      padding: 0.4rem 1.5rem;
       display: flex;
       align-items: center;
       gap: 1rem;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       color: var(--text-3);
       z-index: 100;
-      backdrop-filter: blur(8px);
     }
-    .demo-bar b { color: var(--text-2); font-weight: 500; }
+    .demo-bar b { color: var(--text-2); }
     @media (max-width: 768px) { .demo-bar { display: none; } }
   </style>
 </head>
@@ -417,18 +377,24 @@
 
   <header class="header">
 
-    <!-- LEFT: MC logo + Gallery/Collections switcher -->
+    <!-- LEFT: MC + switcher pill -->
     <div class="nav-left">
-      <a class="nav-logo" href="#" onclick="setMode('gallery'); return false;" title="Home">
-        <span class="nav-logo-text">MC</span>
+      <a class="nav-logo" href="#" onclick="setMode('gallery'); return false;">
+        <span>MC</span>
       </a>
       <div class="nav-switcher">
-        <button class="nav-switch-btn active" id="btnGallery" onclick="setMode('gallery')">Gallery</button>
-        <button class="nav-switch-btn" id="btnCollections" onclick="setMode('collections')">Collections</button>
-        <div class="nav-switch-sep"></div>
-        <button class="discover-chip" id="btnDiscover" onclick="setMode('discover')">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        <button class="sw-btn active" id="btnAllArt" onclick="setMode('gallery')">All Art</button>
+        <div class="sw-sep"></div>
+        <button class="sw-btn" id="btnBrowse" onclick="setMode('browse')">Browse</button>
+        <div class="sw-sep"></div>
+        <button class="sw-btn sw-surprise" id="btnSurprise" onclick="setMode('surprise')">Surprise Me</button>
+        <div class="sw-sep"></div>
+        <button class="sw-btn sw-discover" id="btnDiscover" onclick="setMode('discover')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="4"/>
+            <circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/>
           </svg>
           Discover
         </button>
@@ -437,31 +403,30 @@
 
     <!-- CENTER: search + advanced -->
     <div class="nav-center">
-      <span class="nav-search-icon">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <span class="search-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </span>
-      <input class="nav-search-input" type="text" placeholder="Search cards, artists, creatures…">
-      <div class="nav-divider"></div>
-      <button class="nav-advanced-btn" id="btnAdvanced" onclick="setMode('advanced')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <input class="search-input" type="text" placeholder="Search cards, artists, creatures…">
+      <div class="search-sep"></div>
+      <button class="btn-advanced" id="btnAdvanced" onclick="setMode('advanced')" title="Advanced">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
         </svg>
-        <span class="nav-advanced-label">Advanced</span>
       </button>
     </div>
 
-    <!-- RIGHT: theme switcher only -->
+    <!-- RIGHT: theme switcher -->
     <div class="nav-right">
-      <div class="theme-switcher">
+      <div class="theme-sw">
         <button class="theme-btn active" id="btnDark" onclick="setTheme('dark')" title="Dark">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
           </svg>
         </button>
         <button class="theme-btn" id="btnLight" onclick="setTheme('light')" title="Light">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="4"/>
             <line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
             <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
@@ -473,7 +438,7 @@
     </div>
   </header>
 
-  <!-- LENS CHIPS (Gallery only) -->
+  <!-- LENS CHIPS — All Art only -->
   <div class="lens-row" id="lensRow">
     <button class="lens-chip active" onclick="setLens(this)">Newest</button>
     <button class="lens-chip" onclick="setLens(this)">Time Machine</button>
@@ -482,86 +447,75 @@
     <button class="lens-chip" onclick="setLens(this)">Mana Color</button>
   </div>
 
-  <div class="state-label" id="stateLabel">Gallery — Newest</div>
+  <div class="state-label" id="stateLabel">All Art — Newest</div>
   <div class="mock-grid" id="mockGrid"></div>
 
-  <!-- MOBILE FLOATING: switcher + Discover in one centered pill -->
+  <!-- MOBILE FLOATING PILL -->
   <div class="mobile-float">
-    <button class="nav-switch-btn active" id="mBtnGallery" onclick="setMode('gallery')">Gallery</button>
-    <button class="nav-switch-btn" id="mBtnCollections" onclick="setMode('collections')">Collections</button>
-    <div class="lens-sep"></div>
-    <button class="discover-chip" id="mBtnDiscover" onclick="setMode('discover')">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    <button class="sw-btn active" id="mBtnAllArt" onclick="setMode('gallery')">All Art</button>
+    <div class="sw-sep"></div>
+    <button class="sw-btn" id="mBtnBrowse" onclick="setMode('browse')">Browse</button>
+    <div class="sw-sep"></div>
+    <button class="sw-btn sw-surprise" id="mBtnSurprise" onclick="setMode('surprise')">Surprise Me</button>
+    <div class="sw-sep"></div>
+    <button class="sw-btn sw-discover" id="mBtnDiscover" onclick="setMode('discover')">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="4"/>
+        <circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+        <circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/>
       </svg>
       Discover
     </button>
   </div>
 
   <div class="demo-bar">
-    <span>Resize ↔ to test mobile/desktop</span>
+    <span>Resize ↔ mobile/desktop</span>
     <b id="vpWidth"></b>
-    <span>·</span>
-    <span>Mode: <b id="currentMode">gallery</b></span>
-    <span>·</span>
-    <span>Theme: <b id="currentTheme">dark</b></span>
+    <span>·</span><span>Mode: <b id="currentMode">gallery</b></span>
+    <span>·</span><span>Theme: <b id="currentTheme">dark</b></span>
   </div>
 
   <script>
     // mock grid
-    const grid = document.getElementById('mockGrid');
+    const g = document.getElementById('mockGrid');
     for (let i = 0; i < 18; i++) {
       const d = document.createElement('div');
       d.className = 'mock-card';
       d.style.animationDelay = (i * 0.06) + 's';
-      grid.appendChild(d);
+      g.appendChild(d);
     }
 
-    // mode
+    const DESKTOP_IDS = { gallery:'btnAllArt', browse:'btnBrowse', surprise:'btnSurprise', discover:'btnDiscover', advanced:'btnAdvanced' };
+    const MOBILE_IDS  = { gallery:'mBtnAllArt', browse:'mBtnBrowse', surprise:'mBtnSurprise', discover:'mBtnDiscover' };
+    const LABELS = { gallery:'All Art — Newest', browse:'Browse', surprise:'Surprise Me', discover:'✦ Discover', advanced:'Advanced Search' };
+
     function setMode(mode) {
       document.documentElement.dataset.mode = mode;
-
-      // desktop switcher (Gallery, Collections, Discover)
-      ['btnGallery','btnCollections','btnAdvanced','btnDiscover'].forEach(id => {
-        document.getElementById(id)?.classList.remove('active');
-      });
-      const map = { gallery:'btnGallery', collections:'btnCollections', advanced:'btnAdvanced', discover:'btnDiscover' };
-      if (map[mode]) document.getElementById(map[mode])?.classList.add('active');
-
-      // mobile combined pill
-      ['mBtnGallery','mBtnCollections','mBtnDiscover'].forEach(id => {
-        document.getElementById(id)?.classList.remove('active');
-      });
-      const mmap = { gallery:'mBtnGallery', collections:'mBtnCollections', discover:'mBtnDiscover' };
-      if (mmap[mode]) document.getElementById(mmap[mode])?.classList.add('active');
-
+      Object.values(DESKTOP_IDS).forEach(id => document.getElementById(id)?.classList.remove('active'));
+      Object.values(MOBILE_IDS).forEach(id => document.getElementById(id)?.classList.remove('active'));
+      if (DESKTOP_IDS[mode]) document.getElementById(DESKTOP_IDS[mode])?.classList.add('active');
+      if (MOBILE_IDS[mode])  document.getElementById(MOBILE_IDS[mode])?.classList.add('active');
       document.getElementById('lensRow').style.display = mode === 'gallery' ? '' : 'none';
-      const labels = { gallery:'Gallery — Newest', collections:'Collections', advanced:'Advanced Search', discover:'✦ Discover' };
-      document.getElementById('stateLabel').textContent = labels[mode] || mode;
+      document.getElementById('stateLabel').textContent = LABELS[mode] || mode;
       document.getElementById('currentMode').textContent = mode;
     }
 
-    // lens
     function setLens(el) {
       document.querySelectorAll('.lens-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
-      document.getElementById('stateLabel').textContent = 'Gallery — ' + el.textContent;
+      document.getElementById('stateLabel').textContent = 'All Art — ' + el.textContent;
     }
 
-    // theme
-    let _theme = 'dark';
-    function setTheme(theme) {
-      _theme = theme;
-      document.documentElement.dataset.theme = theme;
-      document.getElementById('btnDark').classList.toggle('active', theme === 'dark');
-      document.getElementById('btnLight').classList.toggle('active', theme === 'light');
-      document.getElementById('currentTheme').textContent = theme;
+    function setTheme(t) {
+      document.documentElement.dataset.theme = t;
+      document.getElementById('btnDark').classList.toggle('active', t === 'dark');
+      document.getElementById('btnLight').classList.toggle('active', t === 'light');
+      document.getElementById('currentTheme').textContent = t;
     }
 
-    // viewport
-    function updateVp() { document.getElementById('vpWidth').textContent = window.innerWidth + 'px'; }
-    window.addEventListener('resize', updateVp);
-    updateVp();
+    window.addEventListener('resize', () => document.getElementById('vpWidth').textContent = window.innerWidth + 'px');
+    document.getElementById('vpWidth').textContent = window.innerWidth + 'px';
   </script>
 </body>
 </html>

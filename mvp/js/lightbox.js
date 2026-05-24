@@ -150,9 +150,12 @@ function openLightbox(card, mode = 'feed') {
     if (_lbMode === 'surprise') showWelcome();
   }
   document.getElementById('lbClose').addEventListener('click', handleClose);
-  document.getElementById('lightboxOverlay').addEventListener('click', (e) => {
-    if (e.target.id === 'lightboxOverlay') handleClose();
-  });
+  // Click-outside only on desktop — on mobile too easy to misfire near arrows
+  if (!('ontouchstart' in window)) {
+    document.getElementById('lightboxOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'lightboxOverlay') handleClose();
+    });
+  }
   document.addEventListener('keydown', handleLbKey);
 
   // ── Navigation ─────────────────────────────────────────────────────────────

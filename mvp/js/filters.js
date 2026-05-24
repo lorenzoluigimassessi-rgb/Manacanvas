@@ -254,7 +254,7 @@ function toggleSort() {
   dropdown.addEventListener("click", (e) => e.stopPropagation());
   dropdown.innerHTML = SORT_OPTIONS.map((opt, i) => `
     <div class="view-dropdown-item ${sortOrder === opt.order && sortDir === opt.dir ? 'active' : ''}" data-idx="${i}">
-      ${opt.label}${sortOrder === opt.order && sortDir === opt.dir ? ' ✓' : ''}
+      ${opt.label}
     </div>
   `).join("");
   btn.style.position = 'relative';

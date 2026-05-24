@@ -248,7 +248,7 @@ body {
 
 .view-dropdown-item:hover { background: var(--bg); color: var(--text-primary); }
 .view-dropdown-item.active { color: var(--text-primary); }
-.view-dropdown-item.active::after { content: " ✓"; margin-left: auto; opacity: 0.6; }
+.view-dropdown-item.active::before { content: "✓ "; opacity: 0.6; }
 
 .header h1 {
   font-size: 1.6rem;

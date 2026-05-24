@@ -53,11 +53,6 @@ function openLightbox(card, mode = 'feed') {
       <div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>
       <button class="close-btn" id="lbClose">✕</button>
 
-      <!-- Desktop side arrows — feed only -->
-      ${!isSurprise ? `
-      <button class="lb-nav-arrow ${hidePrev ? 'hidden' : ''}" id="lbPrev">‹</button>
-      <button class="lb-nav-arrow ${hideNext ? 'hidden' : ''}" id="lbNext">›</button>` : ''}
-
       <!-- Art -->
       <div class="art-container" id="artContainer" style="overflow:hidden;">
         <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
@@ -106,6 +101,21 @@ function openLightbox(card, mode = 'feed') {
       <button class="lb-mobile-nav-arrow ${hideNext ? 'invisible' : ''}" id="lbMobileNavNext">›</button>
     `;
     document.body.appendChild(mobileNav);
+  }
+
+  // Desktop side arrows — feed only, appended to body so overflow:hidden doesn't clip them
+  ['lbPrev','lbNext'].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
+  if (!isSurprise) {
+    const prev = document.createElement('button');
+    prev.id = 'lbPrev';
+    prev.className = `lb-nav-arrow${hidePrev ? ' hidden' : ''}`;
+    prev.textContent = '‹';
+    document.body.appendChild(prev);
+    const next = document.createElement('button');
+    next.id = 'lbNext';
+    next.className = `lb-nav-arrow${hideNext ? ' hidden' : ''}`;
+    next.textContent = '›';
+    document.body.appendChild(next);
   }
 
   document.body.style.overflow = 'hidden';
@@ -402,6 +412,7 @@ function closeLightbox() {
   document.getElementById('lightbox').innerHTML = '';
   const nav = document.getElementById('lbMobileNav');
   if (nav) nav.remove();
+  ['lbPrev','lbNext'].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
   document.body.style.overflow = '';
   document.removeEventListener('keydown', handleLbKey);
   document.removeEventListener('mousemove', handleDrag);

@@ -59,8 +59,6 @@ function showWelcome() {
   resetAllState();
   appShell.style.display = "none";
   welcomeEl.style.display = "block";
-  const bar = document.getElementById("mobileActionBar");
-  if (bar) bar.style.display = "none";
   renderWelcome();
 }
 
@@ -93,8 +91,6 @@ function startBrowse() {
   localStorage.setItem("mc_entered", "1");
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
-  const bar = document.getElementById("mobileActionBar");
-  if (bar) bar.style.removeProperty("display");
   loadInitialGrid();
 }
 
@@ -104,8 +100,6 @@ function startSurprise() {
   // Show dice spinner while card loads
   welcomeEl.style.display = 'none';
   appShell.style.display = 'block';
-  const bar = document.getElementById('mobileActionBar');
-  if (bar) bar.style.removeProperty('display');
   const lightbox = document.getElementById('lightbox');
   lightbox.style.background = '#0c0c0f';
   lightbox.innerHTML = `

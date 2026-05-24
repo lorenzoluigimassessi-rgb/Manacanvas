@@ -987,8 +987,7 @@ body {
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  letter-spacing: 0.5px;
   cursor: pointer;
   transition: background 150ms, border-color 150ms, transform 100ms;
   flex-shrink: 0;

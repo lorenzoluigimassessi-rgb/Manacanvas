@@ -35,7 +35,7 @@ function openLightbox(card, mode = 'feed') {
   const hidePrev   = noHistory || (!isSurprise && feedIdx === 0);
   const hideNext   = !isSurprise && feedIdx !== -1 && feedIdx >= filteredCards.length - 1;
 
-  const DICE_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg>`;
+  const IMG_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
 
   // Swipe hint — mobile only, once per session per mode
   const hintKey = isSurprise ? 'lb_swipe_hint_shown' : 'lb_feed_hint_shown';
@@ -85,7 +85,7 @@ function openLightbox(card, mode = 'feed') {
       </div>
 
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
-      ${isSurprise ? `<button class="lb-surprise-next-btn" id="lbSurpriseNextBtn">${DICE_SVG} Draw Again</button>` : ''}
+      ${isSurprise ? `<button class="lb-surprise-next-btn" id="lbSurpriseNextBtn">${IMG_SVG} Random art</button>` : ''}
     </div>
   `;
 

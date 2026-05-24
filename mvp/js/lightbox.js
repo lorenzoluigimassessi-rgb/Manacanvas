@@ -85,7 +85,7 @@ function openLightbox(card, mode = 'feed') {
       </div>
 
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
-      ${isSurprise ? `<button class="lb-surprise-next-btn" id="lbSurpriseNextBtn">${DICE_SVG} Surprise Me Again</button>` : ''}
+      ${isSurprise ? `<button class="lb-surprise-next-btn" id="lbSurpriseNextBtn">${DICE_SVG} Draw Again</button>` : ''}
     </div>
   `;
 

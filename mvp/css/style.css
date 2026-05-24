@@ -975,7 +975,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  margin-top: 1.4rem;
+  margin-top: 2rem;
   width: min(300px, 80vw);
   height: 52px;
   background: rgba(20,20,28,0.75);

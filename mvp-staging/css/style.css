@@ -423,7 +423,6 @@ body {
   padding: 0.5rem 2rem;
   overflow-x: auto;
   scrollbar-width: none;
-  border-bottom: 1px solid var(--border);
   animation: subRowIn 150ms ease;
 }
 .sub-row::-webkit-scrollbar { display: none; }

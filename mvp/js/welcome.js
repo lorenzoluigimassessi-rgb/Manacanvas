@@ -37,9 +37,9 @@ async function renderWelcome() {
       <div class="welcome-hero">
         <h1 class="welcome-title">MANACANVAS</h1>
         <p class="welcome-subtitle">Discover the art of Magic: The Gathering&#174;</p>
-        <button class="welcome-cta" onclick="startSurprise()"><svg width="13" height="17" viewBox="0 0 13 17" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-right:0.5rem"><rect x="0.75" y="0.75" width="11.5" height="15.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1" opacity="0.5"/><line x1="3" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="1" opacity="0.5"/><line x1="3" y1="11" x2="7" y2="11" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>Draw a Card</button>
+        <button class="welcome-cta" onclick="startSurprise()">Draw a Card</button>
         <p class="welcome-draw-separator">or</p>
-        <button class="welcome-draw-cta" onclick="startBrowse()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-right:0.4rem"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Browse the Gallery</button>
+        <button class="welcome-draw-cta" onclick="startBrowse()">Browse the Gallery</button>
       </div>
       <footer class="site-footer welcome-footer">
         <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images © Wizards of the Coast.</p>

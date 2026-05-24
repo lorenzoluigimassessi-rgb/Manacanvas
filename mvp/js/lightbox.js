@@ -115,7 +115,7 @@ function openLightbox(card, mode = 'feed') {
     const mBtn = document.createElement('button');
     mBtn.id = 'lbSurpriseMobileBtn';
     mBtn.className = 'lb-surprise-next-btn';
-    mBtn.innerHTML = `${IMG_SVG} Random art`;
+    mBtn.innerHTML = `Draw a Card`;
     document.body.appendChild(mBtn);
     mBtn.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
   }

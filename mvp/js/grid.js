@@ -146,8 +146,8 @@ function restoreFilters() {
     activeYearMin   = f.activeYearMin   || null;
     activeYearMax   = f.activeYearMax   || null;
     activeSearch    = f.activeSearch    || null;
-    if (f.sortOrder) sortOrder = f.sortOrder;
-    if (f.sortDir)   sortDir   = f.sortDir;
+    if (f.sortOrder && f.sortOrder !== 'random') sortOrder = f.sortOrder;
+    if (f.sortDir   && f.sortDir   !== 'auto')   sortDir   = f.sortDir;
   } catch(e) {
     localStorage.removeItem("mc_filters");
   }

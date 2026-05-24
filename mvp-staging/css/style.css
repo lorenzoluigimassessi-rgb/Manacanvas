@@ -11,7 +11,8 @@
   --overlay-gradient: linear-gradient(transparent, rgba(0,0,0,0.88));
   --radius: 6px;
   --radius-pill: 999px;
-  --nav-h: 40px;
+  --nav-h: 48px;
+  --h: 48px;
   --shadow: 0 8px 32px rgba(0,0,0,0.5);
   --transition-fast: 150ms;
   --transition-normal: 200ms;
@@ -231,7 +232,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.9rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   position: relative;
 }
 
@@ -244,8 +245,8 @@ body {
 }
 
 .nav-logo {
-  width: var(--nav-h);
-  height: var(--nav-h);
+  width: var(--h);
+  height: var(--h);
   border-radius: 50%;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -273,9 +274,9 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
-  height: var(--nav-h);
+  height: var(--h);
   padding: 4px;
-  gap: 2px;
+  gap: 0;
 }
 
 .sw-btn {
@@ -289,7 +290,7 @@ body {
   font-weight: 500;
   letter-spacing: 0.3px;
   padding: 0 0.9rem;
-  height: calc(var(--nav-h) - 8px);
+  height: calc(var(--h) - 8px);
   border-radius: var(--radius-pill);
   cursor: pointer;
   white-space: nowrap;
@@ -314,7 +315,7 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
-  height: var(--nav-h);
+  height: var(--h);
   padding: 4px 4px 4px 1rem;
   gap: 0.4rem;
   transition: border-color var(--transition-normal);
@@ -335,8 +336,8 @@ body {
 }
 
 .btn-advanced {
-  width: calc(var(--nav-h) - 8px);
-  height: calc(var(--nav-h) - 8px);
+  width: calc(var(--h) - 8px);
+  height: calc(var(--h) - 8px);
   border-radius: 50%;
   background: transparent;
   border: none;
@@ -360,14 +361,14 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
-  height: var(--nav-h);
+  height: var(--h);
   padding: 4px;
   gap: 2px;
 }
 
 .theme-btn {
-  width: calc(var(--nav-h) - 8px);
-  height: calc(var(--nav-h) - 8px);
+  width: calc(var(--h) - 8px);
+  height: calc(var(--h) - 8px);
   border-radius: 50%;
   background: transparent;
   border: none;

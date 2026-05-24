@@ -66,7 +66,7 @@ function openLightbox(card, mode = 'feed') {
         </div>` : ''}
       </div>
       <!-- Swipe hint pill — outside art-container so overflow:hidden doesn't clip it -->
-      ${showSwipeHint ? `<div class="lb-swipe-hint-overlay" id="lbSwipeHint">${swipeHintCopy}</div>` : ''}
+      ${showSwipeHint ? '' : ''}
 
       <!-- Toggle -->
       <div class="lightbox-actions">
@@ -103,6 +103,17 @@ function openLightbox(card, mode = 'feed') {
       <button class="lb-mobile-nav-arrow ${hideNext ? 'invisible' : ''}" id="lbMobileNavNext">›</button>
     `;
     document.body.appendChild(mobileNav);
+  }
+
+  // Swipe hint overlay — appended to body so lightbox overflow:hidden doesn't clip it
+  const existingHint = document.getElementById('lbSwipeHint');
+  if (existingHint) existingHint.remove();
+  if (showSwipeHint) {
+    const hintEl = document.createElement('div');
+    hintEl.id = 'lbSwipeHint';
+    hintEl.className = 'lb-swipe-hint-overlay';
+    hintEl.innerHTML = swipeHintCopy;
+    document.body.appendChild(hintEl);
   }
 
   // Desktop side arrows — feed only, appended to body so overflow:hidden doesn't clip them
@@ -414,6 +425,8 @@ function closeLightbox() {
   document.getElementById('lightbox').innerHTML = '';
   const nav = document.getElementById('lbMobileNav');
   if (nav) nav.remove();
+  const hint = document.getElementById('lbSwipeHint');
+  if (hint) hint.remove();
   ['lbPrev','lbNext'].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
   document.body.style.overflow = '';
   document.removeEventListener('keydown', handleLbKey);

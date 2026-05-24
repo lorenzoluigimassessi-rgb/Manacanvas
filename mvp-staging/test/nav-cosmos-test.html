@@ -195,8 +195,13 @@
     .nav-advanced-btn:hover { background: var(--surface-2); color: var(--text-1); }
     .nav-advanced-btn.active { background: var(--surface-2); color: var(--text-1); }
 
-    /* ── RIGHT: theme switcher ── */
-    .nav-right { flex-shrink: 0; }
+    /* ── RIGHT: Discover + theme switcher ── */
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
 
     .theme-switcher {
       display: flex;
@@ -343,10 +348,13 @@
       .nav-switcher { display: none; }
       .nav-center { max-width: none; }
       .nav-advanced-label { display: none; }
+      /* hide desktop discover + theme on mobile */
+      .nav-right { display: none; }
 
-      /* floating switcher */
-      .mobile-switcher {
+      /* one combined floating pill: Gallery · Collections | ✦ Discover */
+      .mobile-float {
         display: flex;
+        align-items: center;
         position: fixed;
         bottom: calc(1.75rem + env(safe-area-inset-bottom));
         left: 50%;
@@ -360,25 +368,18 @@
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         box-shadow: var(--shadow);
+        white-space: nowrap;
       }
-      .mobile-switcher .nav-switch-btn { font-size: 0.82rem; padding: 0.5rem 1.1rem; }
-
-      /* floating discover */
-      .mobile-discover {
-        display: flex;
-        position: fixed;
-        bottom: calc(1.75rem + env(safe-area-inset-bottom));
-        right: 1rem;
-        z-index: 60;
-      }
-      .mobile-discover .discover-chip { font-size: 0.78rem; padding: 0.5rem 1rem; }
+      .mobile-float .nav-switch-btn { font-size: 0.82rem; padding: 0.5rem 1rem; }
+      .mobile-float .discover-chip  { font-size: 0.82rem; padding: 0.5rem 1rem; margin: 0 2px; }
+      .mobile-float .lens-sep { margin: 0 0.25rem; }
 
       .mock-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; padding: 1rem 0.75rem 8rem; }
       .lens-row { padding: 0.4rem 0.75rem; }
     }
 
     @media (min-width: 769px) {
-      .mobile-switcher, .mobile-discover { display: none; }
+      .mobile-float { display: none; }
     }
 
     /* ══ DEMO BAR ══ */
@@ -432,8 +433,14 @@
       </button>
     </div>
 
-    <!-- RIGHT: theme switcher -->
+    <!-- RIGHT: Discover + theme switcher -->
     <div class="nav-right">
+      <button class="discover-chip" id="btnDiscover" onclick="setMode('discover')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        Discover
+      </button>
       <div class="theme-switcher">
         <button class="theme-btn active" id="btnDark" onclick="setTheme('dark')" title="Dark">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -453,32 +460,23 @@
     </div>
   </header>
 
-  <!-- LENS CHIPS + DISCOVER (Gallery only) -->
+  <!-- LENS CHIPS (Gallery only) — no Discover here, lives in nav-right on desktop / combined pill on mobile -->
   <div class="lens-row" id="lensRow">
     <button class="lens-chip active" onclick="setLens(this)">Newest</button>
     <button class="lens-chip" onclick="setLens(this)">Time Machine</button>
     <button class="lens-chip" onclick="setLens(this)">Creature Type</button>
     <button class="lens-chip" onclick="setLens(this)">Art Style</button>
     <button class="lens-chip" onclick="setLens(this)">Mana Color</button>
-    <div class="lens-sep"></div>
-    <button class="discover-chip" id="btnDiscover" onclick="setMode('discover')">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-      </svg>
-      Discover
-    </button>
   </div>
 
   <div class="state-label" id="stateLabel">Gallery — Newest</div>
   <div class="mock-grid" id="mockGrid"></div>
 
-  <!-- MOBILE FLOATING -->
-  <div class="mobile-switcher">
+  <!-- MOBILE FLOATING: switcher + Discover in one centered pill -->
+  <div class="mobile-float">
     <button class="nav-switch-btn active" id="mBtnGallery" onclick="setMode('gallery')">Gallery</button>
     <button class="nav-switch-btn" id="mBtnCollections" onclick="setMode('collections')">Collections</button>
-  </div>
-
-  <div class="mobile-discover">
+    <div class="lens-sep"></div>
     <button class="discover-chip" id="mBtnDiscover" onclick="setMode('discover')">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -509,22 +507,22 @@
     // mode
     function setMode(mode) {
       document.documentElement.dataset.mode = mode;
+
+      // desktop
       ['btnGallery','btnCollections','btnAdvanced','btnDiscover'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('active');
+        document.getElementById(id)?.classList.remove('active');
       });
       const map = { gallery:'btnGallery', collections:'btnCollections', advanced:'btnAdvanced', discover:'btnDiscover' };
       if (map[mode]) document.getElementById(map[mode])?.classList.add('active');
 
+      // mobile combined pill
       ['mBtnGallery','mBtnCollections','mBtnDiscover'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('active');
+        document.getElementById(id)?.classList.remove('active');
       });
       const mmap = { gallery:'mBtnGallery', collections:'mBtnCollections', discover:'mBtnDiscover' };
       if (mmap[mode]) document.getElementById(mmap[mode])?.classList.add('active');
 
       document.getElementById('lensRow').style.display = mode === 'gallery' ? '' : 'none';
-
       const labels = { gallery:'Gallery — Newest', collections:'Collections', advanced:'Advanced Search', discover:'✦ Discover' };
       document.getElementById('stateLabel').textContent = labels[mode] || mode;
       document.getElementById('currentMode').textContent = mode;

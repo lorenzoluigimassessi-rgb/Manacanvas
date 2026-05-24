@@ -76,43 +76,42 @@
       display: flex;
       align-items: center;
       gap: 0.25rem;
-      padding: 0.5rem 1.5rem;
+      padding: 0.6rem 1.5rem;
       overflow-x: auto;
       scrollbar-width: none;
       border-bottom: 1px solid var(--border);
     }
     .lens-row::-webkit-scrollbar { display: none; }
 
-    /* Pill chips — text only inactive, filled active */
     .lens-btn {
       background: transparent;
       border: none;
       color: var(--text-2);
       font-family: 'Josefin Sans', sans-serif;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: 400;
       letter-spacing: 0.3px;
-      padding: 0.3rem 0.85rem;
+      padding: 0.4rem 1.1rem;
       border-radius: var(--r);
       cursor: pointer;
       white-space: nowrap;
       flex-shrink: 0;
-      transition: color 150ms, background 150ms;
+      transition: color 150ms, background 150ms, border-color 150ms;
     }
     .lens-btn:hover { color: var(--text-1); }
     .lens-btn.active {
       background: var(--surface);
       border: 1px solid var(--border-hover);
       color: var(--text-1);
-      font-weight: 500;
+      font-weight: 600;
     }
 
     /* ══ SUB-PILLS ROW ══ */
     .sub-row {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.6rem 1.5rem;
+      gap: 0.5rem;
+      padding: 0.65rem 1.5rem;
       overflow-x: auto;
       scrollbar-width: none;
       border-bottom: 1px solid var(--border);
@@ -128,15 +127,16 @@
     .sub-pill {
       display: inline-flex;
       align-items: center;
-      background: transparent;
+      gap: 0.5rem;
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
       color: var(--text-2);
       font-family: 'Josefin Sans', sans-serif;
-      font-size: 0.74rem;
+      font-size: 0.8rem;
       font-weight: 400;
-      letter-spacing: 0.2px;
-      padding: 0.25rem 0.75rem;
+      padding: 0 0.85rem 0 4px;
+      height: 32px;
       cursor: pointer;
       white-space: nowrap;
       flex-shrink: 0;
@@ -144,11 +144,25 @@
     }
     .sub-pill:hover { border-color: var(--border-hover); color: var(--text-1); }
     .sub-pill.active {
-      background: var(--surface);
+      background: var(--surface-2);
       border-color: var(--border-hover);
       color: var(--text-1);
       font-weight: 500;
     }
+
+    /* circular thumbnail placeholder */
+    .sub-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sub-pill.active .sub-thumb { background: var(--border-hover); }
 
     /* ══ MOCK GRID ══ */
     .mock-grid {
@@ -172,7 +186,7 @@
       .nav-switcher { display: none; }
       .nav-center { position: static; transform: none; flex: 1; max-width: none; }
       .nav-right { display: none; }
-      .lens-row { padding: 0 0.75rem; }
+      .lens-row { padding: 0.5rem 0.75rem; }
       .sub-row { padding: 0.5rem 0.75rem; }
       .mock-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; padding: 1rem 0.75rem 8rem; }
       .mobile-float { display: flex; align-items: center; position: fixed; bottom: calc(1.5rem + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); z-index: 60; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 4px; gap: 0; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: var(--shadow); white-space: nowrap; }
@@ -286,7 +300,10 @@
       const row = document.getElementById('subRow');
       const pills = SUB_PILLS[lens] || [];
       row.innerHTML = pills.map((p, i) =>
-        `<button class="sub-pill ${i === 0 ? 'active' : ''}" onclick="setSub(this)">${p}</button>`
+        `<button class="sub-pill ${i === 0 ? 'active' : ''}" onclick="setSub(this)">
+          <span class="sub-thumb"></span>
+          ${p}
+        </button>`
       ).join('');
       if (pills[0]) {
         _activeSub = pills[0];

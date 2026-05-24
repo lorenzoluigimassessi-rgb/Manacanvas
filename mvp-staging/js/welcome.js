@@ -92,7 +92,7 @@ function startBrowse() {
   localStorage.setItem("mc_entered", "1");
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
-  loadInitialGrid();
+  setMode('gallery');
 }
 
 function startSurprise() {

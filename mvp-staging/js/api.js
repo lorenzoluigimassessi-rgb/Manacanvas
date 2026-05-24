@@ -1,0 +1,180 @@
+const API_BASE = "https://api.scryfall.com";
+let currentSearch = null;
+let nextPageUrl = null;
+let isLoading = false;
+
+let sortOrder = "random"; // default: Shuffle
+let sortDir = "auto";
+
+const SORT_OPTIONS = [
+  { label: "Random",      order: "random",   dir: "auto" },
+  { label: "Oldest First", order: "released", dir: "asc"  },
+  { label: "Newest First", order: "released", dir: "desc" },
+  { label: "A → Z",        order: "name",     dir: "asc"  },
+  { label: "Z → A",        order: "name",     dir: "desc" },
+];
+
+async function fetchCards(query = "t:creature", page = 1) {
+  isLoading = true;
+  const isRandom = sortOrder === "random";
+  const randomPage = isRandom ? Math.floor(Math.random() * 100) + 1 : page;
+  const order = isRandom ? "released" : sortOrder;
+  const dir = isRandom ? "asc" : sortDir;
+  const url = (!isRandom && nextPageUrl) || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=${randomPage}`;
+  try {
+    const res = await fetch(url);
+    if (res.status === 429) {
+      // Rate limited — wait and retry once
+      await new Promise(r => setTimeout(r, 2000));
+      const retry = await fetch(url);
+      if (!retry.ok) { isLoading = false; return { data: [], hasMore: false, rateLimited: true }; }
+      const rjson = await retry.json();
+      nextPageUrl = rjson.has_more ? rjson.next_page : null;
+      isLoading = false;
+      return { data: isRandom ? shuffleArray(rjson.data || []) : (rjson.data || []), hasMore: rjson.has_more || false };
+    }
+    if (!res.ok) {
+      if (isRandom) {
+        const fallback = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=1`);
+        if (!fallback.ok) { isLoading = false; return { data: [], hasMore: false }; }
+        const fjson = await fallback.json();
+        if (fjson.object === 'error') { isLoading = false; return { data: [], hasMore: false }; }
+        nextPageUrl = fjson.has_more ? fjson.next_page : null;
+        isLoading = false;
+        return { data: shuffleArray(fjson.data || []), hasMore: fjson.has_more || false };
+      }
+      isLoading = false;
+      return { data: [], hasMore: false };
+    }
+    const json = await res.json();
+    if (json.object === 'error') { isLoading = false; return { data: [], hasMore: false }; }
+    nextPageUrl = json.has_more ? json.next_page : null;
+    isLoading = false;
+    const data = json.data || [];
+    return { data: isRandom ? shuffleArray(data) : data, hasMore: json.has_more || false };
+  } catch (e) {
+    isLoading = false;
+    return { data: [], hasMore: false };
+  }
+}
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function resetPagination() {
+  nextPageUrl = null;
+}
+
+async function fetchCreatureTypes() {
+  try {
+    const res = await fetch(`${API_BASE}/catalog/creature-types`);
+    const json = await res.json();
+    return json.data || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function fetchCardTypes() {
+  try {
+    const res = await fetch(`${API_BASE}/catalog/card-types`);
+    const json = await res.json();
+    return json.data || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function fetchArtistNames() {
+  try {
+    const res = await fetch(`${API_BASE}/catalog/artist-names`);
+    const json = await res.json();
+    return json.data || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+// Random card pool — fetch 175 cards at once, serve locally, refetch when low
+window._randomPool = window._randomPool || [];
+window._randomPoolLoading = false;
+window._randomPoolQuery = null;
+
+async function _fillRandomPool(query) {
+  if (window._randomPoolLoading) return;
+  window._randomPoolLoading = true;
+  try {
+    const page = Math.floor(Math.random() * 50) + 1; // pages 1-50
+    const res = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=released&dir=asc&page=${page}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.data?.length) {
+        const fresh = shuffleArray(json.data.filter(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop));
+        window._randomPool.push(...fresh);
+      }
+    }
+  } catch(e) {}
+  window._randomPoolLoading = false;
+}
+
+async function fetchRandomCard() {
+  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch);
+
+  // Reset pool if query changed
+  if (window._randomPoolQuery !== query) {
+    window._randomPool = [];
+    window._randomPoolQuery = query;
+  }
+
+  // Refill when running low
+  if (window._randomPool.length < 10) {
+    await _fillRandomPool(query);
+  }
+
+  // Serve from pool
+  if (window._randomPool.length > 0) {
+    return window._randomPool.shift();
+  }
+
+  // Pool empty (rate limited or no results) — try direct random as last resort
+  try {
+    const res = await fetch(`${API_BASE}/cards/random?q=${encodeURIComponent(query)}`);
+    if (res.ok) return await res.json();
+    const fallback = await fetch(`${API_BASE}/cards/random?q=has:illustration`);
+    return fallback.ok ? await fallback.json() : null;
+  } catch(e) { return null; }
+}
+
+function buildQuery(artists, creatureTypes, cardTypes, colours, sets, styles, yearMin, yearMax, searchText) {
+  let q = "has:illustration";
+  if (searchText) q += ` ${searchText}`;
+  if (artists && artists.length === 1) q += ` a:"${artists[0]}"`;
+  if (artists && artists.length > 1) q += ` (${artists.map(a => `a:"${a}"`).join(" OR ")})`;
+  if (creatureTypes && creatureTypes.length === 1) q += ` t:${creatureTypes[0]}`;
+  if (creatureTypes && creatureTypes.length > 1) q += ` (${creatureTypes.map(t => `t:${t}`).join(" OR ")})`;
+  if (cardTypes && cardTypes.length === 1) q += ` t:${cardTypes[0]}`;
+  if (cardTypes && cardTypes.length > 1) q += ` (${cardTypes.map(t => `t:${t}`).join(" OR ")})`;
+  if (colours && colours.length === 1) {
+    const c = colours[0];
+    if (c === 'm') q += ` c>=2`;
+    else if (c === 'c') q += ` c:c`;
+    else q += ` color=${c}`;
+  }
+  if (colours && colours.length > 1) q += ` (${colours.map(c => c === 'm' ? 'c>=2' : c === 'c' ? 'c:c' : `color=${c}`).join(" OR ")})`;
+  if (sets && sets.length === 1) q += ` s:${sets[0]}`;
+  if (sets && sets.length > 1) q += ` (${sets.map(s => `s:${s}`).join(" OR ")})`;
+  if (styles && styles.length === 1) q += ` ${styles[0].query}`;
+  if (styles && styles.length > 1) q += ` (${styles.map(s => s.query).join(" OR ")})`;
+  if (yearMin) q += ` year>=${yearMin}`;
+  if (yearMax) q += ` year<=${yearMax}`;
+  const hasFilters = (artists?.length || creatureTypes?.length || cardTypes?.length || colours?.length ||
+    sets?.length || styles?.length || yearMin || yearMax || searchText);
+  if (!hasFilters) q = "t:creature has:illustration";
+  return q;
+}

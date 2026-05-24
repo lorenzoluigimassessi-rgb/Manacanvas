@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>ManaCanvas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+  <div id="welcome"></div>
+
+  <!-- Transition screen -->
+  <div id="transition">
+    <svg class="transition-dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="4" ry="4"/>
+      <circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/>
+    </svg>
+  </div>
+  <div id="appShell" style="display:none;">
+    <header class="header">
+      <div class="header-row-1">
+        <h1 onclick="showWelcome()" style="cursor:pointer;"><span class="full">MANACANVAS</span><span class="short">MC</span></h1>
+        <!-- Centered tab switch -->
+        <div class="nav-switch" id="navSwitch">
+          <button class="nav-tab active" id="navTabAll" onclick="switchTab('all')">All Art</button>
+          <button class="nav-tab" id="navTabCat" onclick="switchTab('categories')">Categories</button>
+        </div>
+        <!-- Surprise button: label on desktop, icon on mobile -->
+        <button class="nav-surprise-btn" id="navSurpriseBtn" onclick="startSurprise()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span class="nav-surprise-label">Random Art</span>
+        </button>
+      </div>
+      <div class="header-row-2" id="headerRow2">
+        <!-- Search bar in row 2 for All Art tab -->
+        <div class="search-container" id="searchContainer">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-bar" id="searchBar" placeholder="Search card, artist, creature...">
+          <span class="search-clear" id="searchClear" style="display:none;">✕</span>
+          <div class="search-suggestions" id="searchSuggestions" style="display:none;"></div>
+        </div>
+        <div class="filters" id="filters"></div>
+        <button class="clear-filters-btn" id="clearFiltersBtn" style="display:none;" onclick="clearAllFilters()">Clear all</button>
+        <div class="row2-right" id="row2Right"></div>
+      </div>
+      <div class="header-row-3" id="chipBar" style="display:none;">
+        <div class="chip-list" id="chipList"></div>
+      </div>
+    </header>
+
+    <!-- More Filters Modal -->
+    <div class="more-modal-overlay" id="moreModalOverlay" style="display:none;" onclick="closeMoreModal()"></div>
+    <div class="more-modal" id="moreModal" style="display:none;">
+      <div class="more-modal-header">
+        <span class="more-modal-title">More Filters</span>
+        <button class="more-modal-close" onclick="closeMoreModal()">✕</button>
+      </div>
+      <div class="more-modal-body" id="moreModalBody"></div>
+      <div class="more-modal-footer">
+        <span class="more-modal-clear" onclick="clearMoreFilters()">Clear all</span>
+        <button class="more-modal-apply" onclick="applyMoreModal()">Show Results</button>
+      </div>
+    </div>
+
+    <!-- Mobile filter sheet -->
+    <div class="drawer-overlay" id="drawerOverlay" style="display:none;" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+      <div class="drawer-handle" onclick="closeDrawer()"></div>
+      <div class="drawer-header">
+        <span class="drawer-title">Filters</span>
+        <span class="drawer-clear" onclick="clearAllFilters()">Clear all</span>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+      <div class="drawer-footer">
+        <button class="drawer-apply-btn" onclick="applySheet()">SHOW RESULTS</button>
+      </div>
+    </div>
+    <main class="grid" id="grid"></main>
+    <div class="loading-more" id="loader" style="display:none;">Loading more artwork...</div>
+    <!-- Categories panel -->
+    <div id="categoriesPanel" style="display:none;" class="categories-panel">
+      <div class="cat-search-row">
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-bar" id="catSearchBar" placeholder="Search categories...">
+        </div>
+      </div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+    <div id="lightbox"></div>
+
+    <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+    <footer class="site-footer">
+      <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images © Wizards of the Coast.</p>
+    </footer>
+  </div><!-- end appShell -->
+
+<script src="js/welcome.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/lightbox.js"></script>
+</body>
+</html>

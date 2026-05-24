@@ -16,8 +16,10 @@ const SORT_OPTIONS = [
 ];
 
 async function fetchCards(query = "t:creature", page = 1) {
-  // Cancel any in-flight grid fetch
-  if (_fetchController) _fetchController.abort();
+  // Cancel any in-flight grid fetch (small delay to avoid aborting legitimate first loads)
+  if (_fetchController) {
+    _fetchController.abort();
+  }
   _fetchController = new AbortController();
   const signal = _fetchController.signal;
 
@@ -53,7 +55,7 @@ async function fetchCards(query = "t:creature", page = 1) {
     isLoading = false;
     return { data: isRandom ? shuffleArray(json.data || []) : (json.data || []), hasMore: json.has_more || false };
   } catch (e) {
-    if (e.name === 'AbortError') return { data: [], hasMore: false }; // cancelled — not an error
+    if (e.name === 'AbortError') { isLoading = false; return { data: [], hasMore: false }; }
     isLoading = false;
     return { data: [], hasMore: false };
   }

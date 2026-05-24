@@ -976,7 +976,10 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  margin-top: 2rem;
+  position: fixed;
+  bottom: calc(2rem + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
   width: min(300px, 80vw);
   height: 48px;
   background: rgba(20,20,28,0.75);
@@ -991,10 +994,11 @@ body {
   letter-spacing: 0.5px;
   cursor: pointer;
   transition: background 150ms, border-color 150ms, transform 100ms;
+  z-index: 300;
   flex-shrink: 0;
 }
 .lb-surprise-next-btn:hover { background: rgba(40,40,60,0.85); border-color: rgba(255,255,255,0.25); }
-.lb-surprise-next-btn:active { background: rgba(50,50,70,0.9); border-color: rgba(255,255,255,0.3); transform: scale(0.97); }
+.lb-surprise-next-btn:active { background: rgba(50,50,70,0.9); border-color: rgba(255,255,255,0.3); transform: translateX(-50%) scale(0.97); }
 
 .lb-fte-overlay {
   display: none;

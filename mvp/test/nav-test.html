@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ManaCanvas — Navigation Options</title>
+  <title>ManaCanvas — Nav Option B Refined</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,201 +13,124 @@
     }
     body { background: #060608; color: var(--text-primary); font-family: 'Josefin Sans', sans-serif; padding: 2rem 1.5rem 4rem; }
 
-    .page-title { text-align: center; margin-bottom: 0.5rem; }
-    .page-title h1 { font-family: 'Cinzel', serif; font-size: 1.1rem; letter-spacing: 4px; }
-    .page-title p { font-size: 0.72rem; color: var(--text-secondary); letter-spacing: 1px; margin-top: 0.4rem; }
+    .page-title { text-align: center; margin-bottom: 1.5rem; }
+    .page-title h1 { font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 4px; }
+    .page-title p { font-size: 0.7rem; color: var(--text-secondary); letter-spacing: 1px; margin-top: 0.3rem; }
 
-    /* Toggle between mobile/desktop preview */
-    .breakpoint-toggle {
-      display: flex; justify-content: center; gap: 0.5rem; margin: 1.5rem 0;
-    }
-    .bp-btn {
-      background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary);
-      padding: 0.35rem 0.9rem; border-radius: 4px; font-family: inherit; font-size: 0.75rem;
-      cursor: pointer; transition: all 150ms; letter-spacing: 0.5px;
-    }
+    .breakpoint-toggle { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; }
+    .bp-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary); padding: 0.35rem 0.9rem; border-radius: 4px; font-family: inherit; font-size: 0.75rem; cursor: pointer; transition: all 150ms; }
     .bp-btn.active { border-color: var(--text-primary); color: var(--text-primary); }
 
-    /* Options grid */
-    .options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
-    @media (max-width: 900px) { .options { grid-template-columns: 1fr; max-width: 420px; } }
+    /* Two frames side by side */
+    .frames { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 900px; margin: 0 auto; }
+    @media (max-width: 700px) { .frames { grid-template-columns: 1fr; max-width: 400px; } }
 
-    .option { display: flex; flex-direction: column; gap: 0.8rem; }
-    .option-label { text-align: center; }
-    .option-label strong { display: block; font-size: 0.85rem; letter-spacing: 0.5px; margin-bottom: 0.2rem; }
-    .option-label span { font-size: 0.68rem; color: var(--text-secondary); letter-spacing: 0.5px; }
+    .frame-wrap { display: flex; flex-direction: column; gap: 0.8rem; }
+    .frame-label { text-align: center; font-size: 0.7rem; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; }
+    .frame-label strong { display: block; color: var(--text-primary); font-size: 0.8rem; margin-bottom: 0.2rem; }
 
-    /* Phone frame */
     .phone-frame {
       background: var(--bg); border-radius: 12px; border: 1px solid var(--border);
-      overflow: hidden; position: relative;
-      transition: all 300ms ease;
+      overflow: hidden; transition: all 300ms ease;
     }
     .phone-frame.mobile-view { max-width: 375px; margin: 0 auto; }
     .phone-frame.desktop-view { max-width: 100%; }
 
-    /* ── Shared header base ── */
-    .hdr {
-      background: var(--bg); border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-    .hdr-row1 {
-      display: flex; align-items: center; padding: 0.7rem 1rem; gap: 0.8rem;
-    }
-    .logo { font-family: 'Cinzel', serif; letter-spacing: 3px; white-space: nowrap; }
-    .logo.sm { font-size: 0.9rem; }
-    .logo.md { font-size: 1.1rem; }
+    /* ── Header ── */
+    .hdr { background: var(--bg); border-bottom: 1px solid var(--border); }
 
-    /* ── Option A: 3-tab switch ── */
-    .tab-switch-3 {
+    /* Mobile header: logo left · switch center · surprise icon right */
+    .hdr-mobile {
+      display: flex; align-items: center; padding: 0.65rem 0.8rem; gap: 0.6rem;
+    }
+    .logo { font-family: 'Cinzel', serif; letter-spacing: 3px; white-space: nowrap; font-size: 0.85rem; flex-shrink: 0; }
+
+    /* Centered switch */
+    .tab-switch {
       display: flex; background: var(--surface); border-radius: 6px;
       padding: 3px; gap: 2px; flex: 1;
     }
-    .tab-switch-3 button {
+    .tab-switch button {
       flex: 1; background: transparent; border: none; color: var(--text-secondary);
       font-family: inherit; font-size: 0.72rem; letter-spacing: 0.5px;
-      padding: 0.35rem 0.3rem; border-radius: 4px; cursor: pointer;
+      padding: 0.35rem 0.4rem; border-radius: 4px; cursor: pointer;
       transition: background 150ms, color 150ms; white-space: nowrap;
     }
-    .tab-switch-3 button.active {
+    .tab-switch button.active {
       background: var(--bg); color: var(--text-primary);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
 
-    /* ── Option B: 2-tab + magic button ── */
-    .tab-switch-2 {
+    /* Surprise button — icon only on mobile */
+    .surprise-btn-icon {
+      background: none; border: none; color: rgba(240,240,240,0.6);
+      width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; border-radius: 6px;
+      transition: color 150ms, background 150ms;
+    }
+    .surprise-btn-icon:hover { color: rgba(240,240,240,0.95); background: rgba(255,255,255,0.06); }
+
+    /* Desktop header: logo left · switch center · surprise with label right */
+    .hdr-desktop {
+      display: flex; align-items: center; padding: 0.7rem 1.2rem; gap: 1rem;
+    }
+    .logo-desktop { font-family: 'Cinzel', serif; letter-spacing: 3px; font-size: 1.1rem; flex-shrink: 0; }
+    .tab-switch-desktop {
       display: flex; background: var(--surface); border-radius: 6px;
-      padding: 3px; gap: 2px;
+      padding: 3px; gap: 2px; flex: 1; max-width: 320px; margin: 0 auto;
     }
-    .tab-switch-2 button {
-      background: transparent; border: none; color: var(--text-secondary);
-      font-family: inherit; font-size: 0.72rem; letter-spacing: 0.5px;
-      padding: 0.35rem 0.7rem; border-radius: 4px; cursor: pointer;
-      transition: background 150ms, color 150ms; white-space: nowrap;
-    }
-    .tab-switch-2 button.active {
-      background: var(--bg); color: var(--text-primary);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    }
-    .magic-btn-header {
-      background: rgba(240,240,240,0.08); border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 6px; color: rgba(240,240,240,0.8); width: 34px; height: 34px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 150ms; flex-shrink: 0;
-    }
-    .magic-btn-header:hover { background: rgba(240,240,240,0.15); }
-
-    /* Option B mobile — floating pill */
-    .magic-pill-float {
-      position: absolute; bottom: -52px; left: 50%; transform: translateX(-50%);
-      background: rgba(240,240,240,0.95); color: #0c0c0f;
-      height: 44px; padding: 0 1.2rem; border-radius: 22px;
-      font-family: inherit; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px;
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6); cursor: pointer; white-space: nowrap;
-      border: none;
-    }
-
-    /* ── Option C: 2-tab + icon-only magic ── */
-    .tab-switch-c {
-      display: flex; background: var(--surface); border-radius: 6px;
-      padding: 3px; gap: 2px; flex: 1;
-    }
-    .tab-switch-c .tab-item {
+    .tab-switch-desktop button {
       flex: 1; background: transparent; border: none; color: var(--text-secondary);
-      font-family: inherit; font-size: 0.72rem; letter-spacing: 0.5px;
-      padding: 0.35rem 0.3rem; border-radius: 4px; cursor: pointer;
+      font-family: inherit; font-size: 0.78rem; letter-spacing: 0.5px;
+      padding: 0.4rem 0.5rem; border-radius: 4px; cursor: pointer;
       transition: background 150ms, color 150ms; white-space: nowrap;
     }
-    .tab-switch-c .tab-item.active {
+    .tab-switch-desktop button.active {
       background: var(--bg); color: var(--text-primary);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
-    .tab-switch-c .tab-magic {
-      background: transparent; border: none; color: rgba(240,240,240,0.5);
-      padding: 0.35rem 0.6rem; border-radius: 4px; cursor: pointer;
-      transition: background 150ms, color 150ms; display: flex; align-items: center;
-      position: relative;
-    }
-    .tab-switch-c .tab-magic::before {
-      content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
-      width: 1px; background: var(--border);
-    }
-    .tab-switch-c .tab-magic:hover { color: rgba(240,240,240,0.9); }
 
-    /* ── Shared content area ── */
-    .content-area {
-      padding: 0.8rem 1rem; display: flex; flex-direction: column; gap: 0.5rem;
+    /* Surprise button with label — desktop */
+    .surprise-btn-label {
+      background: rgba(240,240,240,0.07); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px; color: rgba(240,240,240,0.75); font-family: inherit;
+      font-size: 0.75rem; letter-spacing: 0.5px; cursor: pointer; flex-shrink: 0;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.8rem; height: 34px;
+      transition: background 150ms, border-color 150ms, color 150ms;
     }
+    .surprise-btn-label:hover { background: rgba(240,240,240,0.12); border-color: rgba(255,255,255,0.2); color: rgba(240,240,240,0.95); }
+
+    /* ── Content ── */
+    .content-area { padding: 0.8rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .search-bar-mock { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0.4rem 0.7rem; font-size: 0.75rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.4rem; }
     .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    .filter-chip {
-      background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary);
-      padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.68rem; cursor: pointer;
-    }
+    .filter-chip { background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary); padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.68rem; cursor: pointer; }
     .filter-chip.active { border-color: var(--text-primary); color: var(--text-primary); }
-    .search-bar-mock {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
-      padding: 0.4rem 0.7rem; font-size: 0.75rem; color: var(--text-secondary);
-      display: flex; align-items: center; gap: 0.4rem;
-    }
     .mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-top: 0.3rem; }
     .mini-card { background: var(--surface); border-radius: 4px; aspect-ratio: 4/3; overflow: hidden; }
     .mini-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .mini-card.shimmer { animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.7} }
+    .shimmer { animation: pulse 1.5s infinite; }
 
-    /* Categories preview */
     .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.3rem; }
-    .cat-folder {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
-      padding: 0.6rem; cursor: pointer; transition: border-color 150ms;
-    }
+    .cat-folder { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem; cursor: pointer; transition: border-color 150ms; }
     .cat-folder:hover { border-color: var(--text-secondary); }
-    .cat-folder .cat-previews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; border-radius: 3px; overflow: hidden; margin-bottom: 0.4rem; }
-    .cat-folder .cat-previews div { aspect-ratio: 1; background: #2a2a35; overflow: hidden; }
-    .cat-folder .cat-previews div img { width: 100%; height: 100%; object-fit: cover; }
-    .cat-folder .cat-name { font-size: 0.72rem; font-weight: 500; }
-    .cat-folder .cat-count { font-size: 0.62rem; color: var(--text-secondary); margin-top: 0.1rem; }
+    .cat-previews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; border-radius: 3px; overflow: hidden; margin-bottom: 0.4rem; }
+    .cat-previews div { aspect-ratio: 1; background: #2a2a35; overflow: hidden; }
+    .cat-previews div img { width: 100%; height: 100%; object-fit: cover; }
+    .cat-name { font-size: 0.72rem; font-weight: 500; }
+    .cat-count { font-size: 0.62rem; color: var(--text-secondary); margin-top: 0.1rem; }
 
-    /* Surprise preview */
-    .surprise-preview {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 1.5rem 1rem; gap: 0.8rem; text-align: center;
-    }
-    .surprise-preview .big-art { width: 80%; border-radius: 6px; aspect-ratio: 4/3; background: var(--surface); overflow: hidden; }
-    .surprise-preview .big-art img { width: 100%; height: 100%; object-fit: cover; }
-    .surprise-preview .card-name { font-size: 0.85rem; font-weight: 500; }
-    .surprise-preview .card-detail { font-size: 0.7rem; color: var(--text-secondary); }
-    .draw-btn {
-      background: rgba(20,20,28,0.9); border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 20px; color: rgba(240,240,240,0.85); font-family: inherit;
-      font-size: 0.75rem; padding: 0.4rem 1rem; cursor: pointer; display: flex;
-      align-items: center; gap: 0.4rem;
-    }
-
-    /* Active tab content switcher */
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-
-    /* Annotation */
-    .annotation {
-      background: rgba(26,26,34,0.8); border: 1px solid var(--border); border-radius: 6px;
-      padding: 0.7rem 0.9rem; font-size: 0.7rem; color: var(--text-secondary);
-      line-height: 1.5;
-    }
-    .annotation strong { color: var(--text-primary); display: block; margin-bottom: 0.2rem; font-size: 0.72rem; }
-    .pro { color: #6db86d; }
-    .con { color: #b86d6d; }
-
-    /* Spacer for floating pill */
-    .pill-spacer { height: 60px; }
   </style>
 </head>
 <body>
 
 <div class="page-title">
-  <h1>NAVIGATION OPTIONS</h1>
-  <p>Three approaches to the top-level navigation — click tabs to interact</p>
+  <h1>OPTION B — REFINED</h1>
+  <p>Switch centered · Surprise top-right · label on desktop, icon on mobile</p>
 </div>
 
 <div class="breakpoint-toggle">
@@ -215,187 +138,81 @@
   <button class="bp-btn" id="btnDesktop">🖥 Desktop</button>
 </div>
 
-<div class="options">
+<div class="frames">
 
-  <!-- ── OPTION A: 3-tab switch ── -->
-  <div class="option">
-    <div class="option-label">
-      <strong>Option A — 3-tab switch</strong>
-      <span>All Art · Categories · Surprise</span>
-    </div>
-
-    <div class="phone-frame mobile-view" id="frameA">
+  <!-- Mobile frame -->
+  <div class="frame-wrap" id="mobileWrap">
+    <div class="frame-label"><strong>Mobile</strong>icon-only surprise · switch fills space</div>
+    <div class="phone-frame mobile-view">
       <div class="hdr">
-        <div class="hdr-row1">
-          <span class="logo sm">MC</span>
-          <div class="tab-switch-3" id="tabsA">
-            <button class="active" data-tab="all-a">All Art</button>
-            <button data-tab="cat-a">Categories</button>
-            <button data-tab="sur-a">Surprise</button>
+        <div class="hdr-mobile">
+          <span class="logo">MC</span>
+          <div class="tab-switch" id="tabsMobile">
+            <button class="active" data-target="mob-all">All Art</button>
+            <button data-target="mob-cat">Categories</button>
           </div>
-        </div>
-      </div>
-
-      <!-- All Art -->
-      <div class="tab-content active" id="all-a">
-        <div class="content-area">
-          <div class="search-bar-mock">🔍 <span>Search card, artist, set...</span></div>
-          <div class="filter-row">
-            <div class="filter-chip active">Newest ⇅</div>
-            <div class="filter-chip">Artist ▾</div>
-            <div class="filter-chip">Set ▾</div>
-            <div class="filter-chip">Filters</div>
-          </div>
-          <div class="mini-grid" id="gridA"></div>
-        </div>
-      </div>
-
-      <!-- Categories -->
-      <div class="tab-content" id="cat-a">
-        <div class="content-area">
-          <div class="search-bar-mock">🔍 <span>Search categories...</span></div>
-          <div class="cat-grid" id="catA"></div>
-        </div>
-      </div>
-
-      <!-- Surprise -->
-      <div class="tab-content" id="sur-a">
-        <div class="surprise-preview" id="surA">
-          <div class="big-art"><img id="surArt-a" src="" alt=""></div>
-          <div class="card-name" id="surName-a">Loading...</div>
-          <div class="card-detail" id="surDetail-a"></div>
-          <button class="draw-btn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-            Random art
+          <button class="surprise-btn-icon" title="Surprise Me">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
           </button>
         </div>
       </div>
-    </div>
-
-    <div class="annotation">
-      <strong>3-tab switch</strong>
-      <span class="pro">✓ Consistent — all modes equal weight</span><br>
-      <span class="pro">✓ Always visible, no hunting</span><br>
-      <span class="con">✗ Surprise is an action, not a destination</span><br>
-      <span class="con">✗ 3 tabs feels crowded on small screens</span><br>
-      <span class="con">✗ Flattens the magic of Surprise</span>
+      <div class="tab-content active" id="mob-all">
+        <div class="content-area">
+          <div class="search-bar-mock">🔍 <span>Search card, artist, set...</span></div>
+          <div class="filter-row">
+            <div class="filter-chip active">Newest ⇅</div>
+            <div class="filter-chip">Artist ▾</div>
+            <div class="filter-chip">Set ▾</div>
+            <div class="filter-chip">Filters</div>
+          </div>
+          <div class="mini-grid" id="gridMob"></div>
+        </div>
+      </div>
+      <div class="tab-content" id="mob-cat">
+        <div class="content-area">
+          <div class="search-bar-mock">🔍 <span>Search categories...</span></div>
+          <div class="cat-grid" id="catMob"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- ── OPTION B: 2-tab + floating magic button ── -->
-  <div class="option">
-    <div class="option-label">
-      <strong>Option B — 2-tab + magic pill</strong>
-      <span>Switch + floating Surprise button</span>
-    </div>
-
-    <div class="phone-frame mobile-view" id="frameB" style="position:relative;">
+  <!-- Desktop frame -->
+  <div class="frame-wrap" id="desktopWrap">
+    <div class="frame-label"><strong>Desktop</strong>switch centered · surprise with label top-right</div>
+    <div class="phone-frame desktop-view">
       <div class="hdr">
-        <div class="hdr-row1">
-          <span class="logo sm">MC</span>
-          <div class="tab-switch-2" id="tabsB">
-            <button class="active" data-tab="all-b">All Art</button>
-            <button data-tab="cat-b">Categories</button>
+        <div class="hdr-desktop">
+          <span class="logo-desktop">MANACANVAS</span>
+          <div class="tab-switch-desktop" id="tabsDesktop">
+            <button class="active" data-target="desk-all">All Art</button>
+            <button data-target="desk-cat">Categories</button>
           </div>
-          <!-- Desktop magic button (hidden on mobile) -->
-          <button class="magic-btn-header" id="magicBtnDesktop" style="display:none;" title="Surprise Me">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <button class="surprise-btn-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            Random Art
           </button>
         </div>
       </div>
-
-      <!-- All Art -->
-      <div class="tab-content active" id="all-b">
+      <div class="tab-content active" id="desk-all">
         <div class="content-area">
           <div class="search-bar-mock">🔍 <span>Search card, artist, set...</span></div>
           <div class="filter-row">
             <div class="filter-chip active">Newest ⇅</div>
             <div class="filter-chip">Artist ▾</div>
             <div class="filter-chip">Set ▾</div>
+            <div class="filter-chip">Art Style ▾</div>
             <div class="filter-chip">Filters</div>
           </div>
-          <div class="mini-grid" id="gridB"></div>
+          <div class="mini-grid" id="gridDesk"></div>
         </div>
-        <div class="pill-spacer"></div>
       </div>
-
-      <!-- Categories -->
-      <div class="tab-content" id="cat-b">
+      <div class="tab-content" id="desk-cat">
         <div class="content-area">
           <div class="search-bar-mock">🔍 <span>Search categories...</span></div>
-          <div class="cat-grid" id="catB"></div>
-        </div>
-        <div class="pill-spacer"></div>
-      </div>
-
-      <!-- Floating pill — always visible -->
-      <button class="magic-pill-float" id="magicPillB">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-        Surprise Me
-      </button>
-    </div>
-
-    <div class="annotation">
-      <strong>2-tab + floating pill</strong>
-      <span class="pro">✓ Surprise feels special, not just a tab</span><br>
-      <span class="pro">✓ Always reachable, thumb-friendly</span><br>
-      <span class="pro">✓ Matches established ManaCanvas pattern</span><br>
-      <span class="con">✗ Pill overlaps content at bottom</span><br>
-      <span class="con">✗ Two separate navigation systems</span>
-    </div>
-  </div>
-
-  <!-- ── OPTION C: 2-tab + icon-only magic in switch ── -->
-  <div class="option">
-    <div class="option-label">
-      <strong>Option C — 2-tab + 🎲 in switch</strong>
-      <span>Icon-only Surprise inside the tab bar</span>
-    </div>
-
-    <div class="phone-frame mobile-view" id="frameC">
-      <div class="hdr">
-        <div class="hdr-row1">
-          <span class="logo sm">MC</span>
-          <div class="tab-switch-c" id="tabsC">
-            <button class="tab-item active" data-tab="all-c">All Art</button>
-            <button class="tab-item" data-tab="cat-c">Categories</button>
-            <button class="tab-magic" id="magicC" title="Surprise Me">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-            </button>
-          </div>
+          <div class="cat-grid" id="catDesk"></div>
         </div>
       </div>
-
-      <!-- All Art -->
-      <div class="tab-content active" id="all-c">
-        <div class="content-area">
-          <div class="search-bar-mock">🔍 <span>Search card, artist, set...</span></div>
-          <div class="filter-row">
-            <div class="filter-chip active">Newest ⇅</div>
-            <div class="filter-chip">Artist ▾</div>
-            <div class="filter-chip">Set ▾</div>
-            <div class="filter-chip">Filters</div>
-          </div>
-          <div class="mini-grid" id="gridC"></div>
-        </div>
-      </div>
-
-      <!-- Categories -->
-      <div class="tab-content" id="cat-c">
-        <div class="content-area">
-          <div class="search-bar-mock">🔍 <span>Search categories...</span></div>
-          <div class="cat-grid" id="catC"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="annotation">
-      <strong>Icon-only in switch</strong>
-      <span class="pro">✓ Compact — everything in one bar</span><br>
-      <span class="pro">✓ Visual separator makes it feel different</span><br>
-      <span class="pro">✓ Clean on small screens</span><br>
-      <span class="con">✗ Icon alone may not be discoverable</span><br>
-      <span class="con">✗ Mixing navigation + action in one control</span>
     </div>
   </div>
 
@@ -403,135 +220,74 @@
 
 <script>
   const API = 'https://api.scryfall.com';
-  let cards = [];
-  let catCards = {};
-
-  const CATEGORIES = [
-    { name: 'Artists', query: 'has:illustration', icon: '👤', count: '1,200+' },
-    { name: 'Creatures', query: 't:creature has:illustration', icon: '🐉', count: '8,000+' },
-    { name: 'Sets', query: 'has:illustration', icon: '🃏', count: '100+' },
-    { name: 'Art Style', query: 'has:illustration', icon: '🎨', count: '8 styles' },
-    { name: 'Era', query: 'has:illustration', icon: '📅', count: '4 eras' },
-    { name: 'Color', query: 'has:illustration', icon: '🌈', count: '7 colors' },
+  const CATS = [
+    { name: 'Artists', icon: '👤', count: '1,200+' },
+    { name: 'Creatures', icon: '🐉', count: '8,000+' },
+    { name: 'Sets', icon: '🃏', count: '100+' },
+    { name: 'Art Style', icon: '🎨', count: '8 styles' },
+    { name: 'Era', icon: '📅', count: '4 eras' },
+    { name: 'Color', icon: '🌈', count: '7 colors' },
   ];
 
-  async function loadCards() {
+  async function load() {
     const page = Math.floor(Math.random() * 30) + 1;
     const res = await fetch(`${API}/cards/search?q=t:creature+has:illustration&unique=art&order=released&dir=desc&page=${page}`);
     if (!res.ok) return;
     const json = await res.json();
-    cards = (json.data || []).filter(c => c.image_uris?.art_crop).slice(0, 9);
-    renderGrids();
-    renderCats();
-    loadSurprise();
-  }
+    const cards = (json.data || []).filter(c => c.image_uris?.art_crop).slice(0, 9);
 
-  function renderGrids() {
-    ['gridA','gridB','gridC'].forEach(id => {
+    ['gridMob','gridDesk'].forEach(id => {
       const el = document.getElementById(id);
-      if (!el) return;
       el.innerHTML = '';
-      cards.slice(0, 9).forEach(card => {
-        const div = document.createElement('div');
-        div.className = 'mini-card';
-        const img = document.createElement('img');
-        img.src = card.image_uris.art_crop;
-        img.alt = card.name;
-        img.loading = 'lazy';
-        div.appendChild(img);
-        el.appendChild(div);
+      cards.forEach(card => {
+        const d = document.createElement('div'); d.className = 'mini-card';
+        const img = document.createElement('img'); img.src = card.image_uris.art_crop; img.loading = 'lazy';
+        d.appendChild(img); el.appendChild(d);
+      });
+    });
+
+    ['catMob','catDesk'].forEach(id => {
+      const el = document.getElementById(id);
+      el.innerHTML = '';
+      CATS.forEach((cat, i) => {
+        const f = document.createElement('div'); f.className = 'cat-folder';
+        const preview = cards.slice(i * 3, i * 3 + 3);
+        f.innerHTML = `<div class="cat-previews">${preview.map(c=>`<div><img src="${c.image_uris.art_crop}"></div>`).join('')}${Array(Math.max(0,3-preview.length)).fill('<div></div>').join('')}</div><div class="cat-name">${cat.icon} ${cat.name}</div><div class="cat-count">${cat.count}</div>`;
+        el.appendChild(f);
       });
     });
   }
 
-  function renderCats() {
-    ['catA','catB','catC'].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.innerHTML = '';
-      CATEGORIES.forEach((cat, i) => {
-        const folder = document.createElement('div');
-        folder.className = 'cat-folder';
-        const previewCards = cards.slice(i * 3, i * 3 + 3);
-        folder.innerHTML = `
-          <div class="cat-previews">
-            ${previewCards.map(c => `<div><img src="${c.image_uris.art_crop}" alt=""></div>`).join('')}
-            ${previewCards.length < 3 ? Array(3 - previewCards.length).fill('<div></div>').join('') : ''}
-          </div>
-          <div class="cat-name">${cat.icon} ${cat.name}</div>
-          <div class="cat-count">${cat.count}</div>
-        `;
-        el.appendChild(folder);
-      });
-    });
-  }
-
-  async function loadSurprise() {
-    const res = await fetch(`${API}/cards/random?q=has:illustration+is:hires`);
-    if (!res.ok) return;
-    const card = await res.json();
-    const art = card.image_uris?.art_crop;
-    const nameEl = document.getElementById('surName-a');
-    const detailEl = document.getElementById('surDetail-a');
-    const artEl = document.getElementById('surArt-a');
-    if (nameEl) nameEl.textContent = card.name;
-    if (detailEl) detailEl.textContent = `${card.artist || ''} · ${card.set_name || ''}`;
-    if (artEl) artEl.src = art;
-  }
-
-  // Tab switching
-  function setupTabs(tabsId) {
-    const tabs = document.getElementById(tabsId);
-    if (!tabs) return;
-    tabs.querySelectorAll('[data-tab]').forEach(btn => {
+  function setupTabs(id) {
+    document.getElementById(id).querySelectorAll('[data-target]').forEach(btn => {
       btn.addEventListener('click', () => {
-        tabs.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).querySelectorAll('[data-target]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const tabId = btn.dataset.tab;
-        document.querySelectorAll(`#${tabId}, [id^="${tabId.split('-')[0]}-"]`).forEach(el => {
-          el.classList.remove('active');
-        });
-        const target = document.getElementById(tabId);
-        if (target) {
-          // Hide all siblings
-          const parent = target.parentElement;
-          parent.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-          target.classList.add('active');
-        }
+        const frame = btn.closest('.phone-frame');
+        frame.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(btn.dataset.target).classList.add('active');
       });
     });
   }
 
-  setupTabs('tabsA');
-  setupTabs('tabsB');
-  setupTabs('tabsC');
+  setupTabs('tabsMobile');
+  setupTabs('tabsDesktop');
 
-  // Breakpoint toggle
+  // Breakpoint toggle — show/hide frames
   document.getElementById('btnMobile').addEventListener('click', () => {
-    ['frameA','frameB','frameC'].forEach(id => {
-      const f = document.getElementById(id);
-      f.classList.remove('desktop-view');
-      f.classList.add('mobile-view');
-    });
-    document.getElementById('magicBtnDesktop').style.display = 'none';
-    document.getElementById('magicPillB').style.display = '';
+    document.getElementById('mobileWrap').style.display = '';
+    document.getElementById('desktopWrap').style.display = 'none';
     document.getElementById('btnMobile').classList.add('active');
     document.getElementById('btnDesktop').classList.remove('active');
   });
-
   document.getElementById('btnDesktop').addEventListener('click', () => {
-    ['frameA','frameB','frameC'].forEach(id => {
-      const f = document.getElementById(id);
-      f.classList.remove('mobile-view');
-      f.classList.add('desktop-view');
-    });
-    document.getElementById('magicBtnDesktop').style.display = 'flex';
-    document.getElementById('magicPillB').style.display = 'none';
+    document.getElementById('mobileWrap').style.display = 'none';
+    document.getElementById('desktopWrap').style.display = '';
     document.getElementById('btnDesktop').classList.add('active');
     document.getElementById('btnMobile').classList.remove('active');
   });
 
-  loadCards();
+  load();
 </script>
 </body>
 </html>

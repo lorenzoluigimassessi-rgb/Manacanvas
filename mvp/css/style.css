@@ -906,15 +906,13 @@ body {
 /* Swipe hint overlay — covers art, centered text, mobile only */
 .lb-swipe-hint-overlay {
   display: none;
-  position: absolute;
+  position: fixed;
   inset: 0;
-  background: rgba(12,12,15,0.55);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  background: rgba(12,12,15,0.65);
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: 0.8rem;
   color: rgba(240,240,240,0.9);
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.8rem;
@@ -922,8 +920,7 @@ body {
   letter-spacing: 1.5px;
   text-transform: uppercase;
   pointer-events: none;
-  z-index: 10;
-  border-radius: var(--radius);
+  z-index: 250;
   transition: opacity 300ms ease;
 }
 @media (max-width: 768px) {

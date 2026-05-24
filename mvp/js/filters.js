@@ -297,8 +297,8 @@ function toggleViewDropdown() {
   const dropdown = document.createElement("div");
   dropdown.className = "view-dropdown";
   dropdown.id = "viewDropdown";
-  dropdown.style.right = isMobile() ? "0" : "auto";
-  dropdown.style.left = isMobile() ? "auto" : "0";
+  dropdown.style.right = "0";
+  dropdown.style.left = "auto";
   dropdown.addEventListener("click", (e) => e.stopPropagation());
   dropdown.innerHTML = `
     <div class="view-dropdown-item ${currentGridSize === 'sm' ? 'active' : ''}" onclick="setGridSize('sm')">Small Grid</div>

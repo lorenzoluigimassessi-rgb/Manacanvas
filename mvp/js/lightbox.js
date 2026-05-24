@@ -16,19 +16,19 @@ function getManaGradient(colors) {
 
 function openLightbox(card, mode = 'feed') {
   currentCard = card;
-  currentMode = 'frame';
   _lbMode = mode;
   scale = 1; translateX = 0; translateY = 0;
 
   const artCrop = card.image_uris?.art_crop  || card.card_faces?.[0]?.image_uris?.art_crop;
   const normal  = card.image_uris?.normal    || card.card_faces?.[0]?.image_uris?.normal;
-  const initialSrc = normal || artCrop;
   const hasArtCrop = !!artCrop;
   const setName = card.set_name || '';
   const year    = card.released_at ? card.released_at.slice(0, 4) : '';
   const disabledAttr  = !hasArtCrop ? 'style="opacity:0.4;cursor:not-allowed;"' : '';
   const disabledTitle = !hasArtCrop ? 'title="Art-only view unavailable for this card"' : '';
   const isSurprise = mode === 'surprise';
+  currentMode = isSurprise ? 'frame' : 'art';
+  const initialSrc = isSurprise ? (normal || artCrop) : (artCrop || normal);
 
   // Arrow visibility state
   const noHistory  = isSurprise && window._surpriseHistory.length === 0;
@@ -62,7 +62,7 @@ function openLightbox(card, mode = 'feed') {
 
       <!-- Art -->
       <div class="art-container" id="artContainer" style="overflow:hidden;">
-        <img id="lbImage" src="${initialSrc}" alt="${card.name}" class="frame-mode">
+        <img id="lbImage" src="${initialSrc}" alt="${card.name}" ${isSurprise ? 'class="frame-mode"' : ''}>
         <!-- Desktop ghost arrows — feed only -->
         ${!isSurprise ? `
         <div class="lb-ghost-arrows" id="lbGhostArrows">
@@ -76,8 +76,8 @@ function openLightbox(card, mode = 'feed') {
       <!-- Toggle -->
       <div class="lightbox-actions">
         <div class="toggle">
-          <button id="toggleArt" ${disabledAttr} ${disabledTitle}>Art Only</button>
-          <button id="toggleFrame" class="active">With Frame</button>
+          <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art Only</button>
+          <button id="toggleFrame" ${isSurprise ? 'class="active"' : ''}>With Frame</button>
         </div>
       </div>
 

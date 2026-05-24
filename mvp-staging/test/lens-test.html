@@ -230,7 +230,8 @@
 
     <!-- LENS ROW -->
     <div class="lens-row" id="lensRow">
-      <button class="lens-btn active" data-lens="latest"   onclick="setLens(this)">Latest</button>
+      <button class="lens-btn active" data-lens="picks"   onclick="setLens(this)">Our Picks</button>
+      <button class="lens-btn"        data-lens="latest"   onclick="setLens(this)">Latest</button>
       <button class="lens-btn"        data-lens="era"      onclick="setLens(this)">By Era</button>
       <button class="lens-btn"        data-lens="creature" onclick="setLens(this)">Creature Type</button>
       <button class="lens-btn"        data-lens="color"    onclick="setLens(this)">Mana Color</button>
@@ -269,8 +270,21 @@
       g.appendChild(d);
     }
 
-    // sub-pill definitions per lens
+    // daily-seeded theme library
+    const DAILY_THEMES = [
+      'Dragons of the Multiverse', 'Angels & Light', 'Dark Forests',
+      'Ancient Civilizations', 'Cosmic Horror', 'Warriors & Battle',
+      'Mystical Landscapes', 'Creatures of the Deep', 'Fire & Destruction',
+      'Ethereal Spirits', 'The Undead', 'Legendary Heroes',
+    ];
+    function getDailyTheme() {
+      const day = Math.floor(Date.now() / 86400000);
+      return DAILY_THEMES[day % DAILY_THEMES.length];
+    }
+
+    // sub-pill definitions per lens — picks has none
     const SUB_PILLS = {
+      picks:    [],
       latest:   ['All', 'Previews only', 'Last set', 'Last block'],
       era:      ['The Beginning', 'The Dark Age', 'The Invasion Era', 'The Modern Age', 'The Renaissance', 'The New Era', 'The Modern Era', 'The Multiverse Era'],
       creature: ['Dragon', 'Angel', 'Demon', 'Elf', 'Human', 'Merfolk', 'Zombie', '+ More'],
@@ -278,8 +292,8 @@
       style:    ['Classic', 'Dark & Gritty', 'Painterly', 'Ethereal', 'Epic', 'Sketch', 'Modern'],
     };
 
-    let _activeLens = 'latest';
-    let _activeSub  = 'All';
+    let _activeLens = 'picks';
+    let _activeSub  = null;
 
     function setLens(el) {
       document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
@@ -288,12 +302,15 @@
       _activeSub  = null;
       renderSubPills(_activeLens);
       document.getElementById('currentLens').textContent = _activeLens;
-      document.getElementById('currentSub').textContent = '—';
+      document.getElementById('currentSub').textContent =
+        _activeLens === 'picks' ? getDailyTheme() : '—';
     }
 
     function renderSubPills(lens) {
       const row = document.getElementById('subRow');
       const pills = SUB_PILLS[lens] || [];
+      // hide row entirely for Our Picks
+      row.style.display = pills.length === 0 ? 'none' : '';
       row.innerHTML = pills.map((p, i) =>
         `<button class="sub-pill ${i === 0 ? 'active' : ''}" onclick="setSub(this)">
           <span class="sub-thumb"></span>
@@ -321,7 +338,7 @@
     }
 
     // init
-    renderSubPills('latest');
+    renderSubPills('picks');
     window.addEventListener('resize', () => document.getElementById('vpWidth').textContent = window.innerWidth + 'px');
     document.getElementById('vpWidth').textContent = window.innerWidth + 'px';
   </script>

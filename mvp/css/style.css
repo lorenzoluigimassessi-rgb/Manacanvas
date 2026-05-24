@@ -80,6 +80,7 @@ body {
   cursor: pointer;
   font-family: 'Josefin Sans', sans-serif;
   letter-spacing: 1px;
+  font-variant: normal;
   display: inline-flex;
   align-items: center;
   justify-content: center;

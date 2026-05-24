@@ -41,8 +41,8 @@ function openLightbox(card, mode = 'feed') {
   const hintKey = isSurprise ? 'lb_swipe_hint_shown' : 'lb_feed_hint_shown';
   const showSwipeHint = !sessionStorage.getItem(hintKey);
   const swipeHintCopy = isSurprise
-    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M15 6l6 6-6 6"/></svg> Keep swiping`
-    : `<svg width="18" height="10" viewBox="0 0 28 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5h26M5 1L1 5l4 4M23 1l4 4-4 4"/></svg> Swipe to browse`;
+    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M15 6l6 6-6 6"/></svg><span>Keep swiping</span>`
+    : `<svg width="24" height="12" viewBox="0 0 28 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5h26M5 1L1 5l4 4M23 1l4 4-4 4"/></svg><span>Swipe to browse</span>`;
 
   localStorage.setItem('mc_lightbox', JSON.stringify({ id: card.id, mode }));
 
@@ -64,7 +64,7 @@ function openLightbox(card, mode = 'feed') {
         </div>` : ''}
       </div>
       <!-- Swipe hint pill — outside art-container so overflow:hidden doesn't clip it -->
-      ${showSwipeHint ? `<div class="lb-swipe-hint-pill" id="lbSwipeHint">${swipeHintCopy}</div>` : ''}
+      ${showSwipeHint ? `<div class="lb-swipe-hint-overlay" id="lbSwipeHint">${swipeHintCopy}</div>` : ''}
 
       <!-- Toggle -->
       <div class="lightbox-actions">

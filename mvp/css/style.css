@@ -903,30 +903,31 @@ body {
 }
 
 /* Swipe hint pill — below art-container, centered, mobile only */
-.lb-swipe-hint-pill {
+/* Swipe hint overlay — covers art, centered text, mobile only */
+.lb-swipe-hint-overlay {
   display: none;
-  position: relative;
-  margin-top: 0.8rem;
-  background: rgba(12,12,15,0.75);
-  border: 1px solid rgba(255,255,255,0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 24px;
-  padding: 0.5rem 1.2rem;
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: rgba(240,240,240,0.85);
-  pointer-events: none;
-  white-space: nowrap;
+  position: absolute;
+  inset: 0;
+  background: rgba(12,12,15,0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.6rem;
+  color: rgba(240,240,240,0.9);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  pointer-events: none;
   z-index: 10;
-  flex-shrink: 0;
+  border-radius: var(--radius);
+  transition: opacity 300ms ease;
 }
 @media (max-width: 768px) {
-  .lb-swipe-hint-pill { display: inline-flex; }
+  .lb-swipe-hint-overlay { display: flex; }
 }
 
 /* Mobile bottom nav — fixed outside lightbox, two circular arrows */

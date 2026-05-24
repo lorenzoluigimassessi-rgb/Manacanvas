@@ -37,31 +37,7 @@ async function renderWelcome() {
       <div class="welcome-hero">
         <h1 class="welcome-title">MANACANVAS</h1>
         <p class="welcome-subtitle">Discover the art of Magic: The Gathering&#174;</p>
-        <button class="welcome-cta" onclick="startSurprise()">
-          <!-- Option 1: Simple card outline -->
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:0.4rem"><rect x="3" y="2" width="18" height="20" rx="2"/><path d="M8 6h.01M16 18h.01"/></svg>
-          Draw a Card
-        </button>
-        <button class="welcome-cta" onclick="startSurprise()" style="margin-top:0.5rem;">
-          <!-- Option 2: Card with diamond -->
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:0.4rem"><rect x="3" y="2" width="18" height="20" rx="2"/><path d="M12 7l2.5 4L12 15l-2.5-4L12 7z" fill="currentColor" stroke="none"/></svg>
-          Draw a Card
-        </button>
-        <button class="welcome-cta" onclick="startSurprise()" style="margin-top:0.5rem;">
-          <!-- Option 3: Stacked cards -->
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:0.4rem"><rect x="2" y="5" width="15" height="18" rx="2"/><path d="M7 2h13a2 2 0 0 1 2 2v15"/></svg>
-          Draw a Card
-        </button>
-        <button class="welcome-cta" onclick="startSurprise()" style="margin-top:0.5rem;">
-          <!-- Option 4: Card being drawn -->
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:0.4rem"><rect x="3" y="4" width="14" height="18" rx="2"/><path d="M17 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2"/><path d="M10 9l3 3-3 3"/></svg>
-          Draw a Card
-        </button>
-        <button class="welcome-cta" onclick="startSurprise()" style="margin-top:0.5rem;">
-          <!-- Option 5: Sparkle -->
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:0.4rem"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
-          Draw a Card
-        </button>
+        <button class="welcome-cta" onclick="startSurprise()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:0.4rem"><rect x="2" y="2" width="20" height="20" rx="4" ry="4"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg>Random Art</button>
         <p class="welcome-draw-separator">or</p>
         <button class="welcome-draw-cta" onclick="startBrowse()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Browse the Gallery</button>
       </div>

@@ -1213,8 +1213,8 @@ body {
 }
 .lb-nav-arrow:hover { background: rgba(40,40,60,0.85); border-color: rgba(255,255,255,0.25); }
 .lb-nav-arrow:active, .lb-nav-arrow.active { background: rgba(50,50,70,0.9); transform: translateY(-50%) scale(0.95); }
-#lbPrev { left: calc(50% - 40vw - 60px); }
-#lbNext { right: calc(50% - 40vw - 60px); }
+#lbPrev { left: 1.5rem; }
+#lbNext { right: 1.5rem; }
 .lb-nav-arrow.hidden { display: none; }
 
 /* Ghost arrows — desktop only, inside art — now removed, using outside arrows only */

@@ -366,8 +366,10 @@ function openLightbox(card, mode = 'feed') {
 
   // ── Meta links ─────────────────────────────────────────────────────────────
   document.getElementById('lbName').addEventListener('click', () => {
-    closeLightbox(); activeSearch = currentCard.name;
-    const sb = document.getElementById('searchBar'); if (sb) sb.value = currentCard.name;
+    const name = currentCard.name;
+    closeLightbox();
+    activeSearch = `name:"${name}"`;
+    const sb = document.getElementById('searchBar'); if (sb) sb.value = name;
     const sc = document.getElementById('searchClear'); if (sc) sc.style.display = 'block';
     updateChips(); loadInitialGrid();
   });

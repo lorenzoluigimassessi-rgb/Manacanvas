@@ -17,8 +17,9 @@ let activeSearch = null;
 let filteredCards = [];
 
 async function loadInitialGrid() {
-  // Reset any stuck loading state and random pool from previous query
+  // Reset all fetch state immediately to prevent stale data from previous queries
   isLoading = false;
+  nextPageUrl = null;
   window._randomPool = [];
   window._randomPoolQuery = null;
   // Save current filter state to localStorage
@@ -30,10 +31,12 @@ async function loadInitialGrid() {
   showShimmers();
   resetPagination();
   const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, (typeof ART_STYLES !== 'undefined' ? activeStyles.map(i => ART_STYLES[i]) : []), activeYearMin, activeYearMax, activeSearch);
-  const { data, hasMore } = await fetchCards(query);
+  const { data, hasMore, rateLimited } = await fetchCards(query);
   grid.innerHTML = "";
   if (!data.length) {
-    grid.innerHTML = `<div class="empty-state"><h2>No artwork found</h2><p>Try adjusting your filters or clearing them to browse all art.</p></div>`;
+    grid.innerHTML = rateLimited
+      ? `<div class="empty-state"><h2>Too many requests</h2><p>Scryfall is rate limiting us. Wait a moment and try again.</p></div>`
+      : `<div class="empty-state"><h2>No artwork found</h2><p>Try adjusting your filters or clearing them to browse all art.</p></div>`;
     return;
   }
   filteredCards = data;

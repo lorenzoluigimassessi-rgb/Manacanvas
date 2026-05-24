@@ -23,6 +23,16 @@ async function fetchCards(query = "t:creature", page = 1) {
   const url = (!isRandom && nextPageUrl) || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=${randomPage}`;
   try {
     const res = await fetch(url);
+    if (res.status === 429) {
+      // Rate limited — wait and retry once
+      await new Promise(r => setTimeout(r, 2000));
+      const retry = await fetch(url);
+      if (!retry.ok) { isLoading = false; return { data: [], hasMore: false, rateLimited: true }; }
+      const rjson = await retry.json();
+      nextPageUrl = rjson.has_more ? rjson.next_page : null;
+      isLoading = false;
+      return { data: isRandom ? shuffleArray(rjson.data || []) : (rjson.data || []), hasMore: rjson.has_more || false };
+    }
     if (!res.ok) {
       if (isRandom) {
         const fallback = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=1`);

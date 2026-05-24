@@ -99,13 +99,35 @@ function startBrowse() {
 }
 
 function startSurprise() {
-  localStorage.setItem("mc_entered", "1");
-  welcomeEl.style.display = "none";
-  appShell.style.display = "block";
-  const bar = document.getElementById("mobileActionBar");
-  if (bar) bar.style.removeProperty("display");
-  // Open lightbox first so feed never flashes
-  window._surpriseHistory = []; // reset history for new session
+  localStorage.setItem('mc_entered', '1');
+  window._surpriseHistory = [];
+  // Show skeleton immediately, load feed in background
+  welcomeEl.style.display = 'none';
+  appShell.style.display = 'block';
+  const bar = document.getElementById('mobileActionBar');
+  if (bar) bar.style.removeProperty('display');
+  // Show skeleton lightbox while card loads
+  const lightbox = document.getElementById('lightbox');
+  lightbox.style.background = '#0c0c0f';
+  lightbox.innerHTML = `
+    <div class="lightbox" id="lightboxOverlay" style="background:#0c0c0f;">
+      <div class="lb-blur-bg" style="background:#111118;"></div>
+      <button class="close-btn" id="lbSkeletonClose" style="color:rgba(240,240,240,0.3);">✕</button>
+      <div class="art-container" style="background:#1a1a22;border-radius:6px;">
+        <div style="width:100%;height:100%;background:linear-gradient(90deg,#1a1a22 25%,#22222e 50%,#1a1a22 75%);background-size:200% 100%;animation:shimmerPulse 1.5s infinite;"></div>
+      </div>
+      <div class="lightbox-actions"><div class="toggle" style="opacity:0.3;"><button>Art Only</button><button>With Frame</button></div></div>
+      <div class="meta" style="opacity:0.3;">
+        <div class="name" style="background:#2a2a35;border-radius:4px;width:140px;height:1.1rem;margin:0 auto;"></div>
+        <div class="details" style="background:#2a2a35;border-radius:4px;width:100px;height:0.8rem;margin:0.5rem auto 0;"></div>
+      </div>
+    </div>
+  `;
+  document.body.style.overflow = 'hidden';
+  document.getElementById('lbSkeletonClose').addEventListener('click', () => {
+    closeLightbox(); showWelcome();
+  });
+  loadInitialGrid();
   if (_welcomeCard) {
     openLightbox(_welcomeCard, 'surprise');
     _welcomeCard = null;
@@ -113,7 +135,6 @@ function startSurprise() {
   } else {
     fetchRandomCard().then(card => { if (card) openLightbox(card, 'surprise'); });
   }
-  loadInitialGrid();
 }
 
 // On load: skip welcome if user has been here before

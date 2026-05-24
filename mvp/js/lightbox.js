@@ -451,6 +451,7 @@ function handleLbKey(e) {
 }
 
 function closeLightbox() {
+  _transitioning = false;
   localStorage.removeItem('mc_lightbox');
   document.getElementById('lightbox').innerHTML = '';
   const nav = document.getElementById('lbMobileNav');

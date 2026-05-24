@@ -976,7 +976,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  margin-top: 2rem;
+  margin: 2rem auto 0;
   width: min(300px, 80vw);
   height: 48px;
   background: rgba(20,20,28,0.75);
@@ -999,7 +999,7 @@ body {
     bottom: calc(2rem + env(safe-area-inset-bottom));
     left: 50%;
     transform: translateX(-50%);
-    margin-top: 0;
+    margin: 0;
     z-index: 300;
   }
   .lightbox .meta {

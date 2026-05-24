@@ -17,8 +17,10 @@ let activeSearch = null;
 let filteredCards = [];
 
 async function loadInitialGrid() {
-  // Reset any stuck loading state from previous fetches
+  // Reset any stuck loading state and random pool from previous query
   isLoading = false;
+  window._randomPool = [];
+  window._randomPoolQuery = null;
   // Save current filter state to localStorage
   localStorage.setItem("mc_filters", JSON.stringify({
     activeArtist, activeType, activeCardType, activeColour,

@@ -91,19 +91,54 @@ async function fetchArtistNames() {
   }
 }
 
+// Random card pool — fetch 175 cards at once, serve locally, refetch when low
+window._randomPool = window._randomPool || [];
+window._randomPoolLoading = false;
+window._randomPoolQuery = null;
+
+async function _fillRandomPool(query) {
+  if (window._randomPoolLoading) return;
+  window._randomPoolLoading = true;
+  try {
+    const page = Math.floor(Math.random() * 50) + 1; // pages 1-50
+    const res = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=released&dir=asc&page=${page}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.data?.length) {
+        const fresh = shuffleArray(json.data.filter(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop));
+        window._randomPool.push(...fresh);
+      }
+    }
+  } catch(e) {}
+  window._randomPoolLoading = false;
+}
+
 async function fetchRandomCard() {
   const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch);
+
+  // Reset pool if query changed
+  if (window._randomPoolQuery !== query) {
+    window._randomPool = [];
+    window._randomPoolQuery = query;
+  }
+
+  // Refill when running low
+  if (window._randomPool.length < 10) {
+    await _fillRandomPool(query);
+  }
+
+  // Serve from pool
+  if (window._randomPool.length > 0) {
+    return window._randomPool.shift();
+  }
+
+  // Pool empty (rate limited or no results) — try direct random as last resort
   try {
     const res = await fetch(`${API_BASE}/cards/random?q=${encodeURIComponent(query)}`);
-    if (res.ok) {
-      const card = await res.json();
-      return card;
-    }
+    if (res.ok) return await res.json();
     const fallback = await fetch(`${API_BASE}/cards/random?q=has:illustration`);
     return fallback.ok ? await fallback.json() : null;
-  } catch (e) {
-    return null;
-  }
+  } catch(e) { return null; }
 }
 
 function buildQuery(artists, creatureTypes, cardTypes, colours, sets, styles, yearMin, yearMax, searchText) {

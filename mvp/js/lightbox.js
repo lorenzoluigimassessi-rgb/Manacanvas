@@ -87,7 +87,6 @@ function openLightbox(card, mode = 'feed') {
       </div>
 
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
-      ${isSurprise ? `<button class="lb-surprise-next-btn" id="lbSurpriseNextBtn">${IMG_SVG} Random art</button>` : ''}
     </div>
   `;
 
@@ -106,13 +105,12 @@ function openLightbox(card, mode = 'feed') {
       <button class="lb-mobile-nav-arrow ${hideNext ? 'invisible' : ''}" id="lbMobileNavNext">›</button>
     `;
     document.body.appendChild(mobileNav);
-  } else if (window.innerWidth <= 768) {
-    // Surprise mode on mobile — append button to body so fixed positioning works
+  } else {
+    // Surprise mode — append button to body so fixed positioning works on all screens
     const mBtn = document.createElement('button');
     mBtn.id = 'lbSurpriseMobileBtn';
     mBtn.className = 'lb-surprise-next-btn';
     mBtn.innerHTML = `${IMG_SVG} Random art`;
-    mBtn.style.cssText = 'position:fixed;bottom:calc(2rem + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:300;';
     document.body.appendChild(mBtn);
     mBtn.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
   }
@@ -265,7 +263,6 @@ function openLightbox(card, mode = 'feed') {
   document.getElementById('lbGhostNext')?.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
   document.getElementById('lbMobileNavPrev')?.addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });
   document.getElementById('lbMobileNavNext')?.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
-  document.getElementById('lbSurpriseNextBtn')?.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
 
   // ── Pre-warm surprise queue ────────────────────────────────────────────────
   if (isSurprise) {

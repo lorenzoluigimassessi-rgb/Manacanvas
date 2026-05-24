@@ -162,15 +162,15 @@ function openLightbox(card, mode = 'feed') {
     if (_lbMode === 'surprise') {
       if (!window._surpriseQueue) window._surpriseQueue = [];
       const next = window._surpriseQueue.shift();
-      // Re-warm immediately — keep queue at 3
-      while (window._surpriseQueue.length < 3) {
+      // Staggered re-warm — avoid hammering API
+      if (window._surpriseQueue.length < 2) {
         fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); });
+        setTimeout(() => fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); }), 800);
       }
       window._surpriseHistory.push(currentCard);
       if (next) {
         transitionTo(next, 'next', 'surprise');
       } else {
-        // Queue empty — fetch directly
         fetchRandomCard().then(c => { if (c) transitionTo(c, 'next', 'surprise'); });
       }
     } else {
@@ -251,10 +251,10 @@ function openLightbox(card, mode = 'feed') {
 
       showGhostArrows();
 
-      if (nextMode === 'surprise' && window._surpriseQueue.length < 3)
-        while (window._surpriseQueue.length < 3) {
-          fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); });
-        }
+      if (nextMode === 'surprise' && window._surpriseQueue.length < 2) {
+        fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); });
+        setTimeout(() => fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); }), 800);
+      }
     }, 180);
   }
 
@@ -270,8 +270,9 @@ function openLightbox(card, mode = 'feed') {
   // ── Pre-warm surprise queue ────────────────────────────────────────────────
   if (isSurprise) {
     if (!window._surpriseQueue) window._surpriseQueue = [];
-    while (window._surpriseQueue.length < 3) {
+    if (window._surpriseQueue.length < 2) {
       fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); });
+      setTimeout(() => fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); }), 800);
     }
   }
 

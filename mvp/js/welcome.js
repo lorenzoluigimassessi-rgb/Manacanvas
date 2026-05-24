@@ -128,7 +128,7 @@ function startSurprise() {
   } else {
     fetchRandomCard().then(card => {
       if (card) openLightbox(card, 'surprise');
-      else { closeLightbox(); showWelcome(); } // fallback if fetch fails
+      else { closeLightbox(); showWelcome(); }
     });
   }
 }

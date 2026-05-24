@@ -97,8 +97,6 @@ async function fetchRandomCard() {
     const res = await fetch(`${API_BASE}/cards/random?q=${encodeURIComponent(query)}`);
     if (res.ok) {
       const card = await res.json();
-      // Pre-fetch next random card in background
-      setTimeout(() => fetch(`${API_BASE}/cards/random?q=${encodeURIComponent(query)}`).catch(() => {}), 100);
       return card;
     }
     const fallback = await fetch(`${API_BASE}/cards/random?q=has:illustration`);

@@ -1366,7 +1366,7 @@ body {
   .lightbox .zoom-hint { display: none; }
   .lb-nav-arrow { display: none; }
   .random-btn-primary { font-size: 1rem; padding: 0.85rem 2rem; }
-  .welcome-title { font-size: clamp(1.8rem, 8vw, 2.8rem); letter-spacing: 4px; }
+  .welcome-title { font-size: 2.8rem; letter-spacing: 5px; }
   .welcome-subtitle { font-size: 0.78rem; letter-spacing: 1px; white-space: normal; text-align: center; }
   .welcome-footer { padding: 0 2.5rem; font-size: 0.7rem; color: rgba(240,240,240,0.6); position: fixed; bottom: 1rem; left: 0; right: 0; z-index: 3; }
   .lightbox .meta .name { font-size: 1.1rem; }
@@ -1388,7 +1388,7 @@ body {
   .lightbox .art-container { max-width: 98vw; max-height: 45vh; }
   .lightbox .art-container img { max-height: 45vh; }
   .scroll-top { bottom: 1rem; right: 1rem; width: 44px; height: 44px; }
-  .welcome-title { font-size: clamp(1.6rem, 7.5vw, 2.2rem); letter-spacing: 3px; }
+  .welcome-title { font-size: 1.6rem; }
   .welcome-page { padding: 1.5rem; padding-bottom: 3rem; }
 }
 

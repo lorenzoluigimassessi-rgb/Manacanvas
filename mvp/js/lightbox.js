@@ -94,6 +94,9 @@ function openLightbox(card, mode = 'feed') {
   // Mobile bottom nav — feed mode only (surprise uses the button below)
   let mobileNav = document.getElementById('lbMobileNav');
   if (mobileNav) mobileNav.remove();
+  const existingBtn = document.getElementById('lbSurpriseMobileBtn');
+  if (existingBtn) existingBtn.remove();
+
   if (!isSurprise) {
     mobileNav = document.createElement('div');
     mobileNav.id = 'lbMobileNav';
@@ -103,6 +106,15 @@ function openLightbox(card, mode = 'feed') {
       <button class="lb-mobile-nav-arrow ${hideNext ? 'invisible' : ''}" id="lbMobileNavNext">›</button>
     `;
     document.body.appendChild(mobileNav);
+  } else if (window.innerWidth <= 768) {
+    // Surprise mode on mobile — append button to body so fixed positioning works
+    const mBtn = document.createElement('button');
+    mBtn.id = 'lbSurpriseMobileBtn';
+    mBtn.className = 'lb-surprise-next-btn';
+    mBtn.innerHTML = `${IMG_SVG} Random art`;
+    mBtn.style.cssText = 'position:fixed;bottom:calc(2rem + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:300;';
+    document.body.appendChild(mBtn);
+    mBtn.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
   }
 
   // Swipe hint overlay — appended to body so lightbox overflow:hidden doesn't clip it
@@ -150,12 +162,17 @@ function openLightbox(card, mode = 'feed') {
     if (_lbMode === 'surprise') {
       if (!window._surpriseQueue) window._surpriseQueue = [];
       const next = window._surpriseQueue.shift();
-      if (window._surpriseQueue.length < 2)
-        Promise.all([fetchRandomCard(), fetchRandomCard()])
-          .then(cards => window._surpriseQueue.push(...cards.filter(Boolean)));
+      // Re-warm immediately — keep queue at 3
+      while (window._surpriseQueue.length < 3) {
+        fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); });
+      }
       window._surpriseHistory.push(currentCard);
-      if (next) transitionTo(next, 'next', 'surprise');
-      else fetchRandomCard().then(c => { if (c) transitionTo(c, 'next', 'surprise'); });
+      if (next) {
+        transitionTo(next, 'next', 'surprise');
+      } else {
+        // Queue empty — fetch directly
+        fetchRandomCard().then(c => { if (c) transitionTo(c, 'next', 'surprise'); });
+      }
     } else {
       const idx = filteredCards.findIndex(c => c.id === currentCard.id);
       if (idx < filteredCards.length - 1) transitionTo(filteredCards[idx + 1], 'next', 'feed');
@@ -234,9 +251,10 @@ function openLightbox(card, mode = 'feed') {
 
       showGhostArrows();
 
-      if (nextMode === 'surprise' && window._surpriseQueue.length < 2)
-        Promise.all([fetchRandomCard(), fetchRandomCard()])
-          .then(cards => window._surpriseQueue.push(...cards.filter(Boolean)));
+      if (nextMode === 'surprise' && window._surpriseQueue.length < 3)
+        while (window._surpriseQueue.length < 3) {
+          fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); });
+        }
     }, 180);
   }
 
@@ -252,9 +270,9 @@ function openLightbox(card, mode = 'feed') {
   // ── Pre-warm surprise queue ────────────────────────────────────────────────
   if (isSurprise) {
     if (!window._surpriseQueue) window._surpriseQueue = [];
-    if (window._surpriseQueue.length < 2)
-      Promise.all([fetchRandomCard(), fetchRandomCard()])
-        .then(cards => window._surpriseQueue.push(...cards.filter(Boolean)));
+    while (window._surpriseQueue.length < 3) {
+      fetchRandomCard().then(c => { if (c) window._surpriseQueue.push(c); });
+    }
   }
 
   // ── Ghost arrows (desktop fade) ────────────────────────────────────────────
@@ -425,6 +443,8 @@ function closeLightbox() {
   document.getElementById('lightbox').innerHTML = '';
   const nav = document.getElementById('lbMobileNav');
   if (nav) nav.remove();
+  const mBtn = document.getElementById('lbSurpriseMobileBtn');
+  if (mBtn) mBtn.remove();
   const hint = document.getElementById('lbSwipeHint');
   if (hint) hint.remove();
   ['lbPrev','lbNext'].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });

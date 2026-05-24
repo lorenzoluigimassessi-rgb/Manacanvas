@@ -68,7 +68,6 @@ function openLightbox(card, mode = 'feed') {
       </div>
       <!-- Swipe hint pill — outside art-container so overflow:hidden doesn't clip it -->
       ${showSwipeHint ? `<div class="lb-swipe-hint-pill" id="lbSwipeHint">${swipeHintCopy}</div>` : ''}
-      </div>
 
       <!-- Toggle -->
       <div class="lightbox-actions">

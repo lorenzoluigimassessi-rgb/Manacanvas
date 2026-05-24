@@ -350,7 +350,7 @@
         </div>
 
         <div class="nav-center" id="searchContainer">
-          <span class="search-icon-wrap">
+          <span class="search-icon-svg">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </span>
           <input type="text" id="searchBar" placeholder="Search card, artist, creature...">
@@ -374,25 +374,26 @@
         </div>
       </header>
 
-      <!-- Lens row + sub-pills -->
-      <div class="lens-row" id="lensRow">
-        <button class="lens-btn active" data-lens="picks"   onclick="setLens(this)">Our Picks</button>
-        <button class="lens-btn"        data-lens="latest"  onclick="setLens(this)">Latest</button>
-        <button class="lens-btn"        data-lens="era"     onclick="setLens(this)">By Era</button>
-        <button class="lens-btn"        data-lens="creature" onclick="setLens(this)">Creature Type</button>
-        <button class="lens-btn"        data-lens="color"   onclick="setLens(this)">Mana Color</button>
-        <button class="lens-btn"        data-lens="style"   onclick="setLens(this)">Art Style</button>
-      </div>
-      <div class="sub-row" id="subRow" style="display:none;"></div>
       <!-- legacy chip elements kept for filters.js compatibility -->
       <div id="chipBar" style="display:none;"><div id="chipList"></div></div>
     </div>
+
+    <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
+    <div class="lens-row" id="lensRow">
+      <button class="lens-btn active" data-lens="picks"   onclick="setLens(this)">Our Picks</button>
+      <button class="lens-btn"        data-lens="latest"  onclick="setLens(this)">Latest</button>
+      <button class="lens-btn"        data-lens="era"     onclick="setLens(this)">By Era</button>
+      <button class="lens-btn"        data-lens="creature" onclick="setLens(this)">Creature Type</button>
+      <button class="lens-btn"        data-lens="color"   onclick="setLens(this)">Mana Color</button>
+      <button class="lens-btn"        data-lens="style"   onclick="setLens(this)">Art Style</button>
+    </div>
+    <div class="sub-row" id="subRow" style="display:none;"></div>
 
     <!-- ── Mobile top bar ── -->
     <div class="mobile-top-bar">
       <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
       <div class="nav-center">
-        <span class="search-icon-wrap">
+        <span class="search-icon-svg">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </span>
         <input type="text" id="mobileSearchBar" placeholder="Search card, artist, creature...">
@@ -652,6 +653,27 @@
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('btnDark')?.classList.toggle('active', savedTheme === 'dark');
       document.getElementById('btnLight')?.classList.toggle('active', savedTheme === 'light');
+    });
+
+    // ── Sync mobile search bar with desktop ── 
+    document.addEventListener('DOMContentLoaded', () => {
+      const mBar = document.getElementById('mobileSearchBar');
+      const dBar = document.getElementById('searchBar');
+      if (!mBar || !dBar) return;
+
+      // typing in mobile bar mirrors to desktop bar and triggers search
+      mBar.addEventListener('input', () => {
+        dBar.value = mBar.value;
+        dBar.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      mBar.addEventListener('keydown', (e) => {
+        dBar.dispatchEvent(new KeyboardEvent('keydown', { key: e.key, bubbles: true }));
+      });
+
+      // typing in desktop bar mirrors to mobile
+      dBar.addEventListener('input', () => {
+        if (mBar.value !== dBar.value) mBar.value = dBar.value;
+      });
     });
   </script>
 </body>

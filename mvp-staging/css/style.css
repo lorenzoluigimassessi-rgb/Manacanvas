@@ -322,7 +322,7 @@ body {
 }
 .nav-center:focus-within { border-color: var(--border-hover); }
 
-.search-icon-svg {
+.search-icon-svg, .search-icon-wrap {
   color: var(--text-secondary);
   flex-shrink: 0;
   opacity: 0.6;
@@ -468,8 +468,8 @@ body {
 .sub-pill.active .sub-thumb { background: rgba(255,255,255,0.15); }
 
 @media (max-width: 768px) {
-  .lens-row { padding: 0.7rem 0.75rem; }
-  .sub-row  { padding: 0.5rem 0.75rem; }
+  .lens-row { padding: 0.7rem 0.75rem; background: var(--bg); position: sticky; top: 56px; z-index: 49; }
+  .sub-row  { padding: 0.5rem 0.75rem; background: var(--bg); }
 }
 
 /* Mobile top bar */
@@ -668,7 +668,19 @@ body {
   opacity: 0.6;
 }
 
-/* search-bar inside nav-center — strip standalone styles */
+/* mobile search input — same as desktop */
+#mobileSearchBar {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.85rem;
+  min-width: 0;
+  padding: 0;
+}
+#mobileSearchBar::placeholder { color: var(--text-secondary); }
 .nav-center .search-bar {
   height: 100%;
   background: transparent;

@@ -977,12 +977,12 @@ body {
   gap: 0.6rem;
   margin-top: 2rem;
   width: min(300px, 80vw);
-  height: 52px;
+  height: 44px;
   background: rgba(20,20,28,0.75);
   border: 1px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-radius: 26px;
+  border-radius: 22px;
   color: rgba(240,240,240,0.85);
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.85rem;

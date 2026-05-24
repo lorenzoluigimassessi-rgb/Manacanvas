@@ -1189,33 +1189,36 @@ body {
 }
 
 .lb-nav-arrow {
-  position: absolute;
+  position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(12,12,15,0.45);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(240,240,240,0.7);
-  width: 36px;
-  height: 56px;
-  border-radius: 4px;
-  font-size: 1.3rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(20,20,28,0.75);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(240,240,240,0.85);
+  font-size: 1.8rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 1;
-  transition: background 150ms;
   z-index: 210;
-  backdrop-filter: blur(4px);
+  transition: background 150ms, border-color 150ms, transform 100ms;
+  padding: 0;
+  padding-bottom: 2px;
+  line-height: 1;
 }
-
-.lb-nav-arrow:hover { background: rgba(30,30,40,0.8); color: #f0f0f0; }
-.lb-nav-arrow.active { background: rgba(60,60,80,0.9); color: #f0f0f0; }
-#lbPrev { position: fixed; left: calc(50% - 40vw - 52px); top: 50%; transform: translateY(-50%); }
-#lbNext { position: fixed; right: calc(50% - 40vw - 52px); top: 50%; transform: translateY(-50%); }
-#lbPrev.active { transform: translateY(-50%) scale(0.92); }
-#lbNext.active { transform: translateY(-50%) scale(0.92); }
+.lb-nav-arrow:hover { background: rgba(40,40,60,0.85); border-color: rgba(255,255,255,0.25); }
+.lb-nav-arrow:active, .lb-nav-arrow.active { background: rgba(50,50,70,0.9); transform: translateY(-50%) scale(0.95); }
+#lbPrev { left: calc(50% - 40vw - 60px); }
+#lbNext { right: calc(50% - 40vw - 60px); }
 .lb-nav-arrow.hidden { display: none; }
+
+/* Ghost arrows — desktop only, inside art — now removed, using outside arrows only */
+.lb-ghost-arrows { display: none !important; }
 
 /* Mobile bottom action bar */
 #mobileActionBar {

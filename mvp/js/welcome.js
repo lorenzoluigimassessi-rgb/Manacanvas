@@ -126,7 +126,10 @@ function startSurprise() {
     _welcomeCard = null;
     fetchRandomCard().then(c => { _welcomeCard = c; });
   } else {
-    fetchRandomCard().then(card => { if (card) openLightbox(card, 'surprise'); });
+    fetchRandomCard().then(card => {
+      if (card) openLightbox(card, 'surprise');
+      else { closeLightbox(); showWelcome(); } // fallback if fetch fails
+    });
   }
 }
 

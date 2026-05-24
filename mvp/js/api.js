@@ -3,15 +3,15 @@ let currentSearch = null;
 let nextPageUrl = null;
 let isLoading = false;
 
-let sortOrder = "random"; // default: Shuffle
-let sortDir = "auto";
+let sortOrder = "released";
+let sortDir = "asc";
 
 const SORT_OPTIONS = [
-  { label: "Random",      order: "random",   dir: "auto" },
   { label: "Oldest First", order: "released", dir: "asc"  },
   { label: "Newest First", order: "released", dir: "desc" },
   { label: "A → Z",        order: "name",     dir: "asc"  },
   { label: "Z → A",        order: "name",     dir: "desc" },
+  { label: "Shuffle",      order: "random",   dir: "auto" },
 ];
 
 async function fetchCards(query = "t:creature", page = 1) {

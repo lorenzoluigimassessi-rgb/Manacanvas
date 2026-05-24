@@ -195,13 +195,8 @@
     .nav-advanced-btn:hover { background: var(--surface-2); color: var(--text-1); }
     .nav-advanced-btn.active { background: var(--surface-2); color: var(--text-1); }
 
-    /* ── RIGHT: Discover + theme switcher ── */
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      flex-shrink: 0;
-    }
+    /* ── RIGHT: theme switcher only ── */
+    .nav-right { flex-shrink: 0; }
 
     .theme-switcher {
       display: flex;
@@ -433,14 +428,8 @@
       </button>
     </div>
 
-    <!-- RIGHT: Discover + theme switcher -->
+    <!-- RIGHT: theme switcher only -->
     <div class="nav-right">
-      <button class="discover-chip" id="btnDiscover" onclick="setMode('discover')">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-        Discover
-      </button>
       <div class="theme-switcher">
         <button class="theme-btn active" id="btnDark" onclick="setTheme('dark')" title="Dark">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -460,13 +449,20 @@
     </div>
   </header>
 
-  <!-- LENS CHIPS (Gallery only) — no Discover here, lives in nav-right on desktop / combined pill on mobile -->
+  <!-- LENS CHIPS + DISCOVER (Gallery only) -->
   <div class="lens-row" id="lensRow">
     <button class="lens-chip active" onclick="setLens(this)">Newest</button>
     <button class="lens-chip" onclick="setLens(this)">Time Machine</button>
     <button class="lens-chip" onclick="setLens(this)">Creature Type</button>
     <button class="lens-chip" onclick="setLens(this)">Art Style</button>
     <button class="lens-chip" onclick="setLens(this)">Mana Color</button>
+    <div class="lens-sep"></div>
+    <button class="discover-chip" id="btnDiscover" onclick="setMode('discover')">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+      Discover
+    </button>
   </div>
 
   <div class="state-label" id="stateLabel">Gallery — Newest</div>
@@ -508,18 +504,23 @@
     function setMode(mode) {
       document.documentElement.dataset.mode = mode;
 
-      // desktop
-      ['btnGallery','btnCollections','btnAdvanced','btnDiscover'].forEach(id => {
+      // desktop nav (switcher + advanced)
+      ['btnGallery','btnCollections','btnAdvanced'].forEach(id => {
         document.getElementById(id)?.classList.remove('active');
       });
-      const map = { gallery:'btnGallery', collections:'btnCollections', advanced:'btnAdvanced', discover:'btnDiscover' };
+      const map = { gallery:'btnGallery', collections:'btnCollections', advanced:'btnAdvanced' };
       if (map[mode]) document.getElementById(map[mode])?.classList.add('active');
 
-      // mobile combined pill
-      ['mBtnGallery','mBtnCollections','mBtnDiscover'].forEach(id => {
-        document.getElementById(id)?.classList.remove('active');
-      });
-      const mmap = { gallery:'mBtnGallery', collections:'mBtnCollections', discover:'mBtnDiscover' };
+      // discover chip in lens row (desktop) + mobile pill
+      ['btnDiscover','mBtnDiscover'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+      if (mode === 'discover') {
+        document.getElementById('btnDiscover')?.classList.add('active');
+        document.getElementById('mBtnDiscover')?.classList.add('active');
+      }
+
+      // mobile switcher
+      ['mBtnGallery','mBtnCollections'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+      const mmap = { gallery:'mBtnGallery', collections:'mBtnCollections' };
       if (mmap[mode]) document.getElementById(mmap[mode])?.classList.add('active');
 
       document.getElementById('lensRow').style.display = mode === 'gallery' ? '' : 'none';

@@ -53,18 +53,20 @@ function openLightbox(card, mode = 'feed') {
       <div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>
       <button class="close-btn" id="lbClose">✕</button>
 
-      <!-- Desktop side arrows -->
+      <!-- Desktop side arrows — feed only -->
+      ${!isSurprise ? `
       <button class="lb-nav-arrow ${hidePrev ? 'hidden' : ''}" id="lbPrev">‹</button>
-      <button class="lb-nav-arrow ${hideNext ? 'hidden' : ''}" id="lbNext">›</button>
+      <button class="lb-nav-arrow ${hideNext ? 'hidden' : ''}" id="lbNext">›</button>` : ''}
 
       <!-- Art -->
       <div class="art-container" id="artContainer" style="overflow:hidden;">
         <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
-        <!-- Desktop ghost arrows (fade in/out) -->
+        <!-- Desktop ghost arrows — feed only -->
+        ${!isSurprise ? `
         <div class="lb-ghost-arrows" id="lbGhostArrows">
           <button class="lb-ghost-arrow lb-ghost-prev ${hidePrev ? 'hidden' : ''}" id="lbGhostPrev">‹</button>
           <button class="lb-ghost-arrow lb-ghost-next ${hideNext ? 'hidden' : ''}" id="lbGhostNext">›</button>
-        </div>
+        </div>` : ''}
       </div>
       <!-- Swipe hint pill — outside art-container so overflow:hidden doesn't clip it -->
       ${showSwipeHint ? `<div class="lb-swipe-hint-pill" id="lbSwipeHint">${swipeHintCopy}</div>` : ''}
@@ -216,8 +218,8 @@ function openLightbox(card, mode = 'feed') {
   }
 
   // ── Wire arrows ────────────────────────────────────────────────────────────
-  document.getElementById('lbPrev').addEventListener('click', goPrev);
-  document.getElementById('lbNext').addEventListener('click', goNext);
+  document.getElementById('lbPrev')?.addEventListener('click', goPrev);
+  document.getElementById('lbNext')?.addEventListener('click', goNext);
   document.getElementById('lbGhostPrev')?.addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });
   document.getElementById('lbGhostNext')?.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
   document.getElementById('lbMobileNavPrev')?.addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });

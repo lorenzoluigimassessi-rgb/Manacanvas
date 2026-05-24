@@ -864,17 +864,19 @@ body {
 .lb-ghost-arrow.lb-ghost-next { right: 0; }
 .lb-ghost-arrow.hidden { display: none; }
 
-/* Ghost arrows — mobile only, desktop uses lb-nav-arrow outside the image */
+/* Ghost arrows — desktop only, mobile uses bottom nav bar */
 .lb-ghost-arrows { display: none; }
-@media (max-width: 768px) {
+@media (min-width: 769px) {
   .lb-ghost-arrows { display: block; }
 }
 
-/* Swipe hint — mobile surprise mode, first open only */
+/* Swipe hint pill — centered on art, mobile only */
 .lb-swipe-hint-pill {
   display: none;
-  position: relative;
-  margin-top: 1rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: rgba(12,12,15,0.72);
   border: 1px solid rgba(255,255,255,0.12);
   backdrop-filter: blur(8px);
@@ -889,11 +891,45 @@ body {
   white-space: nowrap;
   align-items: center;
   gap: 0.45rem;
+  z-index: 6;
 }
 @media (max-width: 768px) {
   .lb-swipe-hint-pill { display: inline-flex; }
 }
 
+/* Mobile bottom nav — two arrows fixed at bottom */
+.lb-mobile-bottom-nav { display: none; }
+@media (max-width: 768px) {
+  .lb-mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    left: 0;
+    right: 0;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2.5rem;
+    z-index: 210;
+  }
+}
+.lb-mobile-bottom-arrow {
+  background: rgba(12,12,15,0.5);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  color: rgba(240,240,240,0.8);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+  line-height: 1;
+}
+.lb-mobile-bottom-arrow:active { background: rgba(50,50,70,0.9); color: #f0f0f0; }
+.lb-mobile-bottom-arrow.hidden { visibility: hidden; }
 
 .lb-fte-overlay {
   display: none;

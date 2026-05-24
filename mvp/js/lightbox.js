@@ -79,6 +79,7 @@ function openLightbox(card, mode = 'feed') {
       <button class="lb-ghost-arrow lb-ghost-prev ${ghostPrevHidden}" id="lbGhostPrev">‹</button>
       <button class="lb-ghost-arrow lb-ghost-next ${ghostNextHidden}" id="lbGhostNext">›</button>
     </div>
+    ${swipeHintHtml}
   `;
 
   const lightbox = document.getElementById("lightbox");
@@ -103,8 +104,11 @@ function openLightbox(card, mode = 'feed') {
           ${year    ? ` · <span class="meta-link" id="lbYear">${year}</span>`    : ""}
         </div>
       </div>
-      ${swipeHintHtml}
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
+      <div class="lb-mobile-bottom-nav" id="lbMobileBottomNav">
+        <button class="lb-mobile-bottom-arrow ${noSurpriseHistory || feedAtStart ? 'hidden' : ''}" id="lbMobileNavPrev">‹</button>
+        <button class="lb-mobile-bottom-arrow ${feedAtEnd ? 'hidden' : ''}" id="lbMobileNavNext">›</button>
+      </div>
     </div>
   `;
 
@@ -206,28 +210,20 @@ function openLightbox(card, mode = 'feed') {
       img.style.transition = bg.style.transition = 'opacity 220ms ease';
       img.style.opacity = bg.style.opacity = '1';
 
-      // Update ghost arrow visibility
+      // Update ghost + bottom nav arrow visibility
       const gP = document.getElementById('lbGhostPrev');
       const gN = document.getElementById('lbGhostNext');
-      if (gP && gN) {
-        if (nextMode === 'surprise') {
-          // Show prev only if there's history to go back to
-          window._surpriseHistory && window._surpriseHistory.length > 0
-            ? gP.classList.remove('hidden')
-            : gP.classList.add('hidden');
-          gN.classList.remove('hidden');
-          // Also update desktop prev arrow
-          const dP = document.getElementById('lbPrev');
-          if (dP) {
-            window._surpriseHistory && window._surpriseHistory.length > 0
-              ? dP.classList.remove('hidden')
-              : dP.classList.add('hidden');
-          }
-        } else {
-          const idx = filteredCards.findIndex(c => c.id === nextCard.id);
-          idx <= 0 ? gP.classList.add('hidden') : gP.classList.remove('hidden');
-          idx >= filteredCards.length - 1 ? gN.classList.add('hidden') : gN.classList.remove('hidden');
-        }
+      const mP = document.getElementById('lbMobileNavPrev');
+      const mN = document.getElementById('lbMobileNavNext');
+      const dP = document.getElementById('lbPrev');
+      if (nextMode === 'surprise') {
+        const hasHistory = window._surpriseHistory && window._surpriseHistory.length > 0;
+        [gP, mP, dP].forEach(el => el && (hasHistory ? el.classList.remove('hidden') : el.classList.add('hidden')));
+        [gN, mN].forEach(el => el && el.classList.remove('hidden'));
+      } else {
+        const idx = filteredCards.findIndex(c => c.id === nextCard.id);
+        [gP, mP].forEach(el => el && (idx <= 0 ? el.classList.add('hidden') : el.classList.remove('hidden')));
+        [gN, mN].forEach(el => el && (idx >= filteredCards.length - 1 ? el.classList.add('hidden') : el.classList.remove('hidden')));
       }
       showGhostArrows();
 
@@ -287,7 +283,7 @@ function openLightbox(card, mode = 'feed') {
       if (hint) { hint.style.transition = 'opacity 300ms ease'; hint.style.opacity = '0'; }
     }
     // Timer fallback
-    const hintTimer = setTimeout(dismissHint, 3000);
+    const hintTimer = setTimeout(dismissHint, 2500);
     // Dismiss immediately on first horizontal swipe
     document.getElementById('lightboxOverlay').addEventListener('touchmove', function onHintSwipe(e) {
       const dx = e.touches[0].clientX - swX;
@@ -304,6 +300,12 @@ function openLightbox(card, mode = 'feed') {
   const gNext = document.getElementById('lbGhostNext');
   if (gPrev) gPrev.addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });
   if (gNext) gNext.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
+
+  // Mobile bottom nav arrows
+  const mNavPrev = document.getElementById('lbMobileNavPrev');
+  const mNavNext = document.getElementById('lbMobileNavNext');
+  if (mNavPrev) mNavPrev.addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });
+  if (mNavNext) mNavNext.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
 
   // ── Swipe on art zone ───────────────────────────────────────────────────
   const swipeZone = document.getElementById('lightboxOverlay');

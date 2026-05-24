@@ -1125,6 +1125,7 @@ body {
 }
 
 .lightbox .art-container img.frame-mode {
+  max-height: 58vh;
   border-radius: 4.5% / 3.2%;
   background: transparent;
 }

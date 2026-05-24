@@ -137,6 +137,12 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
+    [data-theme="light"] .sw-btn.active {
+      background: #1a1a22;
+      color: #f0f0f0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
 
     /* ── CENTER: search pill ── */
     .nav-center {
@@ -229,7 +235,15 @@
       transition: background 150ms, color 150ms;
     }
     .theme-btn:hover { color: var(--text-1); }
-    .theme-btn.active { background: var(--surface-2); color: var(--text-1); }
+    .theme-btn.active {
+      background: var(--surface-2);
+      color: var(--text-1);
+    }
+
+    [data-theme="light"] .theme-btn.active {
+      background: #1a1a22;
+      color: #f0f0f0;
+    }
 
     /* ══ LENS CHIPS ROW ══ */
     .lens-row {

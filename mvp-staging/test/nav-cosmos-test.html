@@ -107,16 +107,7 @@
       gap: 0;
     }
 
-    /* separator */
-    .sw-sep {
-      width: 1px;
-      height: 16px;
-      background: var(--border);
-      flex-shrink: 0;
-      margin: 0 2px;
-    }
 
-    /* base chip — all switcher items share this */
     .sw-btn {
       display: inline-flex;
       align-items: center;
@@ -143,38 +134,6 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
-    /* Surprise Me — neutral bordered chip */
-    .sw-surprise {
-      border: 1px solid var(--border);
-    }
-    .sw-surprise:hover { border-color: var(--border-hover); color: var(--text-1); }
-    .sw-surprise.active { background: var(--surface-2); border-color: var(--border-hover); color: var(--text-1); }
-
-    /* Discover — gold chip */
-    .sw-discover {
-      border: 1px solid var(--gold-border);
-      color: var(--gold-dim);
-      background: var(--gold-bg);
-      animation: goldPulse 3s ease-in-out infinite;
-    }
-    .sw-discover:hover {
-      background: rgba(212,175,55,0.12);
-      border-color: rgba(212,175,55,0.6);
-      color: var(--gold);
-      box-shadow: 0 0 10px rgba(212,175,55,0.15);
-      animation: none;
-    }
-    .sw-discover.active {
-      background: rgba(212,175,55,0.12);
-      border-color: rgba(212,175,55,0.6);
-      color: var(--gold);
-      animation: none;
-    }
-
-    @keyframes goldPulse {
-      0%,100% { border-color: rgba(212,175,55,0.25); }
-      50%      { border-color: rgba(212,175,55,0.5); box-shadow: 0 0 8px rgba(212,175,55,0.1); }
-    }
 
     /* ── CENTER: search pill ── */
     .nav-center {
@@ -384,20 +343,8 @@
       </a>
       <div class="nav-switcher">
         <button class="sw-btn active" id="btnAllArt" onclick="setMode('gallery')">All Art</button>
-        <div class="sw-sep"></div>
         <button class="sw-btn" id="btnBrowse" onclick="setMode('browse')">Browse</button>
-        <div class="sw-sep"></div>
-        <button class="sw-btn sw-surprise" id="btnSurprise" onclick="setMode('surprise')">Surprise Me</button>
-        <div class="sw-sep"></div>
-        <button class="sw-btn sw-discover" id="btnDiscover" onclick="setMode('discover')">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="2" width="20" height="20" rx="4"/>
-            <circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/>
-            <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-            <circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/>
-          </svg>
-          Discover
-        </button>
+        <button class="sw-btn" id="btnDiscover" onclick="setMode('discover')">Discover</button>
       </div>
     </div>
 
@@ -453,20 +400,8 @@
   <!-- MOBILE FLOATING PILL -->
   <div class="mobile-float">
     <button class="sw-btn active" id="mBtnAllArt" onclick="setMode('gallery')">All Art</button>
-    <div class="sw-sep"></div>
     <button class="sw-btn" id="mBtnBrowse" onclick="setMode('browse')">Browse</button>
-    <div class="sw-sep"></div>
-    <button class="sw-btn sw-surprise" id="mBtnSurprise" onclick="setMode('surprise')">Surprise Me</button>
-    <div class="sw-sep"></div>
-    <button class="sw-btn sw-discover" id="mBtnDiscover" onclick="setMode('discover')">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="4"/>
-        <circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/>
-        <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-        <circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/>
-      </svg>
-      Discover
-    </button>
+    <button class="sw-btn" id="mBtnDiscover" onclick="setMode('discover')">Discover</button>
   </div>
 
   <div class="demo-bar">
@@ -486,9 +421,9 @@
       g.appendChild(d);
     }
 
-    const DESKTOP_IDS = { gallery:'btnAllArt', browse:'btnBrowse', surprise:'btnSurprise', discover:'btnDiscover', advanced:'btnAdvanced' };
-    const MOBILE_IDS  = { gallery:'mBtnAllArt', browse:'mBtnBrowse', surprise:'mBtnSurprise', discover:'mBtnDiscover' };
-    const LABELS = { gallery:'All Art — Newest', browse:'Browse', surprise:'Surprise Me', discover:'✦ Discover', advanced:'Advanced Search' };
+    const DESKTOP_IDS = { gallery:'btnAllArt', browse:'btnBrowse', discover:'btnDiscover', advanced:'btnAdvanced' };
+    const MOBILE_IDS  = { gallery:'mBtnAllArt', browse:'mBtnBrowse', discover:'mBtnDiscover' };
+    const LABELS = { gallery:'All Art — Newest', browse:'Browse', discover:'Discover', advanced:'Advanced Search' };
 
     function setMode(mode) {
       document.documentElement.dataset.mode = mode;

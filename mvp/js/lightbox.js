@@ -276,13 +276,28 @@ function openLightbox(card, mode = 'feed') {
   showGhostArrows();
   document.getElementById('lightboxOverlay').addEventListener('touchstart', showGhostArrows, { passive: true });
 
-  // Swipe hint — fade after 2s, mark session so it never shows again
+  // Swipe hint — dismiss on first swipe, 3s timer fallback
   if (showSwipeHint) {
     sessionStorage.setItem(isSurprise ? 'lb_swipe_hint_shown' : 'lb_feed_hint_shown', '1');
-    setTimeout(() => {
+    let hintDismissed = false;
+    function dismissHint() {
+      if (hintDismissed) return;
+      hintDismissed = true;
       const hint = document.getElementById('lbSwipeHint');
-      if (hint) { hint.style.transition = 'opacity 500ms ease'; hint.style.opacity = '0'; }
-    }, 1800);
+      if (hint) { hint.style.transition = 'opacity 300ms ease'; hint.style.opacity = '0'; }
+    }
+    // Timer fallback
+    const hintTimer = setTimeout(dismissHint, 3000);
+    // Dismiss immediately on first horizontal swipe
+    document.getElementById('lightboxOverlay').addEventListener('touchmove', function onHintSwipe(e) {
+      const dx = e.touches[0].clientX - swX;
+      const dy = e.touches[0].clientY - swY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+        clearTimeout(hintTimer);
+        dismissHint();
+        document.getElementById('lightboxOverlay').removeEventListener('touchmove', onHintSwipe);
+      }
+    }, { passive: true });
   }
 
   const gPrev = document.getElementById('lbGhostPrev');

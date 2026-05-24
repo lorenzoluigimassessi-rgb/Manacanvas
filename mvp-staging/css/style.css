@@ -382,17 +382,96 @@ body {
 .theme-btn:hover { color: var(--text-primary); }
 .theme-btn.active { background: var(--surface-2); color: var(--text-primary); }
 
-/* Lens chips row */
-.header-chips {
+/* ── Lens row ── */
+.lens-row {
   display: flex;
   align-items: center;
-  padding: 0.4rem 1.5rem;
-  border-top: 1px solid var(--border);
+  gap: 0.25rem;
+  padding: 0.9rem 1.5rem;
   overflow-x: auto;
   scrollbar-width: none;
-  gap: 0.4rem;
 }
-.header-chips::-webkit-scrollbar { display: none; }
+.lens-row::-webkit-scrollbar { display: none; }
+
+.lens-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  padding: 0.65rem 1.1rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 150ms, background 150ms;
+}
+.lens-btn:hover { color: var(--text-primary); }
+.lens-btn.active {
+  background: var(--text-primary);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+/* ── Sub-pill row ── */
+.sub-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border);
+  animation: subRowIn 150ms ease;
+}
+.sub-row::-webkit-scrollbar { display: none; }
+
+@keyframes subRowIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sub-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  padding: 0 0.85rem 0 4px;
+  height: 32px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 150ms, border-color 150ms, color 150ms;
+}
+.sub-pill:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.sub-pill.active {
+  background: var(--surface-2);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.sub-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  flex-shrink: 0;
+}
+.sub-pill.active .sub-thumb { background: rgba(255,255,255,0.15); }
+
+@media (max-width: 768px) {
+  .lens-row { padding: 0.7rem 0.75rem; }
+  .sub-row  { padding: 0.5rem 0.75rem; }
+}
 
 /* Mobile top bar */
 .mobile-top-bar { display: none; }

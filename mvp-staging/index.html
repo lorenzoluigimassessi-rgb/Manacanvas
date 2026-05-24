@@ -374,10 +374,18 @@
         </div>
       </header>
 
-      <!-- Lens chips — All Art only -->
-      <div class="header-chips" id="chipBar" style="display:none;">
-        <div class="chip-list" id="chipList"></div>
+      <!-- Lens row + sub-pills -->
+      <div class="lens-row" id="lensRow">
+        <button class="lens-btn active" data-lens="picks"   onclick="setLens(this)">Our Picks</button>
+        <button class="lens-btn"        data-lens="latest"  onclick="setLens(this)">Latest</button>
+        <button class="lens-btn"        data-lens="era"     onclick="setLens(this)">By Era</button>
+        <button class="lens-btn"        data-lens="creature" onclick="setLens(this)">Creature Type</button>
+        <button class="lens-btn"        data-lens="color"   onclick="setLens(this)">Mana Color</button>
+        <button class="lens-btn"        data-lens="style"   onclick="setLens(this)">Art Style</button>
       </div>
+      <div class="sub-row" id="subRow" style="display:none;"></div>
+      <!-- legacy chip elements kept for filters.js compatibility -->
+      <div id="chipBar" style="display:none;"><div id="chipList"></div></div>
     </div>
 
     <!-- ── Mobile top bar ── -->
@@ -508,11 +516,13 @@
       if (MOBILE_SW[mode]) document.getElementById(MOBILE_SW[mode])?.classList.add('active');
 
       // lens chips — gallery only
-      const chipBar = document.getElementById('chipBar');
-      if (chipBar) chipBar.style.display = mode === 'gallery' ? '' : 'none';
+      const lensRow = document.getElementById('lensRow');
+      const subRow  = document.getElementById('subRow');
+      if (lensRow) lensRow.style.display = mode === 'gallery' ? '' : 'none';
+      if (subRow && mode !== 'gallery') subRow.style.display = 'none';
 
       // load content
-      if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0) loadInitialGrid();
+      if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0) initLens();
       if (mode === 'collections') renderCategories();
       if (mode === 'discover') triggerSurprise();
     }
@@ -521,6 +531,111 @@
       if (!localStorage.getItem('mc_entered')) { showWelcome(); return; }
       setMode('gallery');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Lens system ──
+    const DAILY_THEMES = [
+      { label: 'Dragons of the Multiverse', query: 't:dragon has:illustration' },
+      { label: 'Angels & Light',            query: 't:angel has:illustration' },
+      { label: 'Dark Forests',              query: '(t:forest OR t:treefolk) has:illustration' },
+      { label: 'Ancient Civilizations',     query: '(t:cleric OR t:wizard) year<=2003 has:illustration' },
+      { label: 'Cosmic Horror',             query: 't:eldrazi has:illustration' },
+      { label: 'Warriors & Battle',         query: 't:warrior has:illustration' },
+      { label: 'Mystical Landscapes',       query: 't:land has:illustration unique:art' },
+      { label: 'Creatures of the Deep',     query: '(t:merfolk OR t:kraken OR t:leviathan) has:illustration' },
+      { label: 'Fire & Destruction',        query: '(t:phoenix OR t:dragon) r:rare has:illustration' },
+      { label: 'Ethereal Spirits',          query: 't:spirit has:illustration' },
+      { label: 'The Undead',                query: '(t:zombie OR t:vampire OR t:skeleton) has:illustration' },
+      { label: 'Legendary Heroes',          query: 't:legendary t:creature has:illustration' },
+    ];
+
+    function getDailyTheme() {
+      const day = Math.floor(Date.now() / 86400000);
+      return DAILY_THEMES[day % DAILY_THEMES.length];
+    }
+
+    const LENS_SUB_PILLS = {
+      picks:    [],
+      latest:   ['All', 'Previews only', 'Last set', 'Last block'],
+      era:      ['The Beginning', 'The Dark Age', 'The Invasion Era', 'The Modern Age', 'The Renaissance', 'The New Era', 'The Modern Era', 'The Multiverse Era'],
+      creature: ['Dragon', 'Angel', 'Demon', 'Elf', 'Human', 'Merfolk', 'Zombie'],
+      color:    ['White', 'Blue', 'Black', 'Red', 'Green', 'Multicolor', 'Colorless'],
+      style:    ['Classic', 'Dark & Gritty', 'Painterly', 'Ethereal', 'Epic', 'Sketch', 'Modern'],
+    };
+
+    // Maps lens+sub to filter state
+    function applyLensQuery(lens, sub) {
+      // reset all filters first
+      activeArtist = []; activeType = []; activeCardType = [];
+      activeColour = []; activeSets = []; activeStyles = [];
+      activeYearMin = null; activeYearMax = null; activeSearch = null;
+      sortOrder = 'released'; sortDir = 'desc';
+
+      if (lens === 'picks') {
+        const theme = getDailyTheme();
+        activeSearch = theme.query;
+        sortOrder = 'random'; sortDir = 'auto';
+      } else if (lens === 'latest') {
+        if (sub === 'Previews only') { activeSearch = 'is:preview'; }
+        // Last set / Last block handled by sort — newest released
+      } else if (lens === 'era') {
+        const ERA_YEARS = {
+          'The Beginning':    [1993, 1994],
+          'The Dark Age':     [1995, 1997],
+          'The Invasion Era': [1998, 2003],
+          'The Modern Age':   [2003, 2008],
+          'The Renaissance':  [2008, 2014],
+          'The New Era':      [2014, 2018],
+          'The Modern Era':   [2018, 2022],
+          'The Multiverse Era': [2022, new Date().getFullYear()],
+        };
+        const range = ERA_YEARS[sub];
+        if (range) { activeYearMin = range[0]; activeYearMax = range[1]; }
+      } else if (lens === 'creature') {
+        if (sub) activeType = [sub.toLowerCase()];
+      } else if (lens === 'color') {
+        const COLOR_MAP = { White:'w', Blue:'u', Black:'b', Red:'r', Green:'g', Multicolor:'m', Colorless:'c' };
+        if (COLOR_MAP[sub]) activeColour = [COLOR_MAP[sub]];
+      } else if (lens === 'style') {
+        const styleIdx = (typeof ART_STYLES !== 'undefined')
+          ? ART_STYLES.findIndex(s => s.name === sub)
+          : -1;
+        if (styleIdx >= 0) activeStyles = [styleIdx];
+      }
+      loadInitialGrid();
+    }
+
+    let _activeLens = 'picks';
+
+    function setLens(el) {
+      document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      _activeLens = el.dataset.lens;
+      renderSubPills(_activeLens);
+      // auto-apply with first sub or no sub
+      const firstSub = (LENS_SUB_PILLS[_activeLens] || [])[0] || null;
+      applyLensQuery(_activeLens, firstSub);
+    }
+
+    function renderSubPills(lens) {
+      const row = document.getElementById('subRow');
+      const pills = LENS_SUB_PILLS[lens] || [];
+      row.style.display = pills.length === 0 ? 'none' : '';
+      row.innerHTML = pills.map((p, i) =>
+        `<button class="sub-pill ${i === 0 ? 'active' : ''}" onclick="setSubPill(this,'${p.replace(/'/g,"\\'")}')"><span class="sub-thumb"></span>${p}</button>`
+      ).join('');
+    }
+
+    function setSubPill(el, sub) {
+      document.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      applyLensQuery(_activeLens, sub);
+    }
+
+    // init lens on gallery entry
+    function initLens() {
+      renderSubPills('picks');
+      applyLensQuery('picks', null);
     }
 
     function setTheme(t) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-mode="gallery" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -7,10 +7,335 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Design tokens ── */
+    :root {
+      --bg:           #0c0c0f;
+      --surface:      #16161c;
+      --surface-2:    #1e1e28;
+      --border:       rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-1:       rgba(240,240,240,0.95);
+      --text-2:       rgba(240,240,240,0.4);
+      --text-3:       rgba(240,240,240,0.2);
+      --h:            40px;
+      --r:            999px;
+      --shadow:       0 8px 32px rgba(0,0,0,0.5);
+      /* legacy aliases used by style.css */
+      --text-primary:   rgba(240,240,240,0.95);
+      --text-secondary: rgba(240,240,240,0.4);
+      --radius: 6px;
+      --transition-fast: 150ms;
+      --transition-normal: 200ms;
+      --transition-slow: 300ms;
+    }
+
+    [data-theme="light"] {
+      --bg:           #f5f4f0;
+      --surface:      #ffffff;
+      --surface-2:    #e8e8e8;
+      --border:       rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.2);
+      --text-1:       rgba(12,12,15,0.9);
+      --text-2:       rgba(12,12,15,0.55);
+      --text-3:       rgba(12,12,15,0.35);
+      --shadow:       0 8px 32px rgba(0,0,0,0.1);
+      --text-primary:   rgba(12,12,15,0.9);
+      --text-secondary: rgba(12,12,15,0.55);
+    }
+
+    [data-theme="light"] .sw-btn.active,
+    [data-theme="light"] .theme-btn.active {
+      background: var(--surface-2);
+      color: var(--text-1);
+      box-shadow: none;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 250ms, color 250ms;
+    }
+
+    /* ══ HEADER ══ */
+    .header-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      transition: background 250ms;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 1.5rem;
+      position: relative;
+    }
+
+    /* LEFT: logo + switcher */
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    .nav-logo {
+      width: var(--h);
+      height: var(--h);
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      text-decoration: none;
+      transition: background 150ms, border-color 150ms;
+    }
+    .nav-logo:hover { background: var(--surface-2); border-color: var(--border-hover); }
+    .nav-logo span {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .nav-switcher {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      height: var(--h);
+      padding: 3px;
+      gap: 0;
+    }
+
+    .sw-btn {
+      display: inline-flex;
+      align-items: center;
+      background: transparent;
+      border: none;
+      color: var(--text-2);
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      padding: 0 0.85rem;
+      height: calc(var(--h) - 6px);
+      border-radius: var(--r);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 150ms, color 150ms;
+      flex-shrink: 0;
+    }
+    .sw-btn:hover { color: var(--text-1); }
+    .sw-btn.active {
+      background: var(--surface-2);
+      color: var(--text-1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* CENTER: search absolutely centered */
+    .nav-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      height: var(--h);
+      padding: 3px 3px 3px 0.9rem;
+      gap: 0.4rem;
+      transition: border-color 200ms;
+    }
+    .nav-center:focus-within { border-color: var(--border-hover); }
+
+    .search-icon-wrap {
+      color: var(--text-2);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    /* search input — clean, no standalone styles */
+    #searchBar {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.85rem;
+      min-width: 0;
+      padding: 0;
+    }
+    #searchBar::placeholder { color: var(--text-2); }
+
+    .search-sep {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .btn-advanced {
+      width: calc(var(--h) - 6px);
+      height: calc(var(--h) - 6px);
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 150ms, color 150ms;
+    }
+    .btn-advanced:hover { background: var(--surface-2); color: var(--text-1); }
+    .btn-advanced.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* RIGHT: theme switcher */
+    .nav-right { flex-shrink: 0; }
+
+    .theme-sw {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      height: var(--h);
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .theme-btn {
+      width: calc(var(--h) - 6px);
+      height: calc(var(--h) - 6px);
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 150ms, color 150ms;
+    }
+    .theme-btn:hover { color: var(--text-1); }
+    .theme-btn.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* search clear + suggestions — positioned relative to nav-center */
+    #searchClear {
+      color: var(--text-2);
+      cursor: pointer;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+      transition: color 150ms;
+      padding: 0 0.2rem;
+    }
+    #searchClear:hover { color: var(--text-1); }
+
+    #searchSuggestions {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 110;
+      padding: 0.25rem 0;
+    }
+
+    /* Lens chips row */
+    .header-chips {
+      display: flex;
+      align-items: center;
+      padding: 0.4rem 1.5rem;
+      border-top: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 0.4rem;
+    }
+    .header-chips::-webkit-scrollbar { display: none; }
+
+    /* ══ MOBILE ══ */
+    .mobile-top-bar { display: none; }
+    .mobile-float   { display: none; }
+
+    @media (max-width: 768px) {
+      .header-wrap { display: none; }
+
+      .mobile-top-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.6rem 0.75rem;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        transition: background 250ms;
+      }
+
+      /* search pill full-width on mobile */
+      .mobile-top-bar .nav-center {
+        position: static;
+        transform: none;
+        flex: 1;
+        max-width: none;
+      }
+
+      .mobile-float {
+        display: flex;
+        align-items: center;
+        position: fixed;
+        bottom: calc(1.5rem + env(safe-area-inset-bottom));
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 60;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 3px;
+        gap: 0;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: var(--shadow);
+        white-space: nowrap;
+      }
+
+      .grid { padding-bottom: calc(6rem + env(safe-area-inset-bottom)) !important; }
+      footer.site-footer { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+    }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+  <!-- Welcome screen -->
   <div id="welcome"></div>
 
   <!-- Transition screen -->
@@ -22,67 +347,77 @@
       <circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/>
     </svg>
   </div>
-  <div id="appShell" data-mode="gallery" data-theme="dark" style="display:none;">
 
-    <!-- Desktop header -->
+  <!-- App shell -->
+  <div id="appShell" style="display:none;">
+
+    <!-- ── Desktop header ── -->
     <div class="header-wrap">
       <header class="header">
+
         <div class="nav-left">
-          <a class="nav-logo" onclick="goHome()">
-            <span class="nav-logo-text">MC</span>
-          </a>
+          <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
           <div class="nav-switcher">
-            <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">All Art</button>
-            <button class="sw-btn" id="swBrowse" onclick="setMode('collections')">Browse</button>
-            <button class="sw-btn" id="swDiscover" onclick="setMode('discover')">Discover</button>
+            <button class="sw-btn active" id="swAllArt"   onclick="setMode('gallery')">All Art</button>
+            <button class="sw-btn"        id="swBrowse"   onclick="setMode('collections')">Browse</button>
+            <button class="sw-btn"        id="swDiscover" onclick="setMode('discover')">Discover</button>
           </div>
         </div>
 
         <div class="nav-center" id="searchContainer">
-          <svg class="search-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" class="search-bar" id="searchBar" placeholder="Search card, artist, creature...">
-          <span class="search-clear" id="searchClear" style="display:none;">✕</span>
-          <div class="search-suggestions" id="searchSuggestions" style="display:none;"></div>
+          <span class="search-icon-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input type="text" id="searchBar" placeholder="Search card, artist, creature...">
+          <span id="searchClear" style="display:none;">✕</span>
+          <div id="searchSuggestions" style="display:none;"></div>
           <div class="search-sep"></div>
-          <button class="btn-advanced" id="navAdvanced" onclick="setMode('advanced')" title="Advanced">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          <button class="btn-advanced" id="btnAdvanced" onclick="setMode('advanced')" title="Advanced">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
           </button>
         </div>
 
         <div class="nav-right">
           <div class="theme-sw">
-            <button class="theme-btn active" id="btnDark" onclick="setTheme('dark')" title="Dark">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <button class="theme-btn active" id="btnDark"  onclick="setTheme('dark')"  title="Dark">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>
             <button class="theme-btn" id="btnLight" onclick="setTheme('light')" title="Light">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
             </button>
           </div>
         </div>
       </header>
 
-      <!-- Lens chips row — gallery only -->
+      <!-- Lens chips — All Art only -->
       <div class="header-chips" id="chipBar" style="display:none;">
         <div class="chip-list" id="chipList"></div>
       </div>
     </div>
 
-    <!-- Mobile top bar -->
+    <!-- ── Mobile top bar ── -->
     <div class="mobile-top-bar">
-      <a class="nav-logo" onclick="goHome()">
-        <span class="nav-logo-text">MC</span>
-      </a>
-      <div class="nav-center mobile-search" id="mobileSearchContainer">
-        <svg class="search-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" class="search-bar" id="mobileSearchBar" placeholder="Search card, artist, creature...">
+      <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
+      <div class="nav-center">
+        <span class="search-icon-wrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" id="mobileSearchBar" placeholder="Search card, artist, creature...">
         <div class="search-sep"></div>
-        <button class="btn-advanced" title="Advanced" onclick="setMode('advanced')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        <button class="btn-advanced" onclick="setMode('advanced')" title="Advanced">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
         </button>
       </div>
     </div>
 
-    <!-- More Filters Modal -->
+    <!-- ── Legacy hidden elements — required by filters.js ── -->
+    <div id="headerRow2" style="display:none;">
+      <div id="filters"></div>
+      <button id="clearFiltersBtn" style="display:none;" onclick="clearAllFilters()">Clear all</button>
+      <div id="row2Right"></div>
+    </div>
+
+    <!-- ── More Filters Modal ── -->
     <div class="more-modal-overlay" id="moreModalOverlay" style="display:none;" onclick="closeMoreModal()"></div>
     <div class="more-modal" id="moreModal" style="display:none;">
       <div class="more-modal-header">
@@ -96,7 +431,7 @@
       </div>
     </div>
 
-    <!-- Mobile filter sheet -->
+    <!-- ── Mobile filter drawer ── -->
     <div class="drawer-overlay" id="drawerOverlay" style="display:none;" onclick="closeDrawer()"></div>
     <div class="drawer" id="drawer">
       <div class="drawer-handle" onclick="closeDrawer()"></div>
@@ -109,60 +444,58 @@
         <button class="drawer-apply-btn" onclick="applySheet()">SHOW RESULTS</button>
       </div>
     </div>
-    <!-- Legacy hidden elements for JS compatibility -->
-    <div id="headerRow2" style="display:none;">
-      <div class="filters" id="filters"></div>
-      <button class="clear-filters-btn" id="clearFiltersBtn" style="display:none;" onclick="clearAllFilters()">Clear all</button>
-      <div class="row2-right" id="row2Right"></div>
-    </div>
 
-    <!-- Mode panels -->
+    <!-- ── Mode panels ── -->
     <main class="grid" id="grid"></main>
     <div class="loading-more" id="loader" style="display:none;">Loading more artwork...</div>
 
-    <div id="collectionsPanel" class="mode-panel">
+    <div id="collectionsPanel" class="mode-panel" style="display:none;">
       <div class="cat-search-row">
-        <div class="search-container">
-          <svg class="search-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <div style="position:relative;max-width:400px;">
           <input type="text" class="search-bar" id="catSearchBar" placeholder="Search collections...">
         </div>
       </div>
       <div class="cat-grid" id="catGrid"></div>
     </div>
 
-    <div id="advancedPanel" class="mode-panel">
-      <div class="advanced-placeholder">Advanced search — coming in Step 5</div>
+    <div id="advancedPanel" class="mode-panel" style="display:none;">
+      <div class="advanced-placeholder">Advanced search — coming soon</div>
     </div>
 
-    <div id="discoverPanel" class="mode-panel"></div>
+    <div id="discoverPanel" class="mode-panel" style="display:none;"></div>
 
-    <!-- Legacy categories panel alias for existing JS -->
+    <!-- Legacy alias -->
     <div id="categoriesPanel" style="display:none;"></div>
 
+    <!-- Lightbox -->
     <div id="lightbox"></div>
 
+    <!-- Scroll to top -->
     <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-    <!-- Mobile floating switcher -->
-    <nav class="mobile-float" id="mobileFloat">
-      <button class="sw-btn active" id="mSwAllArt" onclick="setMode('gallery')">All Art</button>
-      <button class="sw-btn" id="mSwBrowse" onclick="setMode('collections')">Browse</button>
-      <button class="sw-btn" id="mSwDiscover" onclick="setMode('discover')">Discover</button>
-    </nav>
-
+    <!-- Footer -->
     <footer class="site-footer">
       <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images &copy; Wizards of the Coast.</p>
     </footer>
+
+    <!-- ── Mobile floating switcher ── -->
+    <nav class="mobile-float">
+      <button class="sw-btn active" id="mSwAllArt"   onclick="setMode('gallery')">All Art</button>
+      <button class="sw-btn"        id="mSwBrowse"   onclick="setMode('collections')">Browse</button>
+      <button class="sw-btn"        id="mSwDiscover" onclick="setMode('discover')">Discover</button>
+    </nav>
+
   </div><!-- end appShell -->
 
-<script src="js/welcome.js"></script>
+  <script src="js/welcome.js"></script>
   <script src="js/api.js"></script>
   <script src="js/grid.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/lightbox.js"></script>
+
   <script>
-    // ── Mode switching ──────────────────────────────────────────────────────
-    const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', discover:'swDiscover', advanced:'navAdvanced' };
+    // ── Mode map ──
+    const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', discover:'swDiscover', advanced:'btnAdvanced' };
     const MOBILE_SW  = { gallery:'mSwAllArt', collections:'mSwBrowse', discover:'mSwDiscover' };
     const PANELS     = { gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel', discover:'discoverPanel' };
 
@@ -170,7 +503,6 @@
 
     function setMode(mode) {
       _currentMode = mode;
-      document.getElementById('appShell').dataset.mode = mode;
 
       // panels
       ['grid','collectionsPanel','advancedPanel','discoverPanel'].forEach(id => {
@@ -195,7 +527,7 @@
       if (chipBar) chipBar.style.display = mode === 'gallery' ? '' : 'none';
 
       // load content
-      if (mode === 'gallery' && filteredCards.length === 0) loadInitialGrid();
+      if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0) loadInitialGrid();
       if (mode === 'collections') renderCategories();
       if (mode === 'discover') triggerSurprise();
     }
@@ -207,10 +539,20 @@
     }
 
     function setTheme(t) {
-      document.getElementById('appShell').dataset.theme = t;
+      document.documentElement.dataset.theme = t;
       document.getElementById('btnDark')?.classList.toggle('active', t === 'dark');
       document.getElementById('btnLight')?.classList.toggle('active', t === 'light');
+      // persist
+      localStorage.setItem('mc_theme', t);
     }
+
+    // restore theme on load
+    const savedTheme = localStorage.getItem('mc_theme') || 'dark';
+    document.documentElement.dataset.theme = savedTheme;
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btnDark')?.classList.toggle('active', savedTheme === 'dark');
+      document.getElementById('btnLight')?.classList.toggle('active', savedTheme === 'light');
+    });
   </script>
 </body>
 </html>

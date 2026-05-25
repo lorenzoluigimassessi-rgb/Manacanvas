@@ -1081,10 +1081,11 @@ function renderFlatSheet() {
   artistInput.addEventListener("focus", showArtist);
   artistInput.addEventListener("click", showArtist);
   artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value, true));
-  artistInput.addEventListener("blur", () => setTimeout(() => {
+  artistInput.addEventListener("blur", (e) => setTimeout(() => {
+    if (document.activeElement?.closest("#sheetArtistList")) return;
     const list = document.getElementById("sheetArtistList");
     if (list) list.style.display = "none";
-  }, 200));
+  }, 250));
 
   // Card type pills
   const ctPills = document.getElementById("sheetCardTypePills");
@@ -1103,11 +1104,11 @@ function renderFlatSheet() {
   typeInput.addEventListener("focus", showType);
   typeInput.addEventListener("click", showType);
   typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value, true));
-  typeInput.addEventListener("blur", () => setTimeout(() => {
-    typeFocused = false;
+  typeInput.addEventListener("blur", (e) => setTimeout(() => {
+    if (document.activeElement?.closest("#sheetTypeList")) return;
     const list = document.getElementById("sheetTypeList");
     if (list) list.style.display = "none";
-  }, 200));
+  }, 250));
 
   // Mana pills
   const manaPills = document.getElementById("sheetManaPills");
@@ -1242,7 +1243,8 @@ function appendSheetItem(list, item, isSet, onSelect, q) {
   el.dataset.val = val;
   const iconHtml = isSet ? `<img class="set-icon" src="${item.icon}" alt="">` : "";
   el.innerHTML = `<span class="dropdown-checkbox">${isActive ? "<svg width='10' height='10' viewBox='0 0 10 10'><polyline points='1.5,5 4,7.5 8.5,2' stroke='currentColor' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" : ""}</span>${iconHtml}<span>${highlightMatch(label, q)}</span>`;
-  el.addEventListener("click", () => onSelect(val));
+  el.addEventListener("mousedown", (e) => { e.preventDefault(); onSelect(val); });
+  el.addEventListener("touchend", (e) => { e.preventDefault(); onSelect(val); });
   list.appendChild(el);
 }
 

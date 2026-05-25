@@ -61,7 +61,7 @@ function openLightbox(card, mode = 'feed') {
       <button class="close-btn" id="lbClose">✕</button>
 
       <!-- Art -->
-      <div class="art-container" id="artContainer" style="overflow:hidden;">
+      <div class="art-container ${isSurprise ? 'frame-active' : ''}" id="artContainer" style="overflow:hidden;">
         <img id="lbImage" src="${initialSrc}" alt="${card.name}" ${isSurprise ? 'class="frame-mode"' : ''}>
         <!-- Desktop ghost arrows — feed only -->
         ${!isSurprise ? `
@@ -351,6 +351,7 @@ function openLightbox(card, mode = 'feed') {
     if (!ac) return;
     currentMode = 'art'; img.src = ac;
     img.classList.remove('frame-mode');
+    document.getElementById('artContainer')?.classList.remove('frame-active');
     document.getElementById('toggleArt').classList.add('active');
     document.getElementById('toggleFrame').classList.remove('active');
     resetZoom();
@@ -360,6 +361,7 @@ function openLightbox(card, mode = 'feed') {
     const ac = currentCard.image_uris?.art_crop || currentCard.card_faces?.[0]?.image_uris?.art_crop;
     currentMode = 'frame'; img.src = n || ac;
     img.classList.add('frame-mode');
+    document.getElementById('artContainer')?.classList.add('frame-active');
     document.getElementById('toggleFrame').classList.add('active');
     document.getElementById('toggleArt').classList.remove('active');
     resetZoom();

@@ -321,19 +321,22 @@ function openLightbox(card, mode = 'feed') {
   let swX = 0, swY = 0, scX = 0, swiping = false, swDir = null;
 
   document.getElementById('lightboxOverlay').addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) { swiping = false; return; }
     if (e.target.closest('button, a, .toggle, .meta-link')) return;
     swX = e.touches[0].clientX; swY = e.touches[0].clientY;
     scX = swX; swiping = true; swDir = null;
   }, { passive: true });
 
   document.getElementById('lightboxOverlay').addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) { e.preventDefault(); swiping = false; return; }
     if (!swiping) return;
     const dx = e.touches[0].clientX - swX;
     const dy = e.touches[0].clientY - swY;
     scX = e.touches[0].clientX;
     if (!swDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
       swDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
-  }, { passive: true });
+    if (swDir === 'h') e.preventDefault();
+  }, { passive: false });
 
   document.getElementById('lightboxOverlay').addEventListener('touchend', () => {
     if (!swiping) return;

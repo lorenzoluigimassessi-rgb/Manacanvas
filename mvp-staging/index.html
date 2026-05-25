@@ -380,7 +380,7 @@
 
     <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
     <div class="lens-row" id="lensRow">
-      <button class="lens-btn active" data-lens="picks"   onclick="setLens(this)">Our Picks</button>
+      <button class="lens-btn active" data-lens="picks"   onclick="setLens(this)">Daily Picks</button>
       <button class="lens-btn"        data-lens="latest"  onclick="setLens(this)">Latest</button>
       <button class="lens-btn"        data-lens="era"     onclick="setLens(this)">By Era</button>
       <button class="lens-btn"        data-lens="creature" onclick="setLens(this)">Creature Type</button>
@@ -529,8 +529,9 @@
     }
 
     function goHome() {
-      if (!localStorage.getItem('mc_entered')) { showWelcome(); return; }
+      clearAllFilters();
       setMode('gallery');
+      setLens(document.querySelector('.lens-btn[data-lens="picks"]'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -576,6 +577,8 @@
         const theme = getDailyTheme();
         activeSearch = theme.query;
         sortOrder = 'random'; sortDir = 'auto';
+        // Seed random page offset by day so feed changes every 24h
+        window._dailySeed = Math.floor(Date.now() / 86400000);
       } else if (lens === 'latest') {
         if (sub === 'Previews only') { activeSearch = 'is:preview'; }
         // Last set / Last block handled by sort — newest released

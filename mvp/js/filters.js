@@ -1077,15 +1077,30 @@ function renderFlatSheet() {
 
   // Artist search
   const artistInput = document.getElementById("sheetArtistInput");
-  const showArtist = () => renderSheetArtistList(artistInput.value, true);
-  artistInput.addEventListener("focus", showArtist);
-  artistInput.addEventListener("click", showArtist);
+  const showArtist = () => { renderSheetArtistList(artistInput.value, true); };
+  artistInput.addEventListener("touchstart", (e) => { e.stopPropagation(); showArtist(); }, { passive: true });
+  artistInput.addEventListener("mousedown", (e) => { e.stopPropagation(); showArtist(); });
   artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value, true));
-  artistInput.addEventListener("blur", (e) => setTimeout(() => {
-    if (document.activeElement?.closest("#sheetArtistList")) return;
-    const list = document.getElementById("sheetArtistList");
-    if (list) list.style.display = "none";
-  }, 250));
+
+  // Creature type search
+  const typeInput = document.getElementById("sheetTypeInput");
+  const showType = () => { renderSheetTypeList(typeInput.value, true); };
+  typeInput.addEventListener("touchstart", (e) => { e.stopPropagation(); showType(); }, { passive: true });
+  typeInput.addEventListener("mousedown", (e) => { e.stopPropagation(); showType(); });
+  typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value, true));
+
+  // Hide lists on tap outside
+  document.getElementById("drawerBody").addEventListener("touchstart", (e) => {
+    if (!e.target.closest("#sheetArtistList") && !e.target.closest("#sheetArtistInput")) {
+      const l = document.getElementById("sheetArtistList"); if (l) l.style.display = "none";
+    }
+    if (!e.target.closest("#sheetTypeList") && !e.target.closest("#sheetTypeInput")) {
+      const l = document.getElementById("sheetTypeList"); if (l) l.style.display = "none";
+    }
+    if (!e.target.closest("#sheetSetList") && !e.target.closest("#sheetSetInput")) {
+      const l = document.getElementById("sheetSetList"); if (l) l.style.display = "none";
+    }
+  }, { passive: true });
 
   // Card type pills
   const ctPills = document.getElementById("sheetCardTypePills");
@@ -1097,18 +1112,6 @@ function renderFlatSheet() {
     if (idx === -1) activeCardType.push(el.dataset.val); else activeCardType.splice(idx, 1);
     ctPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", activeCardType.includes(p.dataset.val)));
   }));
-
-  // Creature type search
-  const typeInput = document.getElementById("sheetTypeInput");
-  const showType = () => renderSheetTypeList(typeInput.value, true);
-  typeInput.addEventListener("focus", showType);
-  typeInput.addEventListener("click", showType);
-  typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value, true));
-  typeInput.addEventListener("blur", (e) => setTimeout(() => {
-    if (document.activeElement?.closest("#sheetTypeList")) return;
-    const list = document.getElementById("sheetTypeList");
-    if (list) list.style.display = "none";
-  }, 250));
 
   // Mana pills
   const manaPills = document.getElementById("sheetManaPills");
@@ -1123,18 +1126,14 @@ function renderFlatSheet() {
     manaPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", activeColour.includes(p.dataset.code)));
   }));
 
-  // Sets — show on focus/click
+  // Sets — show on touchstart/mousedown
   loadSetsIfNeeded().then(() => {
     renderSheetSetList("", false);
     const setInput = document.getElementById("sheetSetInput");
     const showSets = () => renderSheetSetList(setInput.value, true);
-    setInput.addEventListener("focus", showSets);
-    setInput.addEventListener("click", showSets);
+    setInput.addEventListener("touchstart", (e) => { e.stopPropagation(); showSets(); }, { passive: true });
+    setInput.addEventListener("mousedown", (e) => { e.stopPropagation(); showSets(); });
     setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value, true));
-    setInput.addEventListener("blur", () => setTimeout(() => {
-      const list = document.getElementById("sheetSetList");
-      if (list) list.style.display = "none";
-    }, 200));
   });
 
   // Art style grid

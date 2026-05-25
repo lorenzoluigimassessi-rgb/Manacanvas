@@ -1077,46 +1077,31 @@ function renderFlatSheet() {
 
   // Artist search
   const artistInput = document.getElementById("sheetArtistInput");
-  const showArtist = () => { renderSheetArtistList(artistInput.value, true); };
-  artistInput.addEventListener("touchstart", (e) => { e.stopPropagation(); showArtist(); }, { passive: true });
-  artistInput.addEventListener("mousedown", (e) => { e.stopPropagation(); showArtist(); });
+  artistInput.addEventListener("focus", () => renderSheetArtistList(artistInput.value, true));
   artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value, true));
+  artistInput.addEventListener("blur", () => setTimeout(() => { const l = document.getElementById("sheetArtistList"); if (l) l.style.display = "none"; }, 300));
 
   // Creature type search
   const typeInput = document.getElementById("sheetTypeInput");
-  const showType = () => { renderSheetTypeList(typeInput.value, true); };
-  typeInput.addEventListener("touchstart", (e) => { e.stopPropagation(); showType(); }, { passive: true });
-  typeInput.addEventListener("mousedown", (e) => { e.stopPropagation(); showType(); });
+  typeInput.addEventListener("focus", () => renderSheetTypeList(typeInput.value, true));
   typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value, true));
+  typeInput.addEventListener("blur", () => setTimeout(() => { const l = document.getElementById("sheetTypeList"); if (l) l.style.display = "none"; }, 300));
 
   // Sets
   loadSetsIfNeeded().then(() => {
     renderSheetSetList("", false);
     const setInput = document.getElementById("sheetSetInput");
-    const showSets = () => renderSheetSetList(setInput.value, true);
-    setInput.addEventListener("touchstart", (e) => { e.stopPropagation(); showSets(); }, { passive: true });
-    setInput.addEventListener("mousedown", (e) => { e.stopPropagation(); showSets(); });
+    setInput.addEventListener("focus", () => renderSheetSetList(setInput.value, true));
     setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value, true));
+    setInput.addEventListener("blur", () => setTimeout(() => { const l = document.getElementById("sheetSetList"); if (l) l.style.display = "none"; }, 300));
   });
 
-  // Hide lists when tapping outside — document level, after inputs register
-  const _hideSheetLists = (e) => {
-    if (!e.target.closest("#sheetArtistList") && !e.target.closest("#sheetArtistInput")) {
-      const l = document.getElementById("sheetArtistList"); if (l) l.style.display = "none";
-    }
-    if (!e.target.closest("#sheetTypeList") && !e.target.closest("#sheetTypeInput")) {
-      const l = document.getElementById("sheetTypeList"); if (l) l.style.display = "none";
-    }
-    if (!e.target.closest("#sheetSetList") && !e.target.closest("#sheetSetInput")) {
-      const l = document.getElementById("sheetSetList"); if (l) l.style.display = "none";
-    }
-  };
-  // Remove any previous listener then re-add
-  document.removeEventListener("touchstart", window._hideSheetLists);
-  document.removeEventListener("mousedown", window._hideSheetLists);
-  window._hideSheetLists = _hideSheetLists;
-  document.addEventListener("touchstart", _hideSheetLists, { passive: true });
-  document.addEventListener("mousedown", _hideSheetLists);
+  // Remove any stale document hide listener
+  if (window._hideSheetLists) {
+    document.removeEventListener("touchstart", window._hideSheetLists);
+    document.removeEventListener("mousedown", window._hideSheetLists);
+    window._hideSheetLists = null;
+  }
 
   // Card type pills
   const ctPills = document.getElementById("sheetCardTypePills");

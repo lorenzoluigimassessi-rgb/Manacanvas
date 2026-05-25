@@ -1360,7 +1360,7 @@ body {
   .card .overlay .artist { font-size: 0.7rem; }
   .lightbox .art-container { max-width: 95vw; max-height: 55vh; }
   .lightbox .art-container img { max-height: 55vh; }
-  .lightbox .art-container img.frame-mode { max-width: 68vw; max-height: none; height: auto; }
+  .lightbox .art-container img.frame-mode { max-width: 80vw; max-height: none; height: auto; }
   .lightbox .meta .name { font-size: 0.95rem; }
   .lightbox .toggle button { padding: 0.5rem 1.2rem; font-size: 0.85rem; min-height: 44px; }
   .lightbox .random-btn { min-height: 44px; padding: 0 2rem; }
@@ -1389,7 +1389,7 @@ body {
   .card { border-radius: 4px; }
   .lightbox .art-container { max-width: 98vw; max-height: 45vh; }
   .lightbox .art-container img { max-height: 45vh; }
-  .lightbox .art-container img.frame-mode { max-width: 62vw; max-height: none; height: auto; }
+  .lightbox .art-container img.frame-mode { max-width: 74vw; max-height: none; height: auto; }
   .scroll-top { bottom: 1rem; right: 1rem; width: 44px; height: 44px; }
   .welcome-title { font-size: 1.6rem; }
   .welcome-page { padding: 1.5rem; padding-bottom: 3rem; }

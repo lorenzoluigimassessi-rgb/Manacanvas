@@ -1089,8 +1089,18 @@ function renderFlatSheet() {
   typeInput.addEventListener("mousedown", (e) => { e.stopPropagation(); showType(); });
   typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value, true));
 
-  // Hide lists on tap outside
-  document.getElementById("drawerBody").addEventListener("touchstart", (e) => {
+  // Sets
+  loadSetsIfNeeded().then(() => {
+    renderSheetSetList("", false);
+    const setInput = document.getElementById("sheetSetInput");
+    const showSets = () => renderSheetSetList(setInput.value, true);
+    setInput.addEventListener("touchstart", (e) => { e.stopPropagation(); showSets(); }, { passive: true });
+    setInput.addEventListener("mousedown", (e) => { e.stopPropagation(); showSets(); });
+    setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value, true));
+  });
+
+  // Hide lists when tapping outside — document level, after inputs register
+  const _hideSheetLists = (e) => {
     if (!e.target.closest("#sheetArtistList") && !e.target.closest("#sheetArtistInput")) {
       const l = document.getElementById("sheetArtistList"); if (l) l.style.display = "none";
     }
@@ -1100,7 +1110,13 @@ function renderFlatSheet() {
     if (!e.target.closest("#sheetSetList") && !e.target.closest("#sheetSetInput")) {
       const l = document.getElementById("sheetSetList"); if (l) l.style.display = "none";
     }
-  }, { passive: true });
+  };
+  // Remove any previous listener then re-add
+  document.removeEventListener("touchstart", window._hideSheetLists);
+  document.removeEventListener("mousedown", window._hideSheetLists);
+  window._hideSheetLists = _hideSheetLists;
+  document.addEventListener("touchstart", _hideSheetLists, { passive: true });
+  document.addEventListener("mousedown", _hideSheetLists);
 
   // Card type pills
   const ctPills = document.getElementById("sheetCardTypePills");
@@ -1125,16 +1141,6 @@ function renderFlatSheet() {
     if (idx === -1) activeColour.push(el.dataset.code); else activeColour.splice(idx, 1);
     manaPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", activeColour.includes(p.dataset.code)));
   }));
-
-  // Sets — show on touchstart/mousedown
-  loadSetsIfNeeded().then(() => {
-    renderSheetSetList("", false);
-    const setInput = document.getElementById("sheetSetInput");
-    const showSets = () => renderSheetSetList(setInput.value, true);
-    setInput.addEventListener("touchstart", (e) => { e.stopPropagation(); showSets(); }, { passive: true });
-    setInput.addEventListener("mousedown", (e) => { e.stopPropagation(); showSets(); });
-    setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value, true));
-  });
 
   // Art style grid
   renderSheetStyleGrid();

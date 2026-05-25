@@ -27,8 +27,8 @@ function openLightbox(card, mode = 'feed') {
   const disabledAttr  = !hasArtCrop ? 'style="opacity:0.4;cursor:not-allowed;"' : '';
   const disabledTitle = !hasArtCrop ? 'title="Art-only view unavailable for this card"' : '';
   const isSurprise = mode === 'surprise';
-  currentMode = isSurprise ? 'frame' : 'art';
-  const initialSrc = isSurprise ? (normal || artCrop) : (artCrop || normal);
+  currentMode = isSurprise ? 'art' : 'art';
+  const initialSrc = artCrop || normal;
 
   // Arrow visibility state
   const noHistory  = isSurprise && window._surpriseHistory.length === 0;
@@ -62,7 +62,7 @@ function openLightbox(card, mode = 'feed') {
 
       <!-- Art -->
       <div class="art-container" id="artContainer" style="overflow:hidden;">
-        <img id="lbImage" src="${initialSrc}" alt="${card.name}" ${isSurprise ? 'class="frame-mode"' : ''}>
+        <img id="lbImage" src="${initialSrc}" alt="${card.name}">
         <!-- Desktop ghost arrows — feed only -->
         ${!isSurprise ? `
         <div class="lb-ghost-arrows" id="lbGhostArrows">
@@ -76,8 +76,8 @@ function openLightbox(card, mode = 'feed') {
       <!-- Toggle -->
       <div class="lightbox-actions">
         <div class="toggle">
-          <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art Only</button>
-          <button id="toggleFrame" ${isSurprise ? 'class="active"' : ''}>With Frame</button>
+          <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
+          <button id="toggleFrame">With Frame</button>
         </div>
       </div>
 

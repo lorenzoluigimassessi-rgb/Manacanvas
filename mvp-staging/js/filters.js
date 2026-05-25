@@ -46,6 +46,7 @@ async function initFilters() {
     document.getElementById("viewBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleViewDropdown(); });
     [artistList, creatureTypeList, cardTypeList] = await Promise.all([fetchArtistNames(), fetchCreatureTypes(), fetchCardTypes()]);
     loadSetsIfNeeded(); // background, don't await
+    Promise.all([fetchArtistNames(), fetchCreatureTypes(), fetchCardTypes()]).then(([a, t, c]) => { artistList = a; creatureTypeList = t; cardTypeList = c; });
     document.addEventListener("click", () => { closeViewDropdown(); closeSortDropdown(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeViewDropdown(); closeSortDropdown(); } });
     return;
@@ -1078,16 +1079,24 @@ function renderFlatSheet() {
 
   // Artist search
   const artistInput = document.getElementById("sheetArtistInput");
-  const showArtist = () => renderSheetArtistList(artistInput.value, true);
-  artistInput.addEventListener("focus", showArtist);
-  artistInput.addEventListener("click", showArtist);
+  artistInput.addEventListener("focus", () => renderSheetArtistList(artistInput.value, true));
   artistInput.addEventListener("input", (e) => renderSheetArtistList(e.target.value, true));
-  artistInput.addEventListener("blur", () => setTimeout(() => {
-    const list = document.getElementById("sheetArtistList");
-    if (list) list.style.display = "none";
-  }, 200));
+  artistInput.addEventListener("blur", () => setTimeout(() => { const l = document.getElementById("sheetArtistList"); if (l) l.style.display = "none"; }, 300));
 
-  // Card type pills
+  // Creature type search
+  const typeInput = document.getElementById("sheetTypeInput");
+  typeInput.addEventListener("focus", () => renderSheetTypeList(typeInput.value, true));
+  typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value, true));
+  typeInput.addEventListener("blur", () => setTimeout(() => { const l = document.getElementById("sheetTypeList"); if (l) l.style.display = "none"; }, 300));
+
+  // Sets
+  loadSetsIfNeeded().then(() => {
+    renderSheetSetList("", false);
+    const setInput = document.getElementById("sheetSetInput");
+    setInput.addEventListener("focus", () => renderSheetSetList(setInput.value, true));
+    setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value, true));
+    setInput.addEventListener("blur", () => setTimeout(() => { const l = document.getElementById("sheetSetList"); if (l) l.style.display = "none"; }, 300));
+  });
   const ctPills = document.getElementById("sheetCardTypePills");
   ctPills.innerHTML = cardTypeList.map(t =>
     `<div class="sheet-pill ${activeCardType.includes(t) ? 'active' : ''}" data-val="${t}">${t}</div>`
@@ -1098,19 +1107,7 @@ function renderFlatSheet() {
     ctPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", activeCardType.includes(p.dataset.val)));
   }));
 
-  // Creature type search
-  const typeInput = document.getElementById("sheetTypeInput");
-  const showType = () => renderSheetTypeList(typeInput.value, true);
-  typeInput.addEventListener("focus", showType);
-  typeInput.addEventListener("click", showType);
-  typeInput.addEventListener("input", (e) => renderSheetTypeList(e.target.value, true));
-  typeInput.addEventListener("blur", () => setTimeout(() => {
-    typeFocused = false;
-    const list = document.getElementById("sheetTypeList");
-    if (list) list.style.display = "none";
-  }, 200));
-
-  // Mana pills
+  // Card type pills
   const manaPills = document.getElementById("sheetManaPills");
   manaPills.innerHTML = MANA_TYPES.map(m =>
     `<div class="sheet-pill ${activeColour.includes(m.code) ? 'active' : ''}" data-code="${m.code}">
@@ -1123,21 +1120,7 @@ function renderFlatSheet() {
     manaPills.querySelectorAll(".sheet-pill").forEach(p => p.classList.toggle("active", activeColour.includes(p.dataset.code)));
   }));
 
-  // Sets — show on focus/click
-  loadSetsIfNeeded().then(() => {
-    renderSheetSetList("", false);
-    const setInput = document.getElementById("sheetSetInput");
-    const showSets = () => renderSheetSetList(setInput.value, true);
-    setInput.addEventListener("focus", showSets);
-    setInput.addEventListener("click", showSets);
-    setInput.addEventListener("input", (e) => renderSheetSetList(e.target.value, true));
-    setInput.addEventListener("blur", () => setTimeout(() => {
-      const list = document.getElementById("sheetSetList");
-      if (list) list.style.display = "none";
-    }, 200));
-  });
-
-  // Art style grid
+  // Mana pills
   renderSheetStyleGrid();
 
   // Year sliders
@@ -1243,7 +1226,8 @@ function appendSheetItem(list, item, isSet, onSelect, q) {
   el.dataset.val = val;
   const iconHtml = isSet ? `<img class="set-icon" src="${item.icon}" alt="">` : "";
   el.innerHTML = `<span class="dropdown-checkbox">${isActive ? "<svg width='10' height='10' viewBox='0 0 10 10'><polyline points='1.5,5 4,7.5 8.5,2' stroke='currentColor' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" : ""}</span>${iconHtml}<span>${highlightMatch(label, q)}</span>`;
-  el.addEventListener("click", () => onSelect(val));
+  el.addEventListener("mousedown", (e) => { e.preventDefault(); onSelect(val); });
+  el.addEventListener("touchend", (e) => { e.preventDefault(); onSelect(val); });
   list.appendChild(el);
 }
 

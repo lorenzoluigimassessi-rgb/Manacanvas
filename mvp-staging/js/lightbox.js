@@ -16,7 +16,6 @@ function getManaGradient(colors) {
 
 function openLightbox(card, mode = 'feed') {
   currentCard = card;
-  currentMode = 'art';
   _lbMode = mode;
   scale = 1; translateX = 0; translateY = 0;
 
@@ -28,6 +27,8 @@ function openLightbox(card, mode = 'feed') {
   const disabledAttr  = !hasArtCrop ? 'style="opacity:0.4;cursor:not-allowed;"' : '';
   const disabledTitle = !hasArtCrop ? 'title="Art-only view unavailable for this card"' : '';
   const isSurprise = mode === 'surprise';
+  currentMode = isSurprise ? 'frame' : 'art';
+  const initialSrc = isSurprise ? (normal || artCrop) : (artCrop || normal);
 
   // Arrow visibility state
   const noHistory  = isSurprise && window._surpriseHistory.length === 0;
@@ -60,8 +61,8 @@ function openLightbox(card, mode = 'feed') {
       <button class="close-btn" id="lbClose">✕</button>
 
       <!-- Art -->
-      <div class="art-container" id="artContainer" style="overflow:hidden;">
-        <img id="lbImage" src="${artCrop || normal}" alt="${card.name}">
+      <div class="art-container ${isSurprise ? 'frame-active' : ''}" id="artContainer" style="overflow:hidden;">
+        <img id="lbImage" src="${initialSrc}" alt="${card.name}" ${isSurprise ? 'class="frame-mode"' : ''}>
         <!-- Desktop ghost arrows — feed only -->
         ${!isSurprise ? `
         <div class="lb-ghost-arrows" id="lbGhostArrows">
@@ -75,8 +76,8 @@ function openLightbox(card, mode = 'feed') {
       <!-- Toggle -->
       <div class="lightbox-actions">
         <div class="toggle">
-          <button id="toggleArt" class="active" ${disabledAttr} ${disabledTitle}>Art Only</button>
-          <button id="toggleFrame">With Frame</button>
+          <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art Only</button>
+          <button id="toggleFrame" ${isSurprise ? 'class="active"' : ''}>With Frame</button>
         </div>
       </div>
 
@@ -114,7 +115,7 @@ function openLightbox(card, mode = 'feed') {
     const mBtn = document.createElement('button');
     mBtn.id = 'lbSurpriseMobileBtn';
     mBtn.className = 'lb-surprise-next-btn';
-    mBtn.innerHTML = `${IMG_SVG} Random art`;
+    mBtn.innerHTML = `Draw a Card`;
     document.body.appendChild(mBtn);
     mBtn.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
   }
@@ -320,19 +321,22 @@ function openLightbox(card, mode = 'feed') {
   let swX = 0, swY = 0, scX = 0, swiping = false, swDir = null;
 
   document.getElementById('lightboxOverlay').addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) { swiping = false; return; }
     if (e.target.closest('button, a, .toggle, .meta-link')) return;
     swX = e.touches[0].clientX; swY = e.touches[0].clientY;
     scX = swX; swiping = true; swDir = null;
   }, { passive: true });
 
   document.getElementById('lightboxOverlay').addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) { e.preventDefault(); swiping = false; return; }
     if (!swiping) return;
     const dx = e.touches[0].clientX - swX;
     const dy = e.touches[0].clientY - swY;
     scX = e.touches[0].clientX;
     if (!swDir && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
       swDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
-  }, { passive: true });
+    if (swDir === 'h') e.preventDefault();
+  }, { passive: false });
 
   document.getElementById('lightboxOverlay').addEventListener('touchend', () => {
     if (!swiping) return;
@@ -343,19 +347,24 @@ function openLightbox(card, mode = 'feed') {
     else goPrev();
   });
 
-  // ── Frame toggle ───────────────────────────────────────────────────────────
+  // ── Frame toggle ───────────────────────────────────────────────────────────────────────────
   const img = document.getElementById('lbImage');
   document.getElementById('toggleArt').addEventListener('click', () => {
-    if (!hasArtCrop) return;
-    currentMode = 'art'; img.src = artCrop;
+    const ac = currentCard.image_uris?.art_crop || currentCard.card_faces?.[0]?.image_uris?.art_crop;
+    if (!ac) return;
+    currentMode = 'art'; img.src = ac;
     img.classList.remove('frame-mode');
+    document.getElementById('artContainer')?.classList.remove('frame-active');
     document.getElementById('toggleArt').classList.add('active');
     document.getElementById('toggleFrame').classList.remove('active');
     resetZoom();
   });
   document.getElementById('toggleFrame').addEventListener('click', () => {
-    currentMode = 'frame'; img.src = normal;
+    const n  = currentCard.image_uris?.normal  || currentCard.card_faces?.[0]?.image_uris?.normal;
+    const ac = currentCard.image_uris?.art_crop || currentCard.card_faces?.[0]?.image_uris?.art_crop;
+    currentMode = 'frame'; img.src = n || ac;
     img.classList.add('frame-mode');
+    document.getElementById('artContainer')?.classList.add('frame-active');
     document.getElementById('toggleFrame').classList.add('active');
     document.getElementById('toggleArt').classList.remove('active');
     resetZoom();

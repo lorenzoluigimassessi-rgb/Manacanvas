@@ -90,6 +90,10 @@ function triggerSurprise() {
 
 function startBrowse() {
   localStorage.setItem("mc_entered", "1");
+  sortOrder = "released";
+  sortDir = "asc";
+  const sortBtn = document.getElementById("sortBtn");
+  if (sortBtn) sortBtn.textContent = "Oldest First ⇅";
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
   setMode('gallery');

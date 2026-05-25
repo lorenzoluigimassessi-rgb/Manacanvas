@@ -45,6 +45,7 @@ async function initFilters() {
     document.getElementById("sortBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleSort(); });
     document.getElementById("viewBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleViewDropdown(); });
     loadSetsIfNeeded(); // background, don't await
+    Promise.all([fetchArtistNames(), fetchCreatureTypes(), fetchCardTypes()]).then(([a, t, c]) => { artistList = a; creatureTypeList = t; cardTypeList = c; });
     document.addEventListener("click", () => { closeViewDropdown(); closeSortDropdown(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeViewDropdown(); closeSortDropdown(); } });
     return;

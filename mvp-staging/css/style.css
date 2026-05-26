@@ -2557,7 +2557,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: #1e1e26;
+  background: var(--surface);
   border: none;
   color: rgba(240,240,240,0.9);
   font-family: 'Josefin Sans', sans-serif;
@@ -2565,14 +2565,14 @@ body {
   font-weight: 500;
   letter-spacing: 0.3px;
   padding: 0 1rem;
-  height: calc(var(--h) - 4px);
+  height: var(--h);
   border-radius: 10px;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
   transition: background 150ms, color 150ms;
 }
-.draw-sw-btn:hover { background: #26263a; color: #fff; }
-.draw-sw-btn.active { background: #26263a; color: #fff; }
+.draw-sw-btn:hover { background: var(--surface-2); color: #fff; }
+.draw-sw-btn.active { background: var(--surface-2); color: #fff; }
 /* cache bust Tue May 26 13:34:46 CEST 2026 */
 /* v1779796121 */

@@ -782,6 +782,19 @@
       applyLensQuery('picks', null);
     }
 
+    // ── Set lens row top dynamically to match header height ──
+    function updateLensTop() {
+      const lensRow = document.getElementById('lensRow');
+      if (!lensRow) return;
+      const header = document.querySelector('.header-wrap');
+      const mobileBar = document.querySelector('.mobile-top-bar');
+      const ref = (mobileBar && getComputedStyle(mobileBar).display !== 'none') ? mobileBar : header;
+      if (ref) lensRow.style.top = ref.offsetHeight + 'px';
+    }
+    window.addEventListener('DOMContentLoaded', updateLensTop);
+    window.addEventListener('resize', updateLensTop);
+    setTimeout(updateLensTop, 100);
+
     function setTheme(t) {
       document.documentElement.dataset.theme = t;
       document.getElementById('btnDark')?.classList.toggle('active', t === 'dark');

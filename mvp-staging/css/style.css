@@ -390,6 +390,7 @@ body {
   z-index: 45;
   background: var(--bg);
   will-change: transform;
+  transform: translateZ(0);
   transition: background 250ms;
 }
 

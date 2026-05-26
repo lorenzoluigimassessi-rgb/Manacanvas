@@ -777,10 +777,35 @@
     }
     function selectSetFromModal(code, name, icon) {
       closeSetModal();
-      const sub = { code, label: name, icon };
-      setSubPill(null, sub);
-      // Update active pill in row
+      const sub = { code, label: name, icon: icon.trim() };
+      // Remove any existing modal-selected chip
+      document.getElementById('setModalChip')?.remove();
+      // Clear active state on iconic pills
       document.querySelectorAll('#subRow .sub-pill').forEach(p => p.classList.remove('active'));
+      // Insert chip before See all
+      const seeAll = document.querySelector('#subRow .see-all-pill');
+      if (seeAll) {
+        const chip = document.createElement('button');
+        chip.className = 'sub-pill active set-modal-chip';
+        chip.id = 'setModalChip';
+        chip.innerHTML = `<img src="${sub.icon}" style="width:16px;height:16px;flex-shrink:0;filter:brightness(0) invert(0.7);"> ${sub.label} <span class="set-chip-remove" title="Remove">&times;</span>`;
+        chip.querySelector('.set-chip-remove').addEventListener('click', (e) => {
+          e.stopPropagation();
+          chip.remove();
+          // revert to first iconic pill
+          const first = document.querySelector('#subRow .sub-pill:not(.see-all-pill)');
+          if (first) first.click();
+        });
+        chip.addEventListener('click', (e) => {
+          if (e.target.classList.contains('set-chip-remove')) return;
+          document.querySelectorAll('#subRow .sub-pill').forEach(p => p.classList.remove('active'));
+          chip.classList.add('active');
+          window._activeSubPill = sub;
+          applyLensQuery('set', sub);
+        });
+        seeAll.parentNode.insertBefore(chip, seeAll);
+      }
+      window._activeSubPill = sub;
       applyLensQuery('set', sub);
     }
 

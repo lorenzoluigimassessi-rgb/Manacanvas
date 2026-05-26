@@ -2697,3 +2697,15 @@ input[type=range]::-moz-range-thumb {
   background: var(--text-primary);
   border: none;
 }
+
+/* Set modal selected chip */
+.set-modal-chip { gap: 0.4rem; }
+.set-chip-remove {
+  font-style: normal;
+  opacity: 0.5;
+  font-size: 0.85rem;
+  line-height: 1;
+  margin-left: 0.1rem;
+  transition: opacity 150ms;
+}
+.set-chip-remove:hover { opacity: 1; }

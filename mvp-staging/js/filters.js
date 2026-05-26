@@ -821,6 +821,13 @@ function highlightMatch(text, query) {
 // Search bar
 let searchTimeout = null;
 
+function setSearchMode(active) {
+  const lensRow = document.getElementById('lensRow');
+  const subRow  = document.getElementById('subRow');
+  if (lensRow) lensRow.style.display = active ? 'none' : '';
+  if (subRow)  subRow.style.display  = 'none';
+}
+
 function initSearch() {
   const input = document.getElementById("searchBar");
   const clearBtn = document.getElementById("searchClear");
@@ -829,7 +836,9 @@ function initSearch() {
   input.addEventListener("input", () => {
     clearTimeout(searchTimeout);
     highlightedIdx = -1;
-    clearBtn.style.display = input.value ? "block" : "none";
+    const hasValue = !!input.value;
+    clearBtn.style.display = hasValue ? "block" : "none";
+    setSearchMode(hasValue);
     searchTimeout = setTimeout(() => {
       const val = input.value.trim();
       if (val.length >= 2) showSearchSuggestions(val);
@@ -870,12 +879,13 @@ function initSearch() {
     clearBtn.style.display = "none";
     activeSearch = null;
     hideSearchSuggestions();
+    setSearchMode(false);
     updateChips();
     loadInitialGrid();
   });
 
   document.addEventListener("click", (e) => {
-    if (!e.target.closest(".search-container")) hideSearchSuggestions();
+    if (!e.target.closest(".search-container") && !e.target.closest("#searchSuggestions")) hideSearchSuggestions();
   });
 }
 

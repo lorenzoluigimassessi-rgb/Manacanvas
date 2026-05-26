@@ -739,33 +739,48 @@ body {
 }
 
 .suggestion-item {
-  display: flex;
-  justify-content: space-between;
+  display: inline-flex;
   align-items: center;
-  padding: 0.6rem 0.8rem;
-  min-height: 44px;
-  cursor: pointer;
-  font-size: 0.85rem;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
   color: var(--text-secondary);
-  transition: background var(--transition-fast), color var(--transition-fast);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  padding: 0 0.85rem;
+  height: 44px;
+  cursor: pointer;
+  white-space: nowrap;
+  width: 100%;
+  transition: background 150ms, color 150ms;
 }
-
-.suggestion-item:hover, .suggestion-item.highlighted { background: var(--bg); color: var(--text-primary); }
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover, .suggestion-item.highlighted { background: var(--surface); color: var(--text-primary); }
 .suggestion-item strong { color: var(--text-primary); }
+
+.suggestion-label { flex: 1; text-align: left; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
 .suggestion-tag {
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 0.15rem 0.45rem;
-  border-radius: 3px;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
   font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  flex-shrink: 0;
 }
 
-.tag-artist { background: #2d1f4e; color: #b39ddb; }
-.tag-creature { background: #1b3a2a; color: #81c784; }
-.tag-set { background: #3a2a1b; color: #ffb74d; }
-.tag-card { background: #1a2a3a; color: #81d4fa; }
+.tag-artist   { border-color: #b39ddb44; color: #b39ddb; }
+.tag-creature { border-color: #81c78444; color: #81c784; }
+.tag-set      { border-color: #ffb74d44; color: #ffb74d; }
+.tag-card     { border-color: #81d4fa44; color: #81d4fa; }
+.tag-type     { border-color: #81c78444; color: #81c784; }
 
 .random-feed-btn {
   background: #16161f;

@@ -224,10 +224,7 @@ body {
   top: 0;
   z-index: 50;
   background: var(--bg);
-  border-bottom: 1px solid var(--border);
-}
-
-.header {
+}.header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -574,7 +571,6 @@ body {
     top: 0;
     z-index: 50;
     background: var(--bg);
-    border-bottom: 1px solid var(--border);
   }
 
   .mobile-top-bar .nav-center {

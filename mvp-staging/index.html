@@ -959,9 +959,11 @@
     async function fetchCreatureArt(type) {
       if (_creatureArtCache[type]) return _creatureArtCache[type];
       try {
-        const res = await fetch(`https://api.scryfall.com/cards/random?q=t:${encodeURIComponent(type.toLowerCase())}+has:illustration`);
-        const card = await res.json();
-        const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop || '';
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=t:${encodeURIComponent(type.toLowerCase())}+has:illustration&unique=art&order=random&page=1`);
+        const json = await res.json();
+        const cards = json.data || [];
+        const card = cards[Math.floor(Math.random() * Math.min(cards.length, 5))];
+        const art = card?.image_uris?.art_crop || card?.card_faces?.[0]?.image_uris?.art_crop || '';
         _creatureArtCache[type] = art;
         return art;
       } catch(e) { return ''; }
@@ -973,13 +975,9 @@
         ? [prepend, ...CREATURE_TYPES.filter(t => t !== prepend)]
         : CREATURE_TYPES;
 
-      // Build skeleton first
+      // Build skeleton — fill row with as many cards as fit + see all at end
       row.innerHTML = `
         <div class="creature-row-wrap">
-          <div class="creature-label" id="creatureLabelEl">
-            <span class="creature-label-main">Creature</span>
-            <span class="creature-label-sub" id="creatureLabelSub">${activeType || types[0]}</span>
-          </div>
           <div class="creature-cards-scroll" id="creatureCardsScroll">
             ${types.map(t => `
               <div class="creature-card ${(activeType || types[0]) === t ? 'active' : ''}" data-type="${t}">
@@ -1055,10 +1053,12 @@
 
       const unique = ALL_CREATURE_TYPES;
 
+      document.getElementById('subRow').style.display = 'none';
       panel.innerHTML = `
         <div class="creature-all-header">
-          <h2 class="creature-all-title">All Creature Types</h2>
           <button class="creature-all-back" onclick="closeCreatureAll()">&#8592; Back</button>
+          <h2 class="creature-all-title">All Creature Types</h2>
+          <div style="width:80px;"></div>
         </div>
         <div class="creature-all-grid" id="creatureAllGrid">
           ${unique.map(t => `
@@ -1091,6 +1091,7 @@
       const panel = document.getElementById('creatureAllPanel');
       if (panel) panel.style.display = 'none';
       document.getElementById('grid').style.display = '';
+      document.getElementById('subRow').style.display = '';
     }
 
     function initLens() {

@@ -2720,26 +2720,6 @@ input[type=range]::-moz-range-thumb {
   min-width: 0;
 }
 
-.creature-label {
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  gap: 0.1rem;
-  min-width: 80px;
-}
-.creature-label-main {
-  font-size: 0.6rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-.creature-label-sub {
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
 .creature-cards-scroll {
   display: flex;
   gap: 0.5rem;
@@ -2841,6 +2821,7 @@ input[type=range]::-moz-range-thumb {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1.5rem;
+  position: relative;
 }
 .creature-all-title {
   font-family: 'Cinzel', serif;
@@ -2848,6 +2829,10 @@ input[type=range]::-moz-range-thumb {
   font-weight: 500;
   letter-spacing: 2px;
   color: var(--text-primary);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
 .creature-all-back {
   background: transparent;
@@ -2864,7 +2849,7 @@ input[type=range]::-moz-range-thumb {
 
 .creature-all-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
 }
 .creature-all-card {
@@ -2879,12 +2864,12 @@ input[type=range]::-moz-range-thumb {
 .creature-all-img {
   width: 100%;
   aspect-ratio: 4/3;
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--surface-2);
   overflow: hidden;
 }
 .creature-all-name {
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
   text-align: center;
 }
@@ -2892,7 +2877,6 @@ input[type=range]::-moz-range-thumb {
 
 @media (max-width: 768px) {
   .creature-all-panel { padding: 1rem; }
-  .creature-all-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.75rem; }
-  .creature-label { min-width: 60px; }
+  .creature-all-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
   .creature-card-img { width: 80px; height: 80px; }
 }

@@ -22,12 +22,14 @@ async function loadInitialGrid() {
   nextPageUrl = null;
   window._randomPool = [];
   window._randomPoolQuery = null;
-  // Save current filter state to localStorage
-  localStorage.setItem("mc_filters", JSON.stringify({
-    activeArtist, activeType, activeCardType, activeColour,
-    activeSets, activeStyles, activeYearMin, activeYearMax, activeSearch,
-    sortOrder, sortDir
-  }));
+  // Only persist filters in prod (staging uses lens system)
+  if (typeof initLens !== 'function') {
+    localStorage.setItem("mc_filters", JSON.stringify({
+      activeArtist, activeType, activeCardType, activeColour,
+      activeSets, activeStyles, activeYearMin, activeYearMax, activeSearch,
+      sortOrder, sortDir
+    }));
+  }
   showShimmers();
   resetPagination();
   const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, (typeof ART_STYLES !== 'undefined' ? activeStyles.map(i => ART_STYLES[i]) : []), activeYearMin, activeYearMax, activeSearch);
@@ -267,24 +269,8 @@ if (randomFeedBtn) {
 }
 
 function restoreFilters() {
-  const saved = localStorage.getItem("mc_filters");
-  if (!saved) { loadInitialGrid(); return; }
-  try {
-    const f = JSON.parse(saved);
-    activeArtist    = Array.isArray(f.activeArtist)   ? f.activeArtist   : (f.activeArtist   ? [f.activeArtist]   : []);
-    activeType      = Array.isArray(f.activeType)     ? f.activeType     : (f.activeType     ? [f.activeType]     : []);
-    activeCardType  = Array.isArray(f.activeCardType) ? f.activeCardType : (f.activeCardType ? [f.activeCardType] : []);
-    activeColour    = Array.isArray(f.activeColour)   ? f.activeColour   : (f.activeColour   ? [f.activeColour]   : []);
-    activeSets      = Array.isArray(f.activeSets)     ? f.activeSets     : [];
-    activeStyles    = Array.isArray(f.activeStyles)   ? f.activeStyles   : [];
-    activeYearMin   = f.activeYearMin   || null;
-    activeYearMax   = f.activeYearMax   || null;
-    activeSearch    = f.activeSearch    || null;
-    if (f.sortOrder && f.sortOrder !== 'random') sortOrder = f.sortOrder;
-    if (f.sortDir   && f.sortDir   !== 'auto')   sortDir   = f.sortDir;
-  } catch(e) {
-    localStorage.removeItem("mc_filters");
-  }
+  // Staging: lens system owns filter state — skip localStorage restore, go straight to lens init
+  if (typeof initLens === 'function') { initLens(); return; }
   loadInitialGrid();
 }
 

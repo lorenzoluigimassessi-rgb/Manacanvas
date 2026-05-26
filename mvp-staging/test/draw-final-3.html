@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draw Button — Final 3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #16161c;
+      --surface-2: #1e1e28;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-1: rgba(240,240,240,0.95);
+      --text-2: rgba(240,240,240,0.4);
+      --h: 44px;
+      --r: 999px;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    .label {
+      font-size: 0.58rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 0.75rem;
+    }
+
+    .header-shell {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1.25rem;
+      background: var(--bg);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .nav-logo {
+      width: var(--h); height: var(--h);
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .nav-logo span { font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px; color: var(--text-1); }
+
+    .nav-switcher {
+      display: flex; align-items: center;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); height: var(--h); padding: 4px; gap: 2px;
+    }
+    .sw-btn {
+      background: transparent; border: none; color: var(--text-2);
+      font-family: 'Josefin Sans', sans-serif; font-size: 0.78rem;
+      padding: 0 0.85rem; height: calc(var(--h) - 8px);
+      border-radius: var(--r); cursor: pointer;
+    }
+    .sw-btn.active { background: var(--surface-2); color: var(--text-1); }
+
+    .draw-btn {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      height: var(--h); padding: 0 1rem; border-radius: var(--r);
+      font-family: 'Josefin Sans', sans-serif; font-size: 0.78rem;
+      font-weight: 500; letter-spacing: 0.3px; cursor: pointer;
+      white-space: nowrap; transition: all 150ms;
+    }
+
+    /* Card stack SVG */
+    .stack-icon { display: flex; align-items: center; }
+
+    /* Silver */
+    .c-silver {
+      background: rgba(200,200,220,0.05);
+      border: 1px solid rgba(200,200,220,0.25);
+      color: rgba(210,210,230,0.85);
+    }
+    .c-silver:hover { background: rgba(200,200,220,0.09); border-color: rgba(200,200,220,0.4); }
+
+    /* Violet */
+    .c-violet {
+      background: rgba(160,120,220,0.06);
+      border: 1px solid rgba(160,120,220,0.35);
+      color: rgba(185,155,235,0.9);
+    }
+    .c-violet:hover { background: rgba(160,120,220,0.11); border-color: rgba(160,120,220,0.55); }
+
+    /* Neutral */
+    .c-neutral {
+      background: var(--surface-2);
+      border: 1px solid var(--border-hover);
+      color: var(--text-1);
+    }
+    .c-neutral:hover { background: #252535; border-color: rgba(255,255,255,0.28); }
+
+    /* Search placeholder */
+    .nav-search {
+      flex: 1;
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); height: var(--h); padding: 0 1rem;
+      color: var(--text-2); font-size: 0.78rem; max-width: 380px;
+    }
+
+    .nav-right {
+      display: flex; align-items: center;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); height: var(--h); padding: 4px;
+    }
+    .theme-btn {
+      width: calc(var(--h) - 8px); height: calc(var(--h) - 8px);
+      border-radius: 50%; background: var(--surface-2); border: none;
+      color: var(--text-1); display: flex; align-items: center; justify-content: center;
+    }
+
+    .divider { height: 1px; background: rgba(255,255,255,0.04); }
+
+    /* Welcome section */
+    .welcome-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 3.5rem 2rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #1a1020 0%, #0c0c0f 50%, #0a1520 100%);
+      z-index: 0;
+    }
+    .welcome-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(12,12,15,0.72);
+      z-index: 1;
+    }
+    .welcome-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+    .welcome-title {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      letter-spacing: 8px;
+      color: #f0f0f0;
+    }
+    .welcome-sub {
+      font-size: 0.72rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(240,240,240,0.6);
+    }
+    .btn-primary {
+      background: #f0f0f0;
+      border: none;
+      color: #0c0c0f;
+      padding: 0.85rem 2.5rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      font-family: 'Josefin Sans', sans-serif;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      width: 220px;
+    }
+    .sep { font-size: 0.72rem; color: rgba(240,240,240,0.35); letter-spacing: 1px; }
+    .btn-draw-welcome {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.85rem 2.5rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      font-family: 'Josefin Sans', sans-serif;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      width: 220px;
+    }
+    .btn-draw-silver { background: rgba(200,200,220,0.05); border: 1px solid rgba(200,200,220,0.3); color: rgba(210,210,230,0.9); }
+    .btn-draw-violet { background: rgba(160,120,220,0.07); border: 1px solid rgba(160,120,220,0.4); color: rgba(185,155,235,0.95); }
+    .btn-draw-neutral { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(240,240,240,0.85); }
+  </style>
+</head>
+<body>
+
+  <!-- SILVER -->
+  <div>
+    <p class="label">A — Card Stack · Silver</p>
+    <div class="header-shell">
+      <div class="nav-logo"><span>MC</span></div>
+      <div class="nav-switcher">
+        <button class="sw-btn active">All Art</button>
+        <button class="sw-btn">Browse</button>
+      </div>
+      <button class="draw-btn c-silver">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/>
+          <rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/>
+          <rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        Draw
+      </button>
+      <div class="nav-search">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Search card, artist, creature...
+      </div>
+      <div class="nav-right">
+        <button class="theme-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- VIOLET -->
+  <div>
+    <p class="label">B — Card Stack · Violet</p>
+    <div class="header-shell">
+      <div class="nav-logo"><span>MC</span></div>
+      <div class="nav-switcher">
+        <button class="sw-btn active">All Art</button>
+        <button class="sw-btn">Browse</button>
+      </div>
+      <button class="draw-btn c-violet">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/>
+          <rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/>
+          <rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        Draw
+      </button>
+      <div class="nav-search">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Search card, artist, creature...
+      </div>
+      <div class="nav-right">
+        <button class="theme-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- NEUTRAL -->
+  <div>
+    <p class="label">C — Card Stack · Neutral</p>
+    <div class="header-shell">
+      <div class="nav-logo"><span>MC</span></div>
+      <div class="nav-switcher">
+        <button class="sw-btn active">All Art</button>
+        <button class="sw-btn">Browse</button>
+      </div>
+      <button class="draw-btn c-neutral">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/>
+          <rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/>
+          <rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        Draw
+      </button>
+      <div class="nav-search">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Search card, artist, creature...
+      </div>
+      <div class="nav-right">
+        <button class="theme-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- WELCOME PAGE — all three -->
+  <div>
+    <p class="label">Welcome page — all three colours (Browse primary, Draw secondary)</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:0.5rem;">
+
+      <div class="welcome-wrap">
+        <div class="welcome-bg"></div>
+        <div class="welcome-overlay"></div>
+        <div class="welcome-content">
+          <div class="welcome-title">MC</div>
+          <div class="welcome-sub">Magic: The Gathering Art</div>
+          <button class="btn-primary">Browse the Gallery</button>
+          <span class="sep">or</span>
+          <button class="btn-draw-welcome btn-draw-silver">
+            <svg width="10" height="12" viewBox="0 0 14 14" fill="none"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+            Draw a Card
+          </button>
+          <span style="font-size:0.55rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,240,240,0.25);margin-top:0.5rem;">Silver</span>
+        </div>
+      </div>
+
+      <div class="welcome-wrap">
+        <div class="welcome-bg"></div>
+        <div class="welcome-overlay"></div>
+        <div class="welcome-content">
+          <div class="welcome-title">MC</div>
+          <div class="welcome-sub">Magic: The Gathering Art</div>
+          <button class="btn-primary">Browse the Gallery</button>
+          <span class="sep">or</span>
+          <button class="btn-draw-welcome btn-draw-violet">
+            <svg width="10" height="12" viewBox="0 0 14 14" fill="none"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+            Draw a Card
+          </button>
+          <span style="font-size:0.55rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,240,240,0.25);margin-top:0.5rem;">Violet</span>
+        </div>
+      </div>
+
+      <div class="welcome-wrap">
+        <div class="welcome-bg"></div>
+        <div class="welcome-overlay"></div>
+        <div class="welcome-content">
+          <div class="welcome-title">MC</div>
+          <div class="welcome-sub">Magic: The Gathering Art</div>
+          <button class="btn-primary">Browse the Gallery</button>
+          <span class="sep">or</span>
+          <button class="btn-draw-welcome btn-draw-neutral">
+            <svg width="10" height="12" viewBox="0 0 14 14" fill="none"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+            Draw a Card
+          </button>
+          <span style="font-size:0.55rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,240,240,0.25);margin-top:0.5rem;">Neutral</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

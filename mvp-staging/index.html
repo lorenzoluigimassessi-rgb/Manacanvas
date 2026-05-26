@@ -734,7 +734,7 @@
             ${s.name}
           </button>`
         ).join('') +
-        `<button class="sub-pill see-all-pill" onclick="openSetModal()">See all →</button>`;
+        `<button class="sub-pill see-all-pill" onclick="openSetModal()">See all</button>`;
         row.querySelectorAll('.sub-pill:not(.see-all-pill)').forEach(btn => {
           btn.addEventListener('click', () => {
             const s = iconic[parseInt(btn.dataset.idx)];

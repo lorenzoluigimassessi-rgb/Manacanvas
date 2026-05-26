@@ -2666,3 +2666,34 @@ body {
   background: transparent !important;
   border: none !important;
 }
+
+/* Range slider — dark track */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  background: var(--surface-2);
+  height: 4px;
+  border-radius: 2px;
+}
+input[type=range]::-moz-range-track {
+  background: var(--surface-2);
+  height: 4px;
+  border-radius: 2px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  margin-top: -5px;
+}
+input[type=range]::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  border: none;
+}

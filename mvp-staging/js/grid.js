@@ -44,10 +44,11 @@ async function loadInitialGrid() {
   filteredCards = data;
   renderCards(data);
   if (hasMore) observeLastCard();
-  // Write to lens cache
+  // Write to lens cache and pre-warm adjacent lenses
   if (typeof _lensCache !== 'undefined' && typeof _activeLens !== 'undefined') {
     const key = _activeLens + ':' + (typeof _activeSubPill !== 'undefined' ? (_activeSubPill || '') : '');
     _lensCache[key] = { cards: data, hasMore };
+    if (typeof prewarmAdjacentLenses === 'function') prewarmAdjacentLenses();
   }
 }
 

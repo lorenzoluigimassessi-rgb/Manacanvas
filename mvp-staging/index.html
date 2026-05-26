@@ -638,6 +638,54 @@
     }
 
     // init lens on gallery entry
+    // Pre-fetch a lens+sub silently into cache without affecting the active grid
+    async function _prewarmLens(lens, sub) {
+      const key = _cacheKey(lens, sub);
+      if (_lensCache[key]) return; // already cached
+      // Temporarily snapshot active state
+      const snap = { activeArtist, activeType, activeCardType, activeColour,
+        activeSets, activeStyles, activeYearMin, activeYearMax, activeSearch, sortOrder, sortDir };
+      // Apply lens filters to state variables (no grid render)
+      activeArtist = []; activeType = []; activeCardType = [];
+      activeColour = []; activeSets = []; activeStyles = [];
+      activeYearMin = null; activeYearMax = null; activeSearch = null;
+      sortOrder = 'random'; sortDir = 'auto';
+      if (lens === 'latest') { if (sub === 'Previews only') activeSearch = 'is:preview'; }
+      else if (lens === 'era') {
+        const ERA_YEARS = { 'The Beginning':[1993,1994],'The Dark Age':[1995,1997],'The Invasion Era':[1998,2003],'The Modern Age':[2003,2008],'The Renaissance':[2008,2014],'The New Era':[2014,2018],'The Modern Era':[2018,2022],'The Multiverse Era':[2022,new Date().getFullYear()] };
+        const r = ERA_YEARS[sub]; if (r) { activeYearMin = r[0]; activeYearMax = r[1]; }
+      } else if (lens === 'creature') { if (sub) activeType = [sub.toLowerCase()]; }
+      else if (lens === 'color') { const M={White:'w',Blue:'u',Black:'b',Red:'r',Green:'g',Multicolor:'m',Colorless:'c'}; if(M[sub]) activeColour=[M[sub]]; }
+      else if (lens === 'style') { const i=(typeof ART_STYLES!=='undefined')?ART_STYLES.findIndex(s=>s.name===sub):-1; if(i>=0) activeStyles=[i]; }
+      const query = buildQuery(activeArtist,activeType,activeCardType,activeColour,activeSets,(typeof ART_STYLES!=='undefined'?activeStyles.map(i=>ART_STYLES[i]):[]),activeYearMin,activeYearMax,activeSearch);
+      // Restore active state before fetch completes
+      ({ activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles,
+        activeYearMin, activeYearMax, activeSearch, sortOrder, sortDir } = snap);
+      try {
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&unique=art&order=released&dir=asc&page=${Math.floor(Math.random()*20)+1}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json.object === 'error') return;
+        _lensCache[key] = { cards: shuffleArray(json.data || []), hasMore: json.has_more || false };
+      } catch(e) { /* silent */ }
+    }
+
+    // After active lens loads, pre-warm the next 2 lenses in background
+    const LENS_ORDER = ['picks','latest','era','creature','color','style'];
+    function prewarmAdjacentLenses() {
+      const idx = LENS_ORDER.indexOf(_activeLens);
+      const toWarm = [
+        LENS_ORDER[(idx + 1) % LENS_ORDER.length],
+        LENS_ORDER[(idx + 2) % LENS_ORDER.length],
+      ];
+      setTimeout(() => {
+        toWarm.forEach(lens => {
+          const firstSub = (LENS_SUB_PILLS[lens] || [])[0] || null;
+          _prewarmLens(lens, firstSub);
+        });
+      }, 1500); // delay so it doesn't compete with active fetch
+    }
+
     function initLens() {
       renderSubPills('picks');
       applyLensQuery('picks', null);

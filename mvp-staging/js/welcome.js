@@ -37,9 +37,12 @@ async function renderWelcome() {
       <div class="welcome-hero">
         <h1 class="welcome-title">MANACANVAS</h1>
         <p class="welcome-subtitle">Discover the art of Magic: The Gathering&#174;</p>
-        <button class="welcome-cta" onclick="startSurprise()">Draw a Card</button>
+        <button class="welcome-cta" onclick="startBrowse()">Browse the Gallery</button>
         <p class="welcome-draw-separator">or</p>
-        <button class="welcome-draw-cta" onclick="startBrowse()">Browse the Gallery</button>
+        <button class="welcome-draw-cta" onclick="startSurprise()">
+          <svg width="11" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+          Draw a Card
+        </button>
       </div>
       <footer class="site-footer welcome-footer">
         <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images &copy; Wizards of the Coast.</p>

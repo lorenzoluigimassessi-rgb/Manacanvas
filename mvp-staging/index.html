@@ -340,10 +340,13 @@
         <div class="nav-left">
           <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
           <div class="nav-switcher">
-            <button class="sw-btn active" id="swAllArt"   onclick="setMode('gallery')">All Art</button>
-            <button class="sw-btn"        id="swBrowse"   onclick="setMode('collections')">Browse</button>
-            <button class="sw-btn"        id="swDiscover" onclick="setMode('discover')">Discover</button>
+            <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">All Art</button>
+            <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Browse</button>
           </div>
+          <button class="draw-nav-btn" id="swDraw" onclick="setMode('discover')">
+            <svg width="11" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+            Draw
+          </button>
         </div>
 
         <div class="nav-center" id="searchContainer">
@@ -486,10 +489,13 @@
 
     <!-- ── Mobile floating switcher ── -->
     <nav class="mobile-float">
-      <button class="sw-btn active" id="mSwAllArt"   onclick="setMode('gallery')">All Art</button>
-      <button class="sw-btn"        id="mSwBrowse"   onclick="setMode('collections')">Browse</button>
-      <button class="sw-btn"        id="mSwDiscover" onclick="setMode('discover')">Discover</button>
+      <button class="sw-btn active" id="mSwAllArt"  onclick="setMode('gallery')">All Art</button>
+      <button class="sw-btn"        id="mSwBrowse"  onclick="setMode('collections')">Browse</button>
     </nav>
+    <button class="mobile-draw-btn" id="mSwDraw" onclick="setMode('discover')">
+      <svg width="13" height="15" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+      Draw
+    </button>
 
   </div><!-- end appShell -->
 
@@ -501,8 +507,8 @@
 
   <script>
     // ── Mode map ──
-    const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', discover:'swDiscover', advanced:'btnAdvanced' };
-    const MOBILE_SW  = { gallery:'mSwAllArt', collections:'mSwBrowse', discover:'mSwDiscover' };
+    const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', discover:'swDraw', advanced:'btnAdvanced' };
+    const MOBILE_SW  = { gallery:'mSwAllArt', collections:'mSwBrowse', discover:'mSwDraw' };
     const PANELS     = { gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel', discover:'discoverPanel' };
 
     let _currentMode = 'gallery';

@@ -2500,3 +2500,54 @@ body {
   flex-shrink: 0;
   cursor: pointer;
 }
+
+/* ── Draw button ── */
+.draw-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: var(--h);
+  padding: 0 1rem;
+  border-radius: var(--r);
+  background: var(--surface-2);
+  border: 1px solid var(--border-hover);
+  color: var(--text-1);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 150ms, border-color 150ms;
+}
+.draw-nav-btn:hover { background: #252535; border-color: rgba(255,255,255,0.28); }
+.draw-nav-btn.active { background: #252535; border-color: rgba(255,255,255,0.3); }
+
+.mobile-draw-btn {
+  position: fixed;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  right: calc(1.5rem + env(safe-area-inset-right));
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  height: 44px;
+  padding: 0 1.1rem;
+  border-radius: var(--r);
+  background: var(--surface-2);
+  border: 1px solid var(--border-hover);
+  color: var(--text-1);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 61;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: background 150ms, border-color 150ms;
+}
+.mobile-draw-btn:hover { background: #252535; }
+
+@media (max-width: 768px) {
+  .draw-nav-btn { display: none; }
+  .mobile-draw-btn { display: inline-flex; }
+}

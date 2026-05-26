@@ -528,11 +528,27 @@
       if (mode === 'discover') triggerSurprise();
     }
 
+    // ── Lens cache — keyed by 'lens:sub', session-only ──
+    const _lensCache = {};
+    function _cacheKey(lens, sub) { return lens + ':' + (sub || ''); }
+
     function goHome() {
-      clearAllFilters();
       setMode('gallery');
-      setLens(document.querySelector('.lens-btn[data-lens="picks"]'));
+      const picksBtn = document.querySelector('.lens-btn[data-lens="picks"]');
+      document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+      picksBtn.classList.add('active');
+      _activeLens = 'picks';
+      renderSubPills('picks');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      const cached = _lensCache[_cacheKey('picks', null)];
+      if (cached) {
+        // Restore cached All feed — no reshuffle
+        grid.innerHTML = '';
+        renderCards(cached.cards);
+        if (cached.hasMore) observeLastCard();
+      } else {
+        applyLensQuery('picks', null);
+      }
     }
 
     // ── Lens system ──
@@ -545,19 +561,18 @@
       style:    ['Classic', 'Dark & Gritty', 'Painterly', 'Ethereal', 'Epic', 'Sketch', 'Modern'],
     };
 
-    // Maps lens+sub to filter state
+    // Maps lens+sub to filter state — all lenses use random sort
     function applyLensQuery(lens, sub) {
       // reset all filters first
       activeArtist = []; activeType = []; activeCardType = [];
       activeColour = []; activeSets = []; activeStyles = [];
       activeYearMin = null; activeYearMax = null; activeSearch = null;
-      sortOrder = 'released'; sortDir = 'desc';
+      sortOrder = 'random'; sortDir = 'auto';
 
       if (lens === 'picks') {
-        sortOrder = 'random'; sortDir = 'auto';
+        // pure random, no filter
       } else if (lens === 'latest') {
         if (sub === 'Previews only') { activeSearch = 'is:preview'; }
-        // Last set / Last block handled by sort — newest released
       } else if (lens === 'era') {
         const ERA_YEARS = {
           'The Beginning':    [1993, 1994],
@@ -582,6 +597,15 @@
           : -1;
         if (styleIdx >= 0) activeStyles = [styleIdx];
       }
+      // Check cache before loading
+      const key = _cacheKey(lens, sub);
+      const cached = _lensCache[key];
+      if (cached) {
+        grid.innerHTML = '';
+        renderCards(cached.cards);
+        if (cached.hasMore) observeLastCard();
+        return;
+      }
       loadInitialGrid();
     }
 
@@ -591,9 +615,9 @@
       document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
       el.classList.add('active');
       _activeLens = el.dataset.lens;
+      window._activeSubPill = (LENS_SUB_PILLS[_activeLens] || [])[0] || null;
       renderSubPills(_activeLens);
-      // auto-apply with first sub or no sub
-      const firstSub = (LENS_SUB_PILLS[_activeLens] || [])[0] || null;
+      const firstSub = window._activeSubPill;
       applyLensQuery(_activeLens, firstSub);
     }
 
@@ -609,6 +633,7 @@
     function setSubPill(el, sub) {
       document.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
       el.classList.add('active');
+      window._activeSubPill = sub;
       applyLensQuery(_activeLens, sub);
     }
 

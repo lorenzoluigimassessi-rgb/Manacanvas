@@ -42,6 +42,11 @@ async function loadInitialGrid() {
   filteredCards = data;
   renderCards(data);
   if (hasMore) observeLastCard();
+  // Write to lens cache
+  if (typeof _lensCache !== 'undefined' && typeof _activeLens !== 'undefined') {
+    const key = _activeLens + ':' + (typeof _activeSubPill !== 'undefined' ? (_activeSubPill || '') : '');
+    _lensCache[key] = { cards: data, hasMore };
+  }
 }
 
 function renderCards(cards) {
@@ -315,6 +320,8 @@ function restoreFilters() {
     indicator.style.transform = 'translateX(-50%) translateY(-100%)';
     indicator.textContent = '↓ Pull to shuffle';
     if (delta > 60 && window.scrollY === 0) {
+      // Clear All lens cache so reshuffle fetches fresh cards
+      if (typeof _lensCache !== 'undefined') delete _lensCache['picks:'];
       window.scrollTo({ top: 0 });
       loadInitialGrid();
     }

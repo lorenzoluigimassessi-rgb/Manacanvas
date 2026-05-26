@@ -386,12 +386,76 @@ body {
 .lens-row {
   display: flex;
   align-items: center;
+  gap: 0;
+  padding: 0;
+  position: sticky;
+  top: 73px; /* below desktop header */
+  z-index: 48;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.lens-chips {
+  display: flex;
+  align-items: center;
   gap: 0.25rem;
-  padding: 0.9rem 1.5rem;
+  padding: 0.6rem 1.5rem;
   overflow-x: auto;
   scrollbar-width: none;
+  flex: 1;
+  min-width: 0;
 }
-.lens-row::-webkit-scrollbar { display: none; }
+.lens-chips::-webkit-scrollbar { display: none; }
+
+.lens-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.6rem 1rem 0.6rem 0;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  margin-left: 0.5rem;
+  padding-left: 0.75rem;
+}
+
+.lens-ctrl-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 150ms, color 150ms;
+}
+.lens-ctrl-btn:hover { background: var(--surface); color: var(--text-primary); }
+
+.lens-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.3rem 0;
+  min-width: 130px;
+  z-index: 200;
+  animation: dropIn 120ms ease;
+}
+
+.lens-dropdown-item {
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.lens-dropdown-item:hover { background: var(--bg); color: var(--text-primary); }
+.lens-dropdown-item.active { color: var(--text-primary); font-weight: 500; }
 
 .lens-btn {
   background: transparent;
@@ -468,8 +532,26 @@ body {
 .sub-pill.active .sub-thumb { background: rgba(255,255,255,0.15); }
 
 @media (max-width: 768px) {
-  .lens-row { padding: 0.7rem 0.75rem; background: var(--bg); position: sticky; top: 56px; z-index: 49; }
-  .sub-row  { padding: 0.5rem 0.75rem; background: var(--bg); }
+  .lens-row { top: 56px; background: var(--bg); }
+  .lens-chips { padding: 0.5rem 0.75rem; }
+  .lens-controls { padding: 0.5rem 0.5rem 0.5rem 0.5rem; }
+  .lens-ctrl-btn { display: none; } /* hidden on mobile — controls are in top bar */
+
+  .mobile-ctrl-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 150ms, color 150ms;
+  }
+  .mobile-ctrl-btn:hover { background: var(--surface); color: var(--text-primary); }
 }
 
 /* Mobile top bar */
@@ -1749,18 +1831,19 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-primary);
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   cursor: pointer;
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 40;
-  transition: opacity var(--transition-fast);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
 }
-
+.scroll-top:hover { transform: translateY(-2px); }
 .scroll-top.visible { display: flex; }
 
 /* ── Responsive (non-header) ── */

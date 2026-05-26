@@ -380,12 +380,25 @@
 
     <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
     <div class="lens-row" id="lensRow">
-      <button class="lens-btn active" data-lens="picks"   onclick="setLens(this)">All</button>
-      <button class="lens-btn"        data-lens="latest"  onclick="setLens(this)">Latest</button>
-      <button class="lens-btn"        data-lens="era"     onclick="setLens(this)">By Era</button>
-      <button class="lens-btn"        data-lens="creature" onclick="setLens(this)">Creature Type</button>
-      <button class="lens-btn"        data-lens="color"   onclick="setLens(this)">Mana Color</button>
-      <button class="lens-btn"        data-lens="style"   onclick="setLens(this)">Art Style</button>
+      <div class="lens-chips" id="lensChips">
+        <button class="lens-btn active" data-lens="picks"    onclick="setLens(this)">All</button>
+        <button class="lens-btn"        data-lens="latest"   onclick="setLens(this)">Latest</button>
+        <button class="lens-btn"        data-lens="era"      onclick="setLens(this)">By Era</button>
+        <button class="lens-btn"        data-lens="creature" onclick="setLens(this)">Creature Type</button>
+        <button class="lens-btn"        data-lens="color"    onclick="setLens(this)">Mana Color</button>
+        <button class="lens-btn"        data-lens="style"    onclick="setLens(this)">Art Style</button>
+      </div>
+      <div class="lens-controls" id="lensControls">
+        <button class="lens-ctrl-btn" id="lensGridBtn" title="Grid size" onclick="toggleLensGrid()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+        <button class="lens-ctrl-btn" id="lensSortBtn" title="Sort" onclick="toggleLensSort()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
+        </button>
+        <button class="lens-ctrl-btn" id="lensShuffleBtn" title="Shuffle this view" onclick="shuffleLens()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </button>
+      </div>
     </div>
     <div class="sub-row" id="subRow" style="display:none;"></div>
 
@@ -397,11 +410,13 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </span>
         <input type="text" id="mobileSearchBar" placeholder="Search card, artist, creature...">
-        <div class="search-sep"></div>
-        <button class="btn-advanced" onclick="setMode('advanced')" title="Advanced">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-        </button>
       </div>
+      <button class="mobile-ctrl-btn" title="Grid size" onclick="toggleLensGrid()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+      <button class="mobile-ctrl-btn" title="Sort" onclick="toggleLensSort()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
+      </button>
     </div>
 
     <!-- ── Legacy hidden elements — required by filters.js ── -->
@@ -686,7 +701,71 @@
       }, 1500); // delay so it doesn't compete with active fetch
     }
 
-    function initLens() {
+    function shuffleLens() {
+      // Clear cache for current lens:sub and reload — within-lens shuffle only
+      if (typeof _lensCache !== 'undefined') {
+        const key = _activeLens + ':' + (window._activeSubPill || '');
+        delete _lensCache[key];
+      }
+      loadInitialGrid();
+    }
+
+    let _lensGridOpen = false;
+    let _lensSortOpen = false;
+
+    function toggleLensGrid() {
+      if (_lensGridOpen) { closeLensGrid(); return; }
+      closeLensSort();
+      _lensGridOpen = true;
+      const btn = document.getElementById('lensGridBtn') || document.querySelector('[title="Grid size"]');
+      const dropdown = document.createElement('div');
+      dropdown.className = 'lens-dropdown';
+      dropdown.id = 'lensGridDropdown';
+      dropdown.innerHTML = [
+        { label: 'Small', size: 'sm' },
+        { label: 'Medium', size: 'md' },
+        { label: 'Large', size: 'lg' },
+      ].map(o => `<div class="lens-dropdown-item ${currentGridSize===o.size?'active':''}" onclick="setGridSize('${o.size}');closeLensGrid()">${o.label}</div>`).join('');
+      dropdown.addEventListener('click', e => e.stopPropagation());
+      btn.style.position = 'relative';
+      btn.appendChild(dropdown);
+      setTimeout(() => document.addEventListener('click', closeLensGrid, { once: true }), 0);
+    }
+
+    function closeLensGrid() {
+      _lensGridOpen = false;
+      document.getElementById('lensGridDropdown')?.remove();
+    }
+
+    function toggleLensSort() {
+      if (_lensSortOpen) { closeLensSort(); return; }
+      closeLensGrid();
+      _lensSortOpen = true;
+      const btn = document.getElementById('lensSortBtn') || document.querySelector('[title="Sort"]');
+      const dropdown = document.createElement('div');
+      dropdown.className = 'lens-dropdown';
+      dropdown.id = 'lensSortDropdown';
+      dropdown.innerHTML = SORT_OPTIONS.map((opt, i) =>
+        `<div class="lens-dropdown-item ${sortOrder===opt.order&&sortDir===opt.dir?'active':''}" data-idx="${i}">${opt.label}</div>`
+      ).join('');
+      dropdown.addEventListener('click', e => e.stopPropagation());
+      dropdown.querySelectorAll('.lens-dropdown-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const opt = SORT_OPTIONS[parseInt(el.dataset.idx)];
+          sortOrder = opt.order; sortDir = opt.dir;
+          closeLensSort();
+          loadInitialGrid();
+        });
+      });
+      btn.style.position = 'relative';
+      btn.appendChild(dropdown);
+      setTimeout(() => document.addEventListener('click', closeLensSort, { once: true }), 0);
+    }
+
+    function closeLensSort() {
+      _lensSortOpen = false;
+      document.getElementById('lensSortDropdown')?.remove();
+    }
       renderSubPills('picks');
       applyLensQuery('picks', null);
     }

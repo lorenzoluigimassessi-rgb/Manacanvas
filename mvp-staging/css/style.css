@@ -2710,3 +2710,165 @@ input[type=range]::-moz-range-thumb {
   transition: opacity 150ms;
 }
 .set-chip-remove:hover { opacity: 1; }
+
+/* ── Phase 2: Creature Type Cards ── */
+.creature-row-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.creature-label {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 0.1rem;
+  min-width: 80px;
+}
+.creature-label-main {
+  font-size: 0.6rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.creature-label-sub {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.creature-cards-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0;
+}
+.creature-cards-scroll::-webkit-scrollbar { display: none; }
+
+.creature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 150ms, transform 150ms;
+}
+.creature-card:hover { opacity: 0.85; transform: translateY(-1px); }
+.creature-card.active { opacity: 1; }
+
+.creature-card-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 150ms;
+}
+.creature-card.active .creature-card-img {
+  border-color: var(--text-primary);
+}
+
+.creature-card-shimmer {
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmerPulse 1.5s infinite;
+}
+
+.creature-card-name {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+.creature-card.active .creature-card-name { color: var(--text-primary); }
+
+.creature-see-all {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0 0.25rem;
+  transition: color 150ms;
+}
+.creature-see-all:hover { color: var(--text-primary); }
+
+/* ── Creature All Panel ── */
+.creature-all-panel {
+  padding: 1.5rem 2rem;
+}
+.creature-all-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.creature-all-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+}
+.creature-all-back {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms;
+}
+.creature-all-back:hover { border-color: var(--border-hover); color: var(--text-primary); }
+
+.creature-all-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
+}
+.creature-all-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: transform 150ms;
+}
+.creature-all-card:hover { transform: translateY(-2px); }
+.creature-all-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.creature-all-name {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.creature-all-card:hover .creature-all-name { color: var(--text-primary); }
+
+@media (max-width: 768px) {
+  .creature-all-panel { padding: 1rem; }
+  .creature-all-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.75rem; }
+  .creature-label { min-width: 60px; }
+  .creature-card-img { width: 48px; height: 48px; }
+}

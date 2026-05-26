@@ -2566,7 +2566,7 @@ body {
   letter-spacing: 0.3px;
   padding: 0 1rem;
   height: var(--h);
-  border-radius: 10px;
+  border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;

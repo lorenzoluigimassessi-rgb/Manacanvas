@@ -559,7 +559,7 @@
 
     // ── Lens cache — keyed by 'lens:sub', session-only ──
     const _lensCache = {};
-    function _cacheKey(lens, sub) { return lens + ':' + (sub || ''); }
+    function _cacheKey(lens, sub) { const s = sub && typeof sub === 'object' ? (sub.code || '') : (sub || ''); return lens + ':' + s; }
 
     function goHome() {
       setMode('gallery');
@@ -654,10 +654,14 @@
       el.classList.add('active');
       _activeLens = el.dataset.lens;
       window._activeSubPill = (LENS_SUB_PILLS[_activeLens] || [])[0] || null;
-      renderSubPills(_activeLens);
-      const firstSub = window._activeSubPill;
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      applyLensQuery(_activeLens, firstSub);
+      renderSubPills(_activeLens);
+      const staticSubs = LENS_SUB_PILLS[_activeLens];
+      if (staticSubs && staticSubs.length > 0) {
+        applyLensQuery(_activeLens, staticSubs[0]);
+      } else if (_activeLens === 'picks' || _activeLens === 'artist') {
+        applyLensQuery(_activeLens, null);
+      }
     }
 
     function renderSubPills(lens) {

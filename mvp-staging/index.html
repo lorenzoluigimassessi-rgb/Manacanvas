@@ -958,12 +958,6 @@
       'Troll','Vampire','Warrior','Werewolf','Wizard','Wolf','Wurm','Zombie'
     ];
     // Curated iconic card IDs per creature type — static, no API call needed
-    const CREATURE_ART = {
-      'Angel':      'https://cards.scryfall.io/art_crop/front/a/c/ac6e5244-4b8e-4b0e-9b3e-8b8b8b8b8b8b.jpg',
-      'Dragon':     null, 'Demon': null, 'Elf': null, 'Human': null,
-      'Merfolk':    null, 'Zombie': null,
-    };
-
     // Fetch art by Scryfall named card lookup — one per type, cached permanently
     const _creatureArtCache = {};
 
@@ -1003,7 +997,7 @@
       'Cat':        "Ajani's Pridemate",
       'Cleric':     'Mother of Runes',
       'Demon':      'Griselbrand',
-      'Dinosaur':   'Gishath, Sun's Avatar',
+      'Dinosaur':   "Gishath, Sun's Avatar",
       'Dragon':     'Shivan Dragon',
       'Druid':      "Selvala, Heart of the Wilds",
       'Dwarf':      'Depala, Pilot Exemplar',

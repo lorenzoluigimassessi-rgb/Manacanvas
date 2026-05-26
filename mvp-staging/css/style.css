@@ -2552,7 +2552,7 @@ body {
   .mobile-draw-btn { display: inline-flex; }
 }
 
-/* Draw button inside switcher */
+/* Draw button — standalone next to switcher (desktop) and inside mobile float */
 .draw-sw-btn {
   display: inline-flex;
   align-items: center;
@@ -2568,7 +2568,7 @@ body {
   border-radius: var(--r);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 150ms, color 150ms;
+  transition: color 150ms, background 150ms;
 }
 .draw-sw-btn:hover { color: rgba(220,220,238,0.9); }
 .draw-sw-btn.active {

@@ -963,85 +963,19 @@
 
     async function fetchCreatureArt(type) {
       if (_creatureArtCache[type] !== undefined) return _creatureArtCache[type];
-      _creatureArtCache[type] = ''; // mark as fetching
+      _creatureArtCache[type] = '';
       try {
-        const res = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(CREATURE_ICONIC[type] || type)}`);
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=t:${encodeURIComponent(type.toLowerCase())}+is:hires&order=edhrec&unique=art`);
         if (!res.ok) throw new Error();
-        const card = await res.json();
-        const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop || '';
+        const json = await res.json();
+        const card = (json.data || [])[0];
+        const art = card?.image_uris?.art_crop || card?.card_faces?.[0]?.image_uris?.art_crop || '';
         _creatureArtCache[type] = art;
         return art;
-      } catch(e) {
-        // fallback: search for any card of that type
-        try {
-          const r2 = await fetch(`https://api.scryfall.com/cards/search?q=t:${encodeURIComponent(type.toLowerCase())}+is:hires&order=edhrec&unique=art`);
-          const j2 = await r2.json();
-          const card2 = (j2.data || [])[0];
-          const art2 = card2?.image_uris?.art_crop || card2?.card_faces?.[0]?.image_uris?.art_crop || '';
-          _creatureArtCache[type] = art2;
-          return art2;
-        } catch(e2) { return ''; }
-      }
+      } catch(e) { return ''; }
     }
 
     // One iconic card name per creature type
-    const CREATURE_ICONIC = {
-      'Angel':      'Serra Angel',
-      'Artificer':  'Urza, Lord High Artificer',
-      'Assassin':   'Royal Assassin',
-      'Barbarian':  'Kamahl, Pit Fighter',
-      'Bard':       'Lorehold Pledgemage',
-      'Bear':       'Grizzly Bears',
-      'Berserker':  'Lovisa Coldeyes',
-      'Bird':       'Stormscape Familiar',
-      'Cat':        "Ajani's Pridemate",
-      'Cleric':     'Mother of Runes',
-      'Demon':      'Griselbrand',
-      'Dinosaur':   "Gishath, Sun's Avatar",
-      'Dragon':     'Shivan Dragon',
-      'Druid':      "Selvala, Heart of the Wilds",
-      'Dwarf':      'Depala, Pilot Exemplar',
-      'Elemental':  'Omnath, Locus of Rage',
-      'Elf':        'Llanowar Elves',
-      'Faerie':     'Vendilion Clique',
-      'Giant':      'Brion Stoutarm',
-      'Goblin':     'Goblin Guide',
-      'Golem':      'Darksteel Colossus',
-      'Griffin':    'Griffin Rider',
-      'Horror':     'Emrakul, the Aeons Torn',
-      'Human':      'Champion of the Parish',
-      'Hydra':      'Kalonian Hydra',
-      'Insect':     'Hornet Queen',
-      'Knight':     'Knight of the White Orchid',
-      'Kraken':     'Arixmethes, Slumbering Isle',
-      'Leviathan':  'Tromokratis',
-      'Merfolk':    'Lord of Atlantis',
-      'Monk':       'Narset, Enlightened Master',
-      'Nightmare':  'Nightmare',
-      'Ogre':       'Ogre Battledriver',
-      'Orc':        'Stonebrow, Krosan Hero',
-      'Paladin':    'Paladin en-Vec',
-      'Phoenix':    'Arclight Phoenix',
-      'Ranger':     "Garruk's Companion",
-      'Rat':        'Pack Rat',
-      'Rogue':      'Zareth San, the Trickster',
-      'Serpent':    'Colossal Dreadmaw',
-      'Shaman':     'Eternal Witness',
-      'Skeleton':   'Drudge Skeletons',
-      'Soldier':    'Preeminent Captain',
-      'Sorcerer':   'Naban, Dean of Iteration',
-      'Sphinx':     'Sphinx of the Steel Wind',
-      'Spider':     'Silklash Spider',
-      'Spirit':     'Geist of Saint Traft',
-      'Troll':      'Sedge Troll',
-      'Vampire':    'Olivia Voldaren',
-      'Warrior':    'Zurgo Helmsmasher',
-      'Werewolf':   'Huntmaster of the Fells',
-      'Wizard':     'Snapcaster Mage',
-      'Wolf':       'Wolfir Silverheart',
-      'Wurm':       'Autochthon Wurm',
-      'Zombie':     'Gravecrawler',
-    };
 
     async function renderCreatureCards(row, activeType, prepend) {
       row.style.display = '';

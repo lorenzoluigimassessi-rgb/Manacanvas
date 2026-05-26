@@ -3,8 +3,8 @@ let currentSearch = null;
 let nextPageUrl = null;
 let isLoading = false;
 
-let sortOrder = "released";
-let sortDir = "asc";
+let sortOrder = "random";
+let sortDir = "auto";
 
 const SORT_OPTIONS = [
   { label: "Oldest First", order: "released", dir: "asc"  },

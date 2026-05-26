@@ -389,10 +389,13 @@ body {
   gap: 0;
   padding: 0;
   position: sticky;
-  top: 73px; /* below desktop header */
-  z-index: 48;
+  top: 73px;
+  z-index: 45;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
+  overflow: visible;
+  will-change: transform;
+  transition: background 250ms, border-color 250ms;
 }
 
 .lens-chips {
@@ -401,9 +404,11 @@ body {
   gap: 0.25rem;
   padding: 0.6rem 1.5rem;
   overflow-x: auto;
+  overflow-y: visible;
   scrollbar-width: none;
   flex: 1;
   min-width: 0;
+  -webkit-overflow-scrolling: touch;
 }
 .lens-chips::-webkit-scrollbar { display: none; }
 
@@ -411,11 +416,10 @@ body {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.6rem 1rem 0.6rem 0;
+  padding: 0.6rem 0.75rem;
   flex-shrink: 0;
   border-left: 1px solid var(--border);
-  margin-left: 0.5rem;
-  padding-left: 0.75rem;
+  position: relative; /* anchor for dropdowns */
 }
 
 .lens-ctrl-btn {
@@ -532,7 +536,7 @@ body {
 .sub-pill.active .sub-thumb { background: rgba(255,255,255,0.15); }
 
 @media (max-width: 768px) {
-  .lens-row { top: 56px; background: var(--bg); }
+  .lens-row { top: 56px; background: var(--bg); will-change: transform; }
   .lens-chips { padding: 0.5rem 0.75rem; }
   .lens-controls { padding: 0.5rem 0.5rem 0.5rem 0.5rem; }
   .lens-ctrl-btn { display: none; } /* hidden on mobile — controls are in top bar */

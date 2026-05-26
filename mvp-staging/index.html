@@ -702,7 +702,6 @@
     }
 
     function shuffleLens() {
-      // Clear cache for current lens:sub and reload — within-lens shuffle only
       if (typeof _lensCache !== 'undefined') {
         const key = _activeLens + ':' + (window._activeSubPill || '');
         delete _lensCache[key];
@@ -717,18 +716,27 @@
       if (_lensGridOpen) { closeLensGrid(); return; }
       closeLensSort();
       _lensGridOpen = true;
-      const btn = document.getElementById('lensGridBtn') || document.querySelector('[title="Grid size"]');
+      const anchor = document.getElementById('lensControls') || document.querySelector('.mobile-top-bar');
+      const existing = document.getElementById('lensGridDropdown');
+      if (existing) existing.remove();
       const dropdown = document.createElement('div');
       dropdown.className = 'lens-dropdown';
       dropdown.id = 'lensGridDropdown';
+      dropdown.style.right = '0';
       dropdown.innerHTML = [
         { label: 'Small', size: 'sm' },
         { label: 'Medium', size: 'md' },
         { label: 'Large', size: 'lg' },
-      ].map(o => `<div class="lens-dropdown-item ${currentGridSize===o.size?'active':''}" onclick="setGridSize('${o.size}');closeLensGrid()">${o.label}</div>`).join('');
+      ].map(o => `<div class="lens-dropdown-item ${(typeof currentGridSize !== 'undefined' && currentGridSize === o.size) ? 'active' : ''}" data-size="${o.size}">${o.label}</div>`).join('');
       dropdown.addEventListener('click', e => e.stopPropagation());
-      btn.style.position = 'relative';
-      btn.appendChild(dropdown);
+      dropdown.querySelectorAll('.lens-dropdown-item').forEach(el => {
+        el.addEventListener('click', () => {
+          if (typeof setGridSize === 'function') setGridSize(el.dataset.size);
+          closeLensGrid();
+        });
+      });
+      anchor.style.position = 'relative';
+      anchor.appendChild(dropdown);
       setTimeout(() => document.addEventListener('click', closeLensGrid, { once: true }), 0);
     }
 
@@ -741,24 +749,27 @@
       if (_lensSortOpen) { closeLensSort(); return; }
       closeLensGrid();
       _lensSortOpen = true;
-      const btn = document.getElementById('lensSortBtn') || document.querySelector('[title="Sort"]');
+      const anchor = document.getElementById('lensControls') || document.querySelector('.mobile-top-bar');
+      const existing = document.getElementById('lensSortDropdown');
+      if (existing) existing.remove();
       const dropdown = document.createElement('div');
       dropdown.className = 'lens-dropdown';
       dropdown.id = 'lensSortDropdown';
-      dropdown.innerHTML = SORT_OPTIONS.map((opt, i) =>
-        `<div class="lens-dropdown-item ${sortOrder===opt.order&&sortDir===opt.dir?'active':''}" data-idx="${i}">${opt.label}</div>`
+      dropdown.style.right = '0';
+      dropdown.innerHTML = (typeof SORT_OPTIONS !== 'undefined' ? SORT_OPTIONS : []).map((opt, i) =>
+        `<div class="lens-dropdown-item ${sortOrder === opt.order && sortDir === opt.dir ? 'active' : ''}" data-idx="${i}">${opt.label}</div>`
       ).join('');
       dropdown.addEventListener('click', e => e.stopPropagation());
       dropdown.querySelectorAll('.lens-dropdown-item').forEach(el => {
         el.addEventListener('click', () => {
           const opt = SORT_OPTIONS[parseInt(el.dataset.idx)];
-          sortOrder = opt.order; sortDir = opt.dir;
+          if (opt) { sortOrder = opt.order; sortDir = opt.dir; }
           closeLensSort();
           loadInitialGrid();
         });
       });
-      btn.style.position = 'relative';
-      btn.appendChild(dropdown);
+      anchor.style.position = 'relative';
+      anchor.appendChild(dropdown);
       setTimeout(() => document.addEventListener('click', closeLensSort, { once: true }), 0);
     }
 

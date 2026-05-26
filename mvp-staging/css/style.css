@@ -2509,9 +2509,9 @@ body {
   height: var(--h);
   padding: 0 1rem;
   border-radius: var(--r);
-  background: var(--surface-2);
-  border: 1px solid var(--border-hover);
-  color: var(--text-1);
+  background: rgba(200,200,220,0.05);
+  border: 1px solid rgba(200,200,220,0.28);
+  color: rgba(215,215,232,0.88);
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 500;
@@ -2519,10 +2519,10 @@ body {
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background 150ms, border-color 150ms;
+  transition: background 150ms, border-color 150ms, color 150ms;
 }
-.draw-nav-btn:hover { background: #252535; border-color: rgba(255,255,255,0.28); }
-.draw-nav-btn.active { background: #252535; border-color: rgba(255,255,255,0.3); }
+.draw-nav-btn:hover { background: rgba(200,200,220,0.1); border-color: rgba(200,200,220,0.45); color: rgba(225,225,240,1); }
+.draw-nav-btn.active { background: rgba(200,200,220,0.1); border-color: rgba(200,200,220,0.45); color: rgba(225,225,240,1); }
 
 .mobile-draw-btn {
   position: fixed;

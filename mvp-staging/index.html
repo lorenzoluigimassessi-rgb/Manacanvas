@@ -339,10 +339,6 @@
 
         <div class="nav-left">
           <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
-          <div class="nav-switcher">
-            <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">All Art</button>
-            <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Browse</button>
-          </div>
           <button class="draw-sw-btn" id="swDraw" onclick="setMode('discover')">
             <svg width="11" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
             Draw
@@ -383,10 +379,10 @@
       <div class="lens-chips" id="lensChips">
         <button class="lens-btn active" data-lens="picks"    onclick="setLens(this)">All</button>
         <button class="lens-btn"        data-lens="latest"   onclick="setLens(this)">Latest</button>
-        <button class="lens-btn"        data-lens="era"      onclick="setLens(this)">By Era</button>
         <button class="lens-btn"        data-lens="creature" onclick="setLens(this)">Creature Type</button>
         <button class="lens-btn"        data-lens="color"    onclick="setLens(this)">Mana Color</button>
-        <button class="lens-btn"        data-lens="style"    onclick="setLens(this)">Art Style</button>
+        <button class="lens-btn"        data-lens="set"      onclick="setLens(this)">By Set</button>
+        <button class="lens-btn"        data-lens="artist"   onclick="setLens(this)">By Artist</button>
       </div>
       <div class="lens-controls" id="lensControls">
         <button class="lens-ctrl-btn" id="lensGridBtn" title="Grid size" onclick="toggleLensGrid()">
@@ -424,6 +420,17 @@
       <div id="filters"></div>
       <button id="clearFiltersBtn" style="display:none;" onclick="clearAllFilters()">Clear all</button>
       <div id="row2Right"></div>
+    </div>
+
+    <!-- ── See All Sets Modal ── -->
+    <div class="set-modal-overlay" id="setModalOverlay" style="display:none;" onclick="closeSetModal()"></div>
+    <div class="set-modal" id="setModal" style="display:none;">
+      <div class="set-modal-header">
+        <span class="set-modal-title">All Sets</span>
+        <button class="set-modal-close" onclick="closeSetModal()">✕</button>
+      </div>
+      <input class="set-modal-search" id="setModalSearch" placeholder="Search sets..." autocomplete="off">
+      <div class="set-modal-list" id="setModalList"></div>
     </div>
 
     <!-- ── More Filters Modal ── -->
@@ -570,13 +577,35 @@
     }
 
     // ── Lens system ──
+    const MANA_SVGS = {
+      w: 'https://svgs.scryfall.io/card-symbols/W.svg',
+      u: 'https://svgs.scryfall.io/card-symbols/U.svg',
+      b: 'https://svgs.scryfall.io/card-symbols/B.svg',
+      r: 'https://svgs.scryfall.io/card-symbols/R.svg',
+      g: 'https://svgs.scryfall.io/card-symbols/G.svg',
+      m: 'https://svgs.scryfall.io/card-symbols/S.svg',
+      c: 'https://svgs.scryfall.io/card-symbols/C.svg',
+    };
+
+    const ICONIC_SETS = [
+      'lea','3ed','ice','mir','tmp','usg','inv','rav','tsp','lrw',
+      'ala','zen','isd','rtr','ths','ktk','bfz','soi','akh','xln',
+      'grn','war','eld','khm','stx','mid','neo','snc','bro','one',
+      'mom','woe','lci','mkm','blb','dsk'
+    ];
+
     const LENS_SUB_PILLS = {
       picks:    [],
-      latest:   ['All', 'Previews only', 'Last set', 'Last block'],
-      era:      ['The Beginning', 'The Dark Age', 'The Invasion Era', 'The Modern Age', 'The Renaissance', 'The New Era', 'The Modern Era', 'The Multiverse Era'],
+      latest:   [], // dynamic — filled by renderLatestPills()
       creature: ['Dragon', 'Angel', 'Demon', 'Elf', 'Human', 'Merfolk', 'Zombie'],
-      color:    ['White', 'Blue', 'Black', 'Red', 'Green', 'Multicolor', 'Colorless'],
-      style:    ['Classic', 'Dark & Gritty', 'Painterly', 'Ethereal', 'Epic', 'Sketch', 'Modern'],
+      color:    [
+        { code:'w', label:'White' }, { code:'u', label:'Blue' },
+        { code:'b', label:'Black' }, { code:'r', label:'Red' },
+        { code:'g', label:'Green' }, { code:'m', label:'Multicolor' },
+        { code:'c', label:'Colorless' }
+      ],
+      set:      [], // dynamic — filled by renderSetPills()
+      artist:   [], // no sub-pills
     };
 
     // Maps lens+sub to filter state — all lenses use random sort
@@ -590,30 +619,17 @@
       if (lens === 'picks') {
         // pure random, no filter
       } else if (lens === 'latest') {
-        if (sub === 'Previews only') { activeSearch = 'is:preview'; }
-      } else if (lens === 'era') {
-        const ERA_YEARS = {
-          'The Beginning':    [1993, 1994],
-          'The Dark Age':     [1995, 1997],
-          'The Invasion Era': [1998, 2003],
-          'The Modern Age':   [2003, 2008],
-          'The Renaissance':  [2008, 2014],
-          'The New Era':      [2014, 2018],
-          'The Modern Era':   [2018, 2022],
-          'The Multiverse Era': [2022, new Date().getFullYear()],
-        };
-        const range = ERA_YEARS[sub];
-        if (range) { activeYearMin = range[0]; activeYearMax = range[1]; }
+        sortOrder = 'released'; sortDir = 'desc';
+        if (sub && sub.code) activeSets = [sub.code];
       } else if (lens === 'creature') {
         if (sub) activeType = [sub.toLowerCase()];
       } else if (lens === 'color') {
-        const COLOR_MAP = { White:'w', Blue:'u', Black:'b', Red:'r', Green:'g', Multicolor:'m', Colorless:'c' };
-        if (COLOR_MAP[sub]) activeColour = [COLOR_MAP[sub]];
-      } else if (lens === 'style') {
-        const styleIdx = (typeof ART_STYLES !== 'undefined')
-          ? ART_STYLES.findIndex(s => s.name === sub)
-          : -1;
-        if (styleIdx >= 0) activeStyles = [styleIdx];
+        const code = (typeof sub === 'object') ? sub.code : { White:'w',Blue:'u',Black:'b',Red:'r',Green:'g',Multicolor:'m',Colorless:'c' }[sub];
+        if (code) activeColour = [code];
+      } else if (lens === 'set') {
+        if (sub && sub.code) activeSets = [sub.code];
+      } else if (lens === 'artist') {
+        if (sub) activeArtist = [sub];
       }
       // Check cache before loading
       const key = _cacheKey(lens, sub);
@@ -641,11 +657,104 @@
 
     function renderSubPills(lens) {
       const row = document.getElementById('subRow');
+      if (lens === 'color') { renderColorPills(row); return; }
+      if (lens === 'latest') { renderLatestPills(row); return; }
+      if (lens === 'set') { renderSetPills(row); return; }
+      if (lens === 'artist' || lens === 'picks') { row.style.display = 'none'; return; }
+      // creature — text pills
       const pills = LENS_SUB_PILLS[lens] || [];
-      row.style.display = pills.length === 0 ? 'none' : '';
+      row.style.display = pills.length ? '' : 'none';
       row.innerHTML = pills.map((p, i) =>
         `<button class="sub-pill ${i === 0 ? 'active' : ''}" onclick="setSubPill(this,'${p.replace(/'/g,"\\'")}')"><span class="sub-thumb"></span>${p}</button>`
       ).join('');
+    }
+
+    function renderColorPills(row) {
+      const colors = LENS_SUB_PILLS.color;
+      row.style.display = '';
+      row.innerHTML = colors.map((c, i) =>
+        `<button class="sub-pill ${i === 0 ? 'active' : ''}" data-code="${c.code}" onclick="setSubPill(this,${JSON.stringify(c)})">
+          <img src="${MANA_SVGS[c.code]}" style="width:16px;height:16px;flex-shrink:0;">
+          ${c.label}
+        </button>`
+      ).join('');
+    }
+
+    async function renderLatestPills(row) {
+      row.style.display = '';
+      row.innerHTML = '<span style="font-size:0.75rem;color:var(--text-2);padding:0 0.5rem;">Loading...</span>';
+      try {
+        const res = await fetch('https://api.scryfall.com/sets');
+        const json = await res.json();
+        const sets = (json.data || []).filter(s => s.set_type === 'expansion' || s.set_type === 'core');
+        const now = new Date();
+        const previews = sets.filter(s => new Date(s.released_at) > now).slice(0, 2);
+        const latest = sets.filter(s => new Date(s.released_at) <= now)[0];
+        const pills = [];
+        previews.forEach(s => pills.push({ label: `Preview: ${s.name}`, code: s.code, icon: s.icon_svg_uri, isPreview: true }));
+        if (latest) pills.push({ label: `Latest: ${latest.name}`, code: latest.code, icon: latest.icon_svg_uri });
+        row.innerHTML = pills.map((p, i) =>
+          `<button class="sub-pill ${i === 0 ? 'active' : ''}" onclick="setSubPill(this,${JSON.stringify(p)})">
+            <img src="${p.icon}" style="width:16px;height:16px;flex-shrink:0;filter:brightness(0) invert(0.7);">
+            ${p.label}
+          </button>`
+        ).join('');
+        if (pills.length) setSubPill(row.querySelector('.sub-pill.active'), pills[0]);
+      } catch(e) { row.style.display = 'none'; }
+    }
+
+    async function renderSetPills(row) {
+      row.style.display = '';
+      row.innerHTML = '<span style="font-size:0.75rem;color:var(--text-2);padding:0 0.5rem;">Loading...</span>';
+      try {
+        const res = await fetch('https://api.scryfall.com/sets');
+        const json = await res.json();
+        const allSets = json.data || [];
+        const iconic = ICONIC_SETS.map(code => allSets.find(s => s.code === code)).filter(Boolean);
+        row.innerHTML = iconic.map((s, i) =>
+          `<button class="sub-pill set-sub-pill ${i === 0 ? 'active' : ''}" onclick="setSubPill(this,${JSON.stringify({code:s.code,label:s.name,icon:s.icon_svg_uri})})">
+            <img src="${s.icon_svg_uri}" style="width:16px;height:16px;flex-shrink:0;filter:brightness(0) invert(0.7);">
+            ${s.name}
+          </button>`
+        ).join('') +
+        `<button class="sub-pill see-all-pill" onclick="openSetModal()">See all →</button>`;
+        if (iconic.length) setSubPill(row.querySelector('.sub-pill.active'), {code:iconic[0].code,label:iconic[0].name,icon:iconic[0].icon_svg_uri});
+      } catch(e) { row.style.display = 'none'; }
+    }
+
+    function openSetModal() {
+      document.getElementById('setModalOverlay').style.display = 'block';
+      document.getElementById('setModal').style.display = 'flex';
+      renderSetModalList('');
+      document.getElementById('setModalSearch').addEventListener('input', e => renderSetModalList(e.target.value));
+    }
+    function closeSetModal() {
+      document.getElementById('setModalOverlay').style.display = 'none';
+      document.getElementById('setModal').style.display = 'none';
+    }
+    async function renderSetModalList(query) {
+      const list = document.getElementById('setModalList');
+      list.innerHTML = '<div style="padding:1rem;color:var(--text-2);font-size:0.8rem;">Loading...</div>';
+      try {
+        const res = await fetch('https://api.scryfall.com/sets');
+        const json = await res.json();
+        const sets = (json.data || []).filter(s => s.set_type === 'expansion' || s.set_type === 'core' || s.set_type === 'draft_innovation');
+        const filtered = query ? sets.filter(s => s.name.toLowerCase().includes(query.toLowerCase())) : sets;
+        list.innerHTML = filtered.map(s =>
+          `<div class="set-modal-item" onclick="selectSetFromModal('${s.code}','${s.name.replace(/'/g,"\\'")}',' ${s.icon_svg_uri}')">
+            <img src="${s.icon_svg_uri}" style="width:18px;height:18px;filter:brightness(0) invert(0.7);flex-shrink:0;">
+            <span>${s.name}</span>
+          </div>`
+        ).join('');
+      } catch(e) { list.innerHTML = ''; }
+    }
+    function selectSetFromModal(code, name, icon) {
+      closeSetModal();
+      const sub = { code, label: name, icon };
+      setSubPill(null, sub);
+      // Update active pill in row
+      document.querySelectorAll('#subRow .sub-pill').forEach(p => p.classList.remove('active'));
+      applyLensQuery('set', sub);
     }
 
     function setSubPill(el, sub) {
@@ -689,7 +798,7 @@
     }
 
     // After active lens loads, pre-warm the next 2 lenses in background
-    const LENS_ORDER = ['picks','latest','era','creature','color','style'];
+    const LENS_ORDER = ['picks','latest','creature','color','set','artist'];
     function prewarmAdjacentLenses() {
       const idx = LENS_ORDER.indexOf(_activeLens);
       const toWarm = [

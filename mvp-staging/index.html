@@ -666,16 +666,17 @@
 
     function renderSubPills(lens) {
       const row = document.getElementById('subRow');
-      if (lens === 'color') { renderColorPills(row); return; }
-      if (lens === 'latest') { renderLatestPills(row); return; }
-      if (lens === 'set') { renderSetPills(row); return; }
-      if (lens === 'artist' || lens === 'picks') { row.style.display = 'none'; return; }
+      if (lens === 'color') { renderColorPills(row); setTimeout(updateLensTop, 50); return; }
+      if (lens === 'latest') { renderLatestPills(row); setTimeout(updateLensTop, 400); return; }
+      if (lens === 'set') { renderSetPills(row); setTimeout(updateLensTop, 400); return; }
+      if (lens === 'artist' || lens === 'picks') { row.style.display = 'none'; setTimeout(updateLensTop, 50); return; }
       // creature — text pills
       const pills = LENS_SUB_PILLS[lens] || [];
       row.style.display = pills.length ? '' : 'none';
       row.innerHTML = pills.map((p, i) =>
         `<button class="sub-pill ${i === 0 ? 'active' : ''}" onclick="setSubPill(this,'${p.replace(/'/g,"\\'")}')"><span class="sub-thumb"></span>${p}</button>`
       ).join('');
+      setTimeout(updateLensTop, 50);
     }
 
     function renderColorPills(row) {
@@ -949,11 +950,16 @@
     // ── Set lens row top dynamically to match header height ──
     function updateLensTop() {
       const lensRow = document.getElementById('lensRow');
+      const subRow = document.getElementById('subRow');
       if (!lensRow) return;
       const header = document.querySelector('.header-wrap');
       const mobileBar = document.querySelector('.mobile-top-bar');
       const ref = (mobileBar && getComputedStyle(mobileBar).display !== 'none') ? mobileBar : header;
-      if (ref) lensRow.style.top = ref.offsetHeight + 'px';
+      if (ref) {
+        const headerH = ref.offsetHeight;
+        lensRow.style.top = headerH + 'px';
+        if (subRow) subRow.style.top = (headerH + lensRow.offsetHeight) + 'px';
+      }
     }
     window.addEventListener('DOMContentLoaded', updateLensTop);
     window.addEventListener('resize', updateLensTop);

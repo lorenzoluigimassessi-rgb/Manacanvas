@@ -533,6 +533,7 @@ body {
 
 @media (max-width: 768px) {
   .lens-row { top: 56px; background: var(--bg); will-change: transform; }
+  .sub-row { display: flex; background: var(--bg); position: sticky; top: 100px; z-index: 44; }
   .lens-chips { padding: 0.5rem 0.75rem; }
   .lens-controls { padding: 0.5rem 0.5rem 0.5rem 0.5rem; }
   .lens-ctrl-btn { display: none; } /* hidden on mobile — controls are in top bar */

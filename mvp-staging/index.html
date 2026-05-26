@@ -673,11 +673,20 @@
       const colors = LENS_SUB_PILLS.color;
       row.style.display = '';
       row.innerHTML = colors.map((c, i) =>
-        `<button class="sub-pill ${i === 0 ? 'active' : ''}" data-code="${c.code}" onclick="setSubPill(this,${JSON.stringify(c)})">
+        `<button class="sub-pill ${i === 0 ? 'active' : ''}" data-code="${c.code}" data-label="${c.label}">
           <img src="${MANA_SVGS[c.code]}" style="width:16px;height:16px;flex-shrink:0;">
           ${c.label}
         </button>`
       ).join('');
+      row.querySelectorAll('.sub-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const c = colors.find(x => x.code === btn.dataset.code);
+          setSubPill(btn, c);
+        });
+      });
+      // auto-select first
+      const first = row.querySelector('.sub-pill');
+      if (first) setSubPill(first, colors[0]);
     }
 
     async function renderLatestPills(row) {
@@ -694,12 +703,15 @@
         previews.forEach(s => pills.push({ label: `Preview: ${s.name}`, code: s.code, icon: s.icon_svg_uri, isPreview: true }));
         if (latest) pills.push({ label: `Latest: ${latest.name}`, code: latest.code, icon: latest.icon_svg_uri });
         row.innerHTML = pills.map((p, i) =>
-          `<button class="sub-pill ${i === 0 ? 'active' : ''}" onclick="setSubPill(this,${JSON.stringify(p)})">
+          `<button class="sub-pill ${i === 0 ? 'active' : ''}" data-idx="${i}">
             <img src="${p.icon}" style="width:16px;height:16px;flex-shrink:0;filter:brightness(0) invert(0.7);">
             ${p.label}
           </button>`
         ).join('');
-        if (pills.length) setSubPill(row.querySelector('.sub-pill.active'), pills[0]);
+        row.querySelectorAll('.sub-pill').forEach(btn => {
+          btn.addEventListener('click', () => setSubPill(btn, pills[parseInt(btn.dataset.idx)]));
+        });
+        if (pills.length) setSubPill(row.querySelector('.sub-pill'), pills[0]);
       } catch(e) { row.style.display = 'none'; }
     }
 
@@ -712,13 +724,19 @@
         const allSets = json.data || [];
         const iconic = ICONIC_SETS.map(code => allSets.find(s => s.code === code)).filter(Boolean);
         row.innerHTML = iconic.map((s, i) =>
-          `<button class="sub-pill set-sub-pill ${i === 0 ? 'active' : ''}" onclick="setSubPill(this,${JSON.stringify({code:s.code,label:s.name,icon:s.icon_svg_uri})})">
+          `<button class="sub-pill set-sub-pill ${i === 0 ? 'active' : ''}" data-idx="${i}">
             <img src="${s.icon_svg_uri}" style="width:16px;height:16px;flex-shrink:0;filter:brightness(0) invert(0.7);">
             ${s.name}
           </button>`
         ).join('') +
         `<button class="sub-pill see-all-pill" onclick="openSetModal()">See all →</button>`;
-        if (iconic.length) setSubPill(row.querySelector('.sub-pill.active'), {code:iconic[0].code,label:iconic[0].name,icon:iconic[0].icon_svg_uri});
+        row.querySelectorAll('.sub-pill:not(.see-all-pill)').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const s = iconic[parseInt(btn.dataset.idx)];
+            setSubPill(btn, {code:s.code,label:s.name,icon:s.icon_svg_uri});
+          });
+        });
+        if (iconic.length) setSubPill(row.querySelector('.sub-pill'), {code:iconic[0].code,label:iconic[0].name,icon:iconic[0].icon_svg_uri});
       } catch(e) { row.style.display = 'none'; }
     }
 
@@ -759,7 +777,7 @@
 
     function setSubPill(el, sub) {
       document.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
+      if (el) el.classList.add('active');
       window._activeSubPill = sub;
       applyLensQuery(_activeLens, sub);
     }

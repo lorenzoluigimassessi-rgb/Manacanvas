@@ -945,6 +945,15 @@
     }
 
     const CREATURE_TYPES = ['Dragon','Angel','Demon','Elf','Human','Merfolk','Zombie'];
+    const ALL_CREATURE_TYPES = [
+      'Angel','Artificer','Assassin','Barbarian','Bard','Bear','Berserker','Bird',
+      'Cat','Cleric','Demon','Dinosaur','Dragon','Druid','Dwarf','Elemental',
+      'Elf','Faerie','Giant','Goblin','Golem','Griffin','Horror','Human',
+      'Hydra','Insect','Knight','Kraken','Leviathan','Merfolk','Monk','Nightmare',
+      'Ogre','Orc','Paladin','Phoenix','Ranger','Rat','Rogue','Serpent',
+      'Shaman','Skeleton','Soldier','Sorcerer','Sphinx','Spider','Spirit',
+      'Troll','Vampire','Warrior','Werewolf','Wizard','Wolf','Wurm','Zombie'
+    ];
     const _creatureArtCache = {};
 
     async function fetchCreatureArt(type) {
@@ -980,7 +989,10 @@
                 <div class="creature-card-name">${t}</div>
               </div>`).join('')}
           </div>
-          <button class="creature-see-all" onclick="openCreatureAll()">See all</button>
+          <div class="creature-right-controls">
+            <div id="creatureSelectedChip" class="creature-selected-chip" style="display:none;"></div>
+            <button class="creature-see-all" onclick="openCreatureAll()">See all</button>
+          </div>
         </div>`;
 
       // Wire clicks
@@ -1004,7 +1016,25 @@
       const sub = document.getElementById('creatureLabelSub');
       if (sub) sub.textContent = type;
       window._activeSubPill = type;
+      // Show selected chip if not one of the default 7
+      const chip = document.getElementById('creatureSelectedChip');
+      if (chip) {
+        if (!CREATURE_TYPES.includes(type)) {
+          chip.style.display = 'inline-flex';
+          chip.innerHTML = `${type} <span class="creature-chip-x" onclick="clearCreatureSelection()">&#215;</span>`;
+        } else {
+          chip.style.display = 'none';
+        }
+      }
       if (!silent) applyLensQuery('creature', type);
+    }
+
+    function clearCreatureSelection() {
+      const chip = document.getElementById('creatureSelectedChip');
+      if (chip) chip.style.display = 'none';
+      selectCreatureType(CREATURE_TYPES[0]);
+      const row = document.getElementById('subRow');
+      renderCreatureCards(row, CREATURE_TYPES[0]);
     }
 
     function openCreatureAll() {
@@ -1023,8 +1053,7 @@
       }
       panel.style.display = '';
 
-      const allTypes = [...CREATURE_TYPES, 'Vampire','Zombie','Warrior','Wizard','Knight','Cleric','Rogue','Shaman','Druid','Artificer','Assassin','Berserker','Monk','Ranger','Paladin','Warlock','Barbarian','Bard','Sorcerer','Goblin','Orc','Troll','Giant','Elemental','Phoenix','Kraken','Leviathan','Sphinx','Hydra','Wurm','Serpent','Dinosaur','Cat','Wolf','Bear','Bird','Insect','Spider','Rat','Vampire','Zombie'];
-      const unique = [...new Set(allTypes)];
+      const unique = ALL_CREATURE_TYPES;
 
       panel.innerHTML = `
         <div class="creature-all-header">

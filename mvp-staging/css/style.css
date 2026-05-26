@@ -2755,19 +2755,18 @@ input[type=range]::-moz-range-thumb {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
   cursor: pointer;
   flex-shrink: 0;
-  opacity: 0.6;
-  transition: opacity 150ms, transform 150ms;
+  transition: transform 150ms;
 }
-.creature-card:hover { opacity: 0.85; transform: translateY(-1px); }
-.creature-card.active { opacity: 1; }
+.creature-card:hover { transform: translateY(-2px); }
+.creature-card.active { }
 
 .creature-card-img {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
+  width: 112px;
+  height: 112px;
+  border-radius: 10px;
   background: var(--surface-2);
   overflow: hidden;
   border: 2px solid transparent;
@@ -2779,18 +2778,43 @@ input[type=range]::-moz-range-thumb {
 
 .creature-card-shimmer {
   width: 100%; height: 100%;
-  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
-  background-size: 200% 100%;
-  animation: shimmerPulse 1.5s infinite;
+  background: var(--surface-2);
 }
 
 .creature-card-name {
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
   white-space: nowrap;
   letter-spacing: 0.3px;
 }
-.creature-card.active .creature-card-name { color: var(--text-primary); }
+.creature-card.active .creature-card-name { color: var(--text-primary); font-weight: 500; }
+
+.creature-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.creature-selected-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-hover);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  padding: 0.2rem 0.5rem 0.2rem 0.7rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.creature-chip-x {
+  cursor: pointer;
+  opacity: 0.5;
+  font-size: 0.9rem;
+  transition: opacity 150ms;
+}
+.creature-chip-x:hover { opacity: 1; }
 
 .creature-see-all {
   background: transparent;
@@ -2870,5 +2894,5 @@ input[type=range]::-moz-range-thumb {
   .creature-all-panel { padding: 1rem; }
   .creature-all-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.75rem; }
   .creature-label { min-width: 60px; }
-  .creature-card-img { width: 48px; height: 48px; }
+  .creature-card-img { width: 80px; height: 80px; }
 }

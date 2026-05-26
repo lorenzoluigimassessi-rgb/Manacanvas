@@ -380,7 +380,7 @@
 
     <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
     <div class="lens-row" id="lensRow">
-      <button class="lens-btn active" data-lens="picks"   onclick="setLens(this)">Daily Picks</button>
+      <button class="lens-btn active" data-lens="picks"   onclick="setLens(this)">All</button>
       <button class="lens-btn"        data-lens="latest"  onclick="setLens(this)">Latest</button>
       <button class="lens-btn"        data-lens="era"     onclick="setLens(this)">By Era</button>
       <button class="lens-btn"        data-lens="creature" onclick="setLens(this)">Creature Type</button>
@@ -536,26 +536,6 @@
     }
 
     // ── Lens system ──
-    const DAILY_THEMES = [
-      { label: 'Dragons of the Multiverse', query: 't:dragon has:illustration' },
-      { label: 'Angels & Light',            query: 't:angel has:illustration' },
-      { label: 'Dark Forests',              query: '(t:forest OR t:treefolk) has:illustration' },
-      { label: 'Ancient Civilizations',     query: '(t:cleric OR t:wizard) year<=2003 has:illustration' },
-      { label: 'Cosmic Horror',             query: 't:eldrazi has:illustration' },
-      { label: 'Warriors & Battle',         query: 't:warrior has:illustration' },
-      { label: 'Mystical Landscapes',       query: 't:land has:illustration unique:art' },
-      { label: 'Creatures of the Deep',     query: '(t:merfolk OR t:kraken OR t:leviathan) has:illustration' },
-      { label: 'Fire & Destruction',        query: '(t:phoenix OR t:dragon) r:rare has:illustration' },
-      { label: 'Ethereal Spirits',          query: 't:spirit has:illustration' },
-      { label: 'The Undead',                query: '(t:zombie OR t:vampire OR t:skeleton) has:illustration' },
-      { label: 'Legendary Heroes',          query: 't:legendary t:creature has:illustration' },
-    ];
-
-    function getDailyTheme() {
-      const day = Math.floor(Date.now() / 86400000);
-      return DAILY_THEMES[day % DAILY_THEMES.length];
-    }
-
     const LENS_SUB_PILLS = {
       picks:    [],
       latest:   ['All', 'Previews only', 'Last set', 'Last block'],
@@ -574,11 +554,7 @@
       sortOrder = 'released'; sortDir = 'desc';
 
       if (lens === 'picks') {
-        const theme = getDailyTheme();
-        activeSearch = theme.query;
         sortOrder = 'random'; sortDir = 'auto';
-        // Seed random page offset by day so feed changes every 24h
-        window._dailySeed = Math.floor(Date.now() / 86400000);
       } else if (lens === 'latest') {
         if (sub === 'Previews only') { activeSearch = 'is:preview'; }
         // Last set / Last block handled by sort — newest released

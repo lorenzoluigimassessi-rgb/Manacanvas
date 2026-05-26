@@ -285,3 +285,38 @@ function restoreFilters() {
 
 // Init
 // restoreFilters() is called from filters.js after all functions are defined
+
+// Pull-to-refresh — mobile only, triggers new shuffle on All lens
+(function initPullToRefresh() {
+  if (!('ontouchstart' in window)) return;
+  let startY = 0, pulling = false;
+  const indicator = document.createElement('div');
+  indicator.id = 'pullIndicator';
+  indicator.style.cssText = 'position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-100%);background:var(--surface);border:1px solid var(--border);border-radius:0 0 20px 20px;padding:0.4rem 1.2rem;font-size:0.75rem;color:var(--text-secondary);z-index:99;transition:transform 200ms ease;pointer-events:none;';
+  indicator.textContent = '↓ Pull to shuffle';
+  document.body.appendChild(indicator);
+
+  document.addEventListener('touchstart', (e) => {
+    if (window.scrollY === 0) { startY = e.touches[0].clientY; pulling = true; }
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!pulling) return;
+    const delta = e.touches[0].clientY - startY;
+    if (delta > 10) indicator.style.transform = `translateX(-50%) translateY(${Math.min(delta - 10, 48)}px)`;
+    if (delta > 60) indicator.textContent = '↑ Release to shuffle';
+    else indicator.textContent = '↓ Pull to shuffle';
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    if (!pulling) return;
+    pulling = false;
+    const delta = e.changedTouches[0].clientY - startY;
+    indicator.style.transform = 'translateX(-50%) translateY(-100%)';
+    indicator.textContent = '↓ Pull to shuffle';
+    if (delta > 60 && window.scrollY === 0) {
+      window.scrollTo({ top: 0 });
+      loadInitialGrid();
+    }
+  });
+})();

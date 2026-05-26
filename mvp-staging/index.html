@@ -947,7 +947,7 @@
       document.getElementById('lensSortDropdown')?.remove();
     }
 
-    const CREATURE_TYPES = ['Dragon','Angel','Demon','Elf','Human','Merfolk','Zombie'];
+    const CREATURE_TYPES = ['Dragon','Angel','Demon','Elf','Human','Merfolk','Zombie','Vampire','Warrior','Wizard','Knight','Phoenix'];
     const ALL_CREATURE_TYPES = [
       'Angel','Artificer','Assassin','Barbarian','Bard','Bear','Berserker','Bird',
       'Cat','Cleric','Demon','Dinosaur','Dragon','Druid','Dwarf','Elemental',
@@ -994,10 +994,10 @@
                 </div>
                 <div class="creature-card-name">${t}</div>
               </div>`).join('')}
-          </div>
-          <div class="creature-right-controls">
-            <div id="creatureSelectedChip" class="creature-selected-chip" style="display:none;"></div>
-            <button class="creature-see-all" onclick="openCreatureAll()">See all</button>
+            <div class="creature-see-all-wrap">
+              <div id="creatureSelectedChip" class="creature-selected-chip" style="display:none;"></div>
+              <button class="creature-see-all" onclick="openCreatureAll()">See all</button>
+            </div>
           </div>
         </div>`;
 

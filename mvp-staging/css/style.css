@@ -2738,10 +2738,11 @@ input[type=range]::-moz-range-thumb {
   gap: 0.4rem;
   cursor: pointer;
   flex-shrink: 0;
-  transition: transform 150ms;
+  opacity: 0.55;
+  transition: opacity 150ms, transform 150ms;
 }
-.creature-card:hover { transform: translateY(-2px); }
-.creature-card.active { }
+.creature-card:hover { opacity: 0.8; transform: translateY(-2px); }
+.creature-card.active { opacity: 1; }
 
 .creature-card-img {
   width: 112px;
@@ -2770,10 +2771,17 @@ input[type=range]::-moz-range-thumb {
 .creature-card.active .creature-card-name { color: var(--text-primary); font-weight: 500; }
 
 .creature-right-controls {
+  display: none; /* moved inside scroll */
+}
+
+.creature-see-all-wrap {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.4rem;
   flex-shrink: 0;
+  padding: 0 0.5rem;
 }
 
 .creature-selected-chip {

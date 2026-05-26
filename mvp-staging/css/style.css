@@ -2642,3 +2642,27 @@ body {
   font-style: italic;
 }
 .see-all-pill:hover { color: var(--text-primary) !important; border-color: var(--border-hover) !important; }
+
+/* Draw inside switcher — inherits sw-btn, adds icon alignment */
+.draw-in-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* See all — text link style, not a pill */
+.see-all-pill {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-style: normal;
+  padding: 0 0.5rem !important;
+  flex-shrink: 0;
+}
+.see-all-pill:hover {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+  border: none !important;
+}

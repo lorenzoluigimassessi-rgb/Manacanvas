@@ -339,10 +339,14 @@
 
         <div class="nav-left">
           <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
-          <button class="draw-sw-btn" id="swDraw" onclick="setMode('discover')">
-            <svg width="11" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
-            Draw
-          </button>
+          <div class="nav-switcher">
+            <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">All Art</button>
+            <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Browse</button>
+            <button class="sw-btn draw-in-switcher" id="swDraw" onclick="setMode('discover')">
+              <svg width="10" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+              Draw
+            </button>
+          </div>
         </div>
 
         <div class="nav-center" id="searchContainer">
@@ -498,7 +502,7 @@
     <nav class="mobile-float">
       <button class="sw-btn active" id="mSwAllArt"  onclick="setMode('gallery')">All Art</button>
       <button class="sw-btn"        id="mSwBrowse"  onclick="setMode('collections')">Browse</button>
-      <button class="draw-sw-btn"   id="mSwDraw"    onclick="setMode('discover')">
+      <button class="sw-btn draw-in-switcher" id="mSwDraw"    onclick="setMode('discover')">
         <svg width="11" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
         Draw
       </button>
@@ -652,6 +656,7 @@
       window._activeSubPill = (LENS_SUB_PILLS[_activeLens] || [])[0] || null;
       renderSubPills(_activeLens);
       const firstSub = window._activeSubPill;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       applyLensQuery(_activeLens, firstSub);
     }
 
@@ -722,7 +727,7 @@
         const res = await fetch('https://api.scryfall.com/sets');
         const json = await res.json();
         const allSets = json.data || [];
-        const iconic = ICONIC_SETS.map(code => allSets.find(s => s.code === code)).filter(Boolean);
+        const iconic = ICONIC_SETS.map(code => allSets.find(s => s.code === code)).filter(Boolean).slice(0, 7);
         row.innerHTML = iconic.map((s, i) =>
           `<button class="sub-pill set-sub-pill ${i === 0 ? 'active' : ''}" data-idx="${i}">
             <img src="${s.icon_svg_uri}" style="width:16px;height:16px;flex-shrink:0;filter:brightness(0) invert(0.7);">

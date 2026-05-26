@@ -1010,7 +1010,10 @@
       types.forEach(async t => {
         const art = await fetchCreatureArt(t);
         const el = document.getElementById(`ccard-${t}`);
-        if (el && art) el.style.cssText = `background-image:url('${art}');background-size:cover;background-position:center;`;
+        if (el && art) {
+          el.innerHTML = '';
+          el.style.cssText = `background-image:url('${art}');background-size:cover;background-position:center;`;
+        }
       });
 
       // Auto-select first
@@ -1091,7 +1094,10 @@
       unique.forEach(async t => {
         const art = await fetchCreatureArt(t);
         const el = document.getElementById(`callcard-${t}`);
-        if (el && art) el.style.cssText = `background-image:url('${art}');background-size:cover;background-position:center;`;
+        if (el && art) {
+          el.innerHTML = '';
+          el.style.cssText = `background-image:url('${art}');background-size:cover;background-position:center;`;
+        }
       });
     }
 

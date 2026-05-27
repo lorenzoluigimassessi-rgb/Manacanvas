@@ -3078,13 +3078,8 @@ input[type=range]::-moz-range-thumb {
 
 .l2-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 1rem;
-  max-width: 1320px;
-}
-
-@supports (grid-template-columns: repeat(4, 1fr)) {
-  .l2-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 .l2-artist-card {
@@ -3122,4 +3117,8 @@ input[type=range]::-moz-range-thumb {
 
 @media (min-width: 769px) and (max-width: 1100px) {
   .l2-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1101px) and (max-width: 1400px) {
+  .l2-grid { grid-template-columns: repeat(4, 1fr); }
 }

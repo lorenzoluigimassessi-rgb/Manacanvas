@@ -844,8 +844,16 @@ let searchTimeout = null;
 function setSearchMode(active) {
   const lensRow = document.getElementById('lensRow');
   const subRow  = document.getElementById('subRow');
-  if (lensRow) lensRow.style.display = active ? 'none' : '';
-  if (subRow)  subRow.style.display  = 'none';
+  if (active) {
+    if (lensRow) lensRow.style.display = 'none';
+    if (subRow)  subRow.style.display  = 'none';
+  } else {
+    if (lensRow) lensRow.style.display = '';
+    // Restore sub-row based on active lens
+    if (typeof _activeLens !== 'undefined' && _activeLens !== 'picks') {
+      if (subRow) subRow.style.display = '';
+    }
+  }
 }
 
 function initSearch() {
@@ -858,7 +866,6 @@ function initSearch() {
     highlightedIdx = -1;
     const hasValue = !!input.value;
     clearBtn.style.display = hasValue ? "block" : "none";
-    setSearchMode(hasValue);
     searchTimeout = setTimeout(() => {
       const val = input.value.trim();
       if (val.length >= 2) showSearchSuggestions(val);
@@ -885,6 +892,7 @@ function initSearch() {
       } else {
         hideSearchSuggestions();
         activeSearch = input.value.trim() || null;
+        if (activeSearch) setSearchMode(true);
         loadInitialGrid();
         updateChips();
       }

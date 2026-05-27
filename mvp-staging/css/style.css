@@ -3290,30 +3290,3 @@ input[type=range]::-moz-range-thumb {
 
 
 /* L3 sort switcher — segmented pill */
-.l3-sort-switcher {
-  display: flex;
-  align-items: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 3px;
-  gap: 2px;
-}
-.l3-sort-opt {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.4rem 0.8rem;
-  border-radius: 999px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 150ms, color 150ms;
-}
-.l3-sort-opt:hover { color: var(--text-primary); }
-.l3-sort-opt.active {
-  background: var(--surface-2);
-  color: var(--text-primary);
-}

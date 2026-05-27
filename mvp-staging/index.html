@@ -1510,7 +1510,7 @@
       l3.innerHTML = `
         <div class="l3-header">
           <button class="l3-back" onclick="closeArtistPage()">← Back</button>
-          <div class="l3-sort-switcher" id="l3SortSwitcher"><button class="l3-sort-opt active" data-sort="random" data-dir="auto">Shuffle</button><button class="l3-sort-opt" data-sort="released" data-dir="desc">Newest</button><button class="l3-sort-opt" data-sort="released" data-dir="asc">Oldest</button></div>
+          <div class="l2-sort" id="l3SortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-artist-hero">
           <h1 class="l3-artist-name">${name}</h1>
@@ -1520,9 +1520,9 @@
       `;
       _l3Sort = "random"; _l3Dir = "auto";
       loadArtistFeed(name);
-      document.getElementById("l3SortSwitcher").querySelectorAll(".l3-sort-opt").forEach(btn => {
+      document.getElementById("l3SortSwitcher").querySelectorAll(".l2-sort-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-          document.querySelectorAll(".l3-sort-opt").forEach(b => b.classList.remove("active"));
+          document.getElementById("l3SortSwitcher").querySelectorAll(".l2-sort-btn").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
           _l3Sort = btn.dataset.sort; _l3Dir = btn.dataset.dir;
           loadArtistFeed(name);

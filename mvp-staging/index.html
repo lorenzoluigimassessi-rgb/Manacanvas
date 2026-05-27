@@ -530,7 +530,7 @@
       const loader = document.getElementById('loader');
       if (loader) loader.style.display = 'none';
       const panel = document.getElementById(PANELS[mode]);
-      if (panel) panel.style.display = '';
+      if (panel) panel.style.display = (mode === 'gallery') ? '' : 'block';
 
       // desktop switcher
       document.querySelectorAll('.sw-btn, .btn-advanced').forEach(b => b.classList.remove('active'));

@@ -715,11 +715,9 @@ function updateChips() {
   if (window._lensSystemReady) {
     const chips = [];
     if (activeSearch) {
-      console.log('[chips] activeSearch =', activeSearch, 'chipBar =', chipBar);
       chips.push({ icon: "", label: `"${activeSearch}"`, clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const mb = document.getElementById("mobileSearchBar"); if (mb) mb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; if (typeof setSearchMode === 'function') setSearchMode(false); updateChips(); loadInitialGrid(); } });
     }
     const hasFilters = chips.length > 0;
-    console.log('[chips] hasFilters =', hasFilters);
     chipBar.style.display = hasFilters ? "flex" : "none";
     if (clearBtn) clearBtn.style.display = "none";
     chipList.innerHTML = "";
@@ -894,7 +892,10 @@ function initSearch() {
       } else {
         hideSearchSuggestions();
         activeSearch = input.value.trim() || null;
-        if (activeSearch) setSearchMode(true);
+        if (activeSearch) {
+          if (typeof setMode === 'function') setMode('gallery');
+          setSearchMode(true);
+        }
         loadInitialGrid();
         updateChips();
       }
@@ -935,13 +936,13 @@ async function showSearchSuggestions(query) {
   setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 3)
     .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => { if (!activeSets.includes(s.code)) activeSets.push(s.code); input.value = s.name; input.dataset.query = s.name; updateChips(); loadInitialGrid(); } }));
 
-  suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => { activeSearch = query; input.value = query; hideSearchSuggestions(); loadInitialGrid(); updateChips(); } });
+  suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => { activeSearch = query; input.value = query; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); loadInitialGrid(); updateChips(); } });
 
   try {
     const res = await fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(query)}`);
     const json = await res.json();
     (json.data || []).slice(0, 4).forEach(name => {
-      suggestions.splice(suggestions.length - 1, 0, { label: name, tag: "Card", action: () => { input.value = name; activeSearch = name; hideSearchSuggestions(); loadInitialGrid(); updateChips(); } });
+      suggestions.splice(suggestions.length - 1, 0, { label: name, tag: "Card", action: () => { input.value = name; activeSearch = name; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); loadInitialGrid(); updateChips(); } });
     });
   } catch (e) { /* ignore */ }
 

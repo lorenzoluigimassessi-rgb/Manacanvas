@@ -173,8 +173,10 @@ function buildQuery(artists, creatureTypes, cardTypes, colours, sets, styles, ye
   if (styles && styles.length > 1) q += ` (${styles.map(s => s.query).join(" OR ")})`;
   if (yearMin) q += ` year>=${yearMin}`;
   if (yearMax) q += ` year<=${yearMax}`;
+  // Lens raw query injection (moods, etc.) — bypasses search chip
+  if (window._lensRawQuery) { q = window._lensRawQuery; window._lensRawQuery = null; }
   const hasFilters = (artists?.length || creatureTypes?.length || cardTypes?.length || colours?.length ||
-    sets?.length || styles?.length || yearMin || yearMax || searchText);
+    sets?.length || styles?.length || yearMin || yearMax || searchText || q !== 'has:illustration');
   if (!hasFilters) q = "t:creature has:illustration";
   return q;
 }

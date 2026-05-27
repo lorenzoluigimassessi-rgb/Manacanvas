@@ -623,6 +623,9 @@
       activeYearMin = null; activeYearMax = null; activeSearch = null;
       sortOrder = 'random'; sortDir = 'auto';
 
+      // Persist lens state
+      localStorage.setItem('mc_lens', JSON.stringify({ lens, sub }));
+
       if (lens === 'picks') {
         // pure random
       } else if (lens === 'new') {
@@ -1098,8 +1101,36 @@
     }
 
     function initLens() {
-      renderSubPills('picks');
-      applyLensQuery('picks', null);
+      const saved = localStorage.getItem('mc_lens');
+      let lens = 'picks', sub = null;
+      if (saved) {
+        try { const s = JSON.parse(saved); lens = s.lens || 'picks'; sub = s.sub || null; } catch(e) {}
+      }
+      _activeLens = lens;
+      // Activate the correct tab
+      document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.querySelector(`.lens-btn[data-lens="${lens}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+      // Render sub-pills and apply query (will re-shuffle since cache is cleared on reload)
+      if (lens === 'picks') {
+        document.getElementById('subRow').style.display = 'none';
+        applyLensQuery('picks', null);
+      } else {
+        renderSubPills(lens);
+        // renderSubPills auto-selects first pill; override with saved sub if available
+        if (sub && lens !== 'moods') {
+          const row = document.getElementById('subRow');
+          const match = row.querySelector(`[data-era="${sub}"], [data-key="${sub}"], [data-idx]`);
+          // For eras/iconic/gems the sub is stored as string key, re-apply
+          applyLensQuery(lens, sub);
+        } else if (sub && lens === 'moods') {
+          const row = document.getElementById('subRow');
+          row.querySelectorAll('.mood-card').forEach(c => {
+            c.classList.toggle('active', c.dataset.mood === sub);
+          });
+          applyLensQuery('moods', sub);
+        }
+      }
     }
 
     // ── Set lens row top dynamically to match header height ──

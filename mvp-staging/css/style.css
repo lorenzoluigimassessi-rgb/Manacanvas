@@ -3258,14 +3258,6 @@ input[type=range]::-moz-range-thumb {
 }
 .l3-back:hover { border-color: var(--border-hover); color: var(--text-primary); }
 
-.l3-sort-btn {
-  background: transparent; border: 1px solid var(--border);
-  color: var(--text-secondary); font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.75rem; font-weight: 500; padding: 0.4rem 0.75rem;
-  border-radius: 999px; cursor: pointer; position: relative;
-  transition: border-color 150ms, color 150ms;
-}
-.l3-sort-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
 
 .l3-artist-hero {
   text-align: center;
@@ -3294,4 +3286,34 @@ input[type=range]::-moz-range-thumb {
   .collections-level3 { padding: 1rem; }
   .l3-artist-name { font-size: 1.3rem; }
   .l3-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; }
+}
+
+
+/* L3 sort switcher — segmented pill */
+.l3-sort-switcher {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+.l3-sort-opt {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 150ms, color 150ms;
+}
+.l3-sort-opt:hover { color: var(--text-primary); }
+.l3-sort-opt.active {
+  background: var(--surface-2);
+  color: var(--text-primary);
 }

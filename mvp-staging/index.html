@@ -1510,7 +1510,7 @@
       l3.innerHTML = `
         <div class="l3-header">
           <button class="l3-back" onclick="closeArtistPage()">← Back</button>
-          <button class="l3-sort-btn" id="l3SortBtn" onclick="toggleL3Sort()">Shuffle ▾</button>
+          <div class="l3-sort-switcher" id="l3SortSwitcher"><button class="l3-sort-opt active" data-sort="random" data-dir="auto">Shuffle</button><button class="l3-sort-opt" data-sort="released" data-dir="desc">Newest</button><button class="l3-sort-opt" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-artist-hero">
           <h1 class="l3-artist-name">${name}</h1>
@@ -1520,6 +1520,14 @@
       `;
       _l3Sort = "random"; _l3Dir = "auto";
       loadArtistFeed(name);
+      document.getElementById("l3SortSwitcher").querySelectorAll(".l3-sort-opt").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".l3-sort-opt").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          _l3Sort = btn.dataset.sort; _l3Dir = btn.dataset.dir;
+          loadArtistFeed(name);
+        });
+      });
     }
 
     function closeArtistPage() {
@@ -1552,39 +1560,6 @@
       } catch(e) { grid.innerHTML = "<div class=\"empty-state\">Error loading artwork</div>"; }
     }
 
-    let _l3SortOpen = false;
-    function toggleL3Sort() {
-      if (_l3SortOpen) { closeL3Sort(); return; }
-      _l3SortOpen = true;
-      const btn = document.getElementById("l3SortBtn");
-      const dropdown = document.createElement("div");
-      dropdown.className = "lens-dropdown";
-      dropdown.id = "l3SortDropdown";
-      dropdown.addEventListener("click", e => e.stopPropagation());
-      const opts = [
-        { label:"Shuffle", order:"random", dir:"auto" },
-        { label:"Newest", order:"released", dir:"desc" },
-        { label:"Oldest", order:"released", dir:"asc" },
-        { label:"A → Z", order:"name", dir:"asc" },
-        { label:"Z → A", order:"name", dir:"desc" },
-      ];
-      dropdown.innerHTML = opts.map((o,i) => `<div class="lens-dropdown-item ${_l3Sort===o.order && _l3Dir===o.dir ? "active" : ""}" data-idx="${i}">${o.label}</div>`).join("");
-      dropdown.querySelectorAll(".lens-dropdown-item").forEach(el => {
-        el.addEventListener("click", () => {
-          const o = opts[parseInt(el.dataset.idx)];
-          _l3Sort = o.order; _l3Dir = o.dir;
-          btn.textContent = o.label + " ▾";
-          closeL3Sort();
-          const name = document.querySelector(".l3-artist-name").textContent;
-          loadArtistFeed(name);
-        });
-      });
-      btn.style.position = "relative";
-      btn.appendChild(dropdown);
-      requestAnimationFrame(() => document.addEventListener("click", _closeL3OnOutside));
-    }
-    function _closeL3OnOutside(e) { if (!e.target.closest("#l3SortBtn")) closeL3Sort(); }
-    function closeL3Sort() { _l3SortOpen = false; document.getElementById("l3SortDropdown")?.remove(); document.removeEventListener("click", _closeL3OnOutside); }
     async function renderArtistsLevel2() {
       const l2 = document.getElementById('collectionsLevel2');
       l2.innerHTML = `

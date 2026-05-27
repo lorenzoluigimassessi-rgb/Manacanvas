@@ -633,9 +633,7 @@
       activeArtist = []; activeType = []; activeCardType = [];
       activeColour = []; activeSets = []; activeStyles = [];
       activeYearMin = null; activeYearMax = null; activeSearch = null;
-      // Only reset sort if lens defines a specific sort, otherwise keep current
-      const lensDefaultSort = (lens === 'new') ? 'released' : (lens === 'iconic') ? 'edhrec' : null;
-      if (lensDefaultSort) { sortOrder = lensDefaultSort; sortDir = (lensDefaultSort === 'released') ? 'desc' : 'auto'; }
+      // Keep current sort — user's choice persists across all lenses
 
       // Persist lens state
       localStorage.setItem('mc_lens', JSON.stringify({ lens, sub, sortOrder, sortDir, gridSize: currentGridSize }));

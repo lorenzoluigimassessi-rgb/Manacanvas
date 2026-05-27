@@ -637,7 +637,7 @@
         if (mood) activeSearch = mood.query.replace('has:illustration','').trim();
       } else if (lens === 'iconic') {
         sortOrder = 'edhrec'; sortDir = 'auto';
-        if (sub === 'commander') activeSearch = 'format:commander';
+        if (sub === 'commander') activeSearch = 't:legendary t:creature';
         else if (sub === 'standard') activeSearch = 'format:standard';
         else if (sub === 'modern') activeSearch = 'format:modern';
         else if (sub === 'premodern') { activeYearMin = 1993; activeYearMax = 2003; }
@@ -762,7 +762,7 @@
       row.style.display = '';
       const pills = [
         { label: 'All time', key: 'all' },
-        { label: 'Commander', key: 'commander' },
+        { label: 'Iconic Commanders', key: 'commander' },
         { label: 'Standard', key: 'standard' },
         { label: 'Modern', key: 'modern' },
         { label: 'Pre-modern', key: 'premodern' },

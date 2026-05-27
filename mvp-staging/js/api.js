@@ -7,11 +7,11 @@ let sortOrder = "random";
 let sortDir = "auto";
 
 const SORT_OPTIONS = [
-  { label: "Oldest First", order: "released", dir: "asc"  },
+  { label: "Shuffle",      order: "random",   dir: "auto" },
   { label: "Newest First", order: "released", dir: "desc" },
+  { label: "Oldest First", order: "released", dir: "asc"  },
   { label: "A → Z",        order: "name",     dir: "asc"  },
   { label: "Z → A",        order: "name",     dir: "desc" },
-  { label: "Shuffle",      order: "random",   dir: "auto" },
 ];
 
 async function fetchCards(query = "t:creature", page = 1) {

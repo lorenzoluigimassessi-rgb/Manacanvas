@@ -448,6 +448,7 @@ body {
   min-width: 130px;
   z-index: 200;
   animation: dropIn 120ms ease;
+  text-align: right;
 }
 
 .lens-dropdown-item {

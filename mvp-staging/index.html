@@ -381,7 +381,7 @@
     <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
     <div class="lens-row" id="lensRow">
       <div class="lens-chips" id="lensChips">
-        <button class="lens-btn active" data-lens="picks"    onclick="setLens(this)">Daily Picks</button>
+        <button class="lens-btn" data-lens="picks"    onclick="setLens(this)">Daily Picks</button>
         <button class="lens-btn"        data-lens="new"      onclick="setLens(this)">New</button>
         <button class="lens-btn"        data-lens="eras"     onclick="setLens(this)">Eras</button>
         <button class="lens-btn"        data-lens="moods"    onclick="setLens(this)">Moods</button>
@@ -466,7 +466,16 @@
 
     <!-- ── Mode panels ── -->
     <div class="ptr-indicator" id="ptrIndicator"></div>
-    <main class="grid" id="grid"></main>
+    <main class="grid" id="grid">
+      <div class="shimmer" style="min-height:220px"></div>
+      <div class="shimmer" style="min-height:200px"></div>
+      <div class="shimmer" style="min-height:240px"></div>
+      <div class="shimmer" style="min-height:210px"></div>
+      <div class="shimmer" style="min-height:230px"></div>
+      <div class="shimmer" style="min-height:200px"></div>
+      <div class="shimmer" style="min-height:220px"></div>
+      <div class="shimmer" style="min-height:210px"></div>
+    </main>
     <div class="loading-more" id="loader" style="display:none;">Loading more artwork...</div>
 
     <div id="collectionsPanel" class="mode-panel" style="display:none;">
@@ -627,7 +636,7 @@
       sortOrder = 'random'; sortDir = 'auto';
 
       // Persist lens state
-      localStorage.setItem('mc_lens', JSON.stringify({ lens, sub }));
+      localStorage.setItem('mc_lens', JSON.stringify({ lens, sub, sortOrder, sortDir, gridSize: currentGridSize }));
       // Suppress filter chips when lens is driving
       localStorage.removeItem('mc_filters');
 
@@ -1124,31 +1133,40 @@
       const saved = localStorage.getItem('mc_lens');
       let lens = 'picks', sub = null;
       if (saved) {
-        try { const s = JSON.parse(saved); lens = s.lens || 'picks'; sub = s.sub || null; } catch(e) {}
+        try {
+          const s = JSON.parse(saved);
+          lens = s.lens || 'picks';
+          sub = s.sub || null;
+          if (s.sortOrder) sortOrder = s.sortOrder;
+          if (s.sortDir) sortDir = s.sortDir;
+          if (s.gridSize && typeof setGridSize === 'function') setGridSize(s.gridSize);
+        } catch(e) {}
       }
       _activeLens = lens;
       // Activate the correct tab
       document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
       const activeBtn = document.querySelector(`.lens-btn[data-lens="${lens}"]`);
       if (activeBtn) activeBtn.classList.add('active');
-      // Render sub-pills and apply query (will re-shuffle since cache is cleared on reload)
+      // Update sort button label
+      const sortLabel = document.getElementById('lensSortBtn')?.querySelector('.ctrl-label');
+      if (sortLabel) {
+        const opt = (typeof SORT_OPTIONS !== 'undefined') ? SORT_OPTIONS.find(o => o.order === sortOrder && o.dir === sortDir) : null;
+        if (opt) sortLabel.textContent = opt.label;
+      }
+      // Show shimmers immediately
+      showShimmers();
+      // Render sub-pills and apply query
       if (lens === 'picks') {
         document.getElementById('subRow').style.display = 'none';
         applyLensQuery('picks', null);
       } else {
         renderSubPills(lens);
-        // renderSubPills auto-selects first pill; override with saved sub if available
-        if (sub && lens !== 'moods') {
-          const row = document.getElementById('subRow');
-          const match = row.querySelector(`[data-era="${sub}"], [data-key="${sub}"], [data-idx]`);
-          // For eras/iconic/gems the sub is stored as string key, re-apply
+        if (sub) {
+          if (lens === 'moods') {
+            const row = document.getElementById('subRow');
+            row.querySelectorAll('.mood-card').forEach(c => c.classList.toggle('active', c.dataset.mood === sub));
+          }
           applyLensQuery(lens, sub);
-        } else if (sub && lens === 'moods') {
-          const row = document.getElementById('subRow');
-          row.querySelectorAll('.mood-card').forEach(c => {
-            c.classList.toggle('active', c.dataset.mood === sub);
-          });
-          applyLensQuery('moods', sub);
         }
       }
     }

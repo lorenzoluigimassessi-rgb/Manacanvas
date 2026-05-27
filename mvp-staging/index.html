@@ -1601,22 +1601,7 @@
         renderArtistFeedCards(grid, _artistFeedCache[cacheKey].cards, _artistFeedCache[cacheKey].total);
         return;
       }
-
-      // Show cached triptych art as instant preview while loading
-      const colCache = JSON.parse(localStorage.getItem('mc_col_art') || '{}');
-      const cached = colCache['a:' + name];
-      if (cached && cached.imgs && cached.imgs.length) {
-        grid.innerHTML = '';
-        cached.imgs.forEach(src => {
-          const el = document.createElement('div');
-          el.className = 'card';
-          el.innerHTML = `<img src="${src}" alt="" loading="lazy">`;
-          grid.appendChild(el);
-        });
-        if (cached.count) document.getElementById('l3Count').textContent = cached.count + ' cards';
-      } else {
-        grid.innerHTML = Array(6).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
-      }
+      grid.innerHTML = Array(6).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
 
       const order = _l3Sort === 'random' ? 'released' : _l3Sort;
       const dir = _l3Sort === 'random' ? 'asc' : _l3Dir;
@@ -1632,6 +1617,7 @@
     }
 
     function renderArtistFeedCards(grid, cards, total) {
+      if (!grid || !document.getElementById("l3Grid")) return;
       document.getElementById('l3Count').textContent = total + ' cards';
       grid.innerHTML = '';
       cards.forEach(card => {

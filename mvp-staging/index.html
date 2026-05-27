@@ -1613,14 +1613,14 @@
       let currentSort = 'az';
 
       document.getElementById('l2ArtistCount').textContent = currentList.length + ' artists';
-      renderArtistGrid(currentList);
+      renderArtistGrid(currentList, "");
 
       // Search
       document.getElementById('l2ArtistSearch').addEventListener('input', (e) => {
         const q = e.target.value.toLowerCase();
         const filtered = q ? currentList.filter(a => a.toLowerCase().split(/\s+/).some(w => w.startsWith(q))) : currentList;
         document.getElementById('l2ArtistCount').textContent = filtered.length + ' artists';
-        renderArtistGrid(filtered);
+        renderArtistGrid(filtered, q);
       });
 
       // Sort buttons
@@ -1635,12 +1635,21 @@
           const q = document.getElementById('l2ArtistSearch').value.toLowerCase();
           const filtered = q ? currentList.filter(a => a.toLowerCase().split(/\s+/).some(w => w.startsWith(q))) : currentList;
           document.getElementById('l2ArtistCount').textContent = filtered.length + ' artists';
-          renderArtistGrid(filtered);
+          renderArtistGrid(filtered, q);
         });
       });
     }
 
-    function renderArtistGrid(artists) {
+    function _highlightArtistName(name, query) {
+      if (!query) return name;
+      const words = name.split(/\s+/);
+      return words.map(w => {
+        if (w.toLowerCase().startsWith(query)) return `<strong>${w.slice(0, query.length)}</strong>${w.slice(query.length)}`;
+        return w;
+      }).join(" ");
+    }
+
+    function renderArtistGrid(artists, query) {
       const grid = document.getElementById('l2ArtistGrid');
       if (!grid) return;
       // Show first 30, lazy load more on scroll
@@ -1653,7 +1662,7 @@
               <img alt=""><img alt=""><img alt="">
             </div>
             <div class="l2-artist-info">
-              <div class="l2-artist-name">${name}</div>
+              <div class="l2-artist-name">${_highlightArtistName(name, query)}</div>
               <div class="l2-artist-count">...</div>
             </div>
           </div>`);
@@ -1676,7 +1685,7 @@
                     <img alt=""><img alt=""><img alt="">
                   </div>
                   <div class="l2-artist-info">
-                    <div class="l2-artist-name">${name}</div>
+                    <div class="l2-artist-name">${_highlightArtistName(name, query)}</div>
                     <div class="l2-artist-count">...</div>
                   </div>
                 </div>`);

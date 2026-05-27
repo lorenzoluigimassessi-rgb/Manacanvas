@@ -3163,3 +3163,31 @@ input[type=range]::-moz-range-thumb {
 @media (max-width: 768px) {
   .mood-card { width: 120px; }
 }
+
+
+/* ═══ Pull-to-refresh indicator ═══ */
+.ptr-indicator {
+  height: 0;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: height 200ms ease, opacity 200ms ease;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+.ptr-indicator.refreshing {
+  height: 40px !important;
+  opacity: 1 !important;
+}
+.ptr-indicator.refreshing::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--text-secondary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ptrSpin 600ms linear infinite;
+}
+@keyframes ptrSpin { to { transform: rotate(360deg); } }

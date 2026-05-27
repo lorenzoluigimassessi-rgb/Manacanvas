@@ -471,6 +471,7 @@
 
     <div id="collectionsPanel" class="mode-panel" style="display:none;">
       <div class="collections-page" id="collectionsPage"></div>
+      <div class="collections-level2" id="collectionsLevel2" style="display:none;"></div>
     </div>
 
     <div id="advancedPanel" class="mode-panel" style="display:none;">
@@ -1167,7 +1168,7 @@
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Artists</span>
-            <button class="collections-section-link">Show (847)</button>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('artists')">Show (847)</button>
           </div>
           <div class="collections-row" id="colArtistRow"></div>
         </div>
@@ -1352,6 +1353,162 @@
       if (art) card.querySelector('.col-set-art img').src = art;
       const iconEl = document.getElementById('col-icon-' + code);
       if (iconEl && icon) iconEl.src = icon;
+    }
+
+    // ── Collections Level 2 ──
+    let _level2Category = null;
+    let _level2ArtistList = [];
+
+    function openCollectionsLevel2(category) {
+      _level2Category = category;
+      document.getElementById('collectionsPage').style.display = 'none';
+      const l2 = document.getElementById('collectionsLevel2');
+      l2.style.display = 'block';
+
+      if (category === 'artists') renderArtistsLevel2();
+    }
+
+    function closeCollectionsLevel2() {
+      document.getElementById('collectionsLevel2').style.display = 'none';
+      document.getElementById('collectionsPage').style.display = '';
+      _level2Category = null;
+    }
+
+    async function renderArtistsLevel2() {
+      const l2 = document.getElementById('collectionsLevel2');
+      l2.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeCollectionsLevel2()">← Collections</button>
+          <h2 class="l2-title">Artists</h2>
+          <span class="l2-count" id="l2ArtistCount">Loading...</span>
+        </div>
+        <div class="l2-search">
+          <input type="text" class="l2-search-input" id="l2ArtistSearch" placeholder="Search artists..." autocomplete="off">
+        </div>
+        <div class="l2-grid" id="l2ArtistGrid"></div>
+      `;
+
+      // Load artist list
+      if (!_level2ArtistList.length) {
+        _level2ArtistList = artistList.length ? artistList : await fetchArtistNames();
+      }
+
+      document.getElementById('l2ArtistCount').textContent = _level2ArtistList.length + ' artists';
+      renderArtistGrid(_level2ArtistList);
+
+      // Search
+      document.getElementById('l2ArtistSearch').addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        const filtered = q ? _level2ArtistList.filter(a => a.toLowerCase().includes(q)) : _level2ArtistList;
+        document.getElementById('l2ArtistCount').textContent = filtered.length + ' artists';
+        renderArtistGrid(filtered);
+      });
+    }
+
+    function renderArtistGrid(artists) {
+      const grid = document.getElementById('l2ArtistGrid');
+      if (!grid) return;
+      // Show first 30, lazy load more on scroll
+      const batch = artists.slice(0, 30);
+      grid.innerHTML = '';
+      batch.forEach(name => {
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="l2-artist-card" data-artist="${name}">
+            <div class="l2-artist-triptych">
+              <img src="" alt=""><img src="" alt=""><img src="" alt="">
+            </div>
+            <div class="l2-artist-info">
+              <div class="l2-artist-name">${name}</div>
+              <div class="l2-artist-count">...</div>
+            </div>
+          </div>`);
+      });
+
+      // Load more on scroll
+      if (artists.length > 30) {
+        const sentinel = document.createElement('div');
+        sentinel.id = 'l2Sentinel';
+        sentinel.style.height = '1px';
+        grid.appendChild(sentinel);
+        let loaded = 30;
+        const obs = new IntersectionObserver((entries) => {
+          if (entries[0].isIntersecting && loaded < artists.length) {
+            const next = artists.slice(loaded, loaded + 20);
+            next.forEach(name => {
+              sentinel.insertAdjacentHTML('beforebegin', `
+                <div class="l2-artist-card" data-artist="${name}">
+                  <div class="l2-artist-triptych">
+                    <img src="" alt=""><img src="" alt=""><img src="" alt="">
+                  </div>
+                  <div class="l2-artist-info">
+                    <div class="l2-artist-name">${name}</div>
+                    <div class="l2-artist-count">...</div>
+                  </div>
+                </div>`);
+            });
+            loaded += next.length;
+            loadL2ArtistArt(grid);
+            if (loaded >= artists.length) { obs.disconnect(); sentinel.remove(); }
+          }
+        }, { rootMargin: '200px' });
+        obs.observe(sentinel);
+      }
+
+      // Wire clicks
+      grid.addEventListener('click', (e) => {
+        const card = e.target.closest('.l2-artist-card');
+        if (!card) return;
+        activeArtist = [card.dataset.artist];
+        setMode('gallery');
+        updateChips(); loadInitialGrid(); syncFilterUI();
+      });
+
+      // Load art
+      loadL2ArtistArt(grid);
+    }
+
+    async function loadL2ArtistArt(grid) {
+      const cache = JSON.parse(localStorage.getItem('mc_col_art') || '{}');
+      const now = Date.now();
+      const WEEK = 7 * 24 * 60 * 60 * 1000;
+      let updated = false;
+
+      const cards = grid.querySelectorAll('.l2-artist-card');
+      for (const card of cards) {
+        // Skip if already loaded
+        if (card.dataset.loaded) continue;
+        // Only load visible cards
+        const rect = card.getBoundingClientRect();
+        if (rect.top > window.innerHeight + 400) break;
+
+        const name = card.dataset.artist;
+        const key = 'a:' + name;
+
+        if (cache[key] && (now - cache[key].ts < WEEK)) {
+          const imgs = card.querySelectorAll('.l2-artist-triptych img');
+          cache[key].imgs.forEach((src, i) => { if (imgs[i]) imgs[i].src = src; });
+          card.querySelector('.l2-artist-count').textContent = cache[key].count + ' cards';
+          card.dataset.loaded = '1';
+          continue;
+        }
+
+        try {
+          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (!res.ok) continue;
+          const json = await res.json();
+          const imgs = (json.data || []).slice(0, 3).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
+          const count = json.total_cards || 0;
+          cache[key] = { imgs, count, ts: now };
+          updated = true;
+          const imgEls = card.querySelectorAll('.l2-artist-triptych img');
+          imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; });
+          card.querySelector('.l2-artist-count').textContent = count + ' cards';
+          card.dataset.loaded = '1';
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      if (updated) localStorage.setItem('mc_col_art', JSON.stringify(cache));
     }
 
     // restore theme on load

@@ -1537,6 +1537,7 @@
 
     async function loadArtistFeed(name) {
       const grid = document.getElementById("l3Grid");
+      console.log("[l3] loadArtistFeed called for:", name);
       grid.innerHTML = Array(8).fill("<div class=\"shimmer\" style=\"min-height:200px\"></div>").join("");
       const order = _l3Sort === "random" ? "released" : _l3Sort;
       const dir = _l3Sort === "random" ? "asc" : _l3Dir;
@@ -1545,6 +1546,7 @@
         const res = await fetch("https://api.scryfall.com/cards/search?q=" + encodeURIComponent(`a:"${name}" has:illustration`) + `&unique=art&order=${order}&dir=${dir}&page=${page}`);
         if (!res.ok) { grid.innerHTML = "<div class=\"empty-state\">No artwork found</div>"; return; }
         const json = await res.json();
+        console.log("[l3] fetch response:", res.status, res.url);
         const cards = _l3Sort === "random" ? shuffleArray(json.data || []) : (json.data || []);
         document.getElementById("l3Count").textContent = (json.total_cards || cards.length) + " cards";
         grid.innerHTML = "";

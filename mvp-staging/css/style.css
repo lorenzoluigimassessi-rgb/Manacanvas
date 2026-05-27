@@ -972,9 +972,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 2rem;
-  border-top: 1px solid var(--border);
-  background: rgba(26, 26, 34, 0.3);
+  padding: 0.4rem 1.5rem;
   flex-wrap: wrap;
 }
 
@@ -988,14 +986,15 @@ body {
 .filter-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  background: var(--surface);
-  border: 1px solid var(--text-secondary);
-  color: var(--text-primary);
-  padding: 0 0.4rem 0 0.65rem;
-  height: 24px;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  gap: 0.35rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 0 0.5rem 0 0.7rem;
+  height: 32px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-family: 'Josefin Sans', sans-serif;
   cursor: default;
   white-space: nowrap;
   animation: chipIn 120ms ease;

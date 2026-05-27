@@ -711,6 +711,26 @@ function updateChips() {
   const clearBtn = document.getElementById("clearFiltersBtn");
   if (!chipBar || !chipList) { updateMoreBadge(); return; }
 
+  // In staging, lens system owns filter state — only show chips for activeSearch
+  if (typeof _activeLens !== 'undefined') {
+    const chips = [];
+    if (activeSearch) {
+      chips.push({ icon: "", label: `"${activeSearch}"`, clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const mb = document.getElementById("mobileSearchBar"); if (mb) mb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; if (typeof setSearchMode === 'function') setSearchMode(false); updateChips(); loadInitialGrid(); } });
+    }
+    const hasFilters = chips.length > 0;
+    chipBar.style.display = hasFilters ? "flex" : "none";
+    if (clearBtn) clearBtn.style.display = "none";
+    chipList.innerHTML = "";
+    chips.forEach(chip => {
+      const el = document.createElement("div");
+      el.className = "filter-chip";
+      el.innerHTML = `${chip.icon}<span>${chip.label}</span><span class="chip-remove" title="Remove"><svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg></span>`;
+      el.querySelector(".chip-remove").addEventListener("click", chip.clear);
+      chipList.appendChild(el);
+    });
+    return;
+  }
+
   const chips = [];
 
   activeArtist.forEach(a => chips.push({

@@ -686,27 +686,49 @@
 
     function renderSubPills(lens) {
       const row = document.getElementById('subRow');
+      const savedSub = window._restoreSub || null;
       if (lens === 'picks') {
         row.style.display = 'none';
-        applyLensQuery('picks', null);
+        if (!window._suppressLensApply) applyLensQuery('picks', null);
       } else if (lens === 'new') {
-        renderNewPills(row);
+        renderNewPills(row, savedSub);
       } else if (lens === 'eras') {
-        renderEraPills(row);
+        renderEraPills(row, savedSub);
       } else if (lens === 'moods') {
-        renderMoodCards(row);
+        renderMoodCards(row, savedSub);
       } else if (lens === 'iconic') {
-        renderIconicPills(row);
+        renderIconicPills(row, savedSub);
       } else if (lens === 'gems') {
-        renderGemsPills(row);
+        renderGemsPills(row, savedSub);
       } else {
         row.style.display = 'none';
-        applyLensQuery(lens, null);
+        if (!window._suppressLensApply) applyLensQuery(lens, null);
       }
       setTimeout(updateLensTop, 100);
     }
 
-    async function renderNewPills(row) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    async function renderNewPills(row, savedSub) {
       row.style.display = '';
       row.innerHTML = '<span style="font-size:0.75rem;color:var(--text-2);padding:0 0.5rem;">Loading...</span>';
       try {
@@ -721,7 +743,7 @@
         if (released[1]) pills.push({ label: 'Previous: ' + released[1].name, code: released[1].code });
         if (previews.length) pills.push({ label: 'Coming soon', code: null, key: 'coming' });
         row.innerHTML = pills.map((p, i) =>
-          `<button class="sub-pill ${i === 0 ? 'active' : ''}" data-idx="${i}">${p.label}</button>`
+          `<button class="sub-pill ${(savedSub ? (savedSub === 'coming' ? p.key === 'coming' : savedSub.code === p.code) : i === 0) ? 'active' : ''}" data-idx="${i}">${p.label}</button>`
         ).join('');
         row.querySelectorAll('.sub-pill').forEach((btn, i) => {
           btn.addEventListener('click', () => {
@@ -736,11 +758,11 @@
       } catch(e) { row.style.display = 'none'; applyLensQuery('new', null); }
     }
 
-    function renderEraPills(row) {
+    function renderEraPills(row, savedSub) {
       row.style.display = '';
       const eras = Object.keys(ERA_RANGES);
       row.innerHTML = eras.map((era, i) =>
-        `<button class="sub-pill ${i === 0 ? 'active' : ''}" data-era="${era}">${era}</button>`
+        `<button class="sub-pill ${(savedSub ? era === savedSub : i === 0) ? 'active' : ''}" data-era="${era}">${era}</button>`
       ).join('');
       row.querySelectorAll('.sub-pill').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -753,11 +775,11 @@
       if (!window._suppressLensApply) applyLensQuery('eras', eras[0]);
     }
 
-    function renderMoodCards(row) {
+    function renderMoodCards(row, savedSub) {
       row.style.display = '';
       const moods = Object.entries(MOOD_CARDS);
       row.innerHTML = moods.map(([key, m], i) =>
-        `<div class="mood-card ${i === 0 ? 'active' : ''}" data-mood="${key}">
+        `<div class="mood-card ${(savedSub ? key === savedSub : i === 0) ? 'active' : ''}" data-mood="${key}">
           <div class="mood-card-img" style="background-image:url('${m.art}')"></div>
           <div class="mood-card-label">${m.label}</div>
         </div>`
@@ -773,7 +795,7 @@
       if (!window._suppressLensApply) applyLensQuery('moods', moods[0][0]);
     }
 
-    function renderIconicPills(row) {
+    function renderIconicPills(row, savedSub) {
       row.style.display = '';
       const pills = [
         { label: 'All time', key: 'all' },
@@ -783,7 +805,7 @@
         { label: 'Pre-modern', key: 'premodern' },
       ];
       row.innerHTML = pills.map((p, i) =>
-        `<button class="sub-pill ${i === 0 ? 'active' : ''}" data-key="${p.key}">${p.label}</button>`
+        `<button class="sub-pill ${(savedSub ? p.key === savedSub : i === 0) ? 'active' : ''}" data-key="${p.key}">${p.label}</button>`
       ).join('');
       row.querySelectorAll('.sub-pill').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -796,7 +818,7 @@
       if (!window._suppressLensApply) applyLensQuery('iconic', 'all');
     }
 
-    function renderGemsPills(row) {
+    function renderGemsPills(row, savedSub) {
       row.style.display = '';
       const pills = [
         { label: 'One printing', key: 'one' },
@@ -804,7 +826,7 @@
         { label: 'Uncommons & Commons', key: 'uncommon' },
       ];
       row.innerHTML = pills.map((p, i) =>
-        `<button class="sub-pill ${i === 0 ? 'active' : ''}" data-key="${p.key}">${p.label}</button>`
+        `<button class="sub-pill ${(savedSub ? p.key === savedSub : i === 0) ? 'active' : ''}" data-key="${p.key}">${p.label}</button>`
       ).join('');
       row.querySelectorAll('.sub-pill').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1158,21 +1180,9 @@
         document.getElementById('subRow').style.display = 'none';
         applyLensQuery('picks', null);
       } else {
-        window._suppressLensApply = true;
+        window._suppressLensApply = true; window._restoreSub = sub;
         renderSubPills(lens);
-        window._suppressLensApply = false;
-        // Highlight saved sub-pill
-        if (sub) {
-          const row = document.getElementById('subRow');
-          if (lens === 'moods') {
-            row.querySelectorAll('.mood-card').forEach(c => c.classList.toggle('active', c.dataset.mood === sub));
-          } else {
-            row.querySelectorAll('.sub-pill').forEach(p => {
-              const match = p.dataset.era === sub || p.dataset.key === sub;
-              p.classList.toggle('active', match);
-            });
-          }
-        }
+        window._suppressLensApply = false; window._restoreSub = null;
         applyLensQuery(lens, sub);
       }
     }

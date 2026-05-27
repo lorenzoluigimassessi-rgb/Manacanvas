@@ -1530,7 +1530,7 @@
       // Search
       document.getElementById('l2ArtistSearch').addEventListener('input', (e) => {
         const q = e.target.value.toLowerCase();
-        const filtered = q ? currentList.filter(a => a.toLowerCase().includes(q)) : currentList;
+        const filtered = q ? currentList.filter(a => a.toLowerCase().split(/\s+/).some(w => w.startsWith(q))) : currentList;
         document.getElementById('l2ArtistCount').textContent = filtered.length + ' artists';
         renderArtistGrid(filtered);
       });
@@ -1545,7 +1545,7 @@
           else if (currentSort === 'za') currentList = [..._level2ArtistList].sort((a, b) => b.localeCompare(a));
           else currentList = shuffleArray([..._level2ArtistList]);
           const q = document.getElementById('l2ArtistSearch').value.toLowerCase();
-          const filtered = q ? currentList.filter(a => a.toLowerCase().includes(q)) : currentList;
+          const filtered = q ? currentList.filter(a => a.toLowerCase().split(/\s+/).some(w => w.startsWith(q))) : currentList;
           document.getElementById('l2ArtistCount').textContent = filtered.length + ' artists';
           renderArtistGrid(filtered);
         });

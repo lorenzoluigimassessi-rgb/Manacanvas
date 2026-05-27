@@ -2933,20 +2933,18 @@ input[type=range]::-moz-range-thumb {
 
 .col-artist-triptych {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 2px;
   padding: 2px;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: 3 / 1;
 }
 .col-artist-triptych img {
   width: 100%; height: 100%; object-fit: cover; display: block;
   background: var(--surface-2);
 }
-.col-artist-triptych img:first-child { border-radius: 8px 0 0 0; }
-.col-artist-triptych img:nth-child(2) { border-radius: 0 8px 0 0; }
-.col-artist-triptych img:nth-child(3) { border-radius: 0 0 0 8px; }
-.col-artist-triptych img:nth-child(4) { border-radius: 0 0 8px 0; }
+.col-artist-triptych img:first-child { border-radius: 8px 0 0 8px; }
+.col-artist-triptych img:nth-child(2) { border-radius: 0; }
+.col-artist-triptych img:nth-child(3) { border-radius: 0 8px 8px 0; }
 
 .col-artist-info { padding: 0.65rem 0.75rem; }
 .col-artist-name {
@@ -3104,20 +3102,18 @@ input[type=range]::-moz-range-thumb {
 
 .l2-artist-triptych {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 2px;
   padding: 2px;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: 3 / 1;
 }
 .l2-artist-triptych img {
   width: 100%; height: 100%; object-fit: cover; display: block;
   background: var(--surface-2);
 }
-.l2-artist-triptych img:first-child { border-radius: 8px 0 0 0; }
-.l2-artist-triptych img:nth-child(2) { border-radius: 0 8px 0 0; }
-.l2-artist-triptych img:nth-child(3) { border-radius: 0 0 0 8px; }
-.l2-artist-triptych img:nth-child(4) { border-radius: 0 0 8px 0; }
+.l2-artist-triptych img:first-child { border-radius: 8px 0 0 8px; }
+.l2-artist-triptych img:nth-child(2) { border-radius: 0; }
+.l2-artist-triptych img:nth-child(3) { border-radius: 0 8px 8px 0; }
 
 .l2-artist-info { padding: 0.65rem 0.75rem; }
 .l2-artist-name {

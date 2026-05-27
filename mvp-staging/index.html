@@ -395,7 +395,7 @@
         </button>
         <button class="lens-ctrl-btn" id="lensSortBtn" title="Sort" onclick="toggleLensSort()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
-          <span class="ctrl-label">Sort</span>
+          <span class="ctrl-label">Shuffle</span>
         </button>
       </div>
     </div>
@@ -628,6 +628,8 @@
 
       // Persist lens state
       localStorage.setItem('mc_lens', JSON.stringify({ lens, sub }));
+      // Suppress filter chips when lens is driving
+      localStorage.removeItem('mc_filters');
 
       if (lens === 'picks') {
         // pure random
@@ -879,13 +881,12 @@
       if (_lensGridOpen) { closeLensGrid(); return; }
       closeLensSort();
       _lensGridOpen = true;
-      const anchor = document.getElementById('lensControls') || document.querySelector('.mobile-top-bar');
+      const anchor = document.getElementById('lensGridBtn');
       const existing = document.getElementById('lensGridDropdown');
       if (existing) existing.remove();
       const dropdown = document.createElement('div');
       dropdown.className = 'lens-dropdown';
       dropdown.id = 'lensGridDropdown';
-      dropdown.style.right = '0';
       dropdown.innerHTML = [
         { label: 'Small', size: 'sm' },
         { label: 'Medium', size: 'md' },
@@ -900,25 +901,31 @@
       });
       anchor.style.position = 'relative';
       anchor.appendChild(dropdown);
-      setTimeout(() => document.addEventListener('click', closeLensGrid, { once: true }), 0);
+      requestAnimationFrame(() => {
+        document.addEventListener('click', _closeGridOnOutside);
+      });
+    }
+
+    function _closeGridOnOutside(e) {
+      if (!e.target.closest('#lensGridBtn')) closeLensGrid();
     }
 
     function closeLensGrid() {
       _lensGridOpen = false;
       document.getElementById('lensGridDropdown')?.remove();
+      document.removeEventListener('click', _closeGridOnOutside);
     }
 
     function toggleLensSort() {
       if (_lensSortOpen) { closeLensSort(); return; }
       closeLensGrid();
       _lensSortOpen = true;
-      const anchor = document.getElementById('lensControls') || document.querySelector('.mobile-top-bar');
+      const anchor = document.getElementById('lensSortBtn');
       const existing = document.getElementById('lensSortDropdown');
       if (existing) existing.remove();
       const dropdown = document.createElement('div');
       dropdown.className = 'lens-dropdown';
       dropdown.id = 'lensSortDropdown';
-      dropdown.style.right = '0';
       dropdown.innerHTML = (typeof SORT_OPTIONS !== 'undefined' ? SORT_OPTIONS : []).map((opt, i) =>
         `<div class="lens-dropdown-item ${sortOrder === opt.order && sortDir === opt.dir ? 'active' : ''}" data-idx="${i}">${opt.label}</div>`
       ).join('');
@@ -926,19 +933,29 @@
       dropdown.querySelectorAll('.lens-dropdown-item').forEach(el => {
         el.addEventListener('click', () => {
           const opt = SORT_OPTIONS[parseInt(el.dataset.idx)];
-          if (opt) { sortOrder = opt.order; sortDir = opt.dir; }
+          if (opt) {
+            sortOrder = opt.order; sortDir = opt.dir;
+            document.getElementById('lensSortBtn').querySelector('.ctrl-label').textContent = opt.label;
+          }
           closeLensSort();
           loadInitialGrid();
         });
       });
       anchor.style.position = 'relative';
       anchor.appendChild(dropdown);
-      setTimeout(() => document.addEventListener('click', closeLensSort, { once: true }), 0);
+      requestAnimationFrame(() => {
+        document.addEventListener('click', _closeSortOnOutside);
+      });
+    }
+
+    function _closeSortOnOutside(e) {
+      if (!e.target.closest('#lensSortBtn')) closeLensSort();
     }
 
     function closeLensSort() {
       _lensSortOpen = false;
       document.getElementById('lensSortDropdown')?.remove();
+      document.removeEventListener('click', _closeSortOnOutside);
     }
 
     const CREATURE_TYPES = ['Dragon','Angel','Demon','Elf','Human','Merfolk','Zombie','Vampire','Warrior','Wizard','Knight','Phoenix'];

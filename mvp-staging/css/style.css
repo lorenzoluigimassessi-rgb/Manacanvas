@@ -2922,7 +2922,7 @@ input[type=range]::-moz-range-thumb {
   align-items: stretch;
 }
 
-/* Artist card — triptych */
+/* Artist card — pinterest mosaic */
 .col-artist-card {
   flex: 1; min-width: 0;
   background: var(--surface); border: 1px solid var(--border);
@@ -2932,16 +2932,23 @@ input[type=range]::-moz-range-thumb {
 .col-artist-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
 
 .col-artist-triptych {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  gap: 2px; padding: 2px; aspect-ratio: 3 / 1.15;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  padding: 2px;
+  aspect-ratio: 4 / 3;
 }
 .col-artist-triptych img {
   width: 100%; height: 100%; object-fit: cover; display: block;
   background: var(--surface-2);
 }
-.col-artist-triptych img:first-child { border-radius: 8px 0 0 0; }
-.col-artist-triptych img:nth-child(2) { border-radius: 0; }
-.col-artist-triptych img:last-child { border-radius: 0 8px 0 0; }
+.col-artist-triptych img:first-child {
+  grid-row: 1 / 3;
+  border-radius: 8px 0 0 8px;
+}
+.col-artist-triptych img:nth-child(2) { border-radius: 0 8px 0 0; }
+.col-artist-triptych img:nth-child(3) { border-radius: 0 0 8px 0; }
 
 .col-artist-info { padding: 0.65rem 0.75rem; }
 .col-artist-name {
@@ -3098,16 +3105,23 @@ input[type=range]::-moz-range-thumb {
 .l2-artist-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
 
 .l2-artist-triptych {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  gap: 2px; padding: 2px; aspect-ratio: 3 / 1.15;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  padding: 2px;
+  aspect-ratio: 4 / 3;
 }
 .l2-artist-triptych img {
   width: 100%; height: 100%; object-fit: cover; display: block;
   background: var(--surface-2);
 }
-.l2-artist-triptych img:first-child { border-radius: 8px 0 0 0; }
-.l2-artist-triptych img:nth-child(2) { border-radius: 0; }
-.l2-artist-triptych img:last-child { border-radius: 0 8px 0 0; }
+.l2-artist-triptych img:first-child {
+  grid-row: 1 / 3;
+  border-radius: 8px 0 0 8px;
+}
+.l2-artist-triptych img:nth-child(2) { border-radius: 0 8px 0 0; }
+.l2-artist-triptych img:nth-child(3) { border-radius: 0 0 8px 0; }
 
 .l2-artist-info { padding: 0.65rem 0.75rem; }
 .l2-artist-name {

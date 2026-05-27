@@ -2938,6 +2938,8 @@ input[type=range]::-moz-range-thumb {
   gap: 2px;
   padding: 2px;
   aspect-ratio: 5 / 3;
+}
+.col-artist-triptych img {
   width: 100%; height: 100%; object-fit: cover; display: block;
   background: var(--surface-2);
 }
@@ -3109,6 +3111,8 @@ input[type=range]::-moz-range-thumb {
   gap: 2px;
   padding: 2px;
   aspect-ratio: 5 / 3;
+}
+.l2-artist-triptych img {
   width: 100%; height: 100%; object-fit: cover; display: block;
   background: var(--surface-2);
 }

@@ -1468,6 +1468,7 @@
       const imgEls = triptych.querySelectorAll('img');
       imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; });
       triptych.classList.add('imgs-' + Math.min(imgs.length, 3));
+      triptych.classList.add('loaded');
       card.querySelector('.col-artist-count').textContent = count + ' cards';
     }
 
@@ -1632,7 +1633,7 @@
 
         if (cache[key] && (now - cache[key].ts < WEEK)) {
           const imgs = card.querySelectorAll('.l2-artist-triptych img');
-          cache[key].imgs.forEach((src, i) => { if (imgs[i]) imgs[i].src = src; }); card.querySelector(".l2-artist-triptych").classList.add("imgs-" + Math.min(cache[key].imgs.length, 3));
+          cache[key].imgs.forEach((src, i) => { if (imgs[i]) imgs[i].src = src; }); card.querySelector(".l2-artist-triptych").classList.add("imgs-" + Math.min(cache[key].imgs.length, 3), "loaded");
           card.querySelector('.l2-artist-count').textContent = cache[key].count + ' cards';
           card.dataset.loaded = '1';
           continue;
@@ -1647,7 +1648,7 @@
           cache[key] = { imgs, count, ts: now };
           updated = true;
           const imgEls = card.querySelectorAll('.l2-artist-triptych img');
-          imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; }); card.querySelector(".l2-artist-triptych").classList.add("imgs-" + Math.min(imgs.length, 3));
+          imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; }); card.querySelector(".l2-artist-triptych").classList.add("imgs-" + Math.min(imgs.length, 3), "loaded");
           card.querySelector('.l2-artist-count').textContent = count + ' cards';
           card.dataset.loaded = '1';
         } catch(e) {}

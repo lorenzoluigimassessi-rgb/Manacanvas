@@ -2947,6 +2947,9 @@ input[type=range]::-moz-range-thumb {
   width: 100%; height: 100%; object-fit: cover; display: block;
   background: var(--surface-2);
   min-height: 0;
+  animation: shimmerPulse 1.5s infinite;
+}
+.col-artist-triptych.loaded img { animation: none;
 }
 .col-artist-triptych img:first-child { border-radius: 8px 0 0 8px; }
 .col-artist-triptych img:nth-child(2) { border-radius: 0; }
@@ -3125,6 +3128,9 @@ input[type=range]::-moz-range-thumb {
   width: 100%; height: 100%; object-fit: cover; display: block;
   background: var(--surface-2);
   min-height: 0;
+  animation: shimmerPulse 1.5s infinite;
+}
+.l2-artist-triptych.loaded img { animation: none;
 }
 .l2-artist-triptych img:first-child { border-radius: 8px 0 0 8px; }
 .l2-artist-triptych img:nth-child(2) { border-radius: 0; }

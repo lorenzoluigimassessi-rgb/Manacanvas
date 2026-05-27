@@ -1320,7 +1320,7 @@
       COL_ARTISTS.forEach(name => {
         aRow.insertAdjacentHTML('beforeend', `
           <div class="col-artist-card" data-artist="${name}">
-            <div class="col-artist-triptych"><img src="" alt=""><img src="" alt=""><img src="" alt=""></div>
+            <div class="col-artist-triptych"><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""></div>
             <div class="col-artist-info">
               <div class="col-artist-name">${name}</div>
               <div class="col-artist-count">...</div>
@@ -1412,7 +1412,7 @@
           const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=edhrec&page=1');
           if (!res.ok) continue;
           const json = await res.json();
-          const imgs = (json.data || []).slice(0, 3).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
+          const imgs = (json.data || []).slice(0, 4).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
           const count = json.total_cards || 0;
           cache[key] = { imgs, count, ts: now };
           applyArtistArt(card, imgs, count);
@@ -1559,7 +1559,7 @@
         grid.insertAdjacentHTML('beforeend', `
           <div class="l2-artist-card" data-artist="${name}">
             <div class="l2-artist-triptych">
-              <img src="" alt=""><img src="" alt=""><img src="" alt="">
+              <img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt="">
             </div>
             <div class="l2-artist-info">
               <div class="l2-artist-name">${name}</div>
@@ -1582,7 +1582,7 @@
               sentinel.insertAdjacentHTML('beforebegin', `
                 <div class="l2-artist-card" data-artist="${name}">
                   <div class="l2-artist-triptych">
-                    <img src="" alt=""><img src="" alt=""><img src="" alt="">
+                    <img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt="">
                   </div>
                   <div class="l2-artist-info">
                     <div class="l2-artist-name">${name}</div>
@@ -1640,7 +1640,7 @@
           const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=edhrec&page=1');
           if (!res.ok) continue;
           const json = await res.json();
-          const imgs = (json.data || []).slice(0, 3).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
+          const imgs = (json.data || []).slice(0, 4).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
           const count = json.total_cards || 0;
           cache[key] = { imgs, count, ts: now };
           updated = true;

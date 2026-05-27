@@ -174,6 +174,57 @@
     }
     #searchBar::placeholder { color: var(--text-2); }
 
+    /* Search pill (Cosmos pattern) */
+    .search-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border-hover);
+      border-radius: var(--r);
+      padding: 0.2rem 0.5rem;
+      max-width: 70%;
+      flex-shrink: 0;
+      animation: pillIn 150ms ease;
+    }
+    @keyframes pillIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+    .search-pill-text {
+      font-size: 0.8rem;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 12ch;
+    }
+    .search-pill-tag {
+      font-size: 0.65rem;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .search-pill-x {
+      color: var(--text-2);
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 4px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: -4px -4px -4px 0;
+      flex-shrink: 0;
+      transition: color 150ms;
+    }
+    .search-pill-x:hover { color: var(--text-1); }
+
+    /* Search active state — subtle background shift */
+    .nav-center.search-active {
+      background: var(--surface-2);
+      border-color: var(--border-hover);
+    }
+
     .search-sep {
       width: 1px;
       height: 16px;
@@ -289,6 +340,8 @@
         flex: 1;
         max-width: none;
       }
+
+      .search-pill-text { max-width: 10ch; }
 
       .mobile-float {
         display: flex;
@@ -1590,7 +1643,6 @@
         el.addEventListener('click', () => openLightbox(card, 'feed'));
         grid.appendChild(el);
       });
-    }
     }
 
     async function renderArtistsLevel2() {

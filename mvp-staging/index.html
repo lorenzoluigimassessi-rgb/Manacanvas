@@ -381,7 +381,7 @@
     <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
     <div class="lens-row" id="lensRow">
       <div class="lens-chips" id="lensChips">
-        <button class="lens-btn active" data-lens="picks"    onclick="setLens(this)">Picks</button>
+        <button class="lens-btn active" data-lens="picks"    onclick="setLens(this)">Daily Picks</button>
         <button class="lens-btn"        data-lens="new"      onclick="setLens(this)">New</button>
         <button class="lens-btn"        data-lens="eras"     onclick="setLens(this)">Eras</button>
         <button class="lens-btn"        data-lens="moods"    onclick="setLens(this)">Moods</button>
@@ -637,8 +637,10 @@
         if (mood) activeSearch = mood.query.replace('has:illustration','').trim();
       } else if (lens === 'iconic') {
         sortOrder = 'edhrec'; sortDir = 'auto';
-        if (sub === 'decade') { activeYearMin = 2020; activeYearMax = 2029; }
+        if (sub === 'commander') activeSearch = 'format:commander';
+        else if (sub === 'standard') activeSearch = 'format:standard';
         else if (sub === 'modern') activeSearch = 'format:modern';
+        else if (sub === 'premodern') { activeYearMin = 1993; activeYearMax = 2003; }
       } else if (lens === 'gems') {
         if (sub === 'one') activeSearch = 'prints=1';
         else if (sub === 'pre2000') { activeYearMin = 1993; activeYearMax = 1999; }
@@ -760,8 +762,10 @@
       row.style.display = '';
       const pills = [
         { label: 'All time', key: 'all' },
-        { label: 'This decade', key: 'decade' },
-        { label: 'Modern format', key: 'modern' },
+        { label: 'Commander', key: 'commander' },
+        { label: 'Standard', key: 'standard' },
+        { label: 'Modern', key: 'modern' },
+        { label: 'Pre-modern', key: 'premodern' },
       ];
       row.innerHTML = pills.map((p, i) =>
         `<button class="sub-pill ${i === 0 ? 'active' : ''}" data-key="${p.key}">${p.label}</button>`

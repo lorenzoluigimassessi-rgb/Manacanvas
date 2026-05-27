@@ -715,9 +715,11 @@ function updateChips() {
   if (window._lensSystemReady) {
     const chips = [];
     if (activeSearch) {
+      console.log('[chips] activeSearch =', activeSearch, 'chipBar =', chipBar);
       chips.push({ icon: "", label: `"${activeSearch}"`, clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const mb = document.getElementById("mobileSearchBar"); if (mb) mb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; if (typeof setSearchMode === 'function') setSearchMode(false); updateChips(); loadInitialGrid(); } });
     }
     const hasFilters = chips.length > 0;
+    console.log('[chips] hasFilters =', hasFilters);
     chipBar.style.display = hasFilters ? "flex" : "none";
     if (clearBtn) clearBtn.style.display = "none";
     chipList.innerHTML = "";

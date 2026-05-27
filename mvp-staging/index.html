@@ -517,7 +517,7 @@
     </div>
 
     <!-- ── Mode panels ── -->
-    <div id="chipBar" style="display:none;padding:0.4rem 1.5rem;"><div id="chipList" class="chip-list"></div></div>
+    <div id="chipBar" style="display:none;padding:0.6rem 2rem;"><div id="chipList" class="chip-list"></div></div>
     <div class="ptr-indicator" id="ptrIndicator"></div>
     <main class="grid" id="grid">
       <div class="shimmer" style="min-height:220px"></div>
@@ -611,7 +611,7 @@
       if (subRow && mode !== 'gallery') subRow.style.display = 'none';
 
       // load content
-      if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0) initLens();
+      if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0 && !activeSearch) initLens();
       if (mode === 'collections') renderCategories();
       if (mode === 'discover') triggerSurprise();
     }

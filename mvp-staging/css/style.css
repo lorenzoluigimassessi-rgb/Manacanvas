@@ -986,14 +986,15 @@ body {
 .filter-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  padding: 0 0.5rem 0 0.7rem;
+  gap: 0.4rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-hover);
+  color: var(--text-primary);
+  padding: 0 0.5rem 0 0.85rem;
   height: 32px;
   border-radius: 999px;
   font-size: 0.8rem;
+  font-weight: 500;
   font-family: 'Josefin Sans', sans-serif;
   cursor: default;
   white-space: nowrap;

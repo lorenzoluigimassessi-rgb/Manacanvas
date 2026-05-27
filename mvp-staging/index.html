@@ -732,7 +732,7 @@
             applyLensQuery('new', p.key ? p.key : p);
           });
         });
-        if (pills.length) applyLensQuery('new', pills[0]);
+        if (pills.length && !window._suppressLensApply) applyLensQuery('new', pills[0]);
       } catch(e) { row.style.display = 'none'; applyLensQuery('new', null); }
     }
 
@@ -750,7 +750,7 @@
           applyLensQuery('eras', btn.dataset.era);
         });
       });
-      applyLensQuery('eras', eras[0]);
+      if (!window._suppressLensApply) applyLensQuery('eras', eras[0]);
     }
 
     function renderMoodCards(row) {
@@ -770,7 +770,7 @@
           applyLensQuery('moods', card.dataset.mood);
         });
       });
-      applyLensQuery('moods', moods[0][0]);
+      if (!window._suppressLensApply) applyLensQuery('moods', moods[0][0]);
     }
 
     function renderIconicPills(row) {
@@ -793,7 +793,7 @@
           applyLensQuery('iconic', btn.dataset.key);
         });
       });
-      applyLensQuery('iconic', 'all');
+      if (!window._suppressLensApply) applyLensQuery('iconic', 'all');
     }
 
     function renderGemsPills(row) {
@@ -814,7 +814,7 @@
           applyLensQuery('gems', btn.dataset.key);
         });
       });
-      applyLensQuery('gems', 'one');
+      if (!window._suppressLensApply) applyLensQuery('gems', 'one');
     }
 
     function setSubPill(el, sub) {
@@ -1158,14 +1158,22 @@
         document.getElementById('subRow').style.display = 'none';
         applyLensQuery('picks', null);
       } else {
+        window._suppressLensApply = true;
         renderSubPills(lens);
+        window._suppressLensApply = false;
+        // Highlight saved sub-pill
         if (sub) {
+          const row = document.getElementById('subRow');
           if (lens === 'moods') {
-            const row = document.getElementById('subRow');
             row.querySelectorAll('.mood-card').forEach(c => c.classList.toggle('active', c.dataset.mood === sub));
+          } else {
+            row.querySelectorAll('.sub-pill').forEach(p => {
+              const match = p.dataset.era === sub || p.dataset.key === sub;
+              p.classList.toggle('active', match);
+            });
           }
-          applyLensQuery(lens, sub);
         }
+        applyLensQuery(lens, sub);
       }
     }
 

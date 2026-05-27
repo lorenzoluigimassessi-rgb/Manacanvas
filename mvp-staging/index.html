@@ -637,7 +637,7 @@
       // Keep current sort — user's choice persists across all lenses
 
       // Persist lens state
-      localStorage.setItem('mc_lens', JSON.stringify({ lens, sub, sortOrder, sortDir, gridSize: currentGridSize }));
+      localStorage.setItem('mc_lens', JSON.stringify({ lens, sub }));
       // Suppress filter chips when lens is driving
       localStorage.removeItem('mc_filters');
 
@@ -964,7 +964,7 @@
         el.addEventListener('click', () => {
           const opt = SORT_OPTIONS[parseInt(el.dataset.idx)];
           if (opt) {
-            sortOrder = opt.order; sortDir = opt.dir;
+            sortOrder = opt.order; sortDir = opt.dir; localStorage.setItem("mc_sort", JSON.stringify({ order: opt.order, dir: opt.dir }));
             document.getElementById('lensSortBtn').querySelector('.ctrl-label').textContent = opt.label;
           }
           closeLensSort();
@@ -1158,10 +1158,12 @@
           const s = JSON.parse(saved);
           lens = s.lens || 'picks';
           sub = s.sub || null;
-          if (s.sortOrder) sortOrder = s.sortOrder;
-          if (s.sortDir) sortDir = s.sortDir;
-          if (s.gridSize && typeof setGridSize === 'function') setGridSize(s.gridSize);
         } catch(e) {}
+      }
+      // Restore sort from its own key
+      const savedSort = localStorage.getItem("mc_sort");
+      if (savedSort) {
+        try { const ss = JSON.parse(savedSort); sortOrder = ss.order || "random"; sortDir = ss.dir || "auto"; } catch(e) {}
       }
       _activeLens = lens;
       // Activate the correct tab

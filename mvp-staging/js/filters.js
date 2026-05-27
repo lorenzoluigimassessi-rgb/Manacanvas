@@ -844,16 +844,56 @@ let searchTimeout = null;
 function setSearchMode(active) {
   const lensRow = document.getElementById('lensRow');
   const subRow  = document.getElementById('subRow');
+  const containers = document.querySelectorAll('.nav-center');
   if (active) {
     if (lensRow) lensRow.style.display = 'none';
     if (subRow)  subRow.style.display  = 'none';
+    containers.forEach(c => c.classList.add('search-active'));
   } else {
     if (lensRow) lensRow.style.display = '';
-    // Restore sub-row based on active lens
     if (typeof _activeLens !== 'undefined' && _activeLens !== 'picks') {
       if (subRow) subRow.style.display = '';
     }
+    containers.forEach(c => c.classList.remove('search-active'));
   }
+}
+
+// Search pill (Cosmos pattern) — single pill inside search bar
+function showSearchPill(text, tag) {
+  clearSearchPill();
+  const input = document.getElementById('searchBar');
+  const mInput = document.getElementById('mobileSearchBar');
+  input.style.display = 'none';
+  if (mInput) mInput.style.display = 'none';
+  const clearBtn = document.getElementById('searchClear');
+  if (clearBtn) clearBtn.style.display = 'none';
+
+  // Insert pill into both desktop and mobile containers
+  document.querySelectorAll('.nav-center').forEach(container => {
+    const pill = document.createElement('span');
+    pill.className = 'search-pill';
+    pill.innerHTML = `<span class="search-pill-text">${text}</span><span class="search-pill-tag">${tag}</span><span class="search-pill-x" aria-label="Clear search">✕</span>`;
+    pill.querySelector('.search-pill-x').addEventListener('click', clearSearchPill);
+    // Insert after the search icon
+    const icon = container.querySelector('.search-icon-svg');
+    if (icon) icon.after(pill);
+    else container.prepend(pill);
+  });
+}
+
+function clearSearchPill() {
+  document.querySelectorAll('.search-pill').forEach(p => p.remove());
+  const input = document.getElementById('searchBar');
+  const mInput = document.getElementById('mobileSearchBar');
+  if (input) { input.style.display = ''; input.value = ''; }
+  if (mInput) { mInput.style.display = ''; mInput.value = ''; }
+  const clearBtn = document.getElementById('searchClear');
+  if (clearBtn) clearBtn.style.display = 'none';
+  activeSearch = null;
+  activeArtist = []; activeType = []; activeCardType = []; activeSets = [];
+  setSearchMode(false);
+  updateChips();
+  loadInitialGrid();
 }
 
 function initSearch() {
@@ -895,6 +935,7 @@ function initSearch() {
         if (activeSearch) {
           if (typeof setMode === 'function') setMode('gallery');
           setSearchMode(true);
+          showSearchPill(activeSearch, 'Card');
         }
         loadInitialGrid();
         updateChips();
@@ -906,13 +947,8 @@ function initSearch() {
   });
 
   clearBtn.addEventListener("click", () => {
-    input.value = "";
-    clearBtn.style.display = "none";
-    activeSearch = null;
+    clearSearchPill();
     hideSearchSuggestions();
-    setSearchMode(false);
-    updateChips();
-    loadInitialGrid();
   });
 
   document.addEventListener("click", (e) => {
@@ -928,21 +964,21 @@ async function showSearchSuggestions(query) {
   const suggestions = [];
 
   artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 3)
-    .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => { toggleArtist(a); input.value = a; input.dataset.query = a; updateChips(); } }));
+    .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => { toggleArtist(a); hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(a, "Artist"); loadInitialGrid(); updateChips(); } }));
   creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
-    .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => { toggleType(t); input.value = t; input.dataset.query = t; updateChips(); } }));
+    .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => { toggleType(t); hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(t, "Creature"); loadInitialGrid(); updateChips(); } }));
   cardTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
-    .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => { toggleCardType(t); input.value = t; input.dataset.query = t; updateMoreBadge(); updateChips(); loadInitialGrid(); } }));
+    .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => { toggleCardType(t); hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(t, "Type"); updateMoreBadge(); loadInitialGrid(); updateChips(); } }));
   setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 3)
-    .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => { if (!activeSets.includes(s.code)) activeSets.push(s.code); input.value = s.name; input.dataset.query = s.name; updateChips(); loadInitialGrid(); } }));
+    .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => { if (!activeSets.includes(s.code)) activeSets.push(s.code); hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(s.name, "Set"); loadInitialGrid(); updateChips(); } }));
 
-  suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => { activeSearch = query; input.value = query; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); loadInitialGrid(); updateChips(); } });
+  suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => { activeSearch = query; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(query, "Card"); loadInitialGrid(); updateChips(); } });
 
   try {
     const res = await fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(query)}`);
     const json = await res.json();
     (json.data || []).slice(0, 4).forEach(name => {
-      suggestions.splice(suggestions.length - 1, 0, { label: name, tag: "Card", action: () => { input.value = name; activeSearch = name; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); loadInitialGrid(); updateChips(); } });
+      suggestions.splice(suggestions.length - 1, 0, { label: name, tag: "Card", action: () => { activeSearch = name; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(name, "Card"); loadInitialGrid(); updateChips(); } });
     });
   } catch (e) { /* ignore */ }
 

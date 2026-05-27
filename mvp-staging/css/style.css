@@ -3055,10 +3055,36 @@ input[type=range]::-moz-range-thumb {
 .l2-search-input::placeholder { color: var(--text-secondary); }
 .l2-search-input:focus { border-color: var(--border-hover); }
 
+.l2-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;
+}
+.l2-toolbar .l2-search-input { flex: 1; min-width: 200px; }
+
+.l2-sort {
+  display: flex; gap: 0.25rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 999px; padding: 3px; flex-shrink: 0;
+}
+.l2-sort-btn {
+  background: transparent; border: none;
+  color: var(--text-secondary); font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.75rem; font-weight: 500; padding: 0.4rem 0.75rem;
+  border-radius: 999px; cursor: pointer; white-space: nowrap;
+  transition: background 150ms, color 150ms;
+}
+.l2-sort-btn:hover { color: var(--text-primary); }
+.l2-sort-btn.active { background: var(--surface-2); color: var(--text-primary); }
+
 .l2-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
+  max-width: 1320px;
+}
+
+@supports (grid-template-columns: repeat(4, 1fr)) {
+  .l2-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 .l2-artist-card {
@@ -3089,7 +3115,11 @@ input[type=range]::-moz-range-thumb {
 
 @media (max-width: 768px) {
   .collections-level2 { padding: 1rem; }
-  .l2-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+  .l2-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
   .l2-title { font-size: 0.95rem; }
   .l2-header { padding: 0; }
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .l2-grid { grid-template-columns: repeat(3, 1fr); }
 }

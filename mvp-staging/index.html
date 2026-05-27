@@ -1382,8 +1382,13 @@
           <h2 class="l2-title">Artists</h2>
           <span class="l2-count" id="l2ArtistCount">Loading...</span>
         </div>
-        <div class="l2-search">
+        <div class="l2-toolbar">
           <input type="text" class="l2-search-input" id="l2ArtistSearch" placeholder="Search artists..." autocomplete="off">
+          <div class="l2-sort">
+            <button class="l2-sort-btn active" data-sort="az">A→Z</button>
+            <button class="l2-sort-btn" data-sort="za">Z→A</button>
+            <button class="l2-sort-btn" data-sort="shuffle">Shuffle</button>
+          </div>
         </div>
         <div class="l2-grid" id="l2ArtistGrid"></div>
       `;
@@ -1393,15 +1398,34 @@
         _level2ArtistList = artistList.length ? artistList : await fetchArtistNames();
       }
 
-      document.getElementById('l2ArtistCount').textContent = _level2ArtistList.length + ' artists';
-      renderArtistGrid(_level2ArtistList);
+      let currentList = [..._level2ArtistList].sort((a, b) => a.localeCompare(b));
+      let currentSort = 'az';
+
+      document.getElementById('l2ArtistCount').textContent = currentList.length + ' artists';
+      renderArtistGrid(currentList);
 
       // Search
       document.getElementById('l2ArtistSearch').addEventListener('input', (e) => {
         const q = e.target.value.toLowerCase();
-        const filtered = q ? _level2ArtistList.filter(a => a.toLowerCase().includes(q)) : _level2ArtistList;
+        const filtered = q ? currentList.filter(a => a.toLowerCase().includes(q)) : currentList;
         document.getElementById('l2ArtistCount').textContent = filtered.length + ' artists';
         renderArtistGrid(filtered);
+      });
+
+      // Sort buttons
+      l2.querySelectorAll('.l2-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          l2.querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSort = btn.dataset.sort;
+          if (currentSort === 'az') currentList = [..._level2ArtistList].sort((a, b) => a.localeCompare(b));
+          else if (currentSort === 'za') currentList = [..._level2ArtistList].sort((a, b) => b.localeCompare(a));
+          else currentList = shuffleArray([..._level2ArtistList]);
+          const q = document.getElementById('l2ArtistSearch').value.toLowerCase();
+          const filtered = q ? currentList.filter(a => a.toLowerCase().includes(q)) : currentList;
+          document.getElementById('l2ArtistCount').textContent = filtered.length + ' artists';
+          renderArtistGrid(filtered);
+        });
       });
     }
 

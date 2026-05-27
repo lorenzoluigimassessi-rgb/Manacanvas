@@ -712,7 +712,7 @@ function updateChips() {
   if (!chipBar || !chipList) { updateMoreBadge(); return; }
 
   // In staging, lens system owns filter state — only show chips for activeSearch
-  if (typeof _activeLens !== 'undefined') {
+  if (window._lensSystemReady) {
     const chips = [];
     if (activeSearch) {
       chips.push({ icon: "", label: `"${activeSearch}"`, clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const mb = document.getElementById("mobileSearchBar"); if (mb) mb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; if (typeof setSearchMode === 'function') setSearchMode(false); updateChips(); loadInitialGrid(); } });

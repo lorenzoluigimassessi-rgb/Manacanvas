@@ -271,7 +271,7 @@ if (randomFeedBtn) {
 
 function restoreFilters() {
   // Staging: lens system owns filter state — skip localStorage restore, go straight to lens init
-  if (typeof initLens === 'function') { initLens(); return; }
+  if (typeof initLens === 'function') { window._lensSystemReady = true; initLens(); return; }
   loadInitialGrid();
 }
 

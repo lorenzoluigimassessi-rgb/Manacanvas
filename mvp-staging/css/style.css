@@ -487,7 +487,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 2rem;
+  padding: 0.5rem 1.5rem;
   overflow-x: auto;
   scrollbar-width: none;
   animation: subRowIn 150ms ease;
@@ -3129,8 +3129,8 @@ input[type=range]::-moz-range-thumb {
 
 /* ═══ Mood Cards (Moods lens sub-pills) ═══ */
 .mood-card {
-  flex-shrink: 0;
-  width: 140px;
+  flex: 1;
+  min-width: 0;
   cursor: pointer;
   text-align: center;
   opacity: 0.55;
@@ -3161,7 +3161,7 @@ input[type=range]::-moz-range-thumb {
 .mood-card.active .mood-card-label { color: var(--text-primary); font-weight: 500; }
 
 @media (max-width: 768px) {
-  .mood-card { width: 120px; }
+  .mood-card { flex: 0 0 calc(25% - 0.6rem); }
 }
 
 

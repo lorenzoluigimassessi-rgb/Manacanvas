@@ -465,18 +465,21 @@ body {
   font-size: 0.85rem;
   font-weight: 400;
   letter-spacing: 0.3px;
-  padding: 0.65rem 1.1rem;
-  border-radius: var(--radius-pill);
+  padding: 0.65rem 0.2rem;
+  margin: 0 0.6rem;
+  border-radius: 0;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: color 150ms, background 150ms;
+  transition: color 150ms;
+  border-bottom: 2px solid transparent;
 }
 .lens-btn:hover { color: var(--text-primary); }
 .lens-btn.active {
-  background: var(--text-primary);
-  color: var(--bg);
-  font-weight: 600;
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 500;
+  border-bottom: 2px solid var(--text-primary);
 }
 
 /* ── Sub-pill row ── */

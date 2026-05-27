@@ -3105,7 +3105,7 @@ input[type=range]::-moz-range-thumb {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 2px;
   padding: 2px;
-  aspect-ratio: 3 / 1;
+  aspect-ratio: 2.25 / 1;
 }
 .l2-artist-triptych img {
   width: 100%; height: 100%; object-fit: cover; display: block;

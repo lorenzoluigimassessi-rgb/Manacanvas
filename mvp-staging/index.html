@@ -633,7 +633,9 @@
       activeArtist = []; activeType = []; activeCardType = [];
       activeColour = []; activeSets = []; activeStyles = [];
       activeYearMin = null; activeYearMax = null; activeSearch = null;
-      sortOrder = 'random'; sortDir = 'auto';
+      // Only reset sort if lens defines a specific sort, otherwise keep current
+      const lensDefaultSort = (lens === 'new') ? 'released' : (lens === 'iconic') ? 'edhrec' : null;
+      if (lensDefaultSort) { sortOrder = lensDefaultSort; sortDir = (lensDefaultSort === 'released') ? 'desc' : 'auto'; }
 
       // Persist lens state
       localStorage.setItem('mc_lens', JSON.stringify({ lens, sub, sortOrder, sortDir, gridSize: currentGridSize }));
@@ -643,9 +645,8 @@
       if (lens === 'picks') {
         // pure random
       } else if (lens === 'new') {
-        sortOrder = 'released'; sortDir = 'desc';
         if (sub && sub.code) activeSets = [sub.code];
-        else if (sub === 'coming') activeSearch = 'is:preview';
+        else if (sub === 'coming') window._lensRawQuery = 'is:preview has:illustration';
       } else if (lens === 'eras') {
         const range = ERA_RANGES[sub];
         if (range) { activeYearMin = range[0]; activeYearMax = range[1]; }
@@ -653,15 +654,14 @@
         const mood = MOOD_CARDS[sub];
         if (mood) window._lensRawQuery = mood.query;
       } else if (lens === 'iconic') {
-        sortOrder = 'edhrec'; sortDir = 'auto';
-        if (sub === 'commander') activeSearch = 't:legendary t:creature';
-        else if (sub === 'standard') activeSearch = 'format:standard';
-        else if (sub === 'modern') activeSearch = 'format:modern';
+        if (sub === 'commander') window._lensRawQuery = 't:legendary t:creature has:illustration';
+        else if (sub === 'standard') window._lensRawQuery = 'format:standard has:illustration';
+        else if (sub === 'modern') window._lensRawQuery = 'format:modern has:illustration';
         else if (sub === 'premodern') { activeYearMin = 1993; activeYearMax = 2003; }
       } else if (lens === 'gems') {
-        if (sub === 'one') activeSearch = 'prints=1';
+        if (sub === 'one') window._lensRawQuery = 'prints=1 has:illustration';
         else if (sub === 'pre2000') { activeYearMin = 1993; activeYearMax = 1999; }
-        else if (sub === 'uncommon') activeSearch = '(r:common OR r:uncommon)';
+        else if (sub === 'uncommon') window._lensRawQuery = '(r:common OR r:uncommon) has:illustration';
       }
 
       const key = _cacheKey(lens, sub);

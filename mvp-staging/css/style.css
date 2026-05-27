@@ -3230,3 +3230,14 @@ input[type=range]::-moz-range-thumb {
 
 /* Lens control labels */
 .ctrl-label { letter-spacing: 0.2px; }
+
+
+/* Hide broken image icon before src is set */
+.col-artist-triptych img:not([src]),
+.l2-artist-triptych img:not([src]) {
+  visibility: hidden;
+}
+.col-artist-triptych img[src],
+.l2-artist-triptych img[src] {
+  visibility: visible;
+}

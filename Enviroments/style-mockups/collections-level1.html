@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collections — Level 1 (Mockup)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0c0c0f;
+      --surface: #16161c;
+      --surface-2: #1e1e28;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-1: rgba(240,240,240,0.95);
+      --text-2: rgba(240,240,240,0.4);
+      --radius: 10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* Header mock */
+    .mock-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+    .mock-logo {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px;
+      flex-shrink: 0;
+    }
+    .mock-switcher {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px;
+    }
+    .mock-sw-btn {
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      color: var(--text-2);
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .mock-sw-btn.active {
+      background: var(--surface-2);
+      color: var(--text-1);
+    }
+
+    /* Page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .page-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-2);
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Category grid */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    /* Category card */
+    .cat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 150ms, border-color 150ms, box-shadow 150ms;
+    }
+    .cat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-hover);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    /* Preview mosaic — 4 images in a 2x2 grid */
+    .cat-mosaic {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      padding: 2px;
+      aspect-ratio: 2 / 1;
+    }
+    .cat-mosaic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: var(--surface-2);
+      display: block;
+    }
+    .cat-mosaic img:first-child { border-radius: 8px 0 0 0; }
+    .cat-mosaic img:nth-child(2) { border-radius: 0 8px 0 0; }
+    .cat-mosaic img:nth-child(3) { border-radius: 0 0 0 8px; }
+    .cat-mosaic img:nth-child(4) { border-radius: 0 0 8px 0; }
+
+    /* Text */
+    .cat-info {
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cat-left {}
+    .cat-name {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-1);
+      margin-bottom: 0.15rem;
+    }
+    .cat-count {
+      font-size: 0.72rem;
+      color: var(--text-2);
+    }
+    .cat-arrow {
+      color: var(--text-2);
+      font-size: 1.1rem;
+      transition: transform 150ms, color 150ms;
+    }
+    .cat-card:hover .cat-arrow {
+      transform: translateX(3px);
+      color: var(--text-1);
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      .page { padding: 1.5rem 1rem; }
+      .cat-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+      .page-title { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mock header -->
+  <div class="mock-header">
+    <div class="mock-logo">MC</div>
+    <div class="mock-switcher">
+      <button class="mock-sw-btn">All Art</button>
+      <button class="mock-sw-btn active">Browse</button>
+      <button class="mock-sw-btn">Draw</button>
+    </div>
+  </div>
+
+  <div class="page">
+    <h1 class="page-title">Collections</h1>
+    <p class="page-subtitle">Browse Magic art by category</p>
+
+    <div class="cat-grid">
+
+      <!-- Artists -->
+      <div class="cat-card" id="catArtists">
+        <div class="cat-mosaic" id="mosaicArtists">
+          <img alt=""><img alt=""><img alt=""><img alt="">
+        </div>
+        <div class="cat-info">
+          <div class="cat-left">
+            <div class="cat-name">Artists</div>
+            <div class="cat-count">800+ artists</div>
+          </div>
+          <span class="cat-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Sets -->
+      <div class="cat-card" id="catSets">
+        <div class="cat-mosaic" id="mosaicSets">
+          <img alt=""><img alt=""><img alt=""><img alt="">
+        </div>
+        <div class="cat-info">
+          <div class="cat-left">
+            <div class="cat-name">Sets</div>
+            <div class="cat-count">200+ sets</div>
+          </div>
+          <span class="cat-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Creatures -->
+      <div class="cat-card" id="catCreatures">
+        <div class="cat-mosaic" id="mosaicCreatures">
+          <img alt=""><img alt=""><img alt=""><img alt="">
+        </div>
+        <div class="cat-info">
+          <div class="cat-left">
+            <div class="cat-name">Creatures</div>
+            <div class="cat-count">250+ types</div>
+          </div>
+          <span class="cat-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Card Types -->
+      <div class="cat-card" id="catTypes">
+        <div class="cat-mosaic" id="mosaicTypes">
+          <img alt=""><img alt=""><img alt=""><img alt="">
+        </div>
+        <div class="cat-info">
+          <div class="cat-left">
+            <div class="cat-name">Card Types</div>
+            <div class="cat-count">Instant · Sorcery · Enchantment · more</div>
+          </div>
+          <span class="cat-arrow">→</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Fetch preview art for each category
+    const QUERIES = {
+      Artists:    'a:"Seb McKinnon" OR a:"Magali Villeneuve" OR a:"Rebecca Guay" OR a:"Chris Rahn"',
+      Sets:      '(s:lci OR s:woe OR s:mom OR s:one) has:illustration',
+      Creatures: '(t:dragon OR t:angel OR t:demon OR t:merfolk) has:illustration',
+      Types:     '(t:instant OR t:sorcery OR t:enchantment OR t:planeswalker) has:illustration',
+    };
+
+    const MOSAIC_IDS = {
+      Artists: 'mosaicArtists',
+      Sets: 'mosaicSets',
+      Creatures: 'mosaicCreatures',
+      Types: 'mosaicTypes',
+    };
+
+    async function loadPreviews() {
+      for (const [cat, query] of Object.entries(QUERIES)) {
+        try {
+          const page = Math.floor(Math.random() * 3) + 1;
+          const url = 'https://api.scryfall.com/cards/search?q=' + encodeURIComponent(query + ' has:illustration') + '&unique=art&order=edhrec&page=' + page;
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const json = await res.json();
+          const data = (json.data || []).slice(0, 4);
+          const mosaic = document.getElementById(MOSAIC_IDS[cat]);
+          const imgs = mosaic.querySelectorAll('img');
+          data.forEach((card, i) => {
+            const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
+            if (art && imgs[i]) imgs[i].src = art;
+          });
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 150));
+      }
+    }
+
+    loadPreviews();
+  </script>
+</body>
+</html>

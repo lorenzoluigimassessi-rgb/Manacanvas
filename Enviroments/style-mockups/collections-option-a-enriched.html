@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collections — Option A Enriched</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #16161c;
+      --surface-2: #1e1e28;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-1: rgba(240,240,240,0.95);
+      --text-2: rgba(240,240,240,0.4);
+      --text-3: rgba(240,240,240,0.2);
+      --radius: 10px;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Header mock */
+    .mock-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--bg); z-index: 10;
+    }
+    .mock-logo {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px;
+    }
+    .mock-switcher { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px; }
+    .mock-sw-btn { padding: 0.5rem 0.9rem; border-radius: 999px; font-size: 0.8rem; color: var(--text-2); border: none; background: transparent; font-family: inherit; cursor: pointer; }
+    .mock-sw-btn.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* Page */
+    .page { padding: 2rem 0; }
+
+    /* Section */
+    .section { margin-bottom: 2.5rem; }
+    .section-header {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 0 1.5rem; margin-bottom: 0.8rem;
+    }
+    .section-title { font-size: 1.05rem; font-weight: 500; letter-spacing: 0.5px; }
+    .section-link {
+      font-size: 0.78rem; color: var(--text-2); text-decoration: none; cursor: pointer;
+      transition: color 150ms;
+    }
+    .section-link:hover { color: var(--text-1); }
+
+    /* Scroll row */
+    .scroll-row {
+      display: flex; gap: 0.75rem; overflow-x: auto; scrollbar-width: none;
+      padding: 0.25rem 1.5rem; -webkit-overflow-scrolling: touch;
+    }
+    .scroll-row::-webkit-scrollbar { display: none; }
+
+    /* ═══ ARTIST CARD — triptych ═══ */
+    .artist-card {
+      flex-shrink: 0; width: 220px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; cursor: pointer;
+      transition: transform 150ms, border-color 150ms;
+    }
+    .artist-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+
+    .artist-triptych {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px; padding: 2px; aspect-ratio: 3 / 1.2;
+    }
+    .artist-triptych img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      background: var(--surface-2);
+    }
+    .artist-triptych img:first-child { border-radius: 8px 0 0 0; }
+    .artist-triptych img:nth-child(2) { border-radius: 0; }
+    .artist-triptych img:last-child { border-radius: 0 8px 0 0; }
+
+    .artist-info { padding: 0.6rem 0.7rem; }
+    .artist-name {
+      font-size: 0.8rem; font-weight: 500; color: var(--text-1);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .artist-count { font-size: 0.68rem; color: var(--text-2); margin-top: 0.1rem; }
+
+    /* ═══ SET CARD — iconic art + logo in info ═══ */
+    .set-card {
+      flex-shrink: 0; width: 200px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; cursor: pointer;
+      transition: transform 150ms, border-color 150ms;
+      position: relative;
+    }
+    .set-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+
+    .set-card-art {
+      width: 100%; aspect-ratio: 3 / 2;
+      background: var(--surface-2); overflow: hidden;
+      position: relative;
+    }
+    .set-card-art img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    /* Transparent logo watermark on art */
+    .set-card-watermark {
+      position: absolute;
+      bottom: 6px; right: 6px;
+      width: 28px; height: 28px;
+      opacity: 0.25;
+      filter: brightness(0) invert(1);
+      pointer-events: none;
+    }
+
+    .set-card-info {
+      padding: 0.55rem 0.7rem;
+      display: flex; align-items: center; gap: 0.45rem;
+    }
+    .set-card-icon {
+      width: 16px; height: 16px;
+      filter: brightness(0) invert(0.7);
+      flex-shrink: 0;
+    }
+    .set-card-name {
+      font-size: 0.78rem; font-weight: 500; color: var(--text-1);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ═══ CREATURE CARD — square ═══ */
+    .creature-card {
+      flex-shrink: 0; width: 130px; text-align: center;
+      cursor: pointer; transition: transform 150ms;
+    }
+    .creature-card:hover { transform: translateY(-2px); }
+    .creature-card-img {
+      width: 100%; aspect-ratio: 1; border-radius: var(--radius);
+      background: var(--surface-2); overflow: hidden;
+      border: 1px solid var(--border); transition: border-color 150ms;
+    }
+    .creature-card:hover .creature-card-img { border-color: var(--border-hover); }
+    .creature-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .creature-card-name {
+      font-size: 0.75rem; color: var(--text-2); margin-top: 0.4rem;
+      transition: color 150ms;
+    }
+    .creature-card:hover .creature-card-name { color: var(--text-1); }
+
+    /* ═══ CARD TYPE PILL — icon + name + count ═══ */
+    .type-pill {
+      flex-shrink: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.7rem 1.1rem;
+      cursor: pointer;
+      transition: transform 150ms, border-color 150ms, background 150ms;
+      display: flex; align-items: center; gap: 0.6rem;
+      min-width: 140px;
+    }
+    .type-pill:hover { transform: translateY(-2px); border-color: var(--border-hover); background: var(--surface-2); }
+
+    .type-pill-icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: var(--text-2);
+    }
+    .type-pill-icon svg { width: 16px; height: 16px; }
+
+    .type-pill-text { display: flex; flex-direction: column; gap: 0.1rem; }
+    .type-pill-name { font-size: 0.82rem; font-weight: 500; color: var(--text-1); white-space: nowrap; }
+    .type-pill-count { font-size: 0.65rem; color: var(--text-2); }
+
+    @media (max-width: 768px) {
+      .section-header { padding: 0 1rem; }
+      .scroll-row { padding: 0.25rem 1rem; gap: 0.6rem; }
+      .artist-card { width: 190px; }
+      .set-card { width: 170px; }
+      .creature-card { width: 110px; }
+      .type-pill { min-width: 130px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mock-header">
+    <div class="mock-logo">MC</div>
+    <div class="mock-switcher">
+      <button class="mock-sw-btn">All Art</button>
+      <button class="mock-sw-btn active">Browse</button>
+      <button class="mock-sw-btn">Draw</button>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- ═══ Artists ═══ -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Artists</span>
+        <span class="section-link">See all →</span>
+      </div>
+      <div class="scroll-row" id="artistRow"></div>
+    </div>
+
+    <!-- ═══ Sets ═══ -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Sets</span>
+        <span class="section-link">See all →</span>
+      </div>
+      <div class="scroll-row" id="setRow"></div>
+    </div>
+
+    <!-- ═══ Creatures ═══ -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Creatures</span>
+        <span class="section-link">See all →</span>
+      </div>
+      <div class="scroll-row" id="creatureRow"></div>
+    </div>
+
+    <!-- ═══ Card Types ═══ -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Card Types</span>
+        <span class="section-link">See all →</span>
+      </div>
+      <div class="scroll-row" id="typeRow"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // ── Data ──
+    const ARTISTS = ['Seb McKinnon','Magali Villeneuve','Rebecca Guay','Chris Rahn','John Avon','Wayne Reynolds','Terese Nielsen','Mark Poole'];
+
+    const SETS = [
+      { code:'dsk', name:'Duskmourn' },
+      { code:'blb', name:'Bloomburrow' },
+      { code:'mkm', name:'Murders at Karlov Manor' },
+      { code:'lci', name:'Lost Caverns of Ixalan' },
+      { code:'woe', name:'Wilds of Eldraine' },
+      { code:'mom', name:'March of the Machine' },
+      { code:'one', name:'All Will Be One' },
+      { code:'bro', name:'Brothers\' War' },
+    ];
+
+    const CREATURES = ['Dragon','Angel','Demon','Elf','Merfolk','Zombie','Vampire','Phoenix','Hydra','Sphinx'];
+
+    const TYPES = [
+      { name:'Instant', count:'4,200+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>' },
+      { name:'Sorcery', count:'3,100+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' },
+      { name:'Enchantment', count:'2,800+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>' },
+      { name:'Artifact', count:'3,500+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8l2.8-2.8M17 7l2.8-2.8"/></svg>' },
+      { name:'Planeswalker', count:'300+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' },
+      { name:'Land', count:'1,200+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l5-8 4 5 5-7 4 10H3z"/></svg>' },
+    ];
+
+    // ── Render static shells ──
+
+    // Artists — triptych
+    const artistRow = document.getElementById('artistRow');
+    ARTISTS.forEach(name => {
+      artistRow.insertAdjacentHTML('beforeend', `
+        <div class="artist-card" data-artist="${name}">
+          <div class="artist-triptych">
+            <img src="" alt=""><img src="" alt=""><img src="" alt="">
+          </div>
+          <div class="artist-info">
+            <div class="artist-name">${name}</div>
+            <div class="artist-count">...</div>
+          </div>
+        </div>`);
+    });
+
+    // Sets — iconic art + watermark + icon in info
+    const setRow = document.getElementById('setRow');
+    SETS.forEach(s => {
+      setRow.insertAdjacentHTML('beforeend', `
+        <div class="set-card" data-set="${s.code}">
+          <div class="set-card-art">
+            <img src="" alt="">
+            <img class="set-card-watermark" id="wm-${s.code}" src="" alt="">
+          </div>
+          <div class="set-card-info">
+            <img class="set-card-icon" id="icon-${s.code}" src="" alt="">
+            <span class="set-card-name">${s.name}</span>
+          </div>
+        </div>`);
+    });
+
+    // Creatures — square
+    const creatureRow = document.getElementById('creatureRow');
+    CREATURES.forEach(t => {
+      creatureRow.insertAdjacentHTML('beforeend', `
+        <div class="creature-card" data-type="${t}">
+          <div class="creature-card-img"><img src="" alt=""></div>
+          <div class="creature-card-name">${t}</div>
+        </div>`);
+    });
+
+    // Card Types — pills with icons
+    const typeRow = document.getElementById('typeRow');
+    TYPES.forEach(t => {
+      typeRow.insertAdjacentHTML('beforeend', `
+        <div class="type-pill">
+          <div class="type-pill-icon">${t.icon}</div>
+          <div class="type-pill-text">
+            <span class="type-pill-name">${t.name}</span>
+            <span class="type-pill-count">${t.count}</span>
+          </div>
+        </div>`);
+    });
+
+    // ── Fetch art ──
+    async function loadArt() {
+      // Artists — 3 images each
+      for (const card of document.querySelectorAll('.artist-card')) {
+        const name = card.dataset.artist;
+        try {
+          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (!res.ok) continue;
+          const json = await res.json();
+          const imgs = card.querySelectorAll('.artist-triptych img');
+          (json.data || []).slice(0, 3).forEach((c, i) => {
+            const art = c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop;
+            if (art && imgs[i]) imgs[i].src = art;
+          });
+          card.querySelector('.artist-count').textContent = (json.total_cards || '?') + ' cards';
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      // Sets — iconic art + set icon
+      for (const card of document.querySelectorAll('.set-card')) {
+        const code = card.dataset.set;
+        try {
+          // Get set info (icon)
+          const setRes = await fetch('https://api.scryfall.com/sets/' + code);
+          if (setRes.ok) {
+            const setJson = await setRes.json();
+            const iconUrl = setJson.icon_svg_uri;
+            if (iconUrl) {
+              document.getElementById('icon-' + code).src = iconUrl;
+              document.getElementById('wm-' + code).src = iconUrl;
+            }
+          }
+          // Get iconic art (most popular card)
+          const artRes = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('s:' + code + ' has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (artRes.ok) {
+            const artJson = await artRes.json();
+            const topCard = (artJson.data || [])[0];
+            const art = topCard?.image_uris?.art_crop || topCard?.card_faces?.[0]?.image_uris?.art_crop;
+            if (art) card.querySelector('.set-card-art img').src = art;
+          }
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      // Creatures
+      for (const card of document.querySelectorAll('.creature-card')) {
+        const type = card.dataset.type;
+        try {
+          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('t:' + type.toLowerCase() + ' has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (!res.ok) continue;
+          const json = await res.json();
+          const art = json.data?.[0]?.image_uris?.art_crop || json.data?.[0]?.card_faces?.[0]?.image_uris?.art_crop;
+          if (art) card.querySelector('img').src = art;
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+    }
+
+    loadArt();
+  </script>
+</body>
+</html>

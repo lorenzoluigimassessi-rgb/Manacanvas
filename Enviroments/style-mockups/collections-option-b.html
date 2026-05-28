@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collections — Option B: Text List</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #16161c;
+      --surface-2: #1e1e28;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-1: rgba(240,240,240,0.95);
+      --text-2: rgba(240,240,240,0.4);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Header mock */
+    .mock-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--bg); z-index: 10;
+    }
+    .mock-logo {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px;
+    }
+    .mock-switcher { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px; }
+    .mock-sw-btn { padding: 0.5rem 0.9rem; border-radius: 999px; font-size: 0.8rem; color: var(--text-2); border: none; background: transparent; font-family: inherit; cursor: pointer; }
+    .mock-sw-btn.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* Page */
+    .page {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+    }
+
+    .page-label {
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 2rem;
+    }
+
+    /* List */
+    .cat-list {
+      list-style: none;
+    }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.3rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 150ms;
+    }
+    .cat-item:first-child { border-top: 1px solid var(--border); }
+    .cat-item:hover { background: rgba(255,255,255,0.02); }
+
+    .cat-item-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .cat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-2);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .cat-item-name {
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--text-1);
+      letter-spacing: 0.3px;
+    }
+
+    .cat-item-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .cat-item-count {
+      font-size: 0.78rem;
+      color: var(--text-2);
+    }
+
+    .cat-item-arrow {
+      color: var(--text-2);
+      font-size: 0.9rem;
+      transition: transform 150ms, color 150ms;
+    }
+    .cat-item:hover .cat-item-arrow {
+      transform: translateX(3px);
+      color: var(--text-1);
+    }
+
+    @media (max-width: 768px) {
+      .page { padding: 2.5rem 1rem; }
+      .cat-item { padding: 1.1rem 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mock-header">
+    <div class="mock-logo">MC</div>
+    <div class="mock-switcher">
+      <button class="mock-sw-btn">All Art</button>
+      <button class="mock-sw-btn active">Browse</button>
+      <button class="mock-sw-btn">Draw</button>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="page-label">Collections</div>
+
+    <ul class="cat-list">
+      <li class="cat-item">
+        <div class="cat-item-left">
+          <div class="cat-icon">🎨</div>
+          <span class="cat-item-name">Artists</span>
+        </div>
+        <div class="cat-item-right">
+          <span class="cat-item-count">847</span>
+          <span class="cat-item-arrow">→</span>
+        </div>
+      </li>
+      <li class="cat-item">
+        <div class="cat-item-left">
+          <div class="cat-icon">📦</div>
+          <span class="cat-item-name">Sets</span>
+        </div>
+        <div class="cat-item-right">
+          <span class="cat-item-count">214</span>
+          <span class="cat-item-arrow">→</span>
+        </div>
+      </li>
+      <li class="cat-item">
+        <div class="cat-item-left">
+          <div class="cat-icon">🐉</div>
+          <span class="cat-item-name">Creatures</span>
+        </div>
+        <div class="cat-item-right">
+          <span class="cat-item-count">267</span>
+          <span class="cat-item-arrow">→</span>
+        </div>
+      </li>
+      <li class="cat-item">
+        <div class="cat-item-left">
+          <div class="cat-icon">⚡</div>
+          <span class="cat-item-name">Card Types</span>
+        </div>
+        <div class="cat-item-right">
+          <span class="cat-item-count">12</span>
+          <span class="cat-item-arrow">→</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+</body>
+</html>

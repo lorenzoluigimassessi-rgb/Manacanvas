@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collections — Option C: Hover Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #16161c;
+      --surface-2: #1e1e28;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-1: rgba(240,240,240,0.95);
+      --text-2: rgba(240,240,240,0.4);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Header mock */
+    .mock-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--bg); z-index: 10;
+    }
+    .mock-logo {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px;
+    }
+    .mock-switcher { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px; }
+    .mock-sw-btn { padding: 0.5rem 0.9rem; border-radius: 999px; font-size: 0.8rem; color: var(--text-2); border: none; background: transparent; font-family: inherit; cursor: pointer; }
+    .mock-sw-btn.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* Page */
+    .page {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+    }
+
+    .page-label {
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 2rem;
+    }
+
+    /* List */
+    .cat-list { list-style: none; }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 1rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 150ms;
+      border-radius: 8px;
+      margin-bottom: 2px;
+      position: relative;
+    }
+    .cat-item:first-child { border-top: 1px solid var(--border); }
+    .cat-item:hover {
+      background: var(--surface);
+      border-color: transparent;
+    }
+
+    .cat-item-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-2);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .cat-item-name {
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--text-1);
+    }
+
+    /* Preview strip — hidden by default, shown on hover */
+    .cat-preview {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transform: translateX(8px);
+      transition: opacity 200ms, transform 200ms;
+      margin-right: 1rem;
+    }
+    .cat-item:hover .cat-preview {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .cat-preview-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      background: var(--surface-2);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .cat-preview-img img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+
+    .cat-item-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .cat-item-count {
+      font-size: 0.78rem;
+      color: var(--text-2);
+    }
+
+    .cat-item-arrow {
+      color: var(--text-2);
+      font-size: 0.9rem;
+      transition: transform 150ms, color 150ms;
+    }
+    .cat-item:hover .cat-item-arrow {
+      transform: translateX(3px);
+      color: var(--text-1);
+    }
+
+    /* Mobile: hide previews */
+    @media (max-width: 768px) {
+      .page { padding: 2.5rem 1rem; }
+      .cat-preview { display: none; }
+      .cat-item { padding: 1.1rem 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mock-header">
+    <div class="mock-logo">MC</div>
+    <div class="mock-switcher">
+      <button class="mock-sw-btn">All Art</button>
+      <button class="mock-sw-btn active">Browse</button>
+      <button class="mock-sw-btn">Draw</button>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="page-label">Collections</div>
+
+    <ul class="cat-list">
+      <li class="cat-item" data-query="a:&quot;Seb McKinnon&quot; OR a:&quot;Magali Villeneuve&quot; OR a:&quot;Rebecca Guay&quot; OR a:&quot;Chris Rahn&quot;">
+        <div class="cat-item-left">
+          <div class="cat-icon">🎨</div>
+          <span class="cat-item-name">Artists</span>
+        </div>
+        <div class="cat-preview" id="prevArtists">
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+        </div>
+        <div class="cat-item-right">
+          <span class="cat-item-count">847</span>
+          <span class="cat-item-arrow">→</span>
+        </div>
+      </li>
+      <li class="cat-item" data-query="(s:lci OR s:woe OR s:mom OR s:one)">
+        <div class="cat-item-left">
+          <div class="cat-icon">📦</div>
+          <span class="cat-item-name">Sets</span>
+        </div>
+        <div class="cat-preview" id="prevSets">
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+        </div>
+        <div class="cat-item-right">
+          <span class="cat-item-count">214</span>
+          <span class="cat-item-arrow">→</span>
+        </div>
+      </li>
+      <li class="cat-item" data-query="(t:dragon OR t:angel OR t:demon OR t:merfolk)">
+        <div class="cat-item-left">
+          <div class="cat-icon">🐉</div>
+          <span class="cat-item-name">Creatures</span>
+        </div>
+        <div class="cat-preview" id="prevCreatures">
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+        </div>
+        <div class="cat-item-right">
+          <span class="cat-item-count">267</span>
+          <span class="cat-item-arrow">→</span>
+        </div>
+      </li>
+      <li class="cat-item" data-query="(t:instant OR t:sorcery OR t:enchantment OR t:planeswalker)">
+        <div class="cat-item-left">
+          <div class="cat-icon">⚡</div>
+          <span class="cat-item-name">Card Types</span>
+        </div>
+        <div class="cat-preview" id="prevTypes">
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+          <div class="cat-preview-img"><img src="" alt=""></div>
+        </div>
+        <div class="cat-item-right">
+          <span class="cat-item-count">12</span>
+          <span class="cat-item-arrow">→</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    // Load preview images on first hover (lazy)
+    const loaded = new Set();
+
+    document.querySelectorAll('.cat-item').forEach(item => {
+      item.addEventListener('mouseenter', async () => {
+        const query = item.dataset.query;
+        if (loaded.has(query)) return;
+        loaded.add(query);
+
+        try {
+          const url = 'https://api.scryfall.com/cards/search?q=' + encodeURIComponent(query + ' has:illustration') + '&unique=art&order=edhrec&page=1';
+          const res = await fetch(url);
+          if (!res.ok) return;
+          const json = await res.json();
+          const imgs = item.querySelectorAll('.cat-preview-img img');
+          (json.data || []).slice(0, 4).forEach((card, i) => {
+            const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
+            if (art && imgs[i]) imgs[i].src = art;
+          });
+        } catch(e) {}
+      });
+    });
+  </script>
+</body>
+</html>

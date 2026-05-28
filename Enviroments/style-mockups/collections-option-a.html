@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collections — Option A: Horizontal Rows</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #16161c;
+      --surface-2: #1e1e28;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-1: rgba(240,240,240,0.95);
+      --text-2: rgba(240,240,240,0.4);
+      --radius: 10px;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Header mock */
+    .mock-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--bg); z-index: 10;
+    }
+    .mock-logo {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px;
+    }
+    .mock-switcher { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px; }
+    .mock-sw-btn { padding: 0.5rem 0.9rem; border-radius: 999px; font-size: 0.8rem; color: var(--text-2); border: none; background: transparent; font-family: inherit; cursor: pointer; }
+    .mock-sw-btn.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* Page */
+    .page { padding: 2rem 0; }
+
+    /* Section row */
+    .section {
+      margin-bottom: 2.5rem;
+    }
+    .section-header {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 0 1.5rem;
+      margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+    .section-link {
+      font-size: 0.78rem;
+      color: var(--text-2);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 150ms;
+    }
+    .section-link:hover { color: var(--text-1); }
+
+    /* Horizontal scroll row */
+    .scroll-row {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 1.5rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    .scroll-row::-webkit-scrollbar { display: none; }
+
+    /* Artist mini card */
+    .mini-card {
+      flex-shrink: 0;
+      width: 180px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 150ms, border-color 150ms;
+    }
+    .mini-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+
+    .mini-card-img {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .mini-card-img img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .mini-card-info {
+      padding: 0.55rem 0.65rem;
+    }
+    .mini-card-name {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-1);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mini-card-sub {
+      font-size: 0.68rem;
+      color: var(--text-2);
+      margin-top: 0.1rem;
+    }
+
+    /* Set card — with set icon */
+    .set-card {
+      flex-shrink: 0;
+      width: 160px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 150ms, border-color 150ms;
+    }
+    .set-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+    .set-card-img {
+      width: 100%; aspect-ratio: 3 / 2;
+      background: var(--surface-2); overflow: hidden;
+    }
+    .set-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .set-card-info { padding: 0.55rem 0.65rem; display: flex; align-items: center; gap: 0.4rem; }
+    .set-card-icon { width: 14px; height: 14px; filter: brightness(0) invert(0.7); flex-shrink: 0; }
+    .set-card-name { font-size: 0.78rem; font-weight: 500; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Creature card — square with label */
+    .creature-card {
+      flex-shrink: 0;
+      width: 130px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 150ms;
+    }
+    .creature-card:hover { transform: translateY(-2px); }
+    .creature-card-img {
+      width: 100%; aspect-ratio: 1; border-radius: var(--radius);
+      background: var(--surface-2); overflow: hidden;
+      border: 1px solid var(--border);
+      transition: border-color 150ms;
+    }
+    .creature-card:hover .creature-card-img { border-color: var(--border-hover); }
+    .creature-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .creature-card-name { font-size: 0.75rem; color: var(--text-2); margin-top: 0.4rem; transition: color 150ms; }
+    .creature-card:hover .creature-card-name { color: var(--text-1); }
+
+    /* Type pill */
+    .type-pill {
+      flex-shrink: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1.2rem;
+      cursor: pointer;
+      transition: transform 150ms, border-color 150ms, background 150ms;
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-width: 120px;
+    }
+    .type-pill:hover { transform: translateY(-2px); border-color: var(--border-hover); background: var(--surface-2); }
+    .type-pill-name { font-size: 0.82rem; font-weight: 500; color: var(--text-1); }
+    .type-pill-count { font-size: 0.68rem; color: var(--text-2); }
+
+    @media (max-width: 768px) {
+      .section-header { padding: 0 1rem; }
+      .scroll-row { padding: 0 1rem; gap: 0.6rem; }
+      .mini-card { width: 160px; }
+      .set-card { width: 140px; }
+      .creature-card { width: 110px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mock-header">
+    <div class="mock-logo">MC</div>
+    <div class="mock-switcher">
+      <button class="mock-sw-btn">All Art</button>
+      <button class="mock-sw-btn active">Browse</button>
+      <button class="mock-sw-btn">Draw</button>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- Artists -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Artists</span>
+        <span class="section-link">See all →</span>
+      </div>
+      <div class="scroll-row" id="artistRow"></div>
+    </div>
+
+    <!-- Sets -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Sets</span>
+        <span class="section-link">See all →</span>
+      </div>
+      <div class="scroll-row" id="setRow"></div>
+    </div>
+
+    <!-- Creatures -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Creatures</span>
+        <span class="section-link">See all →</span>
+      </div>
+      <div class="scroll-row" id="creatureRow"></div>
+    </div>
+
+    <!-- Card Types -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Card Types</span>
+        <span class="section-link">See all →</span>
+      </div>
+      <div class="scroll-row" id="typeRow"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const ARTISTS = ['Seb McKinnon','Magali Villeneuve','Rebecca Guay','Chris Rahn','Terese Nielsen','Mark Poole','John Avon','Wayne Reynolds'];
+    const SETS = [
+      { code:'lci', name:'Lost Caverns of Ixalan' },
+      { code:'woe', name:'Wilds of Eldraine' },
+      { code:'mom', name:'March of the Machine' },
+      { code:'one', name:'Phyrexia: All Will Be One' },
+      { code:'bro', name:'The Brothers\' War' },
+      { code:'dmu', name:'Dominaria United' },
+      { code:'snc', name:'Streets of New Capenna' },
+    ];
+    const CREATURES = ['Dragon','Angel','Demon','Elf','Merfolk','Zombie','Vampire','Phoenix'];
+    const TYPES = [
+      { name:'Instant', count:'4,200+' },
+      { name:'Sorcery', count:'3,100+' },
+      { name:'Enchantment', count:'2,800+' },
+      { name:'Artifact', count:'3,500+' },
+      { name:'Planeswalker', count:'300+' },
+      { name:'Land', count:'1,200+' },
+    ];
+
+    // Render artist cards
+    const artistRow = document.getElementById('artistRow');
+    ARTISTS.forEach(name => {
+      artistRow.innerHTML += `
+        <div class="mini-card" data-artist="${name}">
+          <div class="mini-card-img"><img alt="" src=""></div>
+          <div class="mini-card-info">
+            <div class="mini-card-name">${name}</div>
+            <div class="mini-card-sub">Loading...</div>
+          </div>
+        </div>`;
+    });
+
+    // Render set cards
+    const setRow = document.getElementById('setRow');
+    SETS.forEach(s => {
+      setRow.innerHTML += `
+        <div class="set-card" data-set="${s.code}">
+          <div class="set-card-img"><img alt="" src=""></div>
+          <div class="set-card-info">
+            <div class="set-card-name">${s.name}</div>
+          </div>
+        </div>`;
+    });
+
+    // Render creature cards
+    const creatureRow = document.getElementById('creatureRow');
+    CREATURES.forEach(t => {
+      creatureRow.innerHTML += `
+        <div class="creature-card" data-type="${t}">
+          <div class="creature-card-img"><img alt="" src=""></div>
+          <div class="creature-card-name">${t}</div>
+        </div>`;
+    });
+
+    // Render type pills (no images)
+    const typeRow = document.getElementById('typeRow');
+    TYPES.forEach(t => {
+      typeRow.innerHTML += `
+        <div class="type-pill">
+          <span class="type-pill-name">${t.name}</span>
+          <span class="type-pill-count">${t.count}</span>
+        </div>`;
+    });
+
+    // Fetch art
+    async function loadArt() {
+      // Artists
+      const artistCards = document.querySelectorAll('.mini-card[data-artist]');
+      for (const card of artistCards) {
+        const name = card.dataset.artist;
+        try {
+          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (!res.ok) continue;
+          const json = await res.json();
+          const art = json.data?.[0]?.image_uris?.art_crop || json.data?.[0]?.card_faces?.[0]?.image_uris?.art_crop;
+          if (art) card.querySelector('img').src = art;
+          card.querySelector('.mini-card-sub').textContent = (json.total_cards || '?') + ' cards';
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      // Sets
+      const setCards = document.querySelectorAll('.set-card[data-set]');
+      for (const card of setCards) {
+        const code = card.dataset.set;
+        try {
+          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('s:' + code + ' has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (!res.ok) continue;
+          const json = await res.json();
+          const art = json.data?.[0]?.image_uris?.art_crop || json.data?.[0]?.card_faces?.[0]?.image_uris?.art_crop;
+          if (art) card.querySelector('img').src = art;
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      // Creatures
+      const creatureCards = document.querySelectorAll('.creature-card[data-type]');
+      for (const card of creatureCards) {
+        const type = card.dataset.type;
+        try {
+          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('t:' + type.toLowerCase() + ' has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (!res.ok) continue;
+          const json = await res.json();
+          const art = json.data?.[0]?.image_uris?.art_crop || json.data?.[0]?.card_faces?.[0]?.image_uris?.art_crop;
+          if (art) card.querySelector('img').src = art;
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+    }
+
+    loadArt();
+  </script>
+</body>
+</html>

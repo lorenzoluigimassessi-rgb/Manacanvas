@@ -75,9 +75,9 @@ body {
 }
 
 .welcome-cta {
-  background: #2e61eb;
+  background: #f0f0f0;
   border: 1px solid transparent;
-  color: #ffffff;
+  color: #0c0c0f;
   width: 260px;
   height: 48px;
   border-radius: 4px;
@@ -94,33 +94,9 @@ body {
 }
 
 .welcome-cta:hover {
-  background: #4a7af0;
+  background: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(46,97,235,0.4);
-}
-
-.welcome-hello-cta {
-  background: #2ea66b;
-  border: 1px solid transparent;
-  color: #ffffff;
-  width: 260px;
-  height: 48px;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: 'Josefin Sans', sans-serif;
-  letter-spacing: 1px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 0.8rem;
-  transition: background var(--transition-fast), transform var(--transition-fast);
-}
-
-.welcome-hello-cta:hover {
-  background: #3bbf7d;
-  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255,255,255,0.15);
 }
 
 .welcome-draw-separator {

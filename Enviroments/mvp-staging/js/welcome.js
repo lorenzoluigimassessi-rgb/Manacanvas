@@ -43,7 +43,6 @@ async function renderWelcome() {
           <svg width="11" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
           Draw a Card
         </button>
-        <button class="welcome-hello-cta">Hello</button>
       </div>
       <footer class="site-footer welcome-footer">
         <p>ManaCanvas is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images &copy; Wizards of the Coast.</p>

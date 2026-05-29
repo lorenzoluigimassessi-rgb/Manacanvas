@@ -858,8 +858,25 @@ function setSearchMode(active) {
 }
 
 // Search pill (Cosmos pattern) — single pill inside search bar
+function clearSearchPillUI() {
+  document.querySelectorAll('.search-pill').forEach(p => p.remove());
+  const input = document.getElementById('searchBar');
+  const mInput = document.getElementById('mobileSearchBar');
+  if (input) { input.style.display = ''; }
+  if (mInput) { mInput.style.display = ''; }
+}
+
 function showSearchPill(text, tag) {
-  clearSearchPill();
+  clearSearchPillUI();
+  // Reset lens to All — search is a top-level action
+  if (typeof _activeLens !== 'undefined') {
+    _activeLens = 'picks';
+    document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+    const allBtn = document.querySelector('.lens-btn[data-lens="picks"]');
+    if (allBtn) allBtn.classList.add('active');
+    const subRow = document.getElementById('subRow');
+    if (subRow) subRow.style.display = 'none';
+  }
   const input = document.getElementById('searchBar');
   const mInput = document.getElementById('mobileSearchBar');
   input.style.display = 'none';

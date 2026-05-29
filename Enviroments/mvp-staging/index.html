@@ -459,9 +459,10 @@
       <div class="lens-chips" id="lensChips">
         <button class="lens-btn" data-lens="picks"    onclick="setLens(this)">All</button>
         <button class="lens-btn"        data-lens="new"      onclick="setLens(this)">New</button>
+        <button class="lens-btn"        data-lens="characters" onclick="setLens(this)">Iconic Characters</button>
         <button class="lens-btn"        data-lens="moods"    onclick="setLens(this)">Moods</button>
         <button class="lens-btn"        data-lens="eras"     onclick="setLens(this)">Eras</button>
-        <button class="lens-btn"        data-lens="iconic"   onclick="setLens(this)">Iconic</button>
+        <button class="lens-btn"        data-lens="lands"    onclick="setLens(this)">Lands</button>
         <button class="lens-btn"        data-lens="gems"     onclick="setLens(this)">Hidden Gems</button>
       </div>
       <div class="lens-controls" id="lensControls">
@@ -740,6 +741,12 @@
       } else if (lens === 'moods') {
         const mood = MOOD_CARDS[sub];
         if (mood) window._lensRawQuery = mood.query;
+      } else if (lens === 'characters') {
+        const char = CHARACTER_CARDS[sub];
+        if (char) window._lensRawQuery = char.query;
+      } else if (lens === 'lands') {
+        const land = LAND_TYPES[sub];
+        if (land) window._lensRawQuery = land.query;
       } else if (lens === 'iconic') {
         if (sub === 'commander') window._lensRawQuery = 't:legendary t:creature has:illustration';
         else if (sub === 'standard') window._lensRawQuery = 'format:standard has:illustration';
@@ -787,10 +794,14 @@
         renderNewPills(row, savedSub);
       } else if (lens === 'eras') {
         renderEraPills(row, savedSub);
+      } else if (lens === 'characters') {
+        renderCharacterCards(row, savedSub);
       } else if (lens === 'moods') {
         renderMoodCards(row, savedSub);
       } else if (lens === 'iconic') {
         renderIconicPills(row, savedSub);
+      } else if (lens === 'lands') {
+        renderLandsPills(row, savedSub);
       } else if (lens === 'gems') {
         renderGemsPills(row, savedSub);
       } else {
@@ -936,6 +947,69 @@
       if (!window._suppressLensApply) applyLensQuery('color', colors[0].key);
     }
 
+    // ── Iconic Characters data ──
+    const CHARACTER_CARDS = {
+      jace:     { label:'Jace',         art:'https://cards.scryfall.io/art_crop/front/5/0/5030a866-1389-4c7c-8bab-9e5680752c60.jpg?1689996082', query:'jace t:planeswalker has:illustration' },
+      liliana:  { label:'Liliana',      art:'https://cards.scryfall.io/art_crop/front/e/3/e32b5571-c1a5-4556-8c06-e24bfe7f80e0.jpg?1689996087', query:'liliana t:planeswalker has:illustration' },
+      chandra:  { label:'Chandra',      art:'https://cards.scryfall.io/art_crop/front/b/0/b0d6caf0-4fa8-4e5c-b2ba-096b2b1e2f7f.jpg?1689996075', query:'chandra t:planeswalker has:illustration' },
+      nissa:    { label:'Nissa',        art:'https://cards.scryfall.io/art_crop/front/8/4/84326547-1a56-4f05-87a5-f5891c19b577.jpg?1689996090', query:'nissa t:planeswalker has:illustration' },
+      nicol:    { label:'Nicol Bolas',  art:'https://cards.scryfall.io/art_crop/front/6/e/6e22a5ac-ab4e-4422-a403-a37ed0d0e521.jpg?1562917619', query:'"nicol bolas" has:illustration' },
+      elesh:    { label:'Elesh Norn',   art:'https://cards.scryfall.io/art_crop/front/1/8/18c16174-e4a2-4862-a1a8-2eb4e88e4ddd.jpg?1689995438', query:'"elesh norn" has:illustration' },
+      sheoldred:{ label:'Sheoldred',    art:'https://cards.scryfall.io/art_crop/front/d/6/d67be074-cdd4-41d9-ac89-0a0456c4e4b2.jpg?1674057568', query:'sheoldred has:illustration' },
+      sorin:    { label:'Sorin',        art:'https://cards.scryfall.io/art_crop/front/d/c/dc2a78e5-a5e5-4040-acb0-f1e212a894a3.jpg?1689996095', query:'sorin t:planeswalker has:illustration' },
+      ajani:    { label:'Ajani',        art:'https://cards.scryfall.io/art_crop/front/4/c/4c565076-5db2-47ea-8ee0-4a4fd7bb353d.jpg?1562302134', query:'ajani t:planeswalker has:illustration' },
+      teferi:   { label:'Teferi',       art:'https://cards.scryfall.io/art_crop/front/e/b/eb2b7388-ac6b-45c0-a5cc-da6450724b59.jpg?1689996098', query:'teferi t:planeswalker has:illustration' },
+      garruk:   { label:'Garruk',       art:'https://cards.scryfall.io/art_crop/front/6/d/6dd3f47c-e0f2-4110-8d11-843c5bf2f064.jpg?1689996080', query:'garruk t:planeswalker has:illustration' },
+      karn:     { label:'Karn',         art:'https://cards.scryfall.io/art_crop/front/1/c/1c77c647-0d55-4a94-a812-5c6e6b46fdb2.jpg?1689996085', query:'karn has:illustration' },
+    };
+
+    // ── Lands data ──
+    const LAND_TYPES = {
+      basic:    { label:'Basic Lands',  query:'t:basic has:illustration' },
+      fullart:  { label:'Full Art',     query:'t:land is:full has:illustration' },
+      dual:     { label:'Dual & Shock', query:'(t:land o:"pay 2 life" OR t:land oracle:/\\{T\\}: Add \\{[WUBRG]\\} or \\{[WUBRG]\\}/) has:illustration' },
+      fetch:    { label:'Fetch Lands',  query:'t:land o:"search your library" o:"sacrifice" has:illustration' },
+      utility:  { label:'Utility',      query:'t:land -t:basic -o:"pay 2 life" -o:"search your library" has:illustration' },
+      snow:     { label:'Snow',         query:'t:snow t:land has:illustration' },
+    };
+
+    function renderCharacterCards(row, savedSub) {
+      row.style.display = '';
+      const chars = Object.entries(CHARACTER_CARDS);
+      row.innerHTML = chars.map(([key, c], i) =>
+        `<div class="mood-card ${(savedSub ? key === savedSub : i === 0) ? 'active' : ''}" data-char="${key}">
+          <div class="mood-card-img" style="background-image:url('${c.art}')"></div>
+          <div class="mood-card-label">${c.label}</div>
+        </div>`
+      ).join('');
+      row.querySelectorAll('.mood-card').forEach(card => {
+        card.addEventListener('click', () => {
+          row.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          window._activeSubPill = card.dataset.char;
+          applyLensQuery('characters', card.dataset.char);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('characters', chars[0][0]);
+    }
+
+    function renderLandsPills(row, savedSub) {
+      row.style.display = '';
+      const lands = Object.entries(LAND_TYPES);
+      row.innerHTML = lands.map(([key, l], i) =>
+        `<button class="sub-pill ${(savedSub ? key === savedSub : i === 0) ? 'active' : ''}" data-key="${key}">${l.label}</button>`
+      ).join('');
+      row.querySelectorAll('.sub-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          window._activeSubPill = btn.dataset.key;
+          applyLensQuery('lands', btn.dataset.key);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('lands', lands[0][0]);
+    }
+
     function renderGemsPills(row, savedSub) {
       row.style.display = '';
       const pills = [
@@ -998,7 +1072,7 @@
     }
 
     // After active lens loads, pre-warm the next 2 lenses in background
-    const LENS_ORDER = ['picks','new','moods','eras','iconic','gems'];
+    const LENS_ORDER = ['picks','new','characters','moods','eras','lands','iconic','gems'];
     function prewarmAdjacentLenses() {
       const idx = LENS_ORDER.indexOf(_activeLens);
       const toWarm = [
@@ -1428,6 +1502,12 @@
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
+            <span class="collections-section-title">Worlds</span>
+          </div>
+          <div class="collections-row" id="colWorldsRow"></div>
+        </div>
+        <div class="collections-section">
+          <div class="collections-section-header">
             <span class="collections-section-title">Mana Colors</span>
           </div>
           <div class="collections-row" id="colManaRow"></div>
@@ -1475,6 +1555,34 @@
             <div class="col-creature-img"><img src="" alt=""></div>
             <div class="col-creature-name">${t}</div>
           </div>`);
+      });
+
+      // Render worlds
+      const COL_WORLDS = [
+        { name:'Innistrad',  sets:'isd,soi,emn,vow,mid,dsk', art:'https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435' },
+        { name:'Ravnica',    sets:'rav,rtr,grn,rna,mkm',     art:'https://cards.scryfall.io/art_crop/front/f/9/f97a6d34-03ab-49f1-b02e-405b733f8843.jpg?1584832278' },
+        { name:'Zendikar',   sets:'zen,bfz,znr',             art:'https://cards.scryfall.io/art_crop/front/2/4/249db4d4-2542-47ee-a216-e13ffbc2319c.jpg?1758104027' },
+        { name:'Dominaria',  sets:'dom,dmu,bro',             art:'https://cards.scryfall.io/art_crop/front/3/2/3245ff74-1f9c-4518-a23f-1579f338f232.jpg?1689995727' },
+        { name:'Eldraine',   sets:'eld,woe',                 art:'https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456' },
+        { name:'Kamigawa',   sets:'chk,neo',                 art:'https://cards.scryfall.io/art_crop/front/1/8/18c16174-e4a2-4862-a1a8-2eb4e88e4ddd.jpg?1689995438' },
+        { name:'Theros',     sets:'ths,thb',                 art:'https://cards.scryfall.io/art_crop/front/f/1/f185a734-a32a-4244-88e8-dabafbfd064f.jpg?1562837629' },
+        { name:'Ixalan',     sets:'xln,lci',                 art:'https://cards.scryfall.io/art_crop/front/c/7/c74ae706-b3b3-4097-a387-6f6c38a9b603.jpg?1689995438' },
+      ];
+      const wRow = document.getElementById('colWorldsRow');
+      COL_WORLDS.forEach(w => {
+        wRow.insertAdjacentHTML('beforeend', `
+          <div class="mood-card" data-sets="${w.sets}" style="flex:0 0 auto;width:140px;cursor:pointer;opacity:1;">
+            <div class="mood-card-img" style="background-image:url('${w.art}')"></div>
+            <div class="mood-card-label">${w.name}</div>
+          </div>`);
+      });
+      wRow.querySelectorAll('.mood-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const sets = card.dataset.sets.split(',');
+          activeSets = sets;
+          setMode('gallery');
+          updateChips(); loadInitialGrid(); syncFilterUI();
+        });
       });
 
       // Render mana color pills

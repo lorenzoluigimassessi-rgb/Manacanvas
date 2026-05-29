@@ -985,13 +985,13 @@ async function showSearchSuggestions(query) {
   const suggestions = [];
 
   artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 3)
-    .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => { toggleArtist(a); hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(a, "Artist"); loadInitialGrid(); updateChips(); } }));
+    .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => { activeSearch = `a:"${a}"`; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(a, "Artist"); loadInitialGrid(); updateChips(); } }));
   creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
-    .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => { toggleType(t); hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(t, "Creature"); loadInitialGrid(); updateChips(); } }));
+    .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => { activeSearch = `t:${t.toLowerCase()}`; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(t, "Creature"); loadInitialGrid(); updateChips(); } }));
   cardTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
-    .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => { toggleCardType(t); hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(t, "Type"); updateMoreBadge(); loadInitialGrid(); updateChips(); } }));
+    .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => { activeSearch = `t:${t.toLowerCase()}`; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(t, "Type"); loadInitialGrid(); updateChips(); } }));
   setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 3)
-    .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => { if (!activeSets.includes(s.code)) activeSets.push(s.code); hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(s.name, "Set"); loadInitialGrid(); updateChips(); } }));
+    .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => { activeSearch = `s:${s.code}`; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(s.name, "Set"); loadInitialGrid(); updateChips(); } }));
 
   suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => { activeSearch = query; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(query, "Card"); loadInitialGrid(); updateChips(); } });
 

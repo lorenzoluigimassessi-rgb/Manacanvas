@@ -715,24 +715,13 @@
     };
 
     function applyLensQuery(lens, sub) {
-      // Preserve search from pill
+      // Preserve activeSearch if a search pill is showing
       const pill = document.querySelector('.search-pill');
-      const savedArtist = pill ? [...activeArtist] : [];
-      const savedType = pill ? [...activeType] : [];
-      const savedSets = pill ? [...activeSets] : [];
       const savedSearch = pill ? activeSearch : null;
       activeArtist = []; activeType = []; activeCardType = [];
       activeColour = []; activeSets = []; activeStyles = [];
       activeYearMin = null; activeYearMax = null;
-      // Restore search-owned state
-      if (pill) {
-        activeSearch = savedSearch;
-        if (savedArtist.length) activeArtist = savedArtist;
-        if (savedType.length) activeType = savedType;
-        if (savedSets.length) activeSets = savedSets;
-      } else {
-        activeSearch = null;
-      }
+      activeSearch = savedSearch;
       // Keep current sort — user's choice persists across all lenses
 
       // Persist lens state

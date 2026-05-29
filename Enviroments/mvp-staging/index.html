@@ -433,7 +433,8 @@
     <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
     <div class="lens-row" id="lensRow">
       <div class="lens-chips" id="lensChips">
-        <button class="lens-btn" data-lens="picks"    onclick="setLens(this)">Daily Picks</button>
+        <button class="lens-btn" data-lens="picks"    onclick="setLens(this)">All</button>
+        <button class="lens-btn"        data-lens="color"    onclick="setLens(this)">Mana Color</button>
         <button class="lens-btn"        data-lens="new"      onclick="setLens(this)">New</button>
         <button class="lens-btn"        data-lens="eras"     onclick="setLens(this)">Eras</button>
         <button class="lens-btn"        data-lens="moods"    onclick="setLens(this)">Moods</button>
@@ -714,6 +715,8 @@
         if (sub === 'one') window._lensRawQuery = 'prints=1 has:illustration';
         else if (sub === 'pre2000') { activeYearMin = 1993; activeYearMax = 1999; }
         else if (sub === 'uncommon') window._lensRawQuery = '(r:common OR r:uncommon) has:illustration';
+      } else if (lens === 'color') {
+        if (sub) activeColour = [sub];
       }
 
       const key = _cacheKey(lens, sub);
@@ -744,6 +747,8 @@
       if (lens === 'picks') {
         row.style.display = 'none';
         if (!window._suppressLensApply) applyLensQuery('picks', null);
+      } else if (lens === 'color') {
+        renderColorPills(row, savedSub);
       } else if (lens === 'new') {
         renderNewPills(row, savedSub);
       } else if (lens === 'eras') {
@@ -872,6 +877,31 @@
       if (!window._suppressLensApply) applyLensQuery('iconic', 'all');
     }
 
+    function renderColorPills(row, savedSub) {
+      row.style.display = '';
+      const colors = [
+        { label:'White', key:'w' },
+        { label:'Blue', key:'u' },
+        { label:'Black', key:'b' },
+        { label:'Red', key:'r' },
+        { label:'Green', key:'g' },
+        { label:'Multi', key:'m' },
+        { label:'Colorless', key:'c' },
+      ];
+      row.innerHTML = colors.map((c, i) =>
+        `<button class="sub-pill ${(savedSub ? c.key === savedSub : i === 0) ? 'active' : ''}" data-key="${c.key}"><img src="${MANA_SVGS[c.key]}" width="16" height="16" style="vertical-align:middle;margin-right:4px">${c.label}</button>`
+      ).join('');
+      row.querySelectorAll('.sub-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          window._activeSubPill = btn.dataset.key;
+          applyLensQuery('color', btn.dataset.key);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('color', colors[0].key);
+    }
+
     function renderGemsPills(row, savedSub) {
       row.style.display = '';
       const pills = [
@@ -934,7 +964,7 @@
     }
 
     // After active lens loads, pre-warm the next 2 lenses in background
-    const LENS_ORDER = ['picks','new','eras','moods','iconic','gems'];
+    const LENS_ORDER = ['picks','color','new','eras','moods','iconic','gems'];
     function prewarmAdjacentLenses() {
       const idx = LENS_ORDER.indexOf(_activeLens);
       const toWarm = [
@@ -1364,6 +1394,12 @@
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
+            <span class="collections-section-title">Mana Colors</span>
+          </div>
+          <div class="collections-row" id="colManaRow"></div>
+        </div>
+        <div class="collections-section">
+          <div class="collections-section-header">
             <span class="collections-section-title">Card Types</span>
             <button class="collections-section-link">Show (12)</button>
           </div>
@@ -1405,6 +1441,36 @@
             <div class="col-creature-img"><img src="" alt=""></div>
             <div class="col-creature-name">${t}</div>
           </div>`);
+      });
+
+      // Render mana color pills
+      const mRow = document.getElementById('colManaRow');
+      const COL_MANA = [
+        { name:'White', key:'w' },
+        { name:'Blue', key:'u' },
+        { name:'Black', key:'b' },
+        { name:'Red', key:'r' },
+        { name:'Green', key:'g' },
+        { name:'Multicolor', key:'m' },
+        { name:'Colorless', key:'c' },
+      ];
+      COL_MANA.forEach(m => {
+        mRow.insertAdjacentHTML('beforeend', `
+          <div class="col-type-pill" data-color="${m.key}">
+            <div class="col-type-icon"><img src="${MANA_SVGS[m.key]}" width="24" height="24" alt="${m.name}"></div>
+            <div class="col-type-text">
+              <span class="col-type-name">${m.name}</span>
+            </div>
+          </div>`);
+      });
+
+      // Wire clicks — mana color pills
+      mRow.querySelectorAll('.col-type-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          activeColour = [pill.dataset.color];
+          setMode('gallery');
+          updateChips(); loadInitialGrid(); syncFilterUI();
+        });
       });
 
       // Render type pills

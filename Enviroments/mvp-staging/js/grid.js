@@ -44,8 +44,8 @@ async function loadInitialGrid() {
   filteredCards = data;
   renderCards(data);
   if (hasMore) observeLastCard();
-  // Write to lens cache and pre-warm adjacent lenses
-  if (typeof _lensCache !== 'undefined' && typeof _activeLens !== 'undefined') {
+  // Write to lens cache — but NOT if search is active (prevents cache poisoning)
+  if (typeof _lensCache !== 'undefined' && typeof _activeLens !== 'undefined' && !activeSearch) {
     const key = _activeLens + ':' + (typeof _activeSubPill !== 'undefined' ? (_activeSubPill || '') : '');
     _lensCache[key] = { cards: data, hasMore };
     if (typeof prewarmAdjacentLenses === 'function') prewarmAdjacentLenses();

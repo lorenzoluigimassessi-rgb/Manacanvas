@@ -46,7 +46,6 @@ async function initFilters() {
     document.getElementById("viewBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleViewDropdown(); });
     [artistList, creatureTypeList, cardTypeList] = await Promise.all([fetchArtistNames(), fetchCreatureTypes(), fetchCardTypes()]);
     loadSetsIfNeeded(); // background, don't await
-    Promise.all([fetchArtistNames(), fetchCreatureTypes(), fetchCardTypes()]).then(([a, t, c]) => { artistList = a; creatureTypeList = t; cardTypeList = c; });
     document.addEventListener("click", () => { closeViewDropdown(); closeSortDropdown(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeViewDropdown(); closeSortDropdown(); } });
     return;
@@ -890,10 +889,17 @@ function clearSearchPill() {
   const clearBtn = document.getElementById('searchClear');
   if (clearBtn) clearBtn.style.display = 'none';
   activeSearch = null;
-  activeArtist = []; activeType = []; activeCardType = []; activeSets = [];
-  setSearchMode(false);
-  updateChips();
-  loadInitialGrid();
+  // Only clear filters that search itself set — restore lens state
+  if (typeof _activeLens !== 'undefined' && typeof applyLensQuery === 'function') {
+    setSearchMode(false);
+    updateChips();
+    applyLensQuery(_activeLens, window._activeSubPill || null);
+  } else {
+    activeArtist = []; activeType = []; activeCardType = []; activeSets = [];
+    setSearchMode(false);
+    updateChips();
+    loadInitialGrid();
+  }
 }
 
 function initSearch() {
@@ -957,7 +963,8 @@ function initSearch() {
 }
 
 async function showSearchSuggestions(query) {
-  const container = document.getElementById("searchSuggestions");
+  const container = document.getElementById(isMobile() ? "mobileSearchSuggestions" : "searchSuggestions");
+  if (!container) return;
   const input = document.getElementById("searchBar");
   input.dataset.query = query;
   const q = query.toLowerCase();
@@ -1006,8 +1013,8 @@ function highlightSuggestion(text, query) {
 }
 
 function hideSearchSuggestions() {
-  const container = document.getElementById("searchSuggestions");
-  if (container) container.style.display = "none";
+  document.getElementById("searchSuggestions")?.style.setProperty('display', 'none');
+  document.getElementById("mobileSearchSuggestions")?.style.setProperty('display', 'none');
 }
 
 // Mobile flat sheet

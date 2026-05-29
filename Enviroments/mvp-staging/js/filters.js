@@ -713,9 +713,7 @@ function updateChips() {
   // In staging, lens system owns filter state — only show chips for activeSearch
   if (window._lensSystemReady) {
     const chips = [];
-    if (activeSearch) {
-      chips.push({ icon: "", label: `"${activeSearch}"`, clear: () => { activeSearch = null; const sb = document.getElementById("searchBar"); if (sb) sb.value = ""; const mb = document.getElementById("mobileSearchBar"); if (mb) mb.value = ""; const sc = document.getElementById("searchClear"); if (sc) sc.style.display = "none"; if (typeof setSearchMode === 'function') setSearchMode(false); updateChips(); loadInitialGrid(); } });
-    }
+    // Don't show search chip below sub-pills — the pill in the search bar is enough
     const hasFilters = chips.length > 0;
     chipBar.style.display = hasFilters ? "flex" : "none";
     if (clearBtn) clearBtn.style.display = "none";

@@ -903,16 +903,15 @@ function clearSearchPill() {
   if (mInput) { mInput.style.display = ''; mInput.value = ''; }
   const clearBtn = document.getElementById('searchClear');
   if (clearBtn) clearBtn.style.display = 'none';
+  // Clear all search-owned state
   activeSearch = null;
-  // Only clear filters that search itself set — restore lens state
+  activeArtist = []; activeType = []; activeCardType = []; activeSets = [];
+  setSearchMode(false);
+  updateChips();
+  // Reload current lens without search
   if (typeof _activeLens !== 'undefined' && typeof applyLensQuery === 'function') {
-    setSearchMode(false);
-    updateChips();
     applyLensQuery(_activeLens, window._activeSubPill || null);
   } else {
-    activeArtist = []; activeType = []; activeCardType = []; activeSets = [];
-    setSearchMode(false);
-    updateChips();
     loadInitialGrid();
   }
 }

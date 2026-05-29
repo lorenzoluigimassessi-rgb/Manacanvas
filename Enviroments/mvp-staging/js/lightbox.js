@@ -86,6 +86,7 @@ function openLightbox(card, mode = 'feed') {
         <div class="name meta-link" id="lbName" title="See all versions">${card.name}</div>
         <div class="details">
           <span class="meta-link" id="lbArtist">${card.artist || 'Unknown'}</span>
+          ${card.type_line ? ` · <span class="meta-link" id="lbType">${card.type_line.split('—').pop().trim().split(' ')[0]}</span>` : ''}
           ${setName ? ` · <span class="meta-link" id="lbSet">${setName}</span>` : ''}
           ${year    ? ` · <span class="meta-link" id="lbYear">${year}</span>`    : ''}
         </div>
@@ -228,6 +229,9 @@ function openLightbox(card, mode = 'feed') {
       const yearEl   = document.getElementById('lbYear');
       if (nameEl)   nameEl.textContent   = nextCard.name;
       if (artistEl) artistEl.textContent = nextCard.artist || 'Unknown';
+      const typeEl = document.getElementById('lbType');
+      if (typeEl && nextCard.type_line) typeEl.textContent = nextCard.type_line.split('—').pop().trim().split(' ')[0];
+      else if (typeEl) typeEl.textContent = '';
       if (setEl)    setEl.textContent    = nextCard.set_name || '';
       if (yearEl)   yearEl.textContent   = nextCard.released_at ? nextCard.released_at.slice(0,4) : '';
 
@@ -382,6 +386,14 @@ function openLightbox(card, mode = 'feed') {
   document.getElementById('lbArtist').addEventListener('click', () => {
     closeLightbox(); activeArtist = [currentCard.artist];
     if (!isMobile()) { const btn = document.getElementById('artistBtn'); if (btn) { btn.textContent = currentCard.artist + ' ▾'; btn.classList.add('active'); } }
+    updateChips(); loadInitialGrid();
+  });
+  document.getElementById('lbType')?.addEventListener('click', () => {
+    const typeLine = currentCard.type_line || '';
+    const creatureType = typeLine.split('—').pop().trim().split(' ')[0];
+    if (!creatureType) return;
+    closeLightbox(); activeType = [creatureType.toLowerCase()];
+    if (!isMobile()) { const btn = document.getElementById('typeBtn'); if (btn) { btn.textContent = creatureType + ' ▾'; btn.classList.add('active'); } }
     updateChips(); loadInitialGrid();
   });
   document.getElementById('lbSet')?.addEventListener('click', () => {

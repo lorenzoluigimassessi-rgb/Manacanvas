@@ -965,12 +965,14 @@
 
     // ── Lands data ──
     const LAND_TYPES = {
-      basic:    { label:'Basic Lands',  query:'t:basic has:illustration' },
-      fullart:  { label:'Full Art',     query:'t:land is:full has:illustration' },
-      dual:     { label:'Dual & Shock', query:'(t:land o:"pay 2 life" OR t:land oracle:/\\{T\\}: Add \\{[WUBRG]\\} or \\{[WUBRG]\\}/) has:illustration' },
-      fetch:    { label:'Fetch Lands',  query:'t:land o:"search your library" o:"sacrifice" has:illustration' },
-      utility:  { label:'Utility',      query:'t:land -t:basic -o:"pay 2 life" -o:"search your library" has:illustration' },
-      snow:     { label:'Snow',         query:'t:snow t:land has:illustration' },
+      plains:   { label:'Plains',        query:'t:basic name:plains has:illustration' },
+      island:   { label:'Island',        query:'t:basic name:island has:illustration' },
+      swamp:    { label:'Swamp',         query:'t:basic name:swamp has:illustration' },
+      mountain: { label:'Mountain',      query:'t:basic name:mountain has:illustration' },
+      forest:   { label:'Forest',        query:'t:basic name:forest has:illustration' },
+      dual:     { label:'Duals & Fetch', query:'(t:land o:"pay 2 life" OR t:land o:"search your library" o:"sacrifice") has:illustration' },
+      utility:  { label:'Utility',       query:'t:land -t:basic -o:"pay 2 life" -o:"search your library" -t:snow has:illustration' },
+      snow:     { label:'Snow',          query:'t:snow t:land has:illustration' },
     };
 
     function renderCharacterCards(row, savedSub) {
@@ -1488,6 +1490,13 @@
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
+            <span class="collections-section-title">Worlds</span>
+            <button class="collections-section-link">Show</button>
+          </div>
+          <div class="collections-row" id="colWorldsRow"></div>
+        </div>
+        <div class="collections-section">
+          <div class="collections-section-header">
             <span class="collections-section-title">Sets</span>
             <button class="collections-section-link">Show (214)</button>
           </div>
@@ -1499,12 +1508,6 @@
             <button class="collections-section-link">Show (267)</button>
           </div>
           <div class="collections-row" id="colCreatureRow"></div>
-        </div>
-        <div class="collections-section">
-          <div class="collections-section-header">
-            <span class="collections-section-title">Worlds</span>
-          </div>
-          <div class="collections-row" id="colWorldsRow"></div>
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
@@ -1534,17 +1537,17 @@
           </div>`);
       });
 
-      // Render set cards
+      // Render set pills (same style as Mana Colors)
       const sRow = document.getElementById('colSetRow');
       COL_SETS.forEach(s => {
         sRow.insertAdjacentHTML('beforeend', `
-          <div class="col-set-card" data-set="${s.code}">
-            <div class="col-set-art"><img src="" alt=""></div>
-            <div class="col-set-info">
-              <img class="col-set-icon" id="col-icon-${s.code}" src="" alt="">
-              <span class="col-set-name">${s.name}</span>
+          <div class="col-type-pill" data-set="${s.code}">
+            <div class="col-type-icon"><img id="col-icon-${s.code}" src="" width="20" height="20" alt="" style="filter:brightness(0) invert(0.7)"></div>
+            <div class="col-type-text">
+              <span class="col-type-name">${s.name}</span>
             </div>
           </div>`);
+      });
       });
 
       // Render creature cards
@@ -1567,6 +1570,10 @@
         { name:'Kamigawa',   sets:'chk,neo',                 art:'https://cards.scryfall.io/art_crop/front/1/8/18c16174-e4a2-4862-a1a8-2eb4e88e4ddd.jpg?1689995438' },
         { name:'Theros',     sets:'ths,thb',                 art:'https://cards.scryfall.io/art_crop/front/f/1/f185a734-a32a-4244-88e8-dabafbfd064f.jpg?1562837629' },
         { name:'Ixalan',     sets:'xln,lci',                 art:'https://cards.scryfall.io/art_crop/front/c/7/c74ae706-b3b3-4097-a387-6f6c38a9b603.jpg?1689995438' },
+        { name:'Kaladesh',   sets:'kld,aer',                 art:'https://cards.scryfall.io/art_crop/front/6/5/65ae241c-8955-4c97-8be6-7356fbee2195.jpg?1775941250' },
+        { name:'Tarkir',     sets:'ktk,frf,dtk',             art:'https://cards.scryfall.io/art_crop/front/c/5/c5408607-af8f-48fe-bc40-32828d1976de.jpg?1702429680' },
+        { name:'Amonkhet',   sets:'akh,hou',                 art:'https://cards.scryfall.io/art_crop/front/8/8/8809830f-d8e1-4603-9652-0ad8b00234e9.jpg?1721427315' },
+        { name:'Lorwyn',     sets:'lrw,shm',                 art:'https://cards.scryfall.io/art_crop/front/2/7/276f5cee-a501-4658-bd4d-7a044bf1ccbc.jpg?1743204520' },
       ];
       const wRow = document.getElementById('colWorldsRow');
       COL_WORLDS.forEach(w => {
@@ -1637,10 +1644,10 @@
         });
       });
 
-      // Wire clicks — set cards
-      sRow.querySelectorAll('.col-set-card').forEach(card => {
-        card.addEventListener('click', () => {
-          activeSets = [card.dataset.set];
+      // Wire clicks — set pills
+      sRow.querySelectorAll('.col-type-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          activeSets = [pill.dataset.set];
           setMode('gallery');
           updateChips(); loadInitialGrid(); syncFilterUI();
         });
@@ -1684,23 +1691,22 @@
         await new Promise(r => setTimeout(r, 120));
       }
 
-      // Sets
-      for (const card of document.querySelectorAll('.col-set-card')) {
-        const code = card.dataset.set;
+      // Sets — load icons only (pill style, no art needed)
+      for (const pill of document.querySelectorAll('#colSetRow .col-type-pill')) {
+        const code = pill.dataset.set;
         const key = 's:' + code;
         if (cache[key] && (now - cache[key].ts < WEEK)) {
-          applySetArt(card, code, cache[key].art, cache[key].icon);
+          const iconEl = document.getElementById('col-icon-' + code);
+          if (iconEl && cache[key].icon) iconEl.src = cache[key].icon;
           continue;
         }
         try {
           let icon = '';
           const setRes = await fetch('https://api.scryfall.com/sets/' + code);
           if (setRes.ok) { const sj = await setRes.json(); icon = sj.icon_svg_uri || ''; }
-          const artRes = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('s:' + code + ' has:illustration') + '&unique=art&order=edhrec&page=1');
-          let art = '';
-          if (artRes.ok) { const aj = await artRes.json(); const tc = (aj.data||[])[0]; art = tc?.image_uris?.art_crop || tc?.card_faces?.[0]?.image_uris?.art_crop || ''; }
-          cache[key] = { art, icon, ts: now };
-          applySetArt(card, code, art, icon);
+          cache[key] = { art:'', icon, ts: now };
+          const iconEl = document.getElementById('col-icon-' + code);
+          if (iconEl && icon) iconEl.src = icon;
         } catch(e) {}
         await new Promise(r => setTimeout(r, 120));
       }
@@ -1737,7 +1743,6 @@
     }
 
     function applySetArt(card, code, art, icon) {
-      if (art) card.querySelector('.col-set-art img').src = art;
       const iconEl = document.getElementById('col-icon-' + code);
       if (iconEl && icon) iconEl.src = icon;
     }

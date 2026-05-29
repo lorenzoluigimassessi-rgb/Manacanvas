@@ -906,9 +906,16 @@ function clearSearchPill() {
   activeArtist = []; activeType = []; activeCardType = []; activeSets = [];
   setSearchMode(false);
   updateChips();
-  // Reload current lens without search
+  // Reset to All lens
   if (typeof _activeLens !== 'undefined' && typeof applyLensQuery === 'function') {
-    applyLensQuery(_activeLens, window._activeSubPill || null);
+    _activeLens = 'picks';
+    window._activeSubPill = null;
+    document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+    const allBtn = document.querySelector('.lens-btn[data-lens="picks"]');
+    if (allBtn) allBtn.classList.add('active');
+    const subRow = document.getElementById('subRow');
+    if (subRow) subRow.style.display = 'none';
+    applyLensQuery('picks', null);
   } else {
     loadInitialGrid();
   }

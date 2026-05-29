@@ -710,7 +710,9 @@
     function applyLensQuery(lens, sub) {
       activeArtist = []; activeType = []; activeCardType = [];
       activeColour = []; activeSets = []; activeStyles = [];
-      activeYearMin = null; activeYearMax = null; activeSearch = null;
+      activeYearMin = null; activeYearMax = null;
+      // Preserve activeSearch if a search pill is showing
+      if (!document.querySelector('.search-pill')) activeSearch = null;
       // Keep current sort — user's choice persists across all lenses
 
       // Persist lens state
@@ -743,7 +745,7 @@
       }
 
       const key = _cacheKey(lens, sub);
-      const cached = _lensCache[key];
+      const cached = !activeSearch ? _lensCache[key] : null;
       if (cached) {
         grid.innerHTML = '';
         renderCards(cached.cards);

@@ -871,7 +871,7 @@ function showSearchPill(text, tag) {
   document.querySelectorAll('.nav-center').forEach(container => {
     const pill = document.createElement('span');
     pill.className = 'search-pill';
-    pill.innerHTML = `<span class="search-pill-text">${text}</span><span class="search-pill-tag">${tag}</span><span class="search-pill-x" aria-label="Clear search">✕</span>`;
+    pill.innerHTML = `<span class="search-pill-text">${text}</span><span class="search-pill-tag search-pill-tag-${tag.toLowerCase()}">${tag}</span><span class="search-pill-x" aria-label="Clear search">✕</span>`;
     pill.querySelector('.search-pill-x').addEventListener('click', clearSearchPill);
     // Insert after the search icon
     const icon = container.querySelector('.search-icon-svg');

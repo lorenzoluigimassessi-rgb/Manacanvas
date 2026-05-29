@@ -841,15 +841,13 @@ function highlightMatch(text, query) {
 let searchTimeout = null;
 
 function setSearchMode(active) {
-  const lensRow = document.getElementById('lensRow');
   const subRow  = document.getElementById('subRow');
   const containers = document.querySelectorAll('.nav-center');
   if (active) {
-    if (lensRow) lensRow.style.display = 'none';
+    // Keep lens row visible — user can navigate lenses with search applied
     if (subRow)  subRow.style.display  = 'none';
     containers.forEach(c => c.classList.add('search-active'));
   } else {
-    if (lensRow) lensRow.style.display = '';
     if (typeof _activeLens !== 'undefined' && _activeLens !== 'picks') {
       if (subRow) subRow.style.display = '';
     }

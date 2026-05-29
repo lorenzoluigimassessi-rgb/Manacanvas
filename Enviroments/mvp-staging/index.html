@@ -646,6 +646,13 @@
     function _cacheKey(lens, sub) { const s = sub && typeof sub === 'object' ? (sub.code || '') : (sub || ''); return lens + ':' + s; }
 
     function goHome() {
+      // Clear search if active
+      if (document.querySelector('.search-pill')) {
+        clearSearchPill();
+        return;
+      }
+      activeSearch = null;
+      setSearchMode(false);
       setMode('gallery');
       const picksBtn = document.querySelector('.lens-btn[data-lens="picks"]');
       document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
@@ -655,7 +662,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
       const cached = _lensCache[_cacheKey('picks', null)];
       if (cached) {
-        // Restore cached All feed — no reshuffle
         grid.innerHTML = '';
         renderCards(cached.cards);
         if (cached.hasMore) observeLastCard();

@@ -448,11 +448,10 @@
       <div class="lens-chips" id="lensChips">
         <button class="lens-btn" data-lens="picks"    onclick="setLens(this)">All</button>
         <button class="lens-btn"        data-lens="new"      onclick="setLens(this)">New</button>
-        <button class="lens-btn"        data-lens="eras"     onclick="setLens(this)">Eras</button>
         <button class="lens-btn"        data-lens="moods"    onclick="setLens(this)">Moods</button>
+        <button class="lens-btn"        data-lens="eras"     onclick="setLens(this)">Eras</button>
         <button class="lens-btn"        data-lens="iconic"   onclick="setLens(this)">Iconic</button>
         <button class="lens-btn"        data-lens="gems"     onclick="setLens(this)">Hidden Gems</button>
-        <button class="lens-btn"        data-lens="color"    onclick="setLens(this)">Mana Color</button>
       </div>
       <div class="lens-controls" id="lensControls">
         <button class="lens-ctrl-btn" id="lensGridBtn" title="Grid size" onclick="toggleLensGrid()">
@@ -978,7 +977,7 @@
     }
 
     // After active lens loads, pre-warm the next 2 lenses in background
-    const LENS_ORDER = ['picks','new','eras','moods','iconic','gems','color'];
+    const LENS_ORDER = ['picks','new','moods','eras','iconic','gems'];
     function prewarmAdjacentLenses() {
       const idx = LENS_ORDER.indexOf(_activeLens);
       const toWarm = [

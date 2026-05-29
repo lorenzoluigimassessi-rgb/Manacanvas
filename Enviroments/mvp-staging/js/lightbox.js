@@ -378,34 +378,48 @@ function openLightbox(card, mode = 'feed') {
   document.getElementById('lbName').addEventListener('click', () => {
     const name = currentCard.name;
     closeLightbox();
-    activeSearch = `name:"${name}"`;
-    const sb = document.getElementById('searchBar'); if (sb) sb.value = name;
-    const sc = document.getElementById('searchClear'); if (sc) sc.style.display = 'block';
-    updateChips(); loadInitialGrid();
+    activeSearch = name;
+    if (typeof setMode === 'function') setMode('gallery');
+    setSearchMode(true);
+    showSearchPill(name, 'Card');
+    loadInitialGrid(); updateChips();
   });
   document.getElementById('lbArtist').addEventListener('click', () => {
-    closeLightbox(); activeArtist = [currentCard.artist];
-    if (!isMobile()) { const btn = document.getElementById('artistBtn'); if (btn) { btn.textContent = currentCard.artist + ' ▾'; btn.classList.add('active'); } }
-    updateChips(); loadInitialGrid();
+    const artist = currentCard.artist;
+    closeLightbox();
+    activeSearch = `a:"${artist}"`;
+    if (typeof setMode === 'function') setMode('gallery');
+    setSearchMode(true);
+    showSearchPill(artist, 'Artist');
+    loadInitialGrid(); updateChips();
   });
   document.getElementById('lbType')?.addEventListener('click', () => {
     const typeLine = currentCard.type_line || '';
     const creatureType = typeLine.split('—').pop().trim().split(' ')[0];
     if (!creatureType) return;
-    closeLightbox(); activeType = [creatureType.toLowerCase()];
-    if (!isMobile()) { const btn = document.getElementById('typeBtn'); if (btn) { btn.textContent = creatureType + ' ▾'; btn.classList.add('active'); } }
-    updateChips(); loadInitialGrid();
+    closeLightbox();
+    activeSearch = `t:${creatureType.toLowerCase()}`;
+    if (typeof setMode === 'function') setMode('gallery');
+    setSearchMode(true);
+    showSearchPill(creatureType, 'Creature');
+    loadInitialGrid(); updateChips();
   });
   document.getElementById('lbSet')?.addEventListener('click', () => {
-    closeLightbox(); activeSets = [currentCard.set];
-    if (!isMobile()) { const s = setList.find(s => s.code === currentCard.set); const btn = document.getElementById('setBtn'); if (btn) { btn.textContent = (s ? s.name : currentCard.set_name) + ' ▾'; btn.classList.add('active'); } }
-    updateChips(); loadInitialGrid();
+    closeLightbox();
+    activeSearch = `s:${currentCard.set}`;
+    if (typeof setMode === 'function') setMode('gallery');
+    setSearchMode(true);
+    showSearchPill(currentCard.set_name || currentCard.set, 'Set');
+    loadInitialGrid(); updateChips();
   });
   document.getElementById('lbYear')?.addEventListener('click', () => {
     const y = currentCard.released_at?.slice(0,4); if (!y) return;
-    closeLightbox(); activeYearMin = parseInt(y); activeYearMax = parseInt(y);
-    if (!isMobile()) { const btn = document.getElementById('yearBtn'); if (btn) { btn.textContent = `${y}–${y}`; btn.classList.add('active'); } }
-    updateChips(); loadInitialGrid();
+    closeLightbox();
+    activeSearch = `year:${y}`;
+    if (typeof setMode === 'function') setMode('gallery');
+    setSearchMode(true);
+    showSearchPill(y, 'Card');
+    loadInitialGrid(); updateChips();
   });
 
   // ── Zoom (desktop only) ────────────────────────────────────────────────────

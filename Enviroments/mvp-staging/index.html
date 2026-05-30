@@ -831,7 +831,6 @@
         // pure random
       } else if (lens === 'new') {
         if (sub && sub.code) activeSets = [sub.code];
-        else if (sub === 'coming') window._lensRawQuery = 'is:preview has:illustration';
       } else if (lens === 'eras') {
         const range = ERA_RANGES[sub];
         if (range) { activeYearMin = range[0]; activeYearMax = range[1]; }
@@ -939,30 +938,81 @@
         const now = new Date();
         const released = sets.filter(s => new Date(s.released_at) <= now);
         const upcoming = sets.filter(s => new Date(s.released_at) > now);
-        const pills = [];
-        if (released[0]) pills.push({ label: 'Latest: ' + released[0].name,   code: released[0].code, name: released[0].name });
-        if (released[1]) pills.push({ label: 'Previous: ' + released[1].name, code: released[1].code, name: released[1].name });
-        // Show each upcoming set as its own pill instead of a broken aggregate
-        upcoming.slice(0, 3).forEach(s => pills.push({ label: s.name + ' ↑', code: s.code, name: s.name, upcoming: true }));
 
+        // Pills: Latest, Previous, + single "Coming soon" (only when upcoming sets exist)
+        const pills = [];
+        if (released[0]) pills.push({ label: 'Latest: '   + released[0].name, code: released[0].code });
+        if (released[1]) pills.push({ label: 'Previous: ' + released[1].name, code: released[1].code });
+        if (upcoming.length) pills.push({ label: 'Coming soon', key: 'coming', sets: upcoming });
+
+        const isComingActive = savedSub === 'coming';
         row.innerHTML = pills.map((p, i) =>
-          `<button class="sub-pill ${(savedSub ? savedSub.code === p.code : i === 0) ? 'active' : ''}" data-idx="${i}">${p.label}</button>`
+          `<button class="sub-pill ${(isComingActive ? p.key === 'coming' : savedSub ? savedSub.code === p.code : i === 0) ? 'active' : ''}" data-idx="${i}">${p.label}</button>`
         ).join('');
+
         row.querySelectorAll('.sub-pill').forEach((btn, i) => {
           btn.addEventListener('click', () => {
             row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const p = pills[i];
-            window._activeSubPill = p;
-            window._feedSetHeader = p.name;
-            applyLensQuery('new', p);
+            window._activeSubPill = p.key || p;
+            if (p.key === 'coming') {
+              loadComingSoonFeed(p.sets);
+            } else {
+              applyLensQuery('new', p);
+            }
           });
         });
+
         if (pills.length && !window._suppressLensApply) {
-          window._feedSetHeader = pills[0].name;
-          applyLensQuery('new', pills[0]);
+          const first = pills[0];
+          window._activeSubPill = first.key || first;
+          if (first.key === 'coming') loadComingSoonFeed(first.sets);
+          else applyLensQuery('new', first);
         }
       } catch(e) { row.style.display = 'none'; applyLensQuery('new', null); }
+    }
+
+    // Coming soon feed — fetches all upcoming-set cards and groups them by set name
+    async function loadComingSoonFeed(upcomingSets) {
+      showShimmers();
+      resetPagination();
+
+      if (!upcomingSets || !upcomingSets.length) {
+        grid.innerHTML = `<div class="empty-state"><h2>No previews yet</h2><p>Cards for upcoming sets haven't been revealed. Check back soon.</p></div>`;
+        return;
+      }
+
+      const orCodes = upcomingSets.map(s => `s:${s.code}`).join(' OR ');
+      const query = `(${orCodes}) has:illustration`;
+
+      const { data } = await fetchCards(query);
+      grid.innerHTML = '';
+
+      if (!data.length) {
+        grid.innerHTML = `<div class="empty-state"><h2>No previews yet</h2><p>Cards for upcoming sets haven't been revealed. Check back soon.</p></div>`;
+        return;
+      }
+
+      // Group cards by set name, preserving order of first appearance
+      const groups = {};
+      const order = [];
+      data.forEach(card => {
+        const sn = card.set_name || 'Unknown';
+        if (!groups[sn]) { groups[sn] = []; order.push(sn); }
+        groups[sn].push(card);
+      });
+
+      // Render each group with a header
+      order.forEach(setName => {
+        const hdr = document.createElement('div');
+        hdr.className = 'feed-set-header';
+        hdr.textContent = setName;
+        grid.appendChild(hdr);
+        renderCards(groups[setName]);
+      });
+
+      filteredCards = data;
     }
 
     function renderEraPills(row, savedSub) {

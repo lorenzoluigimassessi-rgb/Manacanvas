@@ -1769,8 +1769,7 @@
         { name:'Forgotten Realms', sets:'afr' },
       ];
       const wRow = document.getElementById('colWorldsRow');
-      wRow.style.cssText += ';flex-wrap:wrap;';
-      COL_WORLDS.forEach(w => {
+      COL_WORLDS.slice(0, 11).forEach(w => {
         const imgId = 'plane-img-' + w.name.toLowerCase().replace(/\s+/g, '-');
         wRow.insertAdjacentHTML('beforeend', `
           <div class="mood-card" data-sets="${w.sets}" style="flex:0 0 auto;width:140px;cursor:pointer;opacity:1;">

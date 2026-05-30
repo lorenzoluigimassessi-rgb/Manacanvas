@@ -14,9 +14,245 @@
   --nav-h: 48px;
   --h: 48px;
   --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  --shadow-card: 0 12px 40px rgba(0,0,0,0.6);
   --transition-fast: 150ms;
   --transition-normal: 200ms;
   --transition-slow: 300ms;
+  /* Draw chip */
+  --draw-bg:         #16161f;
+  --draw-border:     #4a4a60;
+  --draw-fg:         #c8c8e0;
+  --draw-bg-hov:     #1e1e2e;
+  --draw-border-hov: #8080a8;
+  --draw-fg-hov:     #e8e8f8;
+}
+
+/* ── Draw chip ── */
+.draw-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--draw-bg);
+  border: 1px solid var(--draw-border);
+  color: var(--draw-fg);
+  border-radius: var(--radius-pill);
+  height: var(--h);
+  padding: 0 0.95rem;
+  cursor: pointer;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+              color var(--transition-fast), transform var(--transition-fast);
+  animation: drawGlow 3.6s ease-in-out infinite;
+}
+.draw-chip:hover {
+  background: var(--draw-bg-hov);
+  border-color: var(--draw-border-hov);
+  color: var(--draw-fg-hov);
+  transform: translateY(-1px);
+}
+/* Mobile: icon-only 40×40 pill */
+.draw-chip-mobile {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+}
+/* Divider between mode buttons and draw chip in mobile bar */
+.mobile-float-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  margin: 0 3px;
+  flex-shrink: 0;
+}
+
+/* ── Draw keyframes ── */
+@keyframes drawGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(150,150,200,0); }
+  50%       { box-shadow: 0 0 13px 1px rgba(150,150,200,0.26); }
+}
+@keyframes drawFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes drawCardUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes drawBreathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.035); }
+}
+
+/* ── Draw ritual overlay ── */
+#drawRitual {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  animation: drawFadeIn 320ms ease both;
+  background: radial-gradient(125% 95% at 50% 44%, rgba(6,6,9,0.42), rgba(6,6,9,0.86));
+}
+.draw-ritual-art-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(44px) brightness(0.32);
+  transform: scale(1.25);
+  transition: opacity 620ms ease;
+}
+.draw-ritual-radial {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(125% 95% at 50% 44%, rgba(6,6,9,0.42), rgba(6,6,9,0.86));
+  pointer-events: none;
+}
+.draw-ritual-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(20,20,28,0.7);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.draw-ritual-beat {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--draw-fg);
+}
+.draw-ritual-beat-icon {
+  display: inline-flex;
+  animation: drawBreathe 1.15s ease-in-out infinite;
+}
+.draw-ritual-beat-label {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.draw-ritual-reveal {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  animation: drawCardUp 640ms ease both;
+}
+.draw-ritual-card-wrap {
+  position: relative;
+}
+.draw-ritual-glow {
+  position: absolute;
+  inset: -34px;
+  filter: blur(46px);
+  opacity: 0.45;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.draw-ritual-card {
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+.draw-ritual-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.draw-ritual-plate {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  background: var(--overlay-gradient);
+}
+.draw-ritual-name {
+  font-family: 'Josefin Sans', sans-serif;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+.draw-ritual-artist {
+  font-family: 'Josefin Sans', sans-serif;
+  color: rgba(255,255,255,0.72);
+  margin-top: 3px;
+}
+.draw-ritual-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.draw-again-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--draw-bg);
+  border: 1px solid var(--draw-border);
+  color: var(--draw-fg);
+  height: 38px;
+  padding: 0 18px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+.draw-again-btn:hover {
+  background: var(--draw-bg-hov);
+  border-color: var(--draw-border-hov);
+  color: var(--draw-fg-hov);
+}
+.draw-done-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.draw-done-btn:hover { color: var(--text-primary); border-color: var(--border-hover); }
+
+@media (max-width: 768px) {
+  .draw-ritual-close { top: 12px; right: 12px; }
+  .draw-ritual-reveal { gap: 18px; }
 }
 
 
@@ -350,7 +586,7 @@ body {
 .btn-advanced.active { background: var(--surface-2); color: var(--text-primary); }
 
 /* RIGHT: theme switcher */
-.nav-right { flex-shrink: 0; }
+.nav-right { flex-shrink: 0; display: flex; align-items: center; gap: 0.7rem; }
 
 .theme-sw {
   display: flex;

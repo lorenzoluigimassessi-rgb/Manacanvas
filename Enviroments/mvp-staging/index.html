@@ -379,7 +379,7 @@
         border: 1px solid var(--border);
         border-radius: var(--r);
         padding: 4px;
-        gap: 0;
+        gap: 4px;
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         box-shadow: var(--shadow);
@@ -419,10 +419,6 @@
           <div class="nav-switcher">
             <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">Gallery</button>
             <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Collections</button>
-            <button class="sw-btn draw-in-switcher" id="swDraw" onclick="setMode('discover')">
-              <svg width="10" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
-              Draw
-            </button>
           </div>
         </div>
 
@@ -440,6 +436,10 @@
         </div>
 
         <div class="nav-right">
+          <button class="draw-chip" id="drawBtn" onclick="triggerDrawRitual()" title="Draw a card">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+            Draw
+          </button>
           <div class="theme-sw">
             <button class="theme-btn active" id="btnDark"  onclick="setTheme('dark')"  title="Dark">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -587,11 +587,14 @@
     <nav class="mobile-float">
       <button class="sw-btn active" id="mSwAllArt"  onclick="setMode('gallery')">Gallery</button>
       <button class="sw-btn"        id="mSwBrowse"  onclick="setMode('collections')">Collections</button>
-      <button class="sw-btn draw-in-switcher" id="mSwDraw"    onclick="setMode('discover')">
-        <svg width="11" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
-        Draw
+      <span class="mobile-float-divider"></span>
+      <button class="draw-chip draw-chip-mobile" id="mDrawBtn" onclick="triggerDrawRitual()" title="Draw a card">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
       </button>
     </nav>
+
+    <!-- Draw ritual overlay -->
+    <div id="drawRitual" style="display:none;"></div>
 
   </div><!-- end appShell -->
 
@@ -603,9 +606,9 @@
 
   <script>
     // ── Mode map ──
-    const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', discover:'swDraw', advanced:'btnAdvanced' };
-    const MOBILE_SW  = { gallery:'mSwAllArt', collections:'mSwBrowse', discover:'mSwDraw' };
-    const PANELS     = { gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel', discover:'discoverPanel' };
+    const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', advanced:'btnAdvanced' };
+    const MOBILE_SW  = { gallery:'mSwAllArt', collections:'mSwBrowse' };
+    const PANELS     = { gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel' };
 
     let _currentMode = 'gallery';
 
@@ -613,7 +616,7 @@
       _currentMode = mode;
 
       // panels
-      ['grid','collectionsPanel','advancedPanel','discoverPanel'].forEach(id => {
+      ['grid','collectionsPanel','advancedPanel'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
       });
@@ -639,7 +642,101 @@
       // load content
       if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0 && !activeSearch) initLens();
       if (mode === 'collections') renderCategories();
-      if (mode === 'discover') triggerSurprise();
+    }
+
+    // ── Draw ritual ──────────────────────────────────────────────────────────
+    const _DRAW_DECK_SVG = (size) =>
+      `<svg width="${size}" height="${size}" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">` +
+      `<rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/>` +
+      `<rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/>` +
+      `<rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/>` +
+      `</svg>`;
+
+    function _cardGlow(card) {
+      const c = (card.colors || card.color_identity || [])[0];
+      return { W:'rgba(255,255,210,0.45)', U:'rgba(60,110,220,0.45)', B:'rgba(80,40,110,0.45)',
+               R:'rgba(200,70,40,0.45)',   G:'rgba(40,150,70,0.45)' }[c] || 'rgba(100,100,160,0.45)';
+    }
+
+    let _drawNonce = 0;
+
+    function triggerDrawRitual() {
+      const nonce = ++_drawNonce;
+      const compact = window.innerWidth <= 768;
+      const iconSize = compact ? 40 : 54;
+      const overlay  = document.getElementById('drawRitual');
+
+      // ── Phase A: anticipation beat ──
+      overlay.innerHTML =
+        `<div class="draw-ritual-radial"></div>` +
+        `<button class="draw-ritual-close" id="drClose">✕</button>` +
+        `<div class="draw-ritual-beat">` +
+          `<span class="draw-ritual-beat-icon">${_DRAW_DECK_SVG(iconSize)}</span>` +
+          `<span class="draw-ritual-beat-label">Drawing</span>` +
+        `</div>`;
+
+      overlay.style.cssText = 'display:flex;';   // triggers drawFadeIn from CSS
+      document.body.style.overflow = 'hidden';
+
+      document.getElementById('drClose').addEventListener('click', e => { e.stopPropagation(); closeDrawRitual(); });
+      overlay.addEventListener('click', closeDrawRitual);
+
+      // Fetch + beat run in parallel; reveal when both done
+      const beatDone = new Promise(r => setTimeout(r, 720));
+      const cardFetch = fetchRandomCard();
+
+      Promise.all([beatDone, cardFetch]).then(([, card]) => {
+        if (nonce !== _drawNonce) return;   // superseded by close or re-draw
+        if (!card) { closeDrawRitual(); return; }
+        _showDrawReveal(card, compact, nonce);
+      });
+    }
+
+    function _showDrawReveal(card, compact, nonce) {
+      if (nonce !== _drawNonce) return;
+      const w   = compact ? 232 : 360;
+      const h   = Math.round(w * 0.75);
+      const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop || '';
+      const nameSize   = compact ? '1.02rem' : '1.32rem';
+      const artistSize = compact ? '0.7rem'  : '0.8rem';
+      const platePad   = compact ? '26px 14px 12px' : '38px 20px 16px';
+      const glow       = _cardGlow(card);
+      const overlay    = document.getElementById('drawRitual');
+
+      overlay.removeEventListener('click', closeDrawRitual);   // remove old listener before rewrite
+      overlay.innerHTML =
+        `<div class="draw-ritual-art-bg" style="background-image:url('${art}')"></div>` +
+        `<div class="draw-ritual-radial"></div>` +
+        `<button class="draw-ritual-close" id="drClose">✕</button>` +
+        `<div class="draw-ritual-reveal" id="drReveal">` +
+          `<div class="draw-ritual-card-wrap" style="width:${w}px">` +
+            `<div class="draw-ritual-glow" style="background:${glow}"></div>` +
+            `<div class="draw-ritual-card" style="width:${w}px;height:${h}px;border-radius:var(--radius)">` +
+              `<img src="${art}" alt="${card.name || ''}">` +
+              `<div class="draw-ritual-plate" style="padding:${platePad}">` +
+                `<div class="draw-ritual-name"  style="font-size:${nameSize}">${card.name || ''}</div>` +
+                `<div class="draw-ritual-artist" style="font-size:${artistSize}">${card.artist || ''}</div>` +
+              `</div>` +
+            `</div>` +
+          `</div>` +
+          `<div class="draw-ritual-actions">` +
+            `<button class="draw-again-btn" id="drAgain">${_DRAW_DECK_SVG(13)} Draw again</button>` +
+            `<button class="draw-done-btn"  id="drDone">Done</button>` +
+          `</div>` +
+        `</div>`;
+
+      document.getElementById('drClose').addEventListener('click', e => { e.stopPropagation(); closeDrawRitual(); });
+      document.getElementById('drDone').addEventListener('click',  e => { e.stopPropagation(); closeDrawRitual(); });
+      document.getElementById('drAgain').addEventListener('click', e => { e.stopPropagation(); triggerDrawRitual(); });
+      document.getElementById('drReveal').addEventListener('click', e => e.stopPropagation());
+      overlay.addEventListener('click', closeDrawRitual);
+    }
+
+    function closeDrawRitual() {
+      _drawNonce++;   // invalidate any in-flight draw
+      const overlay = document.getElementById('drawRitual');
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
     }
 
     // ── Lens cache — keyed by 'lens:sub', session-only ──

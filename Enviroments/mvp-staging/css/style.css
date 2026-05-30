@@ -3456,8 +3456,12 @@ input[type=range]::-moz-range-thumb {
 }
 .mood-card.active .mood-card-label { color: var(--text-primary); font-weight: 500; }
 
+/* Plane cards: fixed width on desktop, 4-per-row on mobile (2 rows of 4) */
+.col-plane-card { flex: 0 0 auto; width: 140px; }
 @media (max-width: 768px) {
   .mood-card { flex: 0 0 calc(25% - 0.6rem); }
+  .col-plane-card { flex: 0 0 calc(25% - 0.6rem); width: auto; }
+  #colWorldsRow .col-plane-card:nth-child(n+9) { display: none; }
 }
 
 

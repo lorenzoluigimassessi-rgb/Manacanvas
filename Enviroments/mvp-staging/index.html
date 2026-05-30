@@ -1772,7 +1772,7 @@
       COL_WORLDS.slice(0, 11).forEach(w => {
         const imgId = 'plane-img-' + w.name.toLowerCase().replace(/\s+/g, '-');
         wRow.insertAdjacentHTML('beforeend', `
-          <div class="mood-card" data-sets="${w.sets}" style="flex:0 0 auto;width:140px;cursor:pointer;opacity:1;">
+          <div class="mood-card col-plane-card" data-sets="${w.sets}" style="opacity:1;">
             <div class="mood-card-img mood-card-img--loading" id="${imgId}"></div>
             <div class="mood-card-label">${w.name}</div>
           </div>`);

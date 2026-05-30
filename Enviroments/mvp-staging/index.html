@@ -1769,7 +1769,7 @@
         { name:'Forgotten Realms', sets:'afr' },
       ];
       const wRow = document.getElementById('colWorldsRow');
-      wRow.style.cssText += ';overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;';
+      wRow.style.cssText += ';flex-wrap:wrap;';
       COL_WORLDS.forEach(w => {
         const imgId = 'plane-img-' + w.name.toLowerCase().replace(/\s+/g, '-');
         wRow.insertAdjacentHTML('beforeend', `

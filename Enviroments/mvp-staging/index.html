@@ -938,24 +938,30 @@
         const sets = (json.data || []).filter(s => s.set_type === 'expansion' || s.set_type === 'core');
         const now = new Date();
         const released = sets.filter(s => new Date(s.released_at) <= now);
-        const previews = sets.filter(s => new Date(s.released_at) > now);
+        const upcoming = sets.filter(s => new Date(s.released_at) > now);
         const pills = [];
-        if (released[0]) pills.push({ label: 'Latest: ' + released[0].name, code: released[0].code });
-        if (released[1]) pills.push({ label: 'Previous: ' + released[1].name, code: released[1].code });
-        if (previews.length) pills.push({ label: 'Coming soon', code: null, key: 'coming' });
+        if (released[0]) pills.push({ label: 'Latest: ' + released[0].name,   code: released[0].code, name: released[0].name });
+        if (released[1]) pills.push({ label: 'Previous: ' + released[1].name, code: released[1].code, name: released[1].name });
+        // Show each upcoming set as its own pill instead of a broken aggregate
+        upcoming.slice(0, 3).forEach(s => pills.push({ label: s.name + ' ↑', code: s.code, name: s.name, upcoming: true }));
+
         row.innerHTML = pills.map((p, i) =>
-          `<button class="sub-pill ${(savedSub ? (savedSub === 'coming' ? p.key === 'coming' : savedSub.code === p.code) : i === 0) ? 'active' : ''}" data-idx="${i}">${p.label}</button>`
+          `<button class="sub-pill ${(savedSub ? savedSub.code === p.code : i === 0) ? 'active' : ''}" data-idx="${i}">${p.label}</button>`
         ).join('');
         row.querySelectorAll('.sub-pill').forEach((btn, i) => {
           btn.addEventListener('click', () => {
             row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const p = pills[i];
-            window._activeSubPill = p.key || p;
-            applyLensQuery('new', p.key ? p.key : p);
+            window._activeSubPill = p;
+            window._feedSetHeader = p.name;
+            applyLensQuery('new', p);
           });
         });
-        if (pills.length && !window._suppressLensApply) applyLensQuery('new', pills[0]);
+        if (pills.length && !window._suppressLensApply) {
+          window._feedSetHeader = pills[0].name;
+          applyLensQuery('new', pills[0]);
+        }
       } catch(e) { row.style.display = 'none'; applyLensQuery('new', null); }
     }
 
@@ -1046,19 +1052,36 @@
 
     // ── Iconic Characters data ──
     const CHARACTER_CARDS = {
-      jace:     { label:'Jace',         art:'https://cards.scryfall.io/art_crop/front/5/0/5030a866-1389-4c7c-8bab-9e5680752c60.jpg?1689996082', query:'jace t:planeswalker has:illustration' },
-      liliana:  { label:'Liliana',      art:'https://cards.scryfall.io/art_crop/front/e/3/e32b5571-c1a5-4556-8c06-e24bfe7f80e0.jpg?1689996087', query:'liliana t:planeswalker has:illustration' },
-      chandra:  { label:'Chandra',      art:'https://cards.scryfall.io/art_crop/front/b/0/b0d6caf0-4fa8-4e5c-b2ba-096b2b1e2f7f.jpg?1689996075', query:'chandra t:planeswalker has:illustration' },
-      nissa:    { label:'Nissa',        art:'https://cards.scryfall.io/art_crop/front/8/4/84326547-1a56-4f05-87a5-f5891c19b577.jpg?1689996090', query:'nissa t:planeswalker has:illustration' },
-      nicol:    { label:'Nicol Bolas',  art:'https://cards.scryfall.io/art_crop/front/6/e/6e22a5ac-ab4e-4422-a403-a37ed0d0e521.jpg?1562917619', query:'"nicol bolas" has:illustration' },
-      elesh:    { label:'Elesh Norn',   art:'https://cards.scryfall.io/art_crop/front/1/8/18c16174-e4a2-4862-a1a8-2eb4e88e4ddd.jpg?1689995438', query:'"elesh norn" has:illustration' },
-      sheoldred:{ label:'Sheoldred',    art:'https://cards.scryfall.io/art_crop/front/d/6/d67be074-cdd4-41d9-ac89-0a0456c4e4b2.jpg?1674057568', query:'sheoldred has:illustration' },
-      sorin:    { label:'Sorin',        art:'https://cards.scryfall.io/art_crop/front/d/c/dc2a78e5-a5e5-4040-acb0-f1e212a894a3.jpg?1689996095', query:'sorin t:planeswalker has:illustration' },
-      ajani:    { label:'Ajani',        art:'https://cards.scryfall.io/art_crop/front/4/c/4c565076-5db2-47ea-8ee0-4a4fd7bb353d.jpg?1562302134', query:'ajani t:planeswalker has:illustration' },
-      teferi:   { label:'Teferi',       art:'https://cards.scryfall.io/art_crop/front/e/b/eb2b7388-ac6b-45c0-a5cc-da6450724b59.jpg?1689996098', query:'teferi t:planeswalker has:illustration' },
-      garruk:   { label:'Garruk',       art:'https://cards.scryfall.io/art_crop/front/6/d/6dd3f47c-e0f2-4110-8d11-843c5bf2f064.jpg?1689996080', query:'garruk t:planeswalker has:illustration' },
-      karn:     { label:'Karn',         art:'https://cards.scryfall.io/art_crop/front/1/c/1c77c647-0d55-4a94-a812-5c6e6b46fdb2.jpg?1689996085', query:'karn has:illustration' },
+      jace:     { label:'Jace',        query:'jace t:planeswalker has:illustration order:edhrec' },
+      liliana:  { label:'Liliana',     query:'liliana t:planeswalker has:illustration order:edhrec' },
+      chandra:  { label:'Chandra',     query:'chandra t:planeswalker has:illustration order:edhrec' },
+      nissa:    { label:'Nissa',       query:'nissa t:planeswalker has:illustration order:edhrec' },
+      nicol:    { label:'Nicol Bolas', query:'"nicol bolas" has:illustration order:edhrec' },
+      elesh:    { label:'Elesh Norn',  query:'"elesh norn" has:illustration order:edhrec' },
+      sheoldred:{ label:'Sheoldred',   query:'sheoldred has:illustration order:edhrec' },
+      sorin:    { label:'Sorin',       query:'sorin t:planeswalker has:illustration order:edhrec' },
+      ajani:    { label:'Ajani',       query:'ajani t:planeswalker has:illustration order:edhrec' },
+      teferi:   { label:'Teferi',      query:'teferi t:planeswalker has:illustration order:edhrec' },
+      garruk:   { label:'Garruk',      query:'garruk t:planeswalker has:illustration order:edhrec' },
+      karn:     { label:'Karn',        query:'karn has:illustration order:edhrec' },
     };
+
+    // Dynamic art fetch for character cards (cached per session)
+    const _characterArtCache = {};
+    async function fetchCharacterArt(key, query) {
+      if (_characterArtCache[key] !== undefined) return _characterArtCache[key];
+      _characterArtCache[key] = '';
+      try {
+        const q = query.replace(/\s+order:\S+/, ''); // strip order: for art search
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}&order=edhrec&unique=art`);
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        const card = (json.data || [])[0];
+        const art = card?.image_uris?.art_crop || card?.card_faces?.[0]?.image_uris?.art_crop || '';
+        _characterArtCache[key] = art;
+        return art;
+      } catch(e) { return ''; }
+    }
 
     // ── Lands data ──
     const LAND_TYPES = {
@@ -1067,8 +1090,8 @@
       swamp:    { label:'Swamp',         query:'t:basic name:swamp has:illustration' },
       mountain: { label:'Mountain',      query:'t:basic name:mountain has:illustration' },
       forest:   { label:'Forest',        query:'t:basic name:forest has:illustration' },
-      dual:     { label:'Duals & Fetch', query:'(t:land o:"pay 2 life" OR t:land o:"search your library" o:"sacrifice") has:illustration' },
-      utility:  { label:'Utility',       query:'t:land -t:basic -o:"pay 2 life" -o:"search your library" -t:snow has:illustration' },
+      dual:     { label:'Duals & Fetch', query:'has:illustration ((t:land (t:plains OR t:island OR t:swamp OR t:mountain OR t:forest) -t:basic) OR (t:land o:"search your library" o:sacrifice -t:basic))' },
+      utility:  { label:'Utility',       query:'has:illustration t:land -t:basic -t:snow -(o:"search your library" o:sacrifice) -(o:"pay 2 life, tap")' },
       snow:     { label:'Snow',          query:'t:snow t:land has:illustration' },
     };
 
@@ -1077,10 +1100,18 @@
       const chars = Object.entries(CHARACTER_CARDS);
       row.innerHTML = chars.map(([key, c], i) =>
         `<div class="mood-card ${(savedSub ? key === savedSub : i === 0) ? 'active' : ''}" data-char="${key}">
-          <div class="mood-card-img" style="background-image:url('${c.art}')"></div>
+          <div class="mood-card-img mood-card-img--loading" id="char-img-${key}"></div>
           <div class="mood-card-label">${c.label}</div>
         </div>`
       ).join('');
+      // Fetch art dynamically — avoids stale/wrong hardcoded URLs
+      chars.forEach(([key, c]) => {
+        fetchCharacterArt(key, c.query).then(art => {
+          if (!art) return;
+          const el = document.getElementById(`char-img-${key}`);
+          if (el) { el.style.backgroundImage = `url('${art}')`; el.classList.remove('mood-card-img--loading'); }
+        });
+      });
       row.querySelectorAll('.mood-card').forEach(card => {
         card.addEventListener('click', () => {
           row.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));

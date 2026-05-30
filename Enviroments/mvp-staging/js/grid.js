@@ -35,6 +35,14 @@ async function loadInitialGrid() {
   const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, (typeof ART_STYLES !== 'undefined' ? activeStyles.map(i => ART_STYLES[i]) : []), activeYearMin, activeYearMax, activeSearch);
   const { data, hasMore, rateLimited } = await fetchCards(query);
   grid.innerHTML = "";
+  // Set name header — injected when New lens selects a specific set
+  if (window._feedSetHeader) {
+    const hdr = document.createElement('div');
+    hdr.className = 'feed-set-header';
+    hdr.textContent = window._feedSetHeader;
+    grid.appendChild(hdr);
+    window._feedSetHeader = null;
+  }
   if (!data.length) {
     grid.innerHTML = rateLimited
       ? `<div class="empty-state"><h2>Too many requests</h2><p>Scryfall is rate limiting us. Wait a moment and try again.</p></div>`

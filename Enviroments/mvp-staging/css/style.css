@@ -1365,6 +1365,31 @@ body {
 .grid.grid-md { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
 .grid.grid-lg { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1.2rem; }
 
+/* Set name header in feed (New lens) */
+.feed-set-header {
+  grid-column: 1 / -1;
+  padding: 0.25rem 0 0.75rem;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.25rem;
+}
+
+/* Character card loading shimmer */
+.mood-card-img--loading {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmerSlide 1.4s ease-in-out infinite;
+}
+@keyframes shimmerSlide {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* Grid size control */
 .grid-size-control {
   display: flex;

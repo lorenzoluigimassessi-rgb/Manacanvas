@@ -1692,51 +1692,28 @@
         });
       });
 
-      // Render worlds — art is fetched async: iconic basic land from each world's primary set
+      // Render planes — static iconic land art per plane
       const COL_WORLDS = [
-        { name:'Innistrad',  sets:'isd,soi,emn,vow,mid,dsk', landSet:'isd' },
-        { name:'Ravnica',    sets:'rav,rtr,grn,rna,mkm',     landSet:'rav' },
-        { name:'Zendikar',   sets:'zen,bfz,znr',             landSet:'zen' },
-        { name:'Dominaria',  sets:'dom,dmu,bro',             landSet:'dom' },
-        { name:'Eldraine',   sets:'eld,woe',                 landSet:'eld' },
-        { name:'Kamigawa',   sets:'chk,neo',                 landSet:'chk' },
-        { name:'Theros',     sets:'ths,thb',                 landSet:'ths' },
-        { name:'Ixalan',     sets:'xln,lci',                 landSet:'xln' },
-        { name:'Kaladesh',   sets:'kld,aer',                 landSet:'kld' },
-        { name:'Tarkir',     sets:'ktk,frf,dtk',             landSet:'ktk' },
-        { name:'Amonkhet',   sets:'akh,hou',                 landSet:'akh' },
-        { name:'Lorwyn',     sets:'lrw,shm',                 landSet:'lrw' },
+        { name:'Innistrad', sets:'isd,soi,emn,vow,mid,dsk', art:'https://cards.scryfall.io/art_crop/front/b/6/b6f6ac5d-8b99-4d78-9b74-e083626be534.jpg?1562612095' },
+        { name:'Ravnica',   sets:'rav,rtr,grn,rna,mkm',     art:'https://cards.scryfall.io/art_crop/front/f/9/f97a6d34-03ab-49f1-b02e-405b733f8843.jpg?1584832278' },
+        { name:'Zendikar',  sets:'zen,bfz,znr',             art:'https://cards.scryfall.io/art_crop/front/0/5/05e2a5cf-6a8b-4c45-9e8f-f4f21ba94dcb.jpg?1562302029' },
+        { name:'Dominaria', sets:'dom,dmu,bro',             art:'https://cards.scryfall.io/art_crop/front/1/0/10d46874-2242-4dc1-9b3e-3b72cb248c31.jpg?1562305508' },
+        { name:'Eldraine',  sets:'eld,woe',                 art:'https://cards.scryfall.io/art_crop/front/4/9/4985f6bb-5a85-4482-831f-c20c7222c98f.jpg?1572490498' },
+        { name:'Kamigawa',  sets:'chk,neo',                 art:'https://cards.scryfall.io/art_crop/front/c/8/c8b1f9b2-6f1b-41e7-b6f9-b1e5a2f9f6f3.jpg?1654567488' },
+        { name:'Theros',    sets:'ths,thb',                 art:'https://cards.scryfall.io/art_crop/front/f/1/f185a734-a32a-4244-88e8-dabafbfd064f.jpg?1562837629' },
+        { name:'Ixalan',    sets:'xln,lci',                 art:'https://cards.scryfall.io/art_crop/front/7/d/7d5e6aa0-4444-4a6e-b9da-3cded3a7c4c0.jpg?1562744097' },
+        { name:'Kaladesh',  sets:'kld,aer',                 art:'https://cards.scryfall.io/art_crop/front/6/5/65ae241c-8955-4c97-8be6-7356fbee2195.jpg?1775941250' },
+        { name:'Tarkir',    sets:'ktk,frf,dtk',             art:'https://cards.scryfall.io/art_crop/front/c/5/c5408607-af8f-48fe-bc40-32828d1976de.jpg?1702429680' },
+        { name:'Amonkhet',  sets:'akh,hou',                 art:'https://cards.scryfall.io/art_crop/front/8/8/8809830f-d8e1-4603-9652-0ad8b00234e9.jpg?1721427315' },
+        { name:'Lorwyn',    sets:'lrw,shm',                 art:'https://cards.scryfall.io/art_crop/front/2/7/276f5cee-a501-4658-bd4d-7a044bf1ccbc.jpg?1743204520' },
       ];
-      const _worldLandCache = {};
-      async function fetchWorldLandArt(setCode) {
-        if (_worldLandCache[setCode] !== undefined) return _worldLandCache[setCode];
-        _worldLandCache[setCode] = '';
-        try {
-          const res = await fetch(`https://api.scryfall.com/cards/search?q=t%3Abasic+t%3Aland+s%3A${setCode}+is%3Ahires&order=released&unique=art`);
-          if (!res.ok) throw new Error();
-          const json = await res.json();
-          const cards = json.data || [];
-          if (!cards.length) throw new Error();
-          // Pick a random basic land from the set for variety
-          const card = cards[Math.floor(Math.random() * cards.length)];
-          const art = card?.image_uris?.art_crop || card?.card_faces?.[0]?.image_uris?.art_crop || '';
-          _worldLandCache[setCode] = art;
-          return art;
-        } catch(e) { return ''; }
-      }
       const wRow = document.getElementById('colWorldsRow');
-      COL_WORLDS.forEach((w, i) => {
-        const cardId = `col-world-card-${i}`;
+      COL_WORLDS.forEach(w => {
         wRow.insertAdjacentHTML('beforeend', `
-          <div class="mood-card" id="${cardId}" data-sets="${w.sets}" style="flex:0 0 auto;width:140px;cursor:pointer;opacity:1;">
-            <div class="mood-card-img" id="${cardId}-img"></div>
+          <div class="mood-card" data-sets="${w.sets}" style="flex:0 0 auto;width:140px;cursor:pointer;opacity:1;">
+            <div class="mood-card-img" style="background-image:url('${w.art}')"></div>
             <div class="mood-card-label">${w.name}</div>
           </div>`);
-        fetchWorldLandArt(w.landSet).then(art => {
-          if (!art) return;
-          const imgEl = document.getElementById(`${cardId}-img`);
-          if (imgEl) imgEl.style.backgroundImage = `url('${art}')`;
-        });
       });
       wRow.querySelectorAll('.mood-card').forEach(card => {
         card.addEventListener('click', () => {

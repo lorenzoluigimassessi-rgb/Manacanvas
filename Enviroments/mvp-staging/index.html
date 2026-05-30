@@ -614,6 +614,7 @@
 
     function setMode(mode) {
       _currentMode = mode;
+      if (mode === 'gallery' || mode === 'collections') localStorage.setItem('mc_mode', mode);
 
       // panels
       ['grid','collectionsPanel','advancedPanel'].forEach(id => {
@@ -638,6 +639,16 @@
       const subRow  = document.getElementById('subRow');
       if (lensRow) lensRow.style.display = mode === 'gallery' ? '' : 'none';
       if (subRow && mode !== 'gallery') subRow.style.display = 'none';
+
+      // collections — always return to main overview, hide sub-pages
+      if (mode === 'collections') {
+        const l2 = document.getElementById('collectionsLevel2');
+        const l3 = document.getElementById('collectionsLevel3');
+        const main = document.getElementById('collectionsPage');
+        if (l2) l2.style.display = 'none';
+        if (l3) l3.style.display = 'none';
+        if (main) main.style.display = '';
+      }
 
       // load content
       if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0 && !activeSearch) initLens();
@@ -939,80 +950,43 @@
         const released = sets.filter(s => new Date(s.released_at) <= now);
         const upcoming = sets.filter(s => new Date(s.released_at) > now);
 
-        // Pills: Latest, Previous, + single "Coming soon" (only when upcoming sets exist)
+        // Check each upcoming set in parallel — only show a pill if cards exist
+        const previewChecks = await Promise.all(
+          upcoming.map(s =>
+            fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent('s:' + s.code + ' has:illustration')}&unique=art&page=1`)
+              .then(r => r.ok ? r.json() : null)
+              .then(j => (j && (j.total_cards || 0) > 0) ? s : null)
+              .catch(() => null)
+          )
+        );
+        const availablePreviews = previewChecks.filter(Boolean);
+
         const pills = [];
         if (released[0]) pills.push({ label: 'Latest: '   + released[0].name, code: released[0].code });
         if (released[1]) pills.push({ label: 'Previous: ' + released[1].name, code: released[1].code });
-        if (upcoming.length) pills.push({ label: 'Coming soon', key: 'coming', sets: upcoming });
+        availablePreviews.forEach(s => pills.push({ label: 'Preview: ' + s.name, code: s.code }));
 
-        const isComingActive = savedSub === 'coming';
+        if (!pills.length) { row.style.display = 'none'; applyLensQuery('new', null); return; }
+
+        const activeSub = savedSub?.code;
         row.innerHTML = pills.map((p, i) =>
-          `<button class="sub-pill ${(isComingActive ? p.key === 'coming' : savedSub ? savedSub.code === p.code : i === 0) ? 'active' : ''}" data-idx="${i}">${p.label}</button>`
+          `<button class="sub-pill ${(activeSub ? activeSub === p.code : i === 0) ? 'active' : ''}" data-idx="${i}">${p.label}</button>`
         ).join('');
 
         row.querySelectorAll('.sub-pill').forEach((btn, i) => {
           btn.addEventListener('click', () => {
             row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            const p = pills[i];
-            window._activeSubPill = p.key || p;
-            if (p.key === 'coming') {
-              loadComingSoonFeed(p.sets);
-            } else {
-              applyLensQuery('new', p);
-            }
+            window._activeSubPill = pills[i];
+            applyLensQuery('new', pills[i]);
           });
         });
 
-        if (pills.length && !window._suppressLensApply) {
-          const first = pills[0];
-          window._activeSubPill = first.key || first;
-          if (first.key === 'coming') loadComingSoonFeed(first.sets);
-          else applyLensQuery('new', first);
+        if (!window._suppressLensApply) {
+          window._activeSubPill = pills[0];
+          applyLensQuery('new', pills[0]);
         }
       } catch(e) { row.style.display = 'none'; applyLensQuery('new', null); }
-    }
-
-    // Coming soon feed — fetches all upcoming-set cards and groups them by set name
-    async function loadComingSoonFeed(upcomingSets) {
-      showShimmers();
-      resetPagination();
-
-      if (!upcomingSets || !upcomingSets.length) {
-        grid.innerHTML = `<div class="empty-state"><h2>No previews yet</h2><p>Cards for upcoming sets haven't been revealed. Check back soon.</p></div>`;
-        return;
-      }
-
-      const orCodes = upcomingSets.map(s => `s:${s.code}`).join(' OR ');
-      const query = `(${orCodes}) has:illustration`;
-
-      const { data } = await fetchCards(query);
-      grid.innerHTML = '';
-
-      if (!data.length) {
-        grid.innerHTML = `<div class="empty-state"><h2>No previews yet</h2><p>Cards for upcoming sets haven't been revealed. Check back soon.</p></div>`;
-        return;
-      }
-
-      // Group cards by set name, preserving order of first appearance
-      const groups = {};
-      const order = [];
-      data.forEach(card => {
-        const sn = card.set_name || 'Unknown';
-        if (!groups[sn]) { groups[sn] = []; order.push(sn); }
-        groups[sn].push(card);
-      });
-
-      // Render each group with a header
-      order.forEach(setName => {
-        const hdr = document.createElement('div');
-        hdr.className = 'feed-set-header';
-        hdr.textContent = setName;
-        grid.appendChild(hdr);
-        renderCards(groups[setName]);
-      });
-
-      filteredCards = data;
     }
 
     function renderEraPills(row, savedSub) {
@@ -1129,6 +1103,24 @@
         const card = (json.data || [])[0];
         const art = card?.image_uris?.art_crop || card?.card_faces?.[0]?.image_uris?.art_crop || '';
         _characterArtCache[key] = art;
+        return art;
+      } catch(e) { return ''; }
+    }
+
+    // ── Plane art (basic land from each plane's set pool) ──
+    const _planeArtCache = {};
+    async function fetchPlaneArt(name, setCodes) {
+      if (_planeArtCache[name] !== undefined) return _planeArtCache[name];
+      _planeArtCache[name] = '';
+      try {
+        const codes = setCodes.split(',');
+        const orQ = codes.map(c => `s:${c.trim()}`).join(' OR ');
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent('(' + orQ + ') t:basic has:illustration')}&unique=art&order=released&dir=asc`);
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        const card = (json.data || [])[0];
+        const art = card?.image_uris?.art_crop || card?.card_faces?.[0]?.image_uris?.art_crop || '';
+        _planeArtCache[name] = art;
         return art;
       } catch(e) { return ''; }
     }
@@ -1559,6 +1551,10 @@
         window._suppressLensApply = false; window._restoreSub = null;
         applyLensQuery(lens, sub);
       }
+
+      // Restore Collections mode if that was active before reload
+      const _savedMode = localStorage.getItem('mc_mode');
+      if (_savedMode === 'collections') setTimeout(() => setMode('collections'), 0);
     }
 
     // ── Pull-to-refresh (mobile only) ──
@@ -1742,28 +1738,34 @@
         });
       });
 
-      // Render planes — static iconic land art per plane
+      // Render planes — art loaded dynamically (basic lands from each plane's sets)
       const COL_WORLDS = [
-        { name:'Innistrad', sets:'isd,soi,emn,vow,mid,dsk', art:'https://cards.scryfall.io/art_crop/front/b/6/b6f6ac5d-8b99-4d78-9b74-e083626be534.jpg?1562612095' },
-        { name:'Ravnica',   sets:'rav,rtr,grn,rna,mkm',     art:'https://cards.scryfall.io/art_crop/front/f/9/f97a6d34-03ab-49f1-b02e-405b733f8843.jpg?1584832278' },
-        { name:'Zendikar',  sets:'zen,bfz,znr',             art:'https://cards.scryfall.io/art_crop/front/0/5/05e2a5cf-6a8b-4c45-9e8f-f4f21ba94dcb.jpg?1562302029' },
-        { name:'Dominaria', sets:'dom,dmu,bro',             art:'https://cards.scryfall.io/art_crop/front/1/0/10d46874-2242-4dc1-9b3e-3b72cb248c31.jpg?1562305508' },
-        { name:'Eldraine',  sets:'eld,woe',                 art:'https://cards.scryfall.io/art_crop/front/4/9/4985f6bb-5a85-4482-831f-c20c7222c98f.jpg?1572490498' },
-        { name:'Kamigawa',  sets:'chk,neo',                 art:'https://cards.scryfall.io/art_crop/front/c/8/c8b1f9b2-6f1b-41e7-b6f9-b1e5a2f9f6f3.jpg?1654567488' },
-        { name:'Theros',    sets:'ths,thb',                 art:'https://cards.scryfall.io/art_crop/front/f/1/f185a734-a32a-4244-88e8-dabafbfd064f.jpg?1562837629' },
-        { name:'Ixalan',    sets:'xln,lci',                 art:'https://cards.scryfall.io/art_crop/front/7/d/7d5e6aa0-4444-4a6e-b9da-3cded3a7c4c0.jpg?1562744097' },
-        { name:'Kaladesh',  sets:'kld,aer',                 art:'https://cards.scryfall.io/art_crop/front/6/5/65ae241c-8955-4c97-8be6-7356fbee2195.jpg?1775941250' },
-        { name:'Tarkir',    sets:'ktk,frf,dtk',             art:'https://cards.scryfall.io/art_crop/front/c/5/c5408607-af8f-48fe-bc40-32828d1976de.jpg?1702429680' },
-        { name:'Amonkhet',  sets:'akh,hou',                 art:'https://cards.scryfall.io/art_crop/front/8/8/8809830f-d8e1-4603-9652-0ad8b00234e9.jpg?1721427315' },
-        { name:'Lorwyn',    sets:'lrw,shm',                 art:'https://cards.scryfall.io/art_crop/front/2/7/276f5cee-a501-4658-bd4d-7a044bf1ccbc.jpg?1743204520' },
+        { name:'Innistrad', sets:'isd,soi,emn,vow,mid,dsk' },
+        { name:'Ravnica',   sets:'rav,rtr,grn,rna,mkm' },
+        { name:'Zendikar',  sets:'zen,bfz,znr' },
+        { name:'Dominaria', sets:'dom,dmu,bro' },
+        { name:'Eldraine',  sets:'eld,woe' },
+        { name:'Kamigawa',  sets:'chk,neo' },
+        { name:'Theros',    sets:'ths,thb' },
+        { name:'Ixalan',    sets:'xln,lci' },
+        { name:'Kaladesh',  sets:'kld,aer' },
+        { name:'Tarkir',    sets:'ktk,frf,dtk' },
+        { name:'Amonkhet',  sets:'akh,hou' },
+        { name:'Lorwyn',    sets:'lrw,shm' },
       ];
       const wRow = document.getElementById('colWorldsRow');
+      wRow.style.cssText += ';overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;';
       COL_WORLDS.forEach(w => {
+        const imgId = 'plane-img-' + w.name.toLowerCase().replace(/\s+/g, '-');
         wRow.insertAdjacentHTML('beforeend', `
           <div class="mood-card" data-sets="${w.sets}" style="flex:0 0 auto;width:140px;cursor:pointer;opacity:1;">
-            <div class="mood-card-img" style="background-image:url('${w.art}')"></div>
+            <div class="mood-card-img mood-card-img--loading" id="${imgId}"></div>
             <div class="mood-card-label">${w.name}</div>
           </div>`);
+        fetchPlaneArt(w.name, w.sets).then(art => {
+          const el = document.getElementById(imgId);
+          if (el && art) { el.style.backgroundImage = `url('${art}')`; el.classList.remove('mood-card-img--loading'); }
+        });
       });
       wRow.querySelectorAll('.mood-card').forEach(card => {
         card.addEventListener('click', () => {

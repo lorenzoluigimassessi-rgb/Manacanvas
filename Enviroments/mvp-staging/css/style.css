@@ -732,6 +732,9 @@ body {
   overflow-x: auto;
   scrollbar-width: none;
   animation: subRowIn 150ms ease;
+  position: sticky;
+  z-index: 44;
+  background: var(--bg);
 }
 .sub-row::-webkit-scrollbar { display: none; }
 

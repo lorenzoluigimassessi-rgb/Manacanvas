@@ -1115,7 +1115,7 @@
       try {
         const codes = setCodes.split(',');
         const orQ = codes.map(c => `s:${c.trim()}`).join(' OR ');
-        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent('(' + orQ + ') t:basic has:illustration')}&unique=art&order=released&dir=asc`);
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent('(' + orQ + ') t:basic has:illustration')}&unique=art&order=edhrec`);
         if (!res.ok) throw new Error();
         const json = await res.json();
         const card = (json.data || [])[0];
@@ -1514,6 +1514,9 @@
     }
 
     function initLens() {
+      // Restore Collections mode immediately — no gallery flash
+      if (localStorage.getItem('mc_mode') === 'collections') { setMode('collections'); return; }
+
       const saved = localStorage.getItem('mc_lens');
       let lens = 'picks', sub = null;
       if (saved) {
@@ -1552,9 +1555,6 @@
         applyLensQuery(lens, sub);
       }
 
-      // Restore Collections mode if that was active before reload
-      const _savedMode = localStorage.getItem('mc_mode');
-      if (_savedMode === 'collections') setTimeout(() => setMode('collections'), 0);
     }
 
     // ── Pull-to-refresh (mobile only) ──
@@ -1665,7 +1665,7 @@
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Planes</span>
-            <button class="collections-section-link">Show</button>
+            <button class="collections-section-link">Show (12)</button>
           </div>
           <div class="collections-row" id="colWorldsRow"></div>
         </div>
@@ -1754,8 +1754,7 @@
         { name:'Lorwyn',    sets:'lrw,shm' },
       ];
       const wRow = document.getElementById('colWorldsRow');
-      wRow.style.cssText += ';overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;';
-      COL_WORLDS.forEach(w => {
+      COL_WORLDS.slice(0, 6).forEach(w => {
         const imgId = 'plane-img-' + w.name.toLowerCase().replace(/\s+/g, '-');
         wRow.insertAdjacentHTML('beforeend', `
           <div class="mood-card" data-sets="${w.sets}" style="flex:0 0 auto;width:140px;cursor:pointer;opacity:1;">

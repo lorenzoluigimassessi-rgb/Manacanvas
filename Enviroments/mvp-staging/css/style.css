@@ -19,10 +19,10 @@
   --transition-normal: 200ms;
   --transition-slow: 300ms;
   /* Draw chip */
-  --draw-bg:         linear-gradient(135deg, #6b3fa0, #4a2d8a, #7c4dff);
+  --draw-bg:         linear-gradient(135deg, #2d1b69, #1a3a5c, #0d7377);
   --draw-border:     transparent;
-  --draw-fg:         #f0eeff;
-  --draw-bg-hov:     linear-gradient(135deg, #7c4dff, #5a3d9a, #8b5cf6);
+  --draw-fg:         #e0f0f8;
+  --draw-bg-hov:     linear-gradient(135deg, #3a2280, #1f4568, #109090);
   --draw-border-hov: transparent;
   --draw-fg-hov:     #ffffff;
 }

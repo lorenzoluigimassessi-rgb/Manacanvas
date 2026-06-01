@@ -1255,13 +1255,16 @@
       const toWarm = [
         LENS_ORDER[(idx + 1) % LENS_ORDER.length],
         LENS_ORDER[(idx + 2) % LENS_ORDER.length],
+        LENS_ORDER[(idx + 3) % LENS_ORDER.length],
       ];
+      const FIRST_SUBS = {
+        picks: null, new: null,
+        characters: 'jace', moods: 'dark', eras: 'Beginning 93\u201394',
+        lands: 'plains', iconic: 'all', gems: 'one'
+      };
       setTimeout(() => {
-        toWarm.forEach(lens => {
-          const firstSub = (LENS_SUB_PILLS[lens] || [])[0] || null;
-          _prewarmLens(lens, firstSub);
-        });
-      }, 1500); // delay so it doesn't compete with active fetch
+        toWarm.forEach(lens => _prewarmLens(lens, FIRST_SUBS[lens] || null));
+      }, 800);
     }
 
     function shuffleLens() {

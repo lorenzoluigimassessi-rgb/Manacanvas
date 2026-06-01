@@ -45,15 +45,12 @@
   letter-spacing: 0.3px;
   white-space: nowrap;
   flex-shrink: 0;
-  box-shadow: 0 0 16px rgba(124,77,255,0.25), 0 0 4px rgba(124,77,255,0.15);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
-  animation: drawGlow 3s ease-in-out infinite;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
 }
 .draw-chip:hover {
   background: var(--draw-bg-hov);
   color: var(--draw-fg-hov);
   transform: translateY(-1px);
-  box-shadow: 0 0 24px rgba(124,77,255,0.4), 0 0 8px rgba(124,77,255,0.25);
   filter: brightness(1.1);
 }
 /* Mobile: icon-only 40×40 pill */

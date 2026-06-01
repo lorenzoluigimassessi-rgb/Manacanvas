@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ManaCanvas — Component Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Josefin Sans', sans-serif; background: #0a0a0e; color: #eee; padding: 2rem; }
+h1 { font-family: 'Cinzel', serif; text-align: center; margin-bottom: 0.5rem; font-size: 1.4rem; letter-spacing: 3px; }
+.subtitle { text-align: center; color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-bottom: 3rem; }
+section { margin-bottom: 3.5rem; }
+.section-label { font-family: 'Cinzel', serif; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 1.5rem; color: rgba(180,160,220,0.7); }
+.row { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.variant { flex: 1; min-width: 280px; background: #0c0c10; border: 1px solid rgba(180,180,220,0.06); border-radius: 12px; padding: 1.5rem; }
+.variant-title { font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(200,200,220,0.4); margin-bottom: 1rem; }
+
+/* ═══ SUB-PILLS ═══ */
+.pills { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+/* Variant 1: Current (bordered) */
+.pill-v1 { height: 32px; padding: 0 0.7rem; border-radius: 999px; font-size: 0.78rem; font-weight: 400; display: inline-flex; align-items: center; background: transparent; border: 1px solid rgba(255,255,255,0.08); color: rgba(240,240,240,0.4); }
+.pill-v1.active { background: #1e1e28; border-color: rgba(255,255,255,0.18); color: rgba(240,240,240,0.95); font-weight: 500; }
+
+/* Variant 2: Borderless (text only, bg on active) */
+.pill-v2 { height: 28px; padding: 0 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 300; display: inline-flex; align-items: center; background: transparent; border: 1px solid transparent; color: rgba(200,200,220,0.4); }
+.pill-v2:hover { color: rgba(200,200,220,0.7); }
+.pill-v2.active { background: rgba(180,160,220,0.08); border-color: rgba(180,160,220,0.2); color: rgba(180,160,220,0.85); font-weight: 400; }
+
+/* Variant 3: Solid subtle (filled bg always) */
+.pill-v3 { height: 28px; padding: 0 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 300; display: inline-flex; align-items: center; background: rgba(255,255,255,0.03); border: none; color: rgba(200,200,220,0.4); }
+.pill-v3:hover { background: rgba(255,255,255,0.05); color: rgba(200,200,220,0.7); }
+.pill-v3.active { background: rgba(180,160,220,0.1); color: rgba(180,160,220,0.9); font-weight: 400; }
+
+/* ═══ MOOD CARDS ═══ */
+.moods { display: flex; gap: 0.5rem; }
+.mood { width: 110px; flex-shrink: 0; border-radius: 8px; overflow: hidden; cursor: default; }
+.mood img { width: 100%; height: 70px; object-fit: cover; display: block; }
+
+/* Variant A: Label below (current) */
+.mood-va { border: 1px solid rgba(255,255,255,0.08); opacity: 0.55; }
+.mood-va.active { opacity: 1; border-color: rgba(255,255,255,0.18); }
+.mood-va .mood-lbl { padding: 0.4rem; font-size: 0.68rem; color: rgba(240,240,240,0.5); text-align: center; }
+.mood-va.active .mood-lbl { color: rgba(240,240,240,0.95); }
+
+/* Variant B: Label overlay on image */
+.mood-vb { border: 1px solid rgba(180,180,220,0.06); opacity: 0.4; position: relative; }
+.mood-vb.active { opacity: 1; border-color: rgba(180,160,220,0.3); }
+.mood-vb .mood-lbl { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.4rem; font-size: 0.65rem; color: rgba(240,240,240,0.9); text-align: center; background: linear-gradient(transparent, rgba(0,0,0,0.8)); font-weight: 400; letter-spacing: 0.5px; }
+
+/* Variant C: Rounded with glow on active */
+.mood-vc { border: 2px solid transparent; opacity: 0.4; border-radius: 12px; }
+.mood-vc.active { opacity: 1; border-color: rgba(180,160,220,0.4); box-shadow: 0 0 12px rgba(180,160,220,0.15); }
+.mood-vc .mood-lbl { padding: 0.4rem; font-size: 0.65rem; color: rgba(200,200,220,0.5); text-align: center; }
+.mood-vc.active .mood-lbl { color: rgba(180,160,220,0.9); }
+
+/* ═══ SEARCH PILL ═══ */
+.search-bar { height: 40px; border-radius: 999px; display: flex; align-items: center; padding: 0 0.8rem; gap: 0.4rem; margin-bottom: 0.5rem; }
+.search-icon { opacity: 0.4; font-size: 0.8rem; }
+.sep { width: 1px; height: 16px; background: rgba(255,255,255,0.08); margin-left: auto; }
+.adv-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; opacity: 0.4; }
+
+/* Pill Variant 1: Current */
+.sp-v1 .search-bar { background: #16161c; border: 1px solid rgba(255,255,255,0.08); }
+.sp-v1 .s-pill { display: inline-flex; align-items: center; gap: 0.3rem; background: #1e1e28; border: 1px solid rgba(255,255,255,0.18); border-radius: 999px; padding: 0.15rem 0.4rem; height: 26px; }
+.sp-v1 .s-pill-text { font-size: 0.75rem; color: rgba(240,240,240,0.95); }
+.sp-v1 .s-pill-tag { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(240,240,240,0.4); }
+.sp-v1 .s-pill-x { font-size: 0.65rem; color: rgba(240,240,240,0.4); margin-left: 0.2rem; }
+
+/* Pill Variant 2: Accent tint + solid tag */
+.sp-v2 .search-bar { background: #13131a; border: 1px solid rgba(180,180,220,0.06); }
+.sp-v2 .s-pill { display: inline-flex; align-items: center; gap: 0.3rem; background: rgba(180,160,220,0.08); border: 1px solid rgba(180,160,220,0.15); border-radius: 999px; padding: 0.15rem 0.5rem; height: 26px; }
+.sp-v2 .s-pill-text { font-size: 0.75rem; color: rgba(235,235,240,0.92); }
+.sp-v2 .s-pill-tag { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(179,157,219,0.15); color: #b39ddb; padding: 0.1rem 0.35rem; border-radius: 999px; }
+.sp-v2 .s-pill-x { font-size: 0.65rem; color: rgba(200,200,220,0.4); margin-left: 0.2rem; }
+
+/* Pill Variant 3: Minimal (no border, just bg) */
+.sp-v3 .search-bar { background: #13131a; border: 1px solid rgba(180,180,220,0.06); }
+.sp-v3 .s-pill { display: inline-flex; align-items: center; gap: 0.3rem; background: rgba(255,255,255,0.05); border: none; border-radius: 999px; padding: 0.15rem 0.5rem; height: 26px; }
+.sp-v3 .s-pill-text { font-size: 0.75rem; color: rgba(235,235,240,0.9); }
+.sp-v3 .s-pill-tag { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; color: #b39ddb; opacity: 0.7; }
+.sp-v3 .s-pill-x { font-size: 0.65rem; color: rgba(200,200,220,0.3); margin-left: 0.2rem; }
+
+/* ═══ GRID CARDS ═══ */
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.card-demo { border-radius: 8px; overflow: hidden; position: relative; }
+.card-demo img { width: 100%; height: 120px; object-fit: cover; display: block; }
+.card-ov { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.6rem; }
+.card-name { font-size: 0.72rem; font-weight: 500; color: #fff; }
+.card-artist { font-size: 0.6rem; color: rgba(255,255,255,0.5); }
+
+/* Card V1: Current */
+.card-v1 { border-radius: 6px; }
+.card-v1 .card-ov { background: linear-gradient(transparent, rgba(0,0,0,0.88)); }
+
+/* Card V2: Ring on hover + Cinzel name */
+.card-v2 { border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); border: 1px solid transparent; transition: border-color 200ms, box-shadow 200ms; }
+.card-v2:hover { border-color: rgba(180,160,220,0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+.card-v2 .card-ov { background: linear-gradient(transparent, rgba(10,10,14,0.9)); }
+.card-v2 .card-name { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.5px; }
+
+/* Card V3: Stronger overlay + warm tint */
+.card-v3 { border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.card-v3:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
+.card-v3 .card-ov { background: linear-gradient(transparent 30%, rgba(11,10,8,0.92)); }
+.card-v3 .card-name { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.5px; color: rgba(240,235,220,0.95); }
+.card-v3 .card-artist { color: rgba(220,190,120,0.5); }
+
+/* ═══ LENS TABS ═══ */
+.lens-demo { display: flex; gap: 1rem; padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
+.lens-tab { font-size: 0.8rem; padding-bottom: 0.5rem; cursor: default; }
+
+/* Lens V1: Current */
+.lens-v1 .lens-tab { font-weight: 400; color: rgba(240,240,240,0.4); border-bottom: 2px solid transparent; }
+.lens-v1 .lens-tab.active { font-weight: 500; color: rgba(240,240,240,0.95); border-bottom-color: rgba(240,240,240,0.95); }
+
+/* Lens V2: Violet accent, lighter weight */
+.lens-v2 .lens-tab { font-weight: 300; color: rgba(200,200,220,0.4); letter-spacing: 0.8px; border-bottom: 2px solid transparent; }
+.lens-v2 .lens-tab.active { font-weight: 400; color: rgba(180,160,220,0.85); border-bottom-color: rgba(180,160,220,0.85); }
+
+/* Lens V3: No underline, bg pill on active */
+.lens-v3 .lens-tab { font-weight: 300; color: rgba(200,200,220,0.4); letter-spacing: 0.5px; border-bottom: none; padding: 0.4rem 0.7rem; border-radius: 999px; }
+.lens-v3 .lens-tab.active { font-weight: 400; color: rgba(180,160,220,0.9); background: rgba(180,160,220,0.08); }
+</style>
+</head>
+<body>
+
+<h1>COMPONENT VARIATIONS</h1>
+<p class="subtitle">Compare interaction patterns and visual treatments. Hover cards to see hover states.</p>
+
+<!-- LENS TABS -->
+<section>
+  <div class="section-label">Lens Tabs</div>
+  <div class="row">
+    <div class="variant">
+      <div class="variant-title">V1 — Current (bold + white underline)</div>
+      <div class="lens-demo lens-v1">
+        <span class="lens-tab active">All</span>
+        <span class="lens-tab">New</span>
+        <span class="lens-tab">Iconic Characters</span>
+        <span class="lens-tab">Moods</span>
+        <span class="lens-tab">Lands</span>
+      </div>
+    </div>
+    <div class="variant">
+      <div class="variant-title">V2 — Light weight + violet accent underline</div>
+      <div class="lens-demo lens-v2">
+        <span class="lens-tab active">All</span>
+        <span class="lens-tab">New</span>
+        <span class="lens-tab">Iconic Characters</span>
+        <span class="lens-tab">Moods</span>
+        <span class="lens-tab">Lands</span>
+      </div>
+    </div>
+    <div class="variant">
+      <div class="variant-title">V3 — Pill-style active (no underline)</div>
+      <div class="lens-demo lens-v3">
+        <span class="lens-tab active">All</span>
+        <span class="lens-tab">New</span>
+        <span class="lens-tab">Iconic Characters</span>
+        <span class="lens-tab">Moods</span>
+        <span class="lens-tab">Lands</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUB-PILLS -->
+<section>
+  <div class="section-label">Sub-Pills</div>
+  <div class="row">
+    <div class="variant">
+      <div class="variant-title">V1 — Current (bordered, 32px)</div>
+      <div class="pills">
+        <span class="pill-v1 active">Dark & Haunting</span>
+        <span class="pill-v1">Fae & Ethereal</span>
+        <span class="pill-v1">Villains</span>
+        <span class="pill-v1">Epic & Vast</span>
+      </div>
+    </div>
+    <div class="variant">
+      <div class="variant-title">V2 — Borderless, accent on active (28px)</div>
+      <div class="pills">
+        <span class="pill-v2 active">Dark & Haunting</span>
+        <span class="pill-v2">Fae & Ethereal</span>
+        <span class="pill-v2">Villains</span>
+        <span class="pill-v2">Epic & Vast</span>
+      </div>
+    </div>
+    <div class="variant">
+      <div class="variant-title">V3 — Subtle fill always, accent on active</div>
+      <div class="pills">
+        <span class="pill-v3 active">Dark & Haunting</span>
+        <span class="pill-v3">Fae & Ethereal</span>
+        <span class="pill-v3">Villains</span>
+        <span class="pill-v3">Epic & Vast</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MOOD CARDS -->
+<section>
+  <div class="section-label">Mood / Character Cards</div>
+  <div class="row">
+    <div class="variant">
+      <div class="variant-title">A — Label below (current)</div>
+      <div class="moods">
+        <div class="mood mood-va active"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435"><div class="mood-lbl">Dark</div></div>
+        <div class="mood mood-va"><img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456"><div class="mood-lbl">Fae</div></div>
+        <div class="mood mood-va"><img src="https://cards.scryfall.io/art_crop/front/2/4/249db4d4-2542-47ee-a216-e13ffbc2319c.jpg?1758104027"><div class="mood-lbl">Epic</div></div>
+      </div>
+    </div>
+    <div class="variant">
+      <div class="variant-title">B — Label overlay on image</div>
+      <div class="moods">
+        <div class="mood mood-vb active"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435"><div class="mood-lbl">Dark</div></div>
+        <div class="mood mood-vb"><img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456"><div class="mood-lbl">Fae</div></div>
+        <div class="mood mood-vb"><img src="https://cards.scryfall.io/art_crop/front/2/4/249db4d4-2542-47ee-a216-e13ffbc2319c.jpg?1758104027"><div class="mood-lbl">Epic</div></div>
+      </div>
+    </div>
+    <div class="variant">
+      <div class="variant-title">C — Rounded + glow border on active</div>
+      <div class="moods">
+        <div class="mood mood-vc active"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435"><div class="mood-lbl">Dark</div></div>
+        <div class="mood mood-vc"><img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456"><div class="mood-lbl">Fae</div></div>
+        <div class="mood mood-vc"><img src="https://cards.scryfall.io/art_crop/front/2/4/249db4d4-2542-47ee-a216-e13ffbc2319c.jpg?1758104027"><div class="mood-lbl">Epic</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEARCH PILL -->
+<section>
+  <div class="section-label">Search Pill</div>
+  <div class="row">
+    <div class="variant sp-v1">
+      <div class="variant-title">V1 — Current (neutral bg, text tag)</div>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <span class="s-pill"><span class="s-pill-text">Seb McKinnon</span><span class="s-pill-tag">Artist</span><span class="s-pill-x">✕</span></span>
+        <span class="sep"></span>
+        <span class="adv-btn">⊞</span>
+      </div>
+    </div>
+    <div class="variant sp-v2">
+      <div class="variant-title">V2 — Accent tint + solid colour tag</div>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <span class="s-pill"><span class="s-pill-text">Seb McKinnon</span><span class="s-pill-tag">Artist</span><span class="s-pill-x">✕</span></span>
+        <span class="sep"></span>
+        <span class="adv-btn">⊞</span>
+      </div>
+    </div>
+    <div class="variant sp-v3">
+      <div class="variant-title">V3 — Minimal (no border, soft bg)</div>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <span class="s-pill"><span class="s-pill-text">Seb McKinnon</span><span class="s-pill-tag">Artist</span><span class="s-pill-x">✕</span></span>
+        <span class="sep"></span>
+        <span class="adv-btn">⊞</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GRID CARDS -->
+<section>
+  <div class="section-label">Grid Cards (hover to compare)</div>
+  <div class="row">
+    <div class="variant">
+      <div class="variant-title">V1 — Current (simple lift)</div>
+      <div class="cards">
+        <div class="card-demo card-v1"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435"><div class="card-ov"><div class="card-name">Liliana, Dreadhorde</div><div class="card-artist">Chris Rallis</div></div></div>
+        <div class="card-demo card-v1"><img src="https://cards.scryfall.io/art_crop/front/c/5/c5408607-af8f-48fe-bc40-32828d1976de.jpg?1702429680"><div class="card-ov"><div class="card-name">Nicol Bolas</div><div class="card-artist">Svetlin Velinov</div></div></div>
+      </div>
+    </div>
+    <div class="variant">
+      <div class="variant-title">V2 — Ring + Cinzel name + cool overlay</div>
+      <div class="cards">
+        <div class="card-demo card-v2"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435"><div class="card-ov"><div class="card-name">Liliana, Dreadhorde</div><div class="card-artist">Chris Rallis</div></div></div>
+        <div class="card-demo card-v2"><img src="https://cards.scryfall.io/art_crop/front/c/5/c5408607-af8f-48fe-bc40-32828d1976de.jpg?1702429680"><div class="card-ov"><div class="card-name">Nicol Bolas</div><div class="card-artist">Svetlin Velinov</div></div></div>
+      </div>
+    </div>
+    <div class="variant">
+      <div class="variant-title">V3 — Rounder + warm tint + gold artist</div>
+      <div class="cards">
+        <div class="card-demo card-v3"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435"><div class="card-ov"><div class="card-name">Liliana, Dreadhorde</div><div class="card-artist">Chris Rallis</div></div></div>
+        <div class="card-demo card-v3"><img src="https://cards.scryfall.io/art_crop/front/c/5/c5408607-af8f-48fe-bc40-32828d1976de.jpg?1702429680"><div class="card-ov"><div class="card-name">Nicol Bolas</div><div class="card-artist">Svetlin Velinov</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

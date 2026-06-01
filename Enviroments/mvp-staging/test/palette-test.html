@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ManaCanvas — Palette Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Josefin Sans', sans-serif; background: #050507; color: #eee; padding: 2rem; }
+h1 { font-family: 'Cinzel', serif; text-align: center; margin-bottom: 0.5rem; font-size: 1.4rem; letter-spacing: 3px; }
+.subtitle { text-align: center; color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-bottom: 2.5rem; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+.col { border-radius: 12px; padding: 1.5rem; }
+.col-title { font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 1.2rem; text-align: center; }
+.col-desc { font-size: 0.7rem; text-align: center; margin-bottom: 1.5rem; opacity: 0.6; }
+
+/* Shared component structure */
+.demo-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.demo-logo { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 0.55rem; font-weight: 600; letter-spacing: 1px; }
+.demo-search { flex: 1; height: 36px; border-radius: 999px; display: flex; align-items: center; padding: 0 0.8rem; font-size: 0.75rem; gap: 0.4rem; }
+.demo-search span { opacity: 0.5; }
+
+.demo-lens { display: flex; gap: 0.8rem; margin-bottom: 1rem; padding-bottom: 0.5rem; }
+.demo-lens span { font-size: 0.75rem; font-weight: 300; letter-spacing: 0.5px; padding-bottom: 0.4rem; cursor: default; }
+.demo-lens span.active { font-weight: 400; }
+
+.demo-pills { display: flex; gap: 0.4rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+.demo-pill { height: 26px; padding: 0 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 300; display: inline-flex; align-items: center; cursor: default; }
+
+.demo-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
+.demo-card { border-radius: 8px; overflow: hidden; position: relative; }
+.demo-card img { width: 100%; height: 100px; object-fit: cover; display: block; }
+.demo-card-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.5rem; }
+.demo-card-name { font-size: 0.7rem; font-weight: 500; }
+.demo-card-artist { font-size: 0.6rem; opacity: 0.5; }
+
+.demo-section-title { font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 1.5px; margin: 1rem 0 0.6rem; }
+
+.demo-mood-row { display: flex; gap: 0.4rem; margin-bottom: 1rem; }
+.demo-mood { border-radius: 8px; overflow: hidden; width: 80px; flex-shrink: 0; }
+.demo-mood img { width: 100%; height: 50px; object-fit: cover; display: block; }
+.demo-mood-label { font-size: 0.6rem; padding: 0.3rem; text-align: center; }
+
+/* ═══ PALETTE A: Current ═══ */
+.palette-a { background: #0c0c0f; border: 1px solid rgba(255,255,255,0.08); }
+.palette-a .demo-logo { background: #16161c; border: 1px solid rgba(255,255,255,0.08); color: rgba(240,240,240,0.95); }
+.palette-a .demo-search { background: #16161c; border: 1px solid rgba(255,255,255,0.08); color: rgba(240,240,240,0.95); }
+.palette-a .demo-lens span { color: rgba(240,240,240,0.4); border-bottom: 2px solid transparent; }
+.palette-a .demo-lens span.active { color: rgba(240,240,240,0.95); border-bottom: 2px solid rgba(240,240,240,0.95); }
+.palette-a .demo-pill { background: transparent; border: 1px solid rgba(255,255,255,0.08); color: rgba(240,240,240,0.4); }
+.palette-a .demo-pill.active { background: #1e1e28; border-color: rgba(255,255,255,0.18); color: rgba(240,240,240,0.95); }
+.palette-a .demo-card-overlay { background: linear-gradient(transparent, rgba(0,0,0,0.88)); }
+.palette-a .demo-card-name { color: #fff; }
+.palette-a .demo-mood { border: 1px solid rgba(255,255,255,0.08); }
+.palette-a .demo-mood.active { border-color: rgba(255,255,255,0.18); }
+.palette-a .demo-mood-label { color: rgba(240,240,240,0.5); }
+.palette-a .demo-mood.active .demo-mood-label { color: rgba(240,240,240,0.95); }
+
+/* ═══ PALETTE B: Cool Violet ═══ */
+.palette-b { background: #0a0a0e; border: 1px solid rgba(180,180,220,0.06); }
+.palette-b .demo-logo { background: #13131a; border: 1px solid rgba(180,180,220,0.06); color: rgba(235,235,240,0.92); }
+.palette-b .demo-search { background: #13131a; border: 1px solid rgba(180,180,220,0.06); color: rgba(235,235,240,0.92); }
+.palette-b .demo-lens span { color: rgba(200,200,220,0.45); border-bottom: 2px solid transparent; }
+.palette-b .demo-lens span.active { color: rgba(180,160,220,0.85); border-bottom: 2px solid rgba(180,160,220,0.85); box-shadow: 0 2px 8px rgba(180,160,220,0.12); }
+.palette-b .demo-pill { background: transparent; border: 1px solid transparent; color: rgba(200,200,220,0.45); }
+.palette-b .demo-pill.active { background: rgba(180,160,220,0.08); border-color: rgba(180,160,220,0.2); color: rgba(180,160,220,0.85); }
+.palette-b .demo-card { box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.palette-b .demo-card-overlay { background: linear-gradient(transparent, rgba(10,10,14,0.9)); }
+.palette-b .demo-card-name { color: rgba(235,235,240,0.95); font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.5px; }
+.palette-b .demo-mood { border: 1px solid rgba(180,180,220,0.06); opacity: 0.4; }
+.palette-b .demo-mood.active { border-color: rgba(180,160,220,0.3); opacity: 1; }
+.palette-b .demo-mood-label { color: rgba(200,200,220,0.5); }
+.palette-b .demo-mood.active .demo-mood-label { color: rgba(180,160,220,0.85); }
+
+/* ═══ PALETTE C: Warm Gold ═══ */
+.palette-c { background: #0b0a08; border: 1px solid rgba(200,180,140,0.06); }
+.palette-c .demo-logo { background: #15140f; border: 1px solid rgba(200,180,140,0.06); color: rgba(240,235,220,0.92); }
+.palette-c .demo-search { background: #15140f; border: 1px solid rgba(200,180,140,0.06); color: rgba(240,235,220,0.92); }
+.palette-c .demo-lens span { color: rgba(220,200,160,0.4); border-bottom: 2px solid transparent; }
+.palette-c .demo-lens span.active { color: rgba(220,190,120,0.9); border-bottom: 2px solid rgba(220,190,120,0.9); box-shadow: 0 2px 8px rgba(220,190,120,0.1); }
+.palette-c .demo-pill { background: transparent; border: 1px solid transparent; color: rgba(220,200,160,0.4); }
+.palette-c .demo-pill.active { background: rgba(220,190,120,0.06); border-color: rgba(220,190,120,0.18); color: rgba(220,190,120,0.9); }
+.palette-c .demo-card { box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.palette-c .demo-card-overlay { background: linear-gradient(transparent, rgba(11,10,8,0.9)); }
+.palette-c .demo-card-name { color: rgba(240,235,220,0.95); font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.5px; }
+.palette-c .demo-mood { border: 1px solid rgba(200,180,140,0.06); opacity: 0.4; }
+.palette-c .demo-mood.active { border-color: rgba(220,190,120,0.25); opacity: 1; }
+.palette-c .demo-mood-label { color: rgba(220,200,160,0.5); }
+.palette-c .demo-mood.active .demo-mood-label { color: rgba(220,190,120,0.9); }
+
+.swatch-row { display: flex; gap: 0.3rem; margin-top: 1rem; flex-wrap: wrap; }
+.swatch { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); }
+</style>
+</head>
+<body>
+
+<h1>PALETTE COMPARISON</h1>
+<p class="subtitle">Same UI — three colour directions. Open in browser, compare side by side.</p>
+
+<div class="grid">
+
+  <!-- PALETTE A: Current -->
+  <div class="col palette-a">
+    <div class="col-title">A — Current</div>
+    <div class="col-desc">Neutral monochrome dark. No colour accent.</div>
+
+    <div class="demo-header">
+      <div class="demo-logo">MC</div>
+      <div class="demo-search"><span>🔍</span> Search card, artist...</div>
+    </div>
+
+    <div class="demo-lens">
+      <span class="active">All</span>
+      <span>New</span>
+      <span>Moods</span>
+      <span>Eras</span>
+      <span>Lands</span>
+    </div>
+
+    <div class="demo-pills">
+      <span class="demo-pill active">Dark & Haunting</span>
+      <span class="demo-pill">Fae & Ethereal</span>
+      <span class="demo-pill">Epic & Vast</span>
+    </div>
+
+    <div class="demo-cards">
+      <div class="demo-card">
+        <img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435" alt="">
+        <div class="demo-card-overlay"><div class="demo-card-name">Liliana, Dreadhorde</div><div class="demo-card-artist">Chris Rallis</div></div>
+      </div>
+      <div class="demo-card">
+        <img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456" alt="">
+        <div class="demo-card-overlay"><div class="demo-card-name">Oko, Thief of Crowns</div><div class="demo-card-artist">Yongjae Choi</div></div>
+      </div>
+    </div>
+
+    <div class="demo-section-title">Moods</div>
+    <div class="demo-mood-row">
+      <div class="demo-mood active"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435" alt=""><div class="demo-mood-label">Dark</div></div>
+      <div class="demo-mood"><img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456" alt=""><div class="demo-mood-label">Fae</div></div>
+      <div class="demo-mood"><img src="https://cards.scryfall.io/art_crop/front/2/4/249db4d4-2542-47ee-a216-e13ffbc2319c.jpg?1758104027" alt=""><div class="demo-mood-label">Epic</div></div>
+    </div>
+
+    <div class="swatch-row">
+      <div class="swatch" style="background:#0c0c0f"></div>
+      <div class="swatch" style="background:#16161c"></div>
+      <div class="swatch" style="background:#1e1e28"></div>
+      <div class="swatch" style="background:rgba(240,240,240,0.95)"></div>
+      <div class="swatch" style="background:rgba(240,240,240,0.4)"></div>
+    </div>
+  </div>
+
+  <!-- PALETTE B: Cool Violet -->
+  <div class="col palette-b">
+    <div class="col-title">B — Cool Violet</div>
+    <div class="col-desc">Blue-violet undertone. Mystical, mana-inspired.</div>
+
+    <div class="demo-header">
+      <div class="demo-logo">MC</div>
+      <div class="demo-search"><span>🔍</span> Search card, artist...</div>
+    </div>
+
+    <div class="demo-lens">
+      <span class="active">All</span>
+      <span>New</span>
+      <span>Moods</span>
+      <span>Eras</span>
+      <span>Lands</span>
+    </div>
+
+    <div class="demo-pills">
+      <span class="demo-pill active">Dark & Haunting</span>
+      <span class="demo-pill">Fae & Ethereal</span>
+      <span class="demo-pill">Epic & Vast</span>
+    </div>
+
+    <div class="demo-cards">
+      <div class="demo-card">
+        <img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435" alt="">
+        <div class="demo-card-overlay"><div class="demo-card-name">Liliana, Dreadhorde</div><div class="demo-card-artist">Chris Rallis</div></div>
+      </div>
+      <div class="demo-card">
+        <img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456" alt="">
+        <div class="demo-card-overlay"><div class="demo-card-name">Oko, Thief of Crowns</div><div class="demo-card-artist">Yongjae Choi</div></div>
+      </div>
+    </div>
+
+    <div class="demo-section-title">Moods</div>
+    <div class="demo-mood-row">
+      <div class="demo-mood active"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435" alt=""><div class="demo-mood-label">Dark</div></div>
+      <div class="demo-mood"><img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456" alt=""><div class="demo-mood-label">Fae</div></div>
+      <div class="demo-mood"><img src="https://cards.scryfall.io/art_crop/front/2/4/249db4d4-2542-47ee-a216-e13ffbc2319c.jpg?1758104027" alt=""><div class="demo-mood-label">Epic</div></div>
+    </div>
+
+    <div class="swatch-row">
+      <div class="swatch" style="background:#0a0a0e"></div>
+      <div class="swatch" style="background:#13131a"></div>
+      <div class="swatch" style="background:#1a1a24"></div>
+      <div class="swatch" style="background:rgba(180,160,220,0.85)"></div>
+      <div class="swatch" style="background:rgba(200,200,220,0.45)"></div>
+    </div>
+  </div>
+
+  <!-- PALETTE C: Warm Gold -->
+  <div class="col palette-c">
+    <div class="col-title">C — Warm Gold</div>
+    <div class="col-desc">Gold-amber undertone. Treasure, artifact-inspired.</div>
+
+    <div class="demo-header">
+      <div class="demo-logo">MC</div>
+      <div class="demo-search"><span>🔍</span> Search card, artist...</div>
+    </div>
+
+    <div class="demo-lens">
+      <span class="active">All</span>
+      <span>New</span>
+      <span>Moods</span>
+      <span>Eras</span>
+      <span>Lands</span>
+    </div>
+
+    <div class="demo-pills">
+      <span class="demo-pill active">Dark & Haunting</span>
+      <span class="demo-pill">Fae & Ethereal</span>
+      <span class="demo-pill">Epic & Vast</span>
+    </div>
+
+    <div class="demo-cards">
+      <div class="demo-card">
+        <img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435" alt="">
+        <div class="demo-card-overlay"><div class="demo-card-name">Liliana, Dreadhorde</div><div class="demo-card-artist">Chris Rallis</div></div>
+      </div>
+      <div class="demo-card">
+        <img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456" alt="">
+        <div class="demo-card-overlay"><div class="demo-card-name">Oko, Thief of Crowns</div><div class="demo-card-artist">Yongjae Choi</div></div>
+      </div>
+    </div>
+
+    <div class="demo-section-title">Moods</div>
+    <div class="demo-mood-row">
+      <div class="demo-mood active"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435" alt=""><div class="demo-mood-label">Dark</div></div>
+      <div class="demo-mood"><img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456" alt=""><div class="demo-mood-label">Fae</div></div>
+      <div class="demo-mood"><img src="https://cards.scryfall.io/art_crop/front/2/4/249db4d4-2542-47ee-a216-e13ffbc2319c.jpg?1758104027" alt=""><div class="demo-mood-label">Epic</div></div>
+    </div>
+
+    <div class="swatch-row">
+      <div class="swatch" style="background:#0b0a08"></div>
+      <div class="swatch" style="background:#15140f"></div>
+      <div class="swatch" style="background:#1e1c16"></div>
+      <div class="swatch" style="background:rgba(220,190,120,0.9)"></div>
+      <div class="swatch" style="background:rgba(220,200,160,0.45)"></div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

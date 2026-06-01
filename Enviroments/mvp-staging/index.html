@@ -611,8 +611,11 @@
     const PANELS     = { gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel' };
 
     let _currentMode = 'gallery';
+    const _scrollPositions = { gallery: 0, collections: 0 };
 
     function setMode(mode) {
+      // Save scroll position of current mode
+      _scrollPositions[_currentMode] = window.scrollY;
       _currentMode = mode;
       if (mode === 'gallery' || mode === 'collections') localStorage.setItem('mc_mode', mode);
 
@@ -653,6 +656,9 @@
       // load content
       if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0 && !activeSearch) initLens();
       if (mode === 'collections') renderCategories();
+
+      // Restore scroll position for this mode
+      window.scrollTo(0, _scrollPositions[mode] || 0);
     }
 
     // ── Draw ritual ──────────────────────────────────────────────────────────

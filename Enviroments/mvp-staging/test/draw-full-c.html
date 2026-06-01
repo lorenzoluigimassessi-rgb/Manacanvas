@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ManaCanvas — Option C (Indigo → Teal)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0c0c0f; color: rgba(240,240,240,0.95); font-family: 'Josefin Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+/* Tokens */
+:root {
+  --bg: #0c0c0f;
+  --surface: #16161c;
+  --surface-2: #1e1e28;
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.18);
+  --text-1: rgba(240,240,240,0.95);
+  --text-2: rgba(240,240,240,0.4);
+  --h: 48px;
+  --r: 999px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.25rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+}
+.logo {
+  width: var(--h); height: var(--h); border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 0.68rem; font-weight: 600; letter-spacing: 1.5px;
+  flex-shrink: 0;
+}
+.switcher {
+  display: flex; align-items: center;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); height: var(--h); padding: 4px; gap: 0;
+}
+.sw-btn {
+  display: inline-flex; align-items: center;
+  background: transparent; border: none;
+  color: var(--text-2); font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem; font-weight: 500; padding: 0 0.9rem;
+  height: calc(var(--h) - 8px); border-radius: var(--r); cursor: pointer;
+}
+.sw-btn.active { background: var(--surface-2); color: var(--text-1); }
+
+.search-bar {
+  flex: 1; max-width: 520px; height: var(--h);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); display: flex; align-items: center;
+  padding: 0 1rem; gap: 0.4rem; margin: 0 auto;
+}
+.search-bar span { color: var(--text-2); font-size: 0.85rem; }
+
+.spacer { flex: 1; }
+
+/* Draw button — Option C: Indigo → Teal */
+.draw-btn {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  background: linear-gradient(135deg, #2d1b69, #1a3a5c, #0d7377);
+  border: none; color: #e0f0f8; border-radius: var(--r);
+  height: var(--h); padding: 0 1rem;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.8rem;
+  font-weight: 500; letter-spacing: 0.3px; cursor: pointer;
+  flex-shrink: 0; transition: transform 150ms, filter 150ms;
+}
+.draw-btn:hover { transform: translateY(-1px); filter: brightness(1.15); }
+
+/* Lens row */
+.lens-row {
+  display: flex; align-items: center; gap: 0;
+  padding: 0; position: sticky; top: 73px; z-index: 45;
+  background: var(--bg);
+}
+.lens-chips {
+  display: flex; align-items: center; gap: 0.25rem;
+  padding: 0.6rem 1.5rem; overflow-x: auto; flex: 1;
+}
+.lens-chips::-webkit-scrollbar { display: none; }
+.lens-btn {
+  background: transparent; border: none;
+  color: var(--text-2); font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.85rem; font-weight: 400; letter-spacing: 0.3px;
+  padding: 0.65rem 0.2rem; margin: 0 0.6rem;
+  border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap;
+}
+.lens-btn.active { color: var(--text-1); font-weight: 500; border-bottom-color: var(--text-1); }
+
+/* Sub-pills */
+.sub-row {
+  display: flex; gap: 0.5rem; padding: 0.5rem 1.5rem; overflow-x: auto;
+}
+.sub-row::-webkit-scrollbar { display: none; }
+.sub-pill {
+  display: inline-flex; align-items: center;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: var(--r); color: var(--text-2);
+  font-size: 0.8rem; font-weight: 400; padding: 0 0.6rem;
+  height: 32px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+}
+.sub-pill.active { background: var(--surface-2); border-color: var(--border-hover); color: var(--text-1); font-weight: 500; }
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem; padding: 2rem;
+}
+.card {
+  border-radius: 6px; overflow: hidden; position: relative; cursor: pointer;
+  transition: transform 200ms, box-shadow 200ms;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.6); }
+.card img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; background: var(--surface); }
+.card .overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 1rem 0.8rem 0.8rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.88));
+  opacity: 0; transition: opacity 200ms;
+}
+.card:hover .overlay { opacity: 1; }
+.card .name { font-size: 0.85rem; font-weight: 500; color: #fff; }
+.card .artist { font-size: 0.7rem; color: rgba(240,240,240,0.45); margin-top: 0.2rem; }
+
+/* Mobile float */
+.mobile-float {
+  display: none; position: fixed;
+  bottom: calc(1.75rem + env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%); z-index: 60;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 4px; gap: 2px;
+  backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  align-items: center;
+}
+.mobile-float .draw-btn { height: 36px; font-size: 0.75rem; padding: 0 0.8rem; }
+.float-divider { width: 1px; height: 22px; background: var(--border); margin: 0 3px; }
+
+@media (max-width: 768px) {
+  .header { display: none; }
+  .mobile-float { display: flex; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; padding: 1rem; padding-bottom: 6rem; }
+  .card .overlay { opacity: 1; padding: 0.5rem 0.6rem; }
+}
+
+/* Label */
+.page-label {
+  position: fixed; top: 1rem; right: 1rem; z-index: 100;
+  background: rgba(13,115,119,0.2); border: 1px solid rgba(13,115,119,0.3);
+  color: #e0f0f8; font-size: 0.65rem; padding: 0.3rem 0.7rem;
+  border-radius: var(--r); letter-spacing: 1px; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<div class="page-label">Option C — Indigo → Teal</div>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo">MC</div>
+  <div class="switcher">
+    <button class="sw-btn active">Gallery</button>
+    <button class="sw-btn">Collections</button>
+  </div>
+  <div class="search-bar"><span>🔍 Search card, artist, creature...</span></div>
+  <button class="draw-btn">
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+    Draw
+  </button>
+</header>
+
+<!-- Lens row -->
+<div class="lens-row">
+  <div class="lens-chips">
+    <button class="lens-btn active">All</button>
+    <button class="lens-btn">New</button>
+    <button class="lens-btn">Iconic Characters</button>
+    <button class="lens-btn">Moods</button>
+    <button class="lens-btn">Eras</button>
+    <button class="lens-btn">Lands</button>
+    <button class="lens-btn">Hidden Gems</button>
+  </div>
+</div>
+
+<!-- Grid -->
+<main class="grid">
+  <div class="card"><img src="https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435"><div class="overlay"><div class="name">Liliana, Dreadhorde General</div><div class="artist">Chris Rallis</div></div></div>
+  <div class="card"><img src="https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456"><div class="overlay"><div class="name">Oko, Thief of Crowns</div><div class="artist">Yongjae Choi</div></div></div>
+  <div class="card"><img src="https://cards.scryfall.io/art_crop/front/c/5/c5408607-af8f-48fe-bc40-32828d1976de.jpg?1702429680"><div class="overlay"><div class="name">Nicol Bolas, Dragon-God</div><div class="artist">Svetlin Velinov</div></div></div>
+  <div class="card"><img src="https://cards.scryfall.io/art_crop/front/2/4/249db4d4-2542-47ee-a216-e13ffbc2319c.jpg?1758104027"><div class="overlay"><div class="name">Emrakul, the Aeons Torn</div><div class="artist">Mark Tedin</div></div></div>
+  <div class="card"><img src="https://cards.scryfall.io/art_crop/front/f/1/f185a734-a32a-4244-88e8-dabafbfd064f.jpg?1562837629"><div class="overlay"><div class="name">Heliod, Sun-Crowned</div><div class="artist">Lius Lasahido</div></div></div>
+  <div class="card"><img src="https://cards.scryfall.io/art_crop/front/8/8/8809830f-d8e1-4603-9652-0ad8b00234e9.jpg?1721427315"><div class="overlay"><div class="name">Bloomburrow Meadow</div><div class="artist">Sam Burley</div></div></div>
+  <div class="card"><img src="https://cards.scryfall.io/art_crop/front/3/2/3245ff74-1f9c-4518-a23f-1579f338f232.jpg?1689995727"><div class="overlay"><div class="name">Avacyn, Angel of Hope</div><div class="artist">Jason Chan</div></div></div>
+  <div class="card"><img src="https://cards.scryfall.io/art_crop/front/c/7/c74ae706-b3b3-4097-a387-6f6c38a9b603.jpg?1689995438"><div class="overlay"><div class="name">Ulamog, the Ceaseless Hunger</div><div class="artist">Michael Komarck</div></div></div>
+</main>
+
+<!-- Mobile float -->
+<nav class="mobile-float">
+  <button class="sw-btn active" style="height:32px;font-size:0.75rem;">Gallery</button>
+  <button class="sw-btn" style="height:32px;font-size:0.75rem;">Collections</button>
+  <span class="float-divider"></span>
+  <button class="draw-btn">
+    <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+    Draw
+  </button>
+</nav>
+
+</body>
+</html>

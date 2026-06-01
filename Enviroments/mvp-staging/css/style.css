@@ -19,12 +19,12 @@
   --transition-normal: 200ms;
   --transition-slow: 300ms;
   /* Draw chip */
-  --draw-bg:         #16161f;
-  --draw-border:     #4a4a60;
-  --draw-fg:         #c8c8e0;
-  --draw-bg-hov:     #1e1e2e;
-  --draw-border-hov: #8080a8;
-  --draw-fg-hov:     #e8e8f8;
+  --draw-bg:         linear-gradient(135deg, #6b3fa0, #4a2d8a, #7c4dff);
+  --draw-border:     transparent;
+  --draw-fg:         #f0eeff;
+  --draw-bg-hov:     linear-gradient(135deg, #7c4dff, #5a3d9a, #8b5cf6);
+  --draw-border-hov: transparent;
+  --draw-fg-hov:     #ffffff;
 }
 
 /* ── Draw chip ── */
@@ -33,7 +33,7 @@
   align-items: center;
   gap: 0.45rem;
   background: var(--draw-bg);
-  border: 1px solid var(--draw-border);
+  border: none;
   color: var(--draw-fg);
   border-radius: var(--radius-pill);
   height: var(--h);
@@ -45,15 +45,16 @@
   letter-spacing: 0.3px;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background var(--transition-fast), border-color var(--transition-fast),
-              color var(--transition-fast), transform var(--transition-fast);
-  animation: drawGlow 3.6s ease-in-out infinite;
+  box-shadow: 0 0 16px rgba(124,77,255,0.25), 0 0 4px rgba(124,77,255,0.15);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+  animation: drawGlow 3s ease-in-out infinite;
 }
 .draw-chip:hover {
   background: var(--draw-bg-hov);
-  border-color: var(--draw-border-hov);
   color: var(--draw-fg-hov);
   transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(124,77,255,0.4), 0 0 8px rgba(124,77,255,0.25);
+  filter: brightness(1.1);
 }
 /* Mobile: icon-only 40×40 pill */
 .draw-chip-mobile {
@@ -73,8 +74,8 @@
 
 /* ── Draw keyframes ── */
 @keyframes drawGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(150,150,200,0); }
-  50%       { box-shadow: 0 0 13px 1px rgba(150,150,200,0.26); }
+  0%, 100% { box-shadow: 0 0 16px rgba(124,77,255,0.25), 0 0 4px rgba(124,77,255,0.15); }
+  50%      { box-shadow: 0 0 22px rgba(124,77,255,0.4), 0 0 8px rgba(139,92,246,0.3); }
 }
 @keyframes drawFadeIn {
   from { opacity: 0; }

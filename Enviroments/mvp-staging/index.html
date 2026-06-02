@@ -1122,10 +1122,10 @@
         const codes = setCodes.split(',');
         const orQ = codes.map(c => `s:${c.trim()}`).join(' OR ');
         const base = '(' + orQ + ')';
-        // Try basics first; fall back to any land if the plane has no basics in its sets
-        let res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(base + ' t:basic has:illustration')}&unique=art&order=edhrec`);
+        // Fetch the most iconic card from the plane's sets (legendary preferred, then any popular card)
+        let res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(base + ' t:legendary has:illustration')}&unique=art&order=edhrec`);
         if (!res.ok) {
-          res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(base + ' t:land has:illustration')}&unique=art&order=edhrec`);
+          res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(base + ' has:illustration')}&unique=art&order=edhrec`);
         }
         if (!res.ok) throw new Error();
         const json = await res.json();

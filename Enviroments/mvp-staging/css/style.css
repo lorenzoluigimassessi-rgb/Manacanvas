@@ -3421,6 +3421,11 @@ input[type=range]::-moz-range-thumb {
   padding: 0.6rem 0.75rem;
   font-size: 0.82rem; font-weight: 500; color: var(--text-primary);
 }
+.l2-mana-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+.l2-mana-grid .col-type-pill { cursor: pointer; transition: border-color 150ms, transform 150ms; }
+.l2-mana-grid .col-type-pill:hover { border-color: var(--border-hover); transform: translateY(-1px); }
 
 @media (max-width: 768px) {
   .collections-level2 { padding: 1rem; }

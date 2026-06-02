@@ -1717,20 +1717,21 @@
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Sets</span>
-            <button class="collections-section-link">Show (214)</button>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('sets')">Show (214)</button>
           </div>
           <div class="collections-row" id="colSetRow"></div>
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Mana Colors</span>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('mana')">Show all</button>
           </div>
           <div class="collections-row" id="colManaRow"></div>
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Card Types</span>
-            <button class="collections-section-link">Show (12)</button>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('types')">Show (12)</button>
           </div>
           <div class="collections-row" id="colTypeRow"></div>
         </div>
@@ -1823,9 +1824,8 @@
       // Wire clicks — mana color pills
       mRow.querySelectorAll('.col-type-pill').forEach(pill => {
         pill.addEventListener('click', () => {
-          activeColour = [pill.dataset.color];
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
+          openCollectionsLevel2('mana');
+          setTimeout(() => openManaPage(pill.dataset.color), 50);
         });
       });
 
@@ -1833,13 +1833,19 @@
       const tRow = document.getElementById('colTypeRow');
       COL_TYPES.forEach(t => {
         tRow.insertAdjacentHTML('beforeend', `
-          <div class="col-type-pill">
+          <div class="col-type-pill" data-cardtype="${t.name}">
             <div class="col-type-icon">${t.icon}</div>
             <div class="col-type-text">
               <span class="col-type-name">${t.name}</span>
               <span class="col-type-count">${t.count}</span>
             </div>
           </div>`);
+      });
+      tRow.querySelectorAll('.col-type-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          openCollectionsLevel2('types');
+          setTimeout(() => openCardTypePage(pill.dataset.cardtype), 50);
+        });
       });
 
       // Wire clicks — artist cards open artist detail page
@@ -1853,9 +1859,8 @@
       // Wire clicks — set pills
       sRow.querySelectorAll('.col-type-pill').forEach(pill => {
         pill.addEventListener('click', () => {
-          activeSets = [pill.dataset.set];
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
+          openCollectionsLevel2('sets');
+          setTimeout(() => openSetPage(pill.dataset.set, pill.querySelector('.col-type-name').textContent), 50);
         });
       });
 
@@ -1965,6 +1970,9 @@
       if (category === 'artists') renderArtistsLevel2();
       if (category === 'planes') renderPlanesLevel2();
       if (category === 'creatures') renderCreaturesLevel2();
+      if (category === 'sets') renderSetsLevel2();
+      if (category === 'mana') renderManaLevel2();
+      if (category === 'types') renderTypesLevel2();
     }
 
     function closeCollectionsLevel2() {
@@ -2207,6 +2215,369 @@
 
     function renderCreatureFeedCards(grid, cards, total) {
       document.getElementById('creatureCount').textContent = total + ' cards';
+      grid.innerHTML = '';
+      cards.forEach(card => {
+        const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
+        if (!art) return;
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div></div>`;
+        el.addEventListener('click', () => openLightbox(card, 'feed'));
+        grid.appendChild(el);
+      });
+    }
+
+    // ── Collections Level 2: Sets ──
+    let _allSetsCache = null;
+
+    async function renderSetsLevel2() {
+      const l2 = document.getElementById('collectionsLevel2');
+      l2.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeCollectionsLevel2()">← Back</button>
+          <h2 class="l2-title">Sets</h2>
+          <span class="l2-count" id="l2SetCount">Loading...</span>
+        </div>
+        <div class="l2-toolbar">
+          <input type="text" class="l2-search-input" id="l2SetSearch" placeholder="Search sets..." autocomplete="off">
+          <div class="l2-sort" id="l2SetSort">
+            <button class="l2-sort-btn active" data-sort="newest">Newest</button>
+            <button class="l2-sort-btn" data-sort="oldest">Oldest</button>
+            <button class="l2-sort-btn" data-sort="az">A→Z</button>
+          </div>
+        </div>
+        <div class="l2-grid l2-planes-grid" id="l2SetGrid"></div>
+      `;
+      if (!_allSetsCache) {
+        try {
+          const res = await fetch('https://api.scryfall.com/sets');
+          const json = await res.json();
+          _allSetsCache = (json.data || []).filter(s => s.set_type === 'expansion' || s.set_type === 'core');
+        } catch(e) { _allSetsCache = []; }
+      }
+      let currentList = [..._allSetsCache];
+      let currentSort = 'newest';
+      document.getElementById('l2SetCount').textContent = currentList.length + ' sets';
+      renderSetGrid(currentList);
+
+      document.getElementById('l2SetSearch').addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        const filtered = q ? currentList.filter(s => s.name.toLowerCase().includes(q)) : currentList;
+        renderSetGrid(filtered);
+      });
+
+      document.getElementById('l2SetSort').querySelectorAll('.l2-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('l2SetSort').querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSort = btn.dataset.sort;
+          if (currentSort === 'newest') currentList = [..._allSetsCache];
+          else if (currentSort === 'oldest') currentList = [..._allSetsCache].reverse();
+          else currentList = [..._allSetsCache].sort((a, b) => a.name.localeCompare(b.name));
+          const q = document.getElementById('l2SetSearch').value.toLowerCase();
+          const filtered = q ? currentList.filter(s => s.name.toLowerCase().includes(q)) : currentList;
+          renderSetGrid(filtered);
+        });
+      });
+    }
+
+    function renderSetGrid(sets) {
+      const grid = document.getElementById('l2SetGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      sets.forEach(s => {
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="l2-plane-card" data-code="${s.code}" data-name="${s.name}">
+            <div class="l2-plane-img" style="display:flex;align-items:center;justify-content:center;background:var(--surface-2)">
+              <img src="${s.icon_svg_uri || ''}" width="40" height="40" style="filter:brightness(0) invert(0.7);opacity:0.7">
+            </div>
+            <div class="l2-plane-name">${s.name}</div>
+          </div>`);
+      });
+      grid.querySelectorAll('.l2-plane-card').forEach(card => {
+        card.addEventListener('click', () => openSetPage(card.dataset.code, card.dataset.name));
+      });
+    }
+
+    // ── Set Detail (L3) ──
+    let _setSort = 'random';
+    let _setDir = 'auto';
+    const _setFeedCache = {};
+
+    function openSetPage(code, name) {
+      document.getElementById('collectionsLevel2').style.display = 'none';
+      const l3 = document.getElementById('collectionsLevel3');
+      l3.style.display = 'block';
+      l3.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeSetPageL3()">← Back</button>
+          <h2 class="l2-title">${name}</h2>
+          <span class="l2-count" id="setCount">Loading...</span>
+        </div>
+        <div class="l2-toolbar">
+          <div></div>
+          <div class="l2-sort" id="setSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
+        </div>
+        <div class="l3-grid" id="setGrid"></div>
+      `;
+      _setSort = 'random'; _setDir = 'auto';
+      loadSetFeed(code);
+      document.getElementById('setSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('setSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _setSort = btn.dataset.sort; _setDir = btn.dataset.dir;
+          loadSetFeed(code);
+        });
+      });
+    }
+
+    function closeSetPageL3() {
+      document.getElementById('collectionsLevel3').style.display = 'none';
+      document.getElementById('collectionsLevel2').style.display = 'block';
+    }
+
+    async function loadSetFeed(code) {
+      const grid = document.getElementById('setGrid');
+      const cacheKey = code + ':' + _setSort + ':' + _setDir;
+      if (_setFeedCache[cacheKey]) {
+        _renderFeedCards(grid, _setFeedCache[cacheKey].cards, _setFeedCache[cacheKey].total, 'setCount');
+        return;
+      }
+      grid.innerHTML = Array(8).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
+      const q = 's:' + code + ' has:illustration';
+      const order = _setSort === 'random' ? 'released' : _setSort;
+      const dir = _setSort === 'random' ? 'asc' : _setDir;
+      try {
+        const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
+        if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
+        const json = await res.json();
+        const cards = _setSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        _setFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
+        _renderFeedCards(grid, cards, json.total_cards || cards.length, 'setCount');
+      } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
+    }
+
+    // ── Collections Level 2: Mana Colors ──
+    const ALL_MANA_COLORS = [
+      { label:'White', key:'w' },
+      { label:'Blue', key:'u' },
+      { label:'Black', key:'b' },
+      { label:'Red', key:'r' },
+      { label:'Green', key:'g' },
+      // Two-color combos
+      { label:'Azorius (WU)', key:'wu' },
+      { label:'Dimir (UB)', key:'ub' },
+      { label:'Rakdos (BR)', key:'br' },
+      { label:'Gruul (RG)', key:'rg' },
+      { label:'Selesnya (GW)', key:'gw' },
+      { label:'Orzhov (WB)', key:'wb' },
+      { label:'Izzet (UR)', key:'ur' },
+      { label:'Golgari (BG)', key:'bg' },
+      { label:'Boros (RW)', key:'rw' },
+      { label:'Simic (GU)', key:'gu' },
+      // Three-color combos
+      { label:'Esper (WUB)', key:'wub' },
+      { label:'Grixis (UBR)', key:'ubr' },
+      { label:'Jund (BRG)', key:'brg' },
+      { label:'Naya (RGW)', key:'rgw' },
+      { label:'Bant (GWU)', key:'gwu' },
+      { label:'Mardu (RWB)', key:'rwb' },
+      { label:'Temur (GUR)', key:'gur' },
+      { label:'Abzan (WBG)', key:'wbg' },
+      { label:'Jeskai (URW)', key:'urw' },
+      { label:'Sultai (BGU)', key:'bgu' },
+      // Special
+      { label:'Multicolor (3+)', key:'m' },
+      { label:'Colorless', key:'c' },
+    ];
+
+    function renderManaLevel2() {
+      const l2 = document.getElementById('collectionsLevel2');
+      l2.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeCollectionsLevel2()">← Back</button>
+          <h2 class="l2-title">Mana Colors</h2>
+          <span class="l2-count">${ALL_MANA_COLORS.length} combinations</span>
+        </div>
+        <div class="l2-grid l2-mana-grid" id="l2ManaGrid"></div>
+      `;
+      const grid = document.getElementById('l2ManaGrid');
+      ALL_MANA_COLORS.forEach(m => {
+        const icons = m.key.length <= 2 && m.key !== 'm' && m.key !== 'c'
+          ? m.key.split('').map(k => `<img src="${MANA_SVGS[k]}" width="20" height="20">`).join('')
+          : (m.key === 'm' ? '<img src="https://svgs.scryfall.io/card-symbols/S.svg" width="20" height="20">' : '<img src="https://svgs.scryfall.io/card-symbols/C.svg" width="20" height="20">');
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="col-type-pill" data-mana="${m.key}">
+            <div class="col-type-icon" style="display:flex;gap:2px">${icons}</div>
+            <div class="col-type-text">
+              <span class="col-type-name">${m.label}</span>
+            </div>
+          </div>`);
+      });
+      grid.querySelectorAll('.col-type-pill').forEach(pill => {
+        pill.addEventListener('click', () => openManaPage(pill.dataset.mana));
+      });
+    }
+
+    // ── Mana Detail (L3) ──
+    let _manaSort = 'random';
+    let _manaDir = 'auto';
+    const _manaFeedCache = {};
+
+    function _manaQuery(key) {
+      if (key === 'c') return 'c:colorless -c:w -c:u -c:b -c:r -c:g has:illustration';
+      if (key === 'm') return 'c>=3 has:illustration';
+      if (key.length === 1) return 'c=' + key + ' has:illustration';
+      // Multi-color: exact color identity
+      return 'c=' + key.split('').join('') + ' has:illustration';
+    }
+
+    function openManaPage(key) {
+      const label = ALL_MANA_COLORS.find(m => m.key === key)?.label || key;
+      document.getElementById('collectionsLevel2').style.display = 'none';
+      const l3 = document.getElementById('collectionsLevel3');
+      l3.style.display = 'block';
+      l3.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeManaPageL3()">← Back</button>
+          <h2 class="l2-title">${label}</h2>
+          <span class="l2-count" id="manaCount">Loading...</span>
+        </div>
+        <div class="l2-toolbar">
+          <div></div>
+          <div class="l2-sort" id="manaSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button></div>
+        </div>
+        <div class="l3-grid" id="manaGrid"></div>
+      `;
+      _manaSort = 'random'; _manaDir = 'auto';
+      loadManaFeed(key);
+      document.getElementById('manaSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('manaSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _manaSort = btn.dataset.sort; _manaDir = btn.dataset.dir;
+          loadManaFeed(key);
+        });
+      });
+    }
+
+    function closeManaPageL3() {
+      document.getElementById('collectionsLevel3').style.display = 'none';
+      document.getElementById('collectionsLevel2').style.display = 'block';
+    }
+
+    async function loadManaFeed(key) {
+      const grid = document.getElementById('manaGrid');
+      const cacheKey = 'mana:' + key + ':' + _manaSort + ':' + _manaDir;
+      if (_manaFeedCache[cacheKey]) {
+        _renderFeedCards(grid, _manaFeedCache[cacheKey].cards, _manaFeedCache[cacheKey].total, 'manaCount');
+        return;
+      }
+      grid.innerHTML = Array(8).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
+      const q = _manaQuery(key);
+      const order = _manaSort === 'random' ? 'released' : _manaSort;
+      const dir = _manaSort === 'random' ? 'asc' : _manaDir;
+      try {
+        const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
+        if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
+        const json = await res.json();
+        const cards = _manaSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        _manaFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
+        _renderFeedCards(grid, cards, json.total_cards || cards.length, 'manaCount');
+      } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
+    }
+
+    // ── Collections Level 2: Card Types ──
+    const ALL_CARD_TYPES = ['Creature','Instant','Sorcery','Enchantment','Artifact','Planeswalker','Land','Tribal','Battle','Kindred','Conspiracy'];
+
+    function renderTypesLevel2() {
+      const l2 = document.getElementById('collectionsLevel2');
+      l2.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeCollectionsLevel2()">← Back</button>
+          <h2 class="l2-title">Card Types</h2>
+          <span class="l2-count">${ALL_CARD_TYPES.length} types</span>
+        </div>
+        <div class="l2-grid l2-mana-grid" id="l2TypeGrid"></div>
+      `;
+      const grid = document.getElementById('l2TypeGrid');
+      ALL_CARD_TYPES.forEach(t => {
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="col-type-pill" data-cardtype="${t}">
+            <div class="col-type-text">
+              <span class="col-type-name">${t}</span>
+            </div>
+          </div>`);
+      });
+      grid.querySelectorAll('.col-type-pill').forEach(pill => {
+        pill.addEventListener('click', () => openCardTypePage(pill.dataset.cardtype));
+      });
+    }
+
+    // ── Card Type Detail (L3) ──
+    let _typeSort = 'random';
+    let _typeDir = 'auto';
+    const _typeFeedCache = {};
+
+    function openCardTypePage(type) {
+      document.getElementById('collectionsLevel2').style.display = 'none';
+      const l3 = document.getElementById('collectionsLevel3');
+      l3.style.display = 'block';
+      l3.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeCardTypePageL3()">← Back</button>
+          <h2 class="l2-title">${type}</h2>
+          <span class="l2-count" id="typeCount">Loading...</span>
+        </div>
+        <div class="l2-toolbar">
+          <div></div>
+          <div class="l2-sort" id="typeSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button></div>
+        </div>
+        <div class="l3-grid" id="typeGrid"></div>
+      `;
+      _typeSort = 'random'; _typeDir = 'auto';
+      loadTypeFeed(type);
+      document.getElementById('typeSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('typeSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _typeSort = btn.dataset.sort; _typeDir = btn.dataset.dir;
+          loadTypeFeed(type);
+        });
+      });
+    }
+
+    function closeCardTypePageL3() {
+      document.getElementById('collectionsLevel3').style.display = 'none';
+      document.getElementById('collectionsLevel2').style.display = 'block';
+    }
+
+    async function loadTypeFeed(type) {
+      const grid = document.getElementById('typeGrid');
+      const cacheKey = 'type:' + type + ':' + _typeSort + ':' + _typeDir;
+      if (_typeFeedCache[cacheKey]) {
+        _renderFeedCards(grid, _typeFeedCache[cacheKey].cards, _typeFeedCache[cacheKey].total, 'typeCount');
+        return;
+      }
+      grid.innerHTML = Array(8).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
+      const q = 't:' + type.toLowerCase() + ' has:illustration';
+      const order = _typeSort === 'random' ? 'released' : _typeSort;
+      const dir = _typeSort === 'random' ? 'asc' : _typeDir;
+      try {
+        const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
+        if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
+        const json = await res.json();
+        const cards = _typeSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        _typeFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
+        _renderFeedCards(grid, cards, json.total_cards || cards.length, 'typeCount');
+      } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
+    }
+
+    // ── Shared feed card renderer ──
+    function _renderFeedCards(grid, cards, total, countElId) {
+      const countEl = document.getElementById(countElId);
+      if (countEl) countEl.textContent = total + ' cards';
       grid.innerHTML = '';
       cards.forEach(card => {
         const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;

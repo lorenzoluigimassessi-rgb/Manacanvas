@@ -1984,11 +1984,14 @@
       l3.innerHTML = `
         <div class="l3-header">
           <button class="l3-back" onclick="closeArtistPage()">← Back</button>
-          <div class="l2-sort" id="l3SortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-artist-hero">
           <h1 class="l3-artist-name">${name}</h1>
           <span class="l3-artist-count" id="l3Count">Loading...</span>
+        </div>
+        <div class="l2-toolbar">
+          <div></div>
+          <div class="l2-sort" id="l3SortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-grid" id="l3Grid"></div>
       `;

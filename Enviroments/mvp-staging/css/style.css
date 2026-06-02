@@ -19,12 +19,12 @@
   --transition-normal: 200ms;
   --transition-slow: 300ms;
   /* Draw chip */
-  --draw-bg:         linear-gradient(135deg, #2d1b69, #1a3a5c, #0d7377);
-  --draw-border:     transparent;
-  --draw-fg:         #e0f0f8;
-  --draw-bg-hov:     linear-gradient(135deg, #3a2280, #1f4568, #109090);
-  --draw-border-hov: transparent;
-  --draw-fg-hov:     #ffffff;
+  --draw-bg:         linear-gradient(135deg, #2a2a35, #1e1e28, #2a2a35);
+  --draw-border:     rgba(200,200,240,0.15);
+  --draw-fg:         #d0d0e0;
+  --draw-bg-hov:     linear-gradient(135deg, #333340, #262630, #333340);
+  --draw-border-hov: rgba(200,200,240,0.3);
+  --draw-fg-hov:     #e8e8f4;
 }
 
 /* ── Draw chip ── */
@@ -33,7 +33,7 @@
   align-items: center;
   gap: 0.45rem;
   background: var(--draw-bg);
-  border: none;
+  border: 1px solid var(--draw-border);
   color: var(--draw-fg);
   border-radius: var(--radius-pill);
   height: var(--h);
@@ -49,9 +49,8 @@
 }
 .draw-chip:hover {
   background: var(--draw-bg-hov);
+  border-color: var(--draw-border-hov);
   color: var(--draw-fg-hov);
-  transform: translateY(-1px);
-  filter: brightness(1.1);
 }
 /* Mobile: icon-only 40×40 pill */
 .draw-chip-mobile {

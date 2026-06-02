@@ -1675,7 +1675,7 @@
       { code:'mom', name:'March of the Machine' },
       { code:'one', name:'All Will Be One' },
     ];
-    const COL_CREATURES = ['Dragon','Angel','Demon','Elf','Merfolk','Zombie','Vampire','Phoenix','Hydra','Sphinx','Wurm','Knight'];
+    const COL_CREATURES = ['Dragon','Angel','Demon','Elf','Merfolk','Zombie','Vampire','Phoenix','Hydra','Goblin','Wurm','Knight'];
     const COL_TYPES = [
       { name:'Instant', count:'4,200+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>' },
       { name:'Sorcery', count:'3,100+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' },
@@ -1710,7 +1710,7 @@
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Creatures</span>
-            <button class="collections-section-link">Show (267)</button>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('creatures')">Show (267)</button>
           </div>
           <div class="collections-row" id="colCreatureRow"></div>
         </div>
@@ -1862,9 +1862,8 @@
       // Wire clicks — creature cards
       cRow.querySelectorAll('.col-creature-card').forEach(card => {
         card.addEventListener('click', () => {
-          activeType = [card.dataset.type.toLowerCase()];
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
+          openCollectionsLevel2('creatures');
+          setTimeout(() => openCreaturePage(card.dataset.type), 50);
         });
       });
 
@@ -1965,6 +1964,7 @@
 
       if (category === 'artists') renderArtistsLevel2();
       if (category === 'planes') renderPlanesLevel2();
+      if (category === 'creatures') renderCreaturesLevel2();
     }
 
     function closeCollectionsLevel2() {
@@ -2068,6 +2068,125 @@
 
     function renderPlaneFeedCards(grid, cards, total) {
       document.getElementById('planeCount').textContent = total + ' cards';
+      grid.innerHTML = '';
+      cards.forEach(card => {
+        const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
+        if (!art) return;
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div></div>`;
+        el.addEventListener('click', () => openLightbox(card, 'feed'));
+        grid.appendChild(el);
+      });
+    }
+
+    // ── Collections Level 2: Creatures ──
+    function renderCreaturesLevel2() {
+      const l2 = document.getElementById('collectionsLevel2');
+      const types = ALL_CREATURE_TYPES;
+      l2.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeCollectionsLevel2()">← Back</button>
+          <h2 class="l2-title">Creatures</h2>
+          <span class="l2-count">${types.length} types</span>
+        </div>
+        <div class="l2-toolbar">
+          <input type="text" class="l2-search-input" id="l2CreatureSearch" placeholder="Search creatures..." autocomplete="off">
+        </div>
+        <div class="l2-grid l2-planes-grid" id="l2CreatureGrid"></div>
+      `;
+      renderCreatureGrid(types, '');
+      document.getElementById('l2CreatureSearch').addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        const filtered = q ? types.filter(t => t.toLowerCase().startsWith(q)) : types;
+        renderCreatureGrid(filtered, q);
+      });
+    }
+
+    function renderCreatureGrid(types, query) {
+      const grid = document.getElementById('l2CreatureGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      types.forEach(t => {
+        const imgId = 'l2-crt-' + t.toLowerCase().replace(/\s+/g, '-');
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="l2-plane-card" data-type="${t}">
+            <div class="l2-plane-img mood-card-img--loading" id="${imgId}"></div>
+            <div class="l2-plane-name">${t}</div>
+          </div>`);
+        fetchCreatureArt(t).then(art => {
+          const el = document.getElementById(imgId);
+          if (el && art) { el.style.backgroundImage = `url('${art}')`; el.classList.remove('mood-card-img--loading'); }
+        });
+      });
+      grid.addEventListener('click', e => {
+        const card = e.target.closest('.l2-plane-card');
+        if (!card) return;
+        openCreaturePage(card.dataset.type);
+      });
+    }
+
+    // ── Collections Level 3: Creature Detail Page ──
+    let _creatureSort = 'random';
+    let _creatureDir = 'auto';
+    const _creatureFeedCache = {};
+
+    function openCreaturePage(type) {
+      document.getElementById('collectionsLevel2').style.display = 'none';
+      const l3 = document.getElementById('collectionsLevel3');
+      l3.style.display = 'block';
+      l3.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeCreaturePageL3()">← Back</button>
+          <h2 class="l2-title">${type}</h2>
+          <span class="l2-count" id="creatureCount">Loading...</span>
+        </div>
+        <div class="l2-toolbar">
+          <div></div>
+          <div class="l2-sort" id="creatureSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button></div>
+        </div>
+        <div class="l3-grid" id="creatureGrid"></div>
+      `;
+      _creatureSort = 'random'; _creatureDir = 'auto';
+      loadCreatureFeed(type);
+      document.getElementById('creatureSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('creatureSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _creatureSort = btn.dataset.sort; _creatureDir = btn.dataset.dir;
+          loadCreatureFeed(type);
+        });
+      });
+    }
+
+    function closeCreaturePageL3() {
+      document.getElementById('collectionsLevel3').style.display = 'none';
+      document.getElementById('collectionsLevel2').style.display = 'block';
+    }
+
+    async function loadCreatureFeed(type) {
+      const grid = document.getElementById('creatureGrid');
+      const cacheKey = type + ':' + _creatureSort + ':' + _creatureDir;
+      if (_creatureFeedCache[cacheKey]) {
+        renderCreatureFeedCards(grid, _creatureFeedCache[cacheKey].cards, _creatureFeedCache[cacheKey].total);
+        return;
+      }
+      grid.innerHTML = Array(8).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
+      const q = 't:' + type.toLowerCase() + ' has:illustration';
+      const order = _creatureSort === 'random' ? 'released' : _creatureSort;
+      const dir = _creatureSort === 'random' ? 'asc' : _creatureDir;
+      try {
+        const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
+        if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
+        const json = await res.json();
+        const cards = _creatureSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        _creatureFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
+        renderCreatureFeedCards(grid, cards, json.total_cards || cards.length);
+      } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
+    }
+
+    function renderCreatureFeedCards(grid, cards, total) {
+      document.getElementById('creatureCount').textContent = total + ' cards';
       grid.innerHTML = '';
       cards.forEach(card => {
         const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;

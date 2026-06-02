@@ -1642,6 +1642,30 @@
 
     // ── Collections tab ──
     const COL_ARTISTS = ['Seb McKinnon','Magali Villeneuve','Rebecca Guay','Chris Rahn','John Avon','Wayne Reynolds'];
+    const COL_WORLDS = [
+      { name:'Ravnica',          sets:'rav,rtr,grn,rna,mkm' },
+      { name:'Innistrad',        sets:'isd,soi,emn,vow,mid,dsk' },
+      { name:'Zendikar',         sets:'zen,bfz,znr' },
+      { name:'Dominaria',        sets:'dom,dmu,bro' },
+      { name:'Mirrodin',         sets:'mrd,dst,5dn,som,mbs,nph' },
+      { name:'New Phyrexia',     sets:'one,mom' },
+      { name:'Kamigawa',         sets:'chk,neo' },
+      { name:'Theros',           sets:'ths,thb' },
+      { name:'Eldraine',         sets:'eld,woe' },
+      { name:'Ixalan',           sets:'xln,lci' },
+      { name:'Kaladesh',         sets:'kld,aer' },
+      { name:'Tarkir',           sets:'ktk,frf,dtk' },
+      { name:'Amonkhet',         sets:'akh,hou' },
+      { name:'Alara',            sets:'ala,con,arb' },
+      { name:'Lorwyn',           sets:'lrw,shm' },
+      { name:'Kaldheim',         sets:'khm' },
+      { name:'Ikoria',           sets:'iko' },
+      { name:'Strixhaven',       sets:'stx' },
+      { name:'New Capenna',      sets:'snc' },
+      { name:'Bloomburrow',      sets:'blb' },
+      { name:'Thunder Junction', sets:'otj' },
+      { name:'Forgotten Realms', sets:'afr' },
+    ];
     const COL_SETS = [
       { code:'dsk', name:'Duskmourn' },
       { code:'blb', name:'Bloomburrow' },
@@ -1679,7 +1703,7 @@
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Planes</span>
-            <button class="collections-section-link">Show (22)</button>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('planes')">Show (22)</button>
           </div>
           <div class="collections-row" id="colWorldsRow"></div>
         </div>
@@ -1753,30 +1777,6 @@
       });
 
       // Render planes — art loaded dynamically (basic lands, fallback to any land)
-      const COL_WORLDS = [
-        { name:'Ravnica',          sets:'rav,rtr,grn,rna,mkm' },
-        { name:'Innistrad',        sets:'isd,soi,emn,vow,mid,dsk' },
-        { name:'Zendikar',         sets:'zen,bfz,znr' },
-        { name:'Dominaria',        sets:'dom,dmu,bro' },
-        { name:'Mirrodin',         sets:'mrd,dst,5dn,som,mbs,nph' },
-        { name:'New Phyrexia',     sets:'one,mom' },
-        { name:'Kamigawa',         sets:'chk,neo' },
-        { name:'Theros',           sets:'ths,thb' },
-        { name:'Eldraine',         sets:'eld,woe' },
-        { name:'Ixalan',           sets:'xln,lci' },
-        { name:'Kaladesh',         sets:'kld,aer' },
-        { name:'Tarkir',           sets:'ktk,frf,dtk' },
-        { name:'Amonkhet',         sets:'akh,hou' },
-        { name:'Alara',            sets:'ala,con,arb' },
-        { name:'Lorwyn',           sets:'lrw,shm' },
-        { name:'Kaldheim',         sets:'khm' },
-        { name:'Ikoria',           sets:'iko' },
-        { name:'Strixhaven',       sets:'stx' },
-        { name:'New Capenna',      sets:'snc' },
-        { name:'Bloomburrow',      sets:'blb' },
-        { name:'Thunder Junction', sets:'otj' },
-        { name:'Forgotten Realms', sets:'afr' },
-      ];
       const wRow = document.getElementById('colWorldsRow');
       COL_WORLDS.slice(0, 11).forEach(w => {
         const imgId = 'plane-img-' + w.name.toLowerCase().replace(/\s+/g, '-');
@@ -1792,10 +1792,10 @@
       });
       wRow.querySelectorAll('.mood-card').forEach(card => {
         card.addEventListener('click', () => {
-          const sets = card.dataset.sets.split(',');
-          activeSets = sets;
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
+          const name = card.querySelector('.mood-card-label').textContent;
+          const sets = card.dataset.sets;
+          openCollectionsLevel2('planes');
+          setTimeout(() => openPlanePage(name, sets), 50);
         });
       });
 
@@ -1964,6 +1964,7 @@
       l2.style.display = 'block';
 
       if (category === 'artists') renderArtistsLevel2();
+      if (category === 'planes') renderPlanesLevel2();
     }
 
     function closeCollectionsLevel2() {
@@ -1972,6 +1973,112 @@
       _level2Category = null;
     }
 
+
+    // ── Collections Level 2: Planes ──
+    function renderPlanesLevel2() {
+      const l2 = document.getElementById('collectionsLevel2');
+      l2.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeCollectionsLevel2()">← Back</button>
+          <h2 class="l2-title">Planes</h2>
+          <span class="l2-count">${COL_WORLDS.length} planes</span>
+        </div>
+        <div class="l2-grid l2-planes-grid" id="l2PlanesGrid"></div>
+      `;
+      const grid = document.getElementById('l2PlanesGrid');
+      COL_WORLDS.forEach(w => {
+        const imgId = 'l2-plane-' + w.name.toLowerCase().replace(/\s+/g, '-');
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="l2-plane-card" data-name="${w.name}" data-sets="${w.sets}">
+            <div class="l2-plane-img mood-card-img--loading" id="${imgId}"></div>
+            <div class="l2-plane-name">${w.name}</div>
+          </div>`);
+        fetchPlaneArt(w.name, w.sets).then(art => {
+          const el = document.getElementById(imgId);
+          if (el && art) { el.style.backgroundImage = `url('${art}')`; el.classList.remove('mood-card-img--loading'); }
+        });
+      });
+      grid.addEventListener('click', e => {
+        const card = e.target.closest('.l2-plane-card');
+        if (!card) return;
+        openPlanePage(card.dataset.name, card.dataset.sets);
+      });
+    }
+
+    // ── Collections Level 3: Plane Detail Page ──
+    let _planeSort = 'random';
+    let _planeDir = 'auto';
+    const _planeFeedCache = {};
+
+    function openPlanePage(name, sets) {
+      document.getElementById('collectionsLevel2').style.display = 'none';
+      const l3 = document.getElementById('collectionsLevel3');
+      l3.style.display = 'block';
+      l3.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closePlanePage()">← Back</button>
+          <h2 class="l2-title">${name}</h2>
+          <span class="l2-count" id="planeCount">Loading...</span>
+        </div>
+        <div class="l2-toolbar">
+          <div></div>
+          <div class="l2-sort" id="planeSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
+        </div>
+        <div class="l3-grid" id="planeGrid"></div>
+      `;
+      _planeSort = 'random'; _planeDir = 'auto';
+      loadPlaneFeed(name, sets);
+      document.getElementById('planeSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('planeSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _planeSort = btn.dataset.sort; _planeDir = btn.dataset.dir;
+          loadPlaneFeed(name, sets);
+        });
+      });
+    }
+
+    function closePlanePage() {
+      document.getElementById('collectionsLevel3').style.display = 'none';
+      document.getElementById('collectionsLevel2').style.display = 'block';
+    }
+
+    async function loadPlaneFeed(name, sets) {
+      const grid = document.getElementById('planeGrid');
+      const cacheKey = name + ':' + _planeSort + ':' + _planeDir;
+      if (_planeFeedCache[cacheKey]) {
+        renderPlaneFeedCards(grid, _planeFeedCache[cacheKey].cards, _planeFeedCache[cacheKey].total);
+        return;
+      }
+      grid.innerHTML = Array(8).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
+      const codes = sets.split(',');
+      const orQ = codes.map(c => `s:${c.trim()}`).join(' OR ');
+      const q = '(' + orQ + ') has:illustration';
+      const order = _planeSort === 'random' ? 'released' : _planeSort;
+      const dir = _planeSort === 'random' ? 'asc' : _planeDir;
+      try {
+        const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
+        if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
+        const json = await res.json();
+        const cards = _planeSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        _planeFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
+        renderPlaneFeedCards(grid, cards, json.total_cards || cards.length);
+      } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
+    }
+
+    function renderPlaneFeedCards(grid, cards, total) {
+      document.getElementById('planeCount').textContent = total + ' cards';
+      grid.innerHTML = '';
+      cards.forEach(card => {
+        const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
+        if (!art) return;
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div></div>`;
+        el.addEventListener('click', () => openLightbox(card, 'feed'));
+        grid.appendChild(el);
+      });
+    }
 
     // ── Collections Level 3: Artist Detail Page ──
     let _l3Sort = "random";

@@ -3404,6 +3404,24 @@ input[type=range]::-moz-range-thumb {
 }
 .l2-artist-count { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.15rem; }
 
+/* L2 Plane cards */
+.l2-planes-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.l2-plane-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; cursor: pointer;
+  transition: transform 150ms, border-color 150ms;
+}
+.l2-plane-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+.l2-plane-img {
+  width: 100%; aspect-ratio: 4/3;
+  background-size: cover; background-position: center;
+  background-color: var(--surface-2);
+}
+.l2-plane-name {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.82rem; font-weight: 500; color: var(--text-primary);
+}
+
 @media (max-width: 768px) {
   .collections-level2 { padding: 1rem; }
   .l2-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }

@@ -3551,4 +3551,6 @@ input[type=range]::-moz-range-thumb {
 }
 
 
-/* L3 sort switcher — segmented pill */
+/* L3 sort — match L2 height */
+.collections-level3 .l2-sort { height: 42px; }
+.collections-level3 .l2-sort-btn { padding: 0.5rem 0.9rem; font-size: 0.8rem; }

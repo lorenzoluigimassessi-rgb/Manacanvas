@@ -1842,12 +1842,11 @@
           </div>`);
       });
 
-      // Wire clicks — artist cards open gallery filtered by artist
+      // Wire clicks — artist cards open artist detail page
       aRow.querySelectorAll('.col-artist-card').forEach(card => {
         card.addEventListener('click', () => {
-          activeArtist = [card.dataset.artist];
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
+          openCollectionsLevel2('artists');
+          setTimeout(() => openArtistPage(card.dataset.artist), 50);
         });
       });
 

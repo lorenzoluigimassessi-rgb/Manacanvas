@@ -2083,23 +2083,43 @@
     // ── Collections Level 2: Creatures ──
     function renderCreaturesLevel2() {
       const l2 = document.getElementById('collectionsLevel2');
-      const types = ALL_CREATURE_TYPES;
+      let currentList = [...ALL_CREATURE_TYPES].sort((a, b) => a.localeCompare(b));
       l2.innerHTML = `
         <div class="l2-header">
           <button class="l2-back" onclick="closeCollectionsLevel2()">← Back</button>
           <h2 class="l2-title">Creatures</h2>
-          <span class="l2-count">${types.length} types</span>
+          <span class="l2-count">${currentList.length} types</span>
         </div>
         <div class="l2-toolbar">
           <input type="text" class="l2-search-input" id="l2CreatureSearch" placeholder="Search creatures..." autocomplete="off">
+          <div class="l2-sort" id="l2CreatureSort">
+            <button class="l2-sort-btn active" data-sort="az">A→Z</button>
+            <button class="l2-sort-btn" data-sort="za">Z→A</button>
+            <button class="l2-sort-btn" data-sort="shuffle">Shuffle</button>
+          </div>
         </div>
         <div class="l2-grid l2-planes-grid" id="l2CreatureGrid"></div>
       `;
-      renderCreatureGrid(types, '');
+      renderCreatureGrid(currentList, '');
+
       document.getElementById('l2CreatureSearch').addEventListener('input', e => {
         const q = e.target.value.toLowerCase();
-        const filtered = q ? types.filter(t => t.toLowerCase().startsWith(q)) : types;
+        const filtered = q ? currentList.filter(t => t.toLowerCase().startsWith(q)) : currentList;
         renderCreatureGrid(filtered, q);
+      });
+
+      document.getElementById('l2CreatureSort').querySelectorAll('.l2-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('l2CreatureSort').querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const s = btn.dataset.sort;
+          if (s === 'az') currentList = [...ALL_CREATURE_TYPES].sort((a, b) => a.localeCompare(b));
+          else if (s === 'za') currentList = [...ALL_CREATURE_TYPES].sort((a, b) => b.localeCompare(a));
+          else currentList = shuffleArray([...ALL_CREATURE_TYPES]);
+          const q = document.getElementById('l2CreatureSearch').value.toLowerCase();
+          const filtered = q ? currentList.filter(t => t.toLowerCase().startsWith(q)) : currentList;
+          renderCreatureGrid(filtered, q);
+        });
       });
     }
 

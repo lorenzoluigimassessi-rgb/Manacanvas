@@ -2014,7 +2014,7 @@
     }
 
     // ── Collections Level 3: Plane Detail Page ──
-    let _planeSort = 'random';
+    let _planeSort = 'edhrec';
     let _planeDir = 'auto';
     const _planeFeedCache = {};
 
@@ -2030,11 +2030,11 @@
         </div>
         <div class="l2-toolbar">
           <div></div>
-          <div class="l2-sort" id="planeSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
+          <div class="l2-sort" id="planeSortSwitcher"><button class="l2-sort-btn active" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-grid" id="planeGrid"></div>
       `;
-      _planeSort = 'random'; _planeDir = 'auto';
+      _planeSort = 'edhrec'; _planeDir = 'auto';
       loadPlaneFeed(name, sets);
       document.getElementById('planeSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2062,13 +2062,13 @@
       const codes = sets.split(',');
       const orQ = codes.map(c => `s:${c.trim()}`).join(' OR ');
       const q = '(' + orQ + ') has:illustration';
-      const order = _planeSort === 'random' ? 'released' : _planeSort;
-      const dir = _planeSort === 'random' ? 'asc' : _planeDir;
+      const order = _planeSort;
+      const dir = _planeDir;
       try {
         const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
         if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
         const json = await res.json();
-        const cards = _planeSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        const cards = json.data || [];
         _planeFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
         renderPlaneFeedCards(grid, cards, json.total_cards || cards.length);
       } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
@@ -2155,7 +2155,7 @@
     }
 
     // ── Collections Level 3: Creature Detail Page ──
-    let _creatureSort = 'random';
+    let _creatureSort = 'edhrec';
     let _creatureDir = 'auto';
     const _creatureFeedCache = {};
 
@@ -2171,11 +2171,11 @@
         </div>
         <div class="l2-toolbar">
           <div></div>
-          <div class="l2-sort" id="creatureSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button></div>
+          <div class="l2-sort" id="creatureSortSwitcher"><button class="l2-sort-btn active" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-grid" id="creatureGrid"></div>
       `;
-      _creatureSort = 'random'; _creatureDir = 'auto';
+      _creatureSort = 'edhrec'; _creatureDir = 'auto';
       loadCreatureFeed(type);
       document.getElementById('creatureSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2201,13 +2201,13 @@
       }
       grid.innerHTML = Array(8).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
       const q = 't:' + type.toLowerCase() + ' has:illustration';
-      const order = _creatureSort === 'random' ? 'released' : _creatureSort;
-      const dir = _creatureSort === 'random' ? 'asc' : _creatureDir;
+      const order = _creatureSort;
+      const dir = _creatureDir;
       try {
         const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
         if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
         const json = await res.json();
-        const cards = _creatureSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        const cards = json.data || [];
         _creatureFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
         renderCreatureFeedCards(grid, cards, json.total_cards || cards.length);
       } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
@@ -2300,7 +2300,7 @@
     }
 
     // ── Set Detail (L3) ──
-    let _setSort = 'random';
+    let _setSort = 'edhrec';
     let _setDir = 'auto';
     const _setFeedCache = {};
 
@@ -2316,11 +2316,11 @@
         </div>
         <div class="l2-toolbar">
           <div></div>
-          <div class="l2-sort" id="setSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
+          <div class="l2-sort" id="setSortSwitcher"><button class="l2-sort-btn active" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-grid" id="setGrid"></div>
       `;
-      _setSort = 'random'; _setDir = 'auto';
+      _setSort = 'edhrec'; _setDir = 'auto';
       loadSetFeed(code);
       document.getElementById('setSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2346,13 +2346,13 @@
       }
       grid.innerHTML = Array(8).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
       const q = 's:' + code + ' has:illustration';
-      const order = _setSort === 'random' ? 'released' : _setSort;
-      const dir = _setSort === 'random' ? 'asc' : _setDir;
+      const order = _setSort;
+      const dir = _setDir;
       try {
         const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
         if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
         const json = await res.json();
-        const cards = _setSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        const cards = json.data || [];
         _setFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
         _renderFeedCards(grid, cards, json.total_cards || cards.length, 'setCount');
       } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
@@ -2421,7 +2421,7 @@
     }
 
     // ── Mana Detail (L3) ──
-    let _manaSort = 'random';
+    let _manaSort = 'edhrec';
     let _manaDir = 'auto';
     const _manaFeedCache = {};
 
@@ -2446,11 +2446,11 @@
         </div>
         <div class="l2-toolbar">
           <div></div>
-          <div class="l2-sort" id="manaSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button></div>
+          <div class="l2-sort" id="manaSortSwitcher"><button class="l2-sort-btn active" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-grid" id="manaGrid"></div>
       `;
-      _manaSort = 'random'; _manaDir = 'auto';
+      _manaSort = 'edhrec'; _manaDir = 'auto';
       loadManaFeed(key);
       document.getElementById('manaSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2476,13 +2476,13 @@
       }
       grid.innerHTML = Array(8).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
       const q = _manaQuery(key);
-      const order = _manaSort === 'random' ? 'released' : _manaSort;
-      const dir = _manaSort === 'random' ? 'asc' : _manaDir;
+      const order = _manaSort;
+      const dir = _manaDir;
       try {
         const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
         if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
         const json = await res.json();
-        const cards = _manaSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        const cards = json.data || [];
         _manaFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
         _renderFeedCards(grid, cards, json.total_cards || cards.length, 'manaCount');
       } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
@@ -2516,7 +2516,7 @@
     }
 
     // ── Card Type Detail (L3) ──
-    let _typeSort = 'random';
+    let _typeSort = 'edhrec';
     let _typeDir = 'auto';
     const _typeFeedCache = {};
 
@@ -2532,11 +2532,11 @@
         </div>
         <div class="l2-toolbar">
           <div></div>
-          <div class="l2-sort" id="typeSortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button></div>
+          <div class="l2-sort" id="typeSortSwitcher"><button class="l2-sort-btn active" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-grid" id="typeGrid"></div>
       `;
-      _typeSort = 'random'; _typeDir = 'auto';
+      _typeSort = 'edhrec'; _typeDir = 'auto';
       loadTypeFeed(type);
       document.getElementById('typeSortSwitcher').querySelectorAll('.l2-sort-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2562,13 +2562,13 @@
       }
       grid.innerHTML = Array(8).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
       const q = 't:' + type.toLowerCase() + ' has:illustration';
-      const order = _typeSort === 'random' ? 'released' : _typeSort;
-      const dir = _typeSort === 'random' ? 'asc' : _typeDir;
+      const order = _typeSort;
+      const dir = _typeDir;
       try {
         const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q) + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
         if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
         const json = await res.json();
-        const cards = _typeSort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        const cards = json.data || [];
         _typeFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
         _renderFeedCards(grid, cards, json.total_cards || cards.length, 'typeCount');
       } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
@@ -2591,7 +2591,7 @@
     }
 
     // ── Collections Level 3: Artist Detail Page ──
-    let _l3Sort = "random";
+    let _l3Sort = "edhrec";
     let _l3Dir = "auto";
 
     function openArtistPage(name) {
@@ -2606,11 +2606,11 @@
         </div>
         <div class="l2-toolbar">
           <div></div>
-          <div class="l2-sort" id="l3SortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
+          <div class="l2-sort" id="l3SortSwitcher"><button class="l2-sort-btn active" data-sort="edhrec" data-dir="auto">Popular</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
         </div>
         <div class="l3-grid" id="l3Grid"></div>
       `;
-      _l3Sort = "random"; _l3Dir = "auto";
+      _l3Sort = "edhrec"; _l3Dir = "auto";
       loadArtistFeed(name);
       document.getElementById("l3SortSwitcher").querySelectorAll(".l2-sort-btn").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -2640,13 +2640,13 @@
       }
       grid.innerHTML = Array(6).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
 
-      const order = _l3Sort === 'random' ? 'released' : _l3Sort;
-      const dir = _l3Sort === 'random' ? 'asc' : _l3Dir;
+      const order = _l3Sort;
+      const dir = _l3Dir;
       try {
         const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=' + order + '&dir=' + dir + '&page=1');
         if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
         const json = await res.json();
-        const cards = _l3Sort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        const cards = json.data || [];
         _artistFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
         renderArtistFeedCards(grid, cards, json.total_cards || cards.length);
       } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }

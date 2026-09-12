@@ -129,9 +129,9 @@ function toggleSidebar() {
   localStorage.setItem('mg_sidebar_collapsed', collapsed ? '1' : '0');
 }
 
-// Restore sidebar state on load
+// Collapsed by default; only expand if user explicitly expanded before
 (function restoreSidebar() {
-  if (localStorage.getItem('mg_sidebar_collapsed') === '1') {
+  if (localStorage.getItem('mg_sidebar_collapsed') !== '0') {
     document.body.classList.add('sidebar-collapsed');
   }
 })();

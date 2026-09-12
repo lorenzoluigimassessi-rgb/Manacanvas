@@ -123,6 +123,19 @@ function triggerSurprise() {
   });
 }
 
+// Sidebar burger toggle — persists last state
+function toggleSidebar() {
+  const expanded = document.body.classList.toggle('sidebar-expanded');
+  localStorage.setItem('mg_sidebar_expanded', expanded ? '1' : '0');
+}
+
+// Restore last state on load (collapsed by default)
+(function restoreSidebar() {
+  if (localStorage.getItem('mg_sidebar_expanded') === '1') {
+    document.body.classList.add('sidebar-expanded');
+  }
+})();
+
 function sidebarNav(mode) {
   const items = document.querySelectorAll('.sidebar-item');
   items.forEach(el => el.classList.remove('active'));

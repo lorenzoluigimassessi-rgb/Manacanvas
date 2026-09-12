@@ -428,14 +428,14 @@
       .nav-left  { display: none; }
       .nav-right .draw-chip { display: none; }
 
-      /* Re-center search without logo */
+      /* Search bar fills the header on desktop */
       .nav-center {
         position: relative;
         left: auto;
         transform: none;
         flex: 1;
-        max-width: 640px;
-        margin: 0 auto;
+        max-width: none;
+        margin: 0;
       }
     }
 
@@ -522,16 +522,12 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           <span>Gallery</span>
         </button>
-        <button class="sidebar-item" id="sideSearch" onclick="sidebarNav('search')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <span>Search</span>
-        </button>
         <button class="sidebar-item" id="sidePull" onclick="triggerDrawRitual()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="5" width="12" height="15" rx="2" opacity="0.4"/><rect x="4" y="3" width="12" height="15" rx="2" opacity="0.7"/><rect x="2" y="1" width="12" height="15" rx="2"/></svg>
           <span>Pull</span>
         </button>
         <button class="sidebar-item" id="sideCollections" onclick="sidebarNav('collections')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           <span>Collections</span>
         </button>
         <div class="sidebar-spacer"></div>
@@ -546,7 +542,8 @@
     <div class="header-wrap">
       <header class="header">
 
-        <div class="nav-left">
+        <!-- nav-left removed: logo + nav now live in sidebar -->
+        <div class="nav-left" style="display:none;">
           <a class="nav-logo" onclick="goHome()"><span>MG</span></a>
           <div class="nav-switcher">
             <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">Gallery</button>
@@ -597,16 +594,7 @@
         <button class="lens-btn" data-lens="lands"      onclick="setLens(this)">Lands</button>
         <button class="lens-btn" data-lens="gems"       onclick="setLens(this)">Hidden Gems</button>
       </div>
-      <div class="lens-controls" id="lensControls">
-        <button class="lens-ctrl-btn" id="lensGridBtn" title="Grid size" onclick="toggleLensGrid()">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
-          <span class="ctrl-label">Grid</span>
-        </button>
-        <button class="lens-ctrl-btn" id="lensSortBtn" title="Sort" onclick="toggleLensSort()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
-          <span class="ctrl-label">Shuffle</span>
-        </button>
-      </div>
+      <div class="lens-controls" id="lensControls" style="display:none;"></div>
     </div>
     <div class="sub-row" id="subRow" style="display:none;"></div>
 

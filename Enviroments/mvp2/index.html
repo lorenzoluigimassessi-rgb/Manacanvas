@@ -362,6 +362,71 @@
         transition: width 220ms ease, background 250ms, border-color 250ms;
       }
 
+      /* Sidebar header row: brand + toggle */
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.25rem 1.5rem 0.5rem;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        cursor: pointer;
+        text-decoration: none;
+        overflow: hidden;
+        flex: 1;
+      }
+      .sidebar-logo-mark {
+        width: 28px; height: 28px;
+        border-radius: 7px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Cinzel', serif;
+        font-size: 0.55rem; font-weight: 600; letter-spacing: 1px;
+        color: var(--text-1);
+        flex-shrink: 0;
+        transition: background 150ms, border-color 150ms;
+      }
+      .sidebar-brand:hover .sidebar-logo-mark { background: var(--surface-2); border-color: var(--border-hover); }
+      .sidebar-brand-text {
+        font-family: 'Cinzel', serif;
+        font-size: 0.62rem; font-weight: 600;
+        letter-spacing: 0.5px;
+        color: var(--text-1);
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 140px;
+        transition: opacity 180ms ease, max-width 220ms ease;
+      }
+
+      /* Toggle button */
+      .sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px; height: 32px;
+        flex-shrink: 0;
+        border: none;
+        background: transparent;
+        color: var(--text-2);
+        cursor: pointer;
+        border-radius: 7px;
+        transition: background 150ms, color 150ms;
+      }
+      .sidebar-toggle:hover { background: var(--surface); color: var(--text-1); }
+      /* When collapsed: flip icon horizontally to point right (expand) */
+      body.sidebar-collapsed .sidebar-toggle svg { transform: scaleX(-1); }
+
+      /* Collapsed header: centre just the toggle */
+      body.sidebar-collapsed .sidebar-header { justify-content: center; padding-left: 0; }
+      body.sidebar-collapsed .sidebar-brand { display: none; }
+
       /* Nav items */
       .sidebar-nav {
         display: flex;
@@ -456,7 +521,6 @@
       body.sidebar-collapsed .sidebar-discord-divider { opacity: 0; }
       body.sidebar-collapsed .sidebar-item { justify-content: center; gap: 0; }
       body.sidebar-collapsed .sidebar-discord { justify-content: center; gap: 0; }
-      body.sidebar-collapsed .sidebar-toggle svg { transform: rotate(180deg); }
 
       /* Content shifts right */
       #appShell {
@@ -464,19 +528,15 @@
         transition: padding-left 220ms ease;
       }
 
-      /* Header: logo mark + edge-to-edge search */
+      /* Header: pure search bar, edge to edge */
       .header {
-        padding: 0.6rem 0 0.6rem 1rem;
+        padding: 0.6rem 0;
         align-items: center;
         position: relative;
-        gap: 0.75rem;
       }
-      /* Logo mark in header — show only the circle, hide switcher */
-      .nav-left  { display: flex; flex-shrink: 0; }
+      .nav-left  { display: none; }
       .nav-right { display: none; }
 
-      /* Toggle sits at very top with gap below */
-      .sidebar-toggle { margin-bottom: 0.75rem; }
 
       /* Search bar full page width */
       .nav-center {
@@ -586,10 +646,24 @@
 
     <!-- ── Desktop sidebar ── -->
     <nav class="sidebar" id="sidebar">
-      <div class="sidebar-nav">
+
+      <!-- Header: brand left, toggle right -->
+      <div class="sidebar-header">
+        <a class="sidebar-brand" onclick="goHome()">
+          <span class="sidebar-logo-mark">MG</span>
+          <span class="sidebar-brand-text">Magic: The Gallery</span>
+        </a>
         <button class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse sidebar">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <!-- Panel-left collapse icon -->
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M9 3v18"/>
+            <polyline points="5 10 7 12 5 14"/>
+          </svg>
         </button>
+      </div>
+
+      <div class="sidebar-nav">
         <button class="sidebar-item active" id="sideGallery" onclick="sidebarNav('gallery')">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           <span>Gallery</span>
@@ -619,9 +693,9 @@
     <div class="header-wrap">
       <header class="header">
 
-        <div class="nav-left">
+        <!-- logo in sidebar; switcher kept hidden for JS -->
+        <div class="nav-left" style="display:none;">
           <a class="nav-logo" onclick="goHome()"><span>MG</span></a>
-          <!-- switcher hidden: Gallery/Collections nav lives in sidebar -->
           <div class="nav-switcher" style="display:none;">
             <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">Gallery</button>
             <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Collections</button>

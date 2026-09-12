@@ -445,17 +445,22 @@
       #appShell { padding-left: var(--sidebar-w); }
 
       /* Header becomes search-only on desktop */
-      .header { padding: 0.75rem 1.5rem; }
+      .header {
+        padding: 0.75rem 1.5rem;
+        align-items: center;
+        position: relative;
+      }
       .nav-left  { display: none; }
       .nav-right { display: none; }
 
       /* Search bar fills the full header on desktop */
       .nav-center {
-        position: relative;
-        left: auto;
-        transform: none;
-        flex: 1;
+        position: relative !important;
+        left: auto !important;
+        transform: none !important;
+        width: auto;
         max-width: none;
+        flex: 1;
         margin: 0;
         padding: 4px 4px 4px 1.25rem;
       }

@@ -38,7 +38,6 @@ async function renderWelcome() {
         <h1 class="welcome-title">MAGIC: THE GALLERY</h1>
         <p class="welcome-subtitle">Discover the art of Magic: The Gathering&#174;</p>
         <button class="welcome-cta" onclick="startBrowse()">Enter the Gallery</button>
-        <p class="welcome-draw-separator"><span class="welcome-pull-link" onclick="startSurprise()">or pull a card</span></p>
       </div>
       <footer class="site-footer welcome-footer">
         <p>Magic: The Gallery is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images &copy; Wizards of the Coast.</p>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draw Button — Icon & Colour Variations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --surface: #16161c;
+      --surface-2: #1e1e28;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-1: rgba(240,240,240,0.95);
+      --text-2: rgba(240,240,240,0.4);
+      --h: 44px;
+      --r: 999px;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      padding: 2.5rem 2rem;
+    }
+
+    h1 { font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 3px; color: var(--text-2); margin-bottom: 2.5rem; font-weight: 500; }
+    h2 { font-size: 0.6rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-2); margin-bottom: 1.2rem; margin-top: 2.5rem; }
+
+    /* ── Header shell ── */
+    .header-shell {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.04);
+      margin-bottom: 0.5rem;
+    }
+    .nav-logo {
+      width: var(--h); height: var(--h);
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .nav-logo span { font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px; color: var(--text-1); }
+    .nav-switcher {
+      display: flex; align-items: center;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); height: var(--h); padding: 4px; gap: 2px;
+    }
+    .sw-btn {
+      background: transparent; border: none; color: var(--text-2);
+      font-family: 'Josefin Sans', sans-serif; font-size: 0.78rem;
+      padding: 0 0.85rem; height: calc(var(--h) - 8px);
+      border-radius: var(--r); cursor: pointer; white-space: nowrap;
+    }
+    .sw-btn.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* ── Base draw button (Option C style) ── */
+    .draw-btn {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      height: var(--h); padding: 0 1rem; border-radius: var(--r);
+      font-family: 'Josefin Sans', sans-serif; font-size: 0.78rem;
+      font-weight: 500; letter-spacing: 0.3px; cursor: pointer;
+      white-space: nowrap; transition: all 150ms;
+    }
+
+    /* ── Colour variants ── */
+    .c-amber    { background: rgba(255,185,80,0.06);  border: 1px solid rgba(255,185,80,0.4);  color: rgba(255,205,130,0.9); }
+    .c-gold     { background: rgba(212,175,55,0.06);  border: 1px solid rgba(212,175,55,0.4);  color: rgba(220,190,80,0.9); }
+    .c-silver   { background: rgba(200,200,220,0.05); border: 1px solid rgba(200,200,220,0.25); color: rgba(210,210,230,0.85); }
+    .c-violet   { background: rgba(160,120,220,0.06); border: 1px solid rgba(160,120,220,0.35); color: rgba(180,150,230,0.9); }
+    .c-teal     { background: rgba(80,200,180,0.05);  border: 1px solid rgba(80,200,180,0.3);  color: rgba(100,210,190,0.85); }
+    .c-neutral  { background: var(--surface-2);       border: 1px solid var(--border-hover);   color: var(--text-1); }
+
+    /* ── Icon grid ── */
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .icon-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.02);
+      border-radius: 8px;
+    }
+    .icon-label {
+      font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-2); min-width: 80px;
+    }
+
+    /* ── Colour palette row ── */
+    .colour-grid {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;
+    }
+
+    /* ── Section divider ── */
+    .divider { height: 1px; background: rgba(255,255,255,0.04); margin: 2rem 0; }
+
+    /* ── Full header previews ── */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .preview-label {
+      font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-2); margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<h1>DRAW BUTTON — ICON & COLOUR EXPLORATIONS</h1>
+
+<!-- SECTION 1: ICONS -->
+<h2>01 — Icon variations (all using Option C amber as base)</h2>
+<div class="icon-grid">
+
+  <div class="icon-row">
+    <span class="icon-label">Plain card</span>
+    <button class="draw-btn c-amber">
+      <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/></svg>
+      Draw
+    </button>
+  </div>
+
+  <div class="icon-row">
+    <span class="icon-label">Card + lines</span>
+    <button class="draw-btn c-amber">
+      <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><line x1="2.5" y1="4.5" x2="8.5" y2="4.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="9.5" x2="5.5" y2="9.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+      Draw
+    </button>
+  </div>
+
+  <div class="icon-row">
+    <span class="icon-label">Card lifted</span>
+    <button class="draw-btn c-amber">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3.75" y="2.75" width="9.5" height="10.5" rx="1.25" stroke="currentColor" stroke-width="1.2" opacity="0.4"/><rect x="0.75" y="0.75" width="9.5" height="10.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/></svg>
+      Draw
+    </button>
+  </div>
+
+  <div class="icon-row">
+    <span class="icon-label">Card stack</span>
+    <button class="draw-btn c-amber">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+      Draw
+    </button>
+  </div>
+
+  <div class="icon-row">
+    <span class="icon-label">Card + art crop</span>
+    <button class="draw-btn c-amber">
+      <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><rect x="1.75" y="1.75" width="7.5" height="5" rx="0.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+      Draw
+    </button>
+  </div>
+
+  <div class="icon-row">
+    <span class="icon-label">Hand draw</span>
+    <button class="draw-btn c-amber">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0.75" y="2.75" width="8" height="10.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><path d="M9 4.5l3.5-3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M10.5 6l2.5-2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity="0.5"/></svg>
+      Draw
+    </button>
+  </div>
+
+  <div class="icon-row">
+    <span class="icon-label">Card face up</span>
+    <button class="draw-btn c-amber">
+      <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><circle cx="5.5" cy="5.5" r="2" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="10" x2="8.5" y2="10" stroke="currentColor" stroke-width="0.9" opacity="0.4"/></svg>
+      Draw
+    </button>
+  </div>
+
+  <div class="icon-row">
+    <span class="icon-label">Flip card</span>
+    <button class="draw-btn c-amber">
+      <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0.75" y="1.75" width="8" height="10" rx="1.25" stroke="currentColor" stroke-width="1.3"/><path d="M10 0.5h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" opacity="0.45"/></svg>
+      Draw
+    </button>
+  </div>
+
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION 2: COLOURS -->
+<h2>02 — Colour variations (using Card + lines icon)</h2>
+<div class="colour-grid">
+
+  <button class="draw-btn c-amber">
+    <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><line x1="2.5" y1="4.5" x2="8.5" y2="4.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="9.5" x2="5.5" y2="9.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+    Amber
+  </button>
+
+  <button class="draw-btn c-gold">
+    <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><line x1="2.5" y1="4.5" x2="8.5" y2="4.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="9.5" x2="5.5" y2="9.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+    Gold
+  </button>
+
+  <button class="draw-btn c-silver">
+    <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><line x1="2.5" y1="4.5" x2="8.5" y2="4.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="9.5" x2="5.5" y2="9.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+    Silver
+  </button>
+
+  <button class="draw-btn c-violet">
+    <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><line x1="2.5" y1="4.5" x2="8.5" y2="4.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="9.5" x2="5.5" y2="9.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+    Violet
+  </button>
+
+  <button class="draw-btn c-teal">
+    <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><line x1="2.5" y1="4.5" x2="8.5" y2="4.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="9.5" x2="5.5" y2="9.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+    Teal
+  </button>
+
+  <button class="draw-btn c-neutral">
+    <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><line x1="2.5" y1="4.5" x2="8.5" y2="4.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="9.5" x2="5.5" y2="9.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+    Neutral
+  </button>
+
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION 3: FULL HEADER PREVIEWS — top 4 combos -->
+<h2>03 — Full header previews (pick icon × colour combos)</h2>
+<div class="preview-grid">
+
+  <div>
+    <p class="preview-label">Card stack · Amber</p>
+    <div class="header-shell">
+      <div class="nav-logo"><span>MC</span></div>
+      <div class="nav-switcher">
+        <button class="sw-btn active">All Art</button>
+        <button class="sw-btn">Browse</button>
+      </div>
+      <button class="draw-btn c-amber">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+        Draw
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <p class="preview-label">Card stack · Gold</p>
+    <div class="header-shell">
+      <div class="nav-logo"><span>MC</span></div>
+      <div class="nav-switcher">
+        <button class="sw-btn active">All Art</button>
+        <button class="sw-btn">Browse</button>
+      </div>
+      <button class="draw-btn c-gold">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+        Draw
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <p class="preview-label">Card lifted · Silver</p>
+    <div class="header-shell">
+      <div class="nav-logo"><span>MC</span></div>
+      <div class="nav-switcher">
+        <button class="sw-btn active">All Art</button>
+        <button class="sw-btn">Browse</button>
+      </div>
+      <button class="draw-btn c-silver">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3.75" y="2.75" width="9.5" height="10.5" rx="1.25" stroke="currentColor" stroke-width="1.2" opacity="0.4"/><rect x="0.75" y="0.75" width="9.5" height="10.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/></svg>
+        Draw
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <p class="preview-label">Card + lines · Violet</p>
+    <div class="header-shell">
+      <div class="nav-logo"><span>MC</span></div>
+      <div class="nav-switcher">
+        <button class="sw-btn active">All Art</button>
+        <button class="sw-btn">Browse</button>
+      </div>
+      <button class="draw-btn c-violet">
+        <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><line x1="2.5" y1="4.5" x2="8.5" y2="4.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="9.5" x2="5.5" y2="9.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+        Draw
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <p class="preview-label">Card face up · Amber</p>
+    <div class="header-shell">
+      <div class="nav-logo"><span>MC</span></div>
+      <div class="nav-switcher">
+        <button class="sw-btn active">All Art</button>
+        <button class="sw-btn">Browse</button>
+      </div>
+      <button class="draw-btn c-amber">
+        <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><circle cx="5.5" cy="5.5" r="2" stroke="currentColor" stroke-width="0.9" opacity="0.5"/><line x1="2.5" y1="10" x2="8.5" y2="10" stroke="currentColor" stroke-width="0.9" opacity="0.4"/></svg>
+        Draw
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <p class="preview-label">Card + art crop · Gold</p>
+    <div class="header-shell">
+      <div class="nav-logo"><span>MC</span></div>
+      <div class="nav-switcher">
+        <button class="sw-btn active">All Art</button>
+        <button class="sw-btn">Browse</button>
+      </div>
+      <button class="draw-btn c-gold">
+        <svg width="11" height="14" viewBox="0 0 11 14" fill="none"><rect x="0.75" y="0.75" width="9.5" height="12.5" rx="1.25" stroke="currentColor" stroke-width="1.3"/><rect x="1.75" y="1.75" width="7.5" height="5" rx="0.5" stroke="currentColor" stroke-width="0.9" opacity="0.5"/></svg>
+        Draw
+      </button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ManaCanvas — Background Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0c0c0f;
+      color: #f0f0f0;
+      font-family: 'Josefin Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      text-align: center;
+      padding: 2rem;
+      border-bottom: 1px solid #2a2a35;
+    }
+
+    .page-header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      letter-spacing: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+      font-size: 0.8rem;
+      color: #8a8a9a;
+      letter-spacing: 1px;
+    }
+
+    /* Card selector */
+    .card-selector {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1.5rem 2rem;
+      flex-wrap: wrap;
+    }
+
+    .card-btn {
+      background: #1a1a22;
+      border: 1px solid #2a2a35;
+      color: #8a8a9a;
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.75rem;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all 150ms;
+    }
+
+    .card-btn:hover, .card-btn.active {
+      border-color: #f0f0f0;
+      color: #f0f0f0;
+      background: #22222e;
+    }
+
+    /* Options grid */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      padding: 0 2rem 3rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .option-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .option-label {
+      text-align: center;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #8a8a9a;
+      padding: 0 0.5rem;
+    }
+
+    .option-label strong {
+      display: block;
+      font-size: 0.85rem;
+      color: #f0f0f0;
+      margin-bottom: 0.2rem;
+      letter-spacing: 1px;
+    }
+
+    /* Lightbox mockup */
+    .lb-mock {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 9/16;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+      border: 1px solid #2a2a35;
+    }
+
+    .lb-blur-bg {
+      position: absolute;
+      inset: -20px;
+      background-size: cover;
+      background-position: center;
+      pointer-events: none;
+    }
+
+    /* Option A — current */
+    .opt-a .lb-blur-bg {
+      filter: blur(40px) brightness(0.35) saturate(1.2);
+      transform: scale(1.1);
+    }
+
+    /* Option B — step 1: lighter blur */
+    .opt-b .lb-blur-bg {
+      filter: blur(28px) brightness(0.5) saturate(1.3);
+      transform: scale(1.1);
+    }
+
+    /* Option C — step 2: toggle, showing solid dark */
+    .opt-c .lb-blur-bg {
+      display: none;
+    }
+    .opt-c {
+      background: #0c0c0f;
+    }
+
+    /* Option D — step 2: toggle, showing mana gradient */
+    .opt-d .lb-blur-bg {
+      display: none;
+    }
+
+    /* Content inside mockup */
+    .lb-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 0;
+    }
+
+    .lb-close {
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      background: none;
+      border: none;
+      color: rgba(240,240,240,0.5);
+      font-size: 1.4rem;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .lb-art {
+      width: 90%;
+      border-radius: 6px;
+      display: block;
+      object-fit: cover;
+      aspect-ratio: 4/3;
+      background: #1a1a22;
+    }
+
+    .lb-toggle {
+      display: flex;
+      margin-top: 1rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 4px;
+      overflow: hidden;
+      background: rgba(12,12,15,0.7);
+      backdrop-filter: blur(8px);
+    }
+
+    .lb-toggle button {
+      background: transparent;
+      border: none;
+      color: rgba(240,240,240,0.55);
+      padding: 0.35rem 0.9rem;
+      font-size: 0.72rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .lb-toggle button.active {
+      background: rgba(255,255,255,0.12);
+      color: rgba(240,240,240,0.95);
+    }
+
+    .lb-meta {
+      text-align: center;
+      margin-top: 1.2rem;
+    }
+
+    .lb-meta .name {
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    .lb-meta .details {
+      font-size: 0.75rem;
+      color: rgba(240,240,240,0.5);
+      margin-top: 0.3rem;
+    }
+
+    /* Toggle button for option D */
+    .lb-bg-toggle {
+      position: absolute;
+      bottom: 0.8rem;
+      right: 0.8rem;
+      background: rgba(20,20,28,0.75);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 2;
+      backdrop-filter: blur(8px);
+      font-size: 0.7rem;
+      color: rgba(240,240,240,0.7);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 4rem;
+      color: #8a8a9a;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>MANACANVAS</h1>
+  <p>Lightbox background test — pick a card to preview</p>
+</div>
+
+<div class="card-selector" id="cardSelector">
+  <div class="loading">Loading cards...</div>
+</div>
+
+<div class="options-grid" id="optionsGrid" style="display:none;">
+
+  <!-- Option A: Current -->
+  <div class="option-wrap">
+    <div class="option-label">
+      <strong>A — Current</strong>
+      blur(40px) · brightness(0.35)
+    </div>
+    <div class="lb-mock opt-a" id="mockA">
+      <div class="lb-blur-bg" id="bgA"></div>
+      <button class="lb-close">✕</button>
+      <div class="lb-content">
+        <img class="lb-art" id="artA" src="" alt="">
+        <div class="lb-toggle">
+          <button class="active">Art Only</button>
+          <button>With Frame</button>
+        </div>
+        <div class="lb-meta">
+          <div class="name" id="nameA">—</div>
+          <div class="details" id="detailsA">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Step 1 — lighter blur -->
+  <div class="option-wrap">
+    <div class="option-label">
+      <strong>B — Step 1: Lighter blur</strong>
+      blur(28px) · brightness(0.5)
+    </div>
+    <div class="lb-mock opt-b" id="mockB">
+      <div class="lb-blur-bg" id="bgB"></div>
+      <button class="lb-close">✕</button>
+      <div class="lb-content">
+        <img class="lb-art" id="artB" src="" alt="">
+        <div class="lb-toggle">
+          <button class="active">Art Only</button>
+          <button>With Frame</button>
+        </div>
+        <div class="lb-meta">
+          <div class="name" id="nameB">—</div>
+          <div class="details" id="detailsB">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C: Solid dark -->
+  <div class="option-wrap">
+    <div class="option-label">
+      <strong>C — Solid dark</strong>
+      #0c0c0f · no blur
+    </div>
+    <div class="lb-mock opt-c" id="mockC">
+      <div class="lb-blur-bg" id="bgC"></div>
+      <button class="lb-close">✕</button>
+      <div class="lb-content">
+        <img class="lb-art" id="artC" src="" alt="">
+        <div class="lb-toggle">
+          <button class="active">Art Only</button>
+          <button>With Frame</button>
+        </div>
+        <div class="lb-meta">
+          <div class="name" id="nameC">—</div>
+          <div class="details" id="detailsC">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option D: Mana gradient -->
+  <div class="option-wrap">
+    <div class="option-label">
+      <strong>D — Mana color gradient</strong>
+      derived from card color identity
+    </div>
+    <div class="lb-mock opt-d" id="mockD">
+      <div class="lb-blur-bg" id="bgD"></div>
+      <button class="lb-close">✕</button>
+      <div class="lb-content">
+        <img class="lb-art" id="artD" src="" alt="">
+        <div class="lb-toggle">
+          <button class="active">Art Only</button>
+          <button>With Frame</button>
+        </div>
+        <div class="lb-meta">
+          <div class="name" id="nameD">—</div>
+          <div class="details" id="detailsD">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const MANA_GRADIENTS = {
+    W: 'linear-gradient(160deg,#2a2318,#3d3420,#1a1610)',
+    U: 'linear-gradient(160deg,#0a1628,#0d2240,#061018)',
+    B: 'linear-gradient(160deg,#0e0a18,#1a1030,#080610)',
+    R: 'linear-gradient(160deg,#1e0c08,#2e1408,#180a06)',
+    G: 'linear-gradient(160deg,#081a0c,#0e2810,#061208)',
+    M: 'linear-gradient(160deg,#1e1808,#2e2410,#181206)',
+    C: 'linear-gradient(160deg,#141420,#1e1e2e,#0e0e18)',
+  };
+
+  // Curated test cards — variety of colors and art styles
+  const TEST_QUERIES = [
+    { label: 'Dragon (R)', q: 't:dragon is:hires' },
+    { label: 'Angel (W)', q: 't:angel is:hires' },
+    { label: 'Merfolk (U)', q: 't:merfolk is:hires' },
+    { label: 'Zombie (B)', q: 't:zombie is:hires' },
+    { label: 'Elf (G)', q: 't:elf is:hires' },
+    { label: 'Landscape', q: 't:land is:hires a:"John Avon"' },
+    { label: 'Seb McKinnon', q: 'a:"Seb McKinnon" is:hires' },
+    { label: 'Random', q: 'has:illustration is:hires' },
+  ];
+
+  let currentCard = null;
+
+  async function loadCard(query) {
+    try {
+      const res = await fetch(`https://api.scryfall.com/cards/random?q=${encodeURIComponent(query)}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch(e) { return null; }
+  }
+
+  function getManaGradient(colors) {
+    if (!colors || !colors.length) return MANA_GRADIENTS.C;
+    if (colors.length > 1) return MANA_GRADIENTS.M;
+    return MANA_GRADIENTS[colors[0]] || MANA_GRADIENTS.C;
+  }
+
+  function applyCard(card) {
+    currentCard = card;
+    const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop || '';
+    const name = card.name;
+    const details = `${card.artist || 'Unknown'} · ${card.set_name || ''} · ${card.released_at?.slice(0,4) || ''}`;
+    const gradient = getManaGradient(card.colors);
+
+    ['A','B','C','D'].forEach(id => {
+      document.getElementById(`art${id}`).src = art;
+      document.getElementById(`name${id}`).textContent = name;
+      document.getElementById(`details${id}`).textContent = details;
+      document.getElementById(`bg${id}`).style.backgroundImage = `url('${art}')`;
+    });
+
+    // Option D — mana gradient
+    document.getElementById('mockD').style.background = gradient;
+
+    document.getElementById('optionsGrid').style.display = 'grid';
+  }
+
+  // Build card selector
+  async function init() {
+    const selector = document.getElementById('cardSelector');
+    selector.innerHTML = TEST_QUERIES.map((t, i) =>
+      `<button class="card-btn${i===0?' active':''}" data-idx="${i}">${t.label}</button>`
+    ).join('');
+
+    selector.querySelectorAll('.card-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        selector.querySelectorAll('.card-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('optionsGrid').style.display = 'none';
+        const card = await loadCard(TEST_QUERIES[parseInt(btn.dataset.idx)].q);
+        if (card) applyCard(card);
+      });
+    });
+
+    // Load first card
+    const card = await loadCard(TEST_QUERIES[0].q);
+    if (card) applyCard(card);
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ManaCanvas — Sort Test (Wave 2 P4)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #0c0c0f; --surface: #1a1a22; --border: #2a2a35; --text-primary: #f0f0f0; --text-secondary: #8a8a9a; }
+    body { background: var(--bg); color: var(--text-primary); font-family: 'Josefin Sans', sans-serif; }
+
+    .header { position: sticky; top: 0; background: var(--bg); z-index: 50; border-bottom: 1px solid var(--border); }
+    .header-row1 { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1.5rem; }
+    .logo { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 3px; }
+    .header-row2 { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.5rem; background: rgba(26,26,34,0.5); border-top: 1px solid var(--border); }
+    .sort-label { font-size: 0.72rem; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; margin-right: 0.3rem; }
+    .sort-btn {
+      position: relative; background: transparent; color: var(--text-secondary);
+      border: 1px solid var(--border); height: 28px; padding: 0 0.75rem;
+      border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-family: inherit;
+      transition: border-color 150ms, color 150ms;
+    }
+    .sort-btn:hover, .sort-btn.active { border-color: var(--text-primary); color: var(--text-primary); }
+    .sort-dropdown {
+      position: absolute; top: 100%; left: 0; margin-top: 0.4rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+      min-width: 200px; z-index: 100; overflow: hidden;
+    }
+    .sort-option {
+      display: flex; align-items: center; padding: 0.5rem 0.8rem;
+      cursor: pointer; font-size: 0.82rem; color: var(--text-secondary);
+      transition: background 150ms, color 150ms; gap: 0.5rem;
+    }
+    .sort-option:hover { background: var(--bg); color: var(--text-primary); }
+    .sort-option.active { color: var(--text-primary); }
+    .sort-option.active::after { content: "✓"; margin-left: auto; opacity: 0.6; }
+    .sort-divider { height: 1px; background: var(--border); margin: 0.2rem 0; }
+    .sort-group-label { font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-secondary); padding: 0.5rem 0.8rem 0.2rem; opacity: 0.6; }
+
+    .shuffle-btn {
+      background: var(--text-primary); color: var(--bg); border: none;
+      height: 28px; padding: 0 0.9rem; border-radius: 4px; font-size: 0.8rem;
+      font-family: inherit; cursor: pointer; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 0.4rem; transition: background 150ms;
+      margin-left: auto;
+    }
+    .shuffle-btn:hover { background: #d0d0d0; }
+
+    .current-sort { font-size: 0.7rem; color: var(--text-secondary); letter-spacing: 0.5px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.8rem; padding: 1.5rem; }
+    .card { position: relative; border-radius: 6px; overflow: hidden; cursor: pointer; transition: transform 200ms; }
+    .card:hover { transform: translateY(-3px); }
+    .card img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; background: var(--surface); }
+    .card .info { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.6rem; background: linear-gradient(transparent, rgba(0,0,0,0.85)); opacity: 0; transition: opacity 200ms; }
+    .card:hover .info { opacity: 1; }
+    .card .info .name { font-size: 0.78rem; font-weight: 500; }
+    .card .info .sub { font-size: 0.65rem; color: rgba(240,240,240,0.5); margin-top: 0.1rem; }
+    .shimmer { background: var(--surface); border-radius: 6px; aspect-ratio: 4/3; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.7} }
+    .loading { text-align: center; padding: 3rem; color: var(--text-secondary); font-size: 0.8rem; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-row1">
+    <div class="logo">MANACANVAS</div>
+  </div>
+  <div class="header-row2">
+    <span class="sort-label">Sort</span>
+    <div style="position:relative;">
+      <button class="sort-btn" id="sortBtn">Newest First ⇅</button>
+    </div>
+    <span class="current-sort" id="currentSort">order=released · dir=desc</span>
+    <button class="shuffle-btn" id="shuffleBtn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      Shuffle
+    </button>
+  </div>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<script>
+  const API = 'https://api.scryfall.com';
+
+  const SORT_OPTIONS = [
+    { group: 'By Date' },
+    { label: 'Newest first', order: 'released', dir: 'desc', default: true },
+    { label: 'Oldest first', order: 'released', dir: 'asc' },
+    { divider: true },
+    { group: 'By Artist' },
+    { label: 'Artist A → Z', order: 'artist', dir: 'asc' },
+    { label: 'Artist Z → A', order: 'artist', dir: 'desc' },
+    { divider: true },
+    { group: 'By Card Name' },
+    { label: 'Name A → Z', order: 'name', dir: 'asc' },
+    { label: 'Name Z → A', order: 'name', dir: 'desc' },
+    { divider: true },
+    { group: 'By Set' },
+    { label: 'Set A → Z', order: 'set', dir: 'asc' },
+    { label: 'Set Z → A', order: 'set', dir: 'desc' },
+  ];
+
+  let currentOrder = 'released';
+  let currentDir = 'desc';
+  let currentLabel = 'Newest first';
+  let dropdownOpen = false;
+
+  function buildDropdown() {
+    const btn = document.getElementById('sortBtn');
+    const existing = document.querySelector('.sort-dropdown');
+    if (existing) { existing.remove(); dropdownOpen = false; return; }
+
+    const dd = document.createElement('div');
+    dd.className = 'sort-dropdown';
+
+    SORT_OPTIONS.forEach(opt => {
+      if (opt.group) {
+        const g = document.createElement('div');
+        g.className = 'sort-group-label';
+        g.textContent = opt.group;
+        dd.appendChild(g);
+      } else if (opt.divider) {
+        const d = document.createElement('div');
+        d.className = 'sort-divider';
+        dd.appendChild(d);
+      } else {
+        const el = document.createElement('div');
+        el.className = `sort-option${opt.order === currentOrder && opt.dir === currentDir ? ' active' : ''}`;
+        el.textContent = opt.label;
+        el.addEventListener('click', () => {
+          currentOrder = opt.order;
+          currentDir = opt.dir;
+          currentLabel = opt.label;
+          document.getElementById('sortBtn').textContent = `${opt.label} ⇅`;
+          document.getElementById('currentSort').textContent = `order=${opt.order} · dir=${opt.dir}`;
+          dd.remove(); dropdownOpen = false;
+          loadGrid();
+        });
+        dd.appendChild(el);
+      }
+    });
+
+    btn.appendChild(dd);
+    dropdownOpen = true;
+  }
+
+  document.getElementById('sortBtn').addEventListener('click', (e) => { e.stopPropagation(); buildDropdown(); });
+  document.addEventListener('click', () => { const dd = document.querySelector('.sort-dropdown'); if (dd) { dd.remove(); dropdownOpen = false; } });
+
+  document.getElementById('shuffleBtn').addEventListener('click', () => {
+    currentOrder = 'random_shuffle';
+    currentDir = '';
+    currentLabel = 'Shuffle';
+    document.getElementById('sortBtn').textContent = 'Shuffle ⇅';
+    document.getElementById('currentSort').textContent = 'order=random (shuffled)';
+    loadGrid();
+  });
+
+  async function loadGrid() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = Array(12).fill('<div class="shimmer"></div>').join('');
+
+    let url;
+    if (currentOrder === 'random_shuffle') {
+      const page = Math.floor(Math.random() * 80) + 1;
+      url = `${API}/cards/search?q=t:creature+has:illustration&unique=art&order=released&dir=asc&page=${page}`;
+    } else {
+      url = `${API}/cards/search?q=t:creature+has:illustration&unique=art&order=${currentOrder}&dir=${currentDir}&page=1`;
+    }
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) { grid.innerHTML = '<div class="loading">No results</div>'; return; }
+      const json = await res.json();
+      let cards = json.data || [];
+      if (currentOrder === 'random_shuffle') cards = cards.sort(() => Math.random() - 0.5);
+
+      grid.innerHTML = '';
+      cards.forEach(card => {
+        const art = card.image_uris?.art_crop;
+        if (!art) return;
+        const el = document.createElement('div');
+        el.className = 'card';
+        const sub = currentOrder === 'artist' ? card.artist
+          : currentOrder === 'set' ? card.set_name
+          : currentOrder === 'name' ? ''
+          : card.released_at?.slice(0,4) || '';
+        el.innerHTML = `<img src="${art}" alt="${card.name}" loading="lazy"><div class="info"><div class="name">${card.name}</div>${sub ? `<div class="sub">${sub}</div>` : ''}</div>`;
+        grid.appendChild(el);
+      });
+    } catch(e) {
+      grid.innerHTML = '<div class="loading">Error loading cards</div>';
+    }
+  }
+
+  // Default: newest first
+  loadGrid();
+</script>
+</body>
+</html>

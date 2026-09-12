@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="gallery" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Magic: The Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design tokens ── */
+    :root {
+      --bg:           #0c0c0f;
+      --surface:      #16161c;
+      --surface-2:    #1e1e28;
+      --border:       rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-1:       rgba(240,240,240,0.95);
+      --text-2:       rgba(240,240,240,0.4);
+      --text-3:       rgba(240,240,240,0.2);
+      --h:            48px;
+      --r:            999px;
+      --shadow:       0 8px 32px rgba(0,0,0,0.5);
+      /* legacy aliases used by style.css */
+      --text-primary:   rgba(240,240,240,0.95);
+      --text-secondary: rgba(240,240,240,0.4);
+      --radius: 6px;
+      --transition-fast: 150ms;
+      --transition-normal: 200ms;
+      --transition-slow: 300ms;
+    }
+
+    [data-theme="light"] {
+      --bg:           #f5f4f0;
+      --surface:      #ffffff;
+      --surface-2:    #e8e8e8;
+      --border:       rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.2);
+      --text-1:       rgba(12,12,15,0.9);
+      --text-2:       rgba(12,12,15,0.55);
+      --text-3:       rgba(12,12,15,0.35);
+      --shadow:       0 8px 32px rgba(0,0,0,0.1);
+      --text-primary:   rgba(12,12,15,0.9);
+      --text-secondary: rgba(12,12,15,0.55);
+    }
+
+    [data-theme="light"] .sw-btn.active,
+    [data-theme="light"] .theme-btn.active {
+      background: var(--surface-2);
+      color: var(--text-1);
+      box-shadow: none;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 250ms, color 250ms;
+    }
+
+    /* ══ HEADER ══ */
+    .header-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg);
+      transition: background 250ms;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      position: relative;
+    }
+
+    /* LEFT: logo + switcher */
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    .nav-logo {
+      width: var(--h);
+      height: var(--h);
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      text-decoration: none;
+      transition: background 150ms, border-color 150ms;
+    }
+    .nav-logo:hover { background: var(--surface-2); border-color: var(--border-hover); }
+    .nav-logo span {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .nav-switcher {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      height: var(--h);
+      padding: 4px;
+      border-radius: var(--r);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 150ms, color 150ms;
+      flex-shrink: 0;
+    }
+    .sw-btn:hover { color: var(--text-1); }
+    .sw-btn.active {
+      background: var(--surface-2);
+      color: var(--text-1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* CENTER: search absolutely centered */
+    .nav-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      height: var(--h);
+      padding: 4px 4px 4px 1rem;
+      gap: 0.4rem;
+      transition: border-color 200ms;
+    }
+    .nav-center:focus-within { border-color: var(--border-hover); }
+
+    .search-icon-wrap {
+      color: var(--text-2);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    /* search input — clean, no standalone styles */
+    #searchBar {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-1);
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.85rem;
+      min-width: 0;
+      padding: 0;
+    }
+    #searchBar::placeholder { color: var(--text-2); }
+
+    /* Search pill (Cosmos pattern) */
+    .search-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border-hover);
+      border-radius: var(--r);
+      padding: 0.15rem 0.4rem 0.15rem 0.5rem;
+      max-width: 60%;
+      flex-shrink: 1;
+      min-width: 0;
+      height: 28px;
+      animation: pillIn 150ms ease;
+    }
+    @keyframes pillIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+    .search-pill-text {
+      font-size: 0.78rem;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 22ch;
+    }
+    .search-pill-tag {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      padding: 0.22rem 0.4rem;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      font-weight: 500;
+    }
+    .search-pill-tag-artist   { border-color: #b39ddb44; color: #b39ddb; }
+    .search-pill-tag-creature { border-color: #81c78444; color: #81c784; }
+    .search-pill-tag-type     { border-color: #81c78444; color: #81c784; }
+    .search-pill-tag-set      { border-color: #ffb74d44; color: #ffb74d; }
+    .search-pill-tag-card     { border-color: #81d4fa44; color: #81d4fa; }
+    .search-pill-x {
+      color: var(--text-2);
+      cursor: pointer;
+      font-size: 0.7rem;
+      padding: 4px;
+      min-width: 28px;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: -2px -4px -2px -4px;
+      flex-shrink: 0;
+      transition: color 150ms;
+    }
+    .search-pill-x:hover { color: var(--text-1); }
+
+    /* Search active state — subtle background shift */
+    .nav-center.search-active {
+      background: var(--surface-2);
+      border-color: var(--border-hover);
+    }
+
+    .search-sep {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .btn-advanced {
+      width: calc(var(--h) - 8px);
+      height: calc(var(--h) - 8px);
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 150ms, color 150ms;
+    }
+    .btn-advanced:hover { background: var(--surface-2); color: var(--text-1); }
+    .btn-advanced.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* RIGHT: theme switcher */
+    .nav-right { flex-shrink: 0; }
+
+    .theme-sw {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      height: var(--h);
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .theme-btn {
+      width: calc(var(--h) - 8px);
+      height: calc(var(--h) - 8px);
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 150ms, color 150ms;
+    }
+    .theme-btn:hover { color: var(--text-1); }
+    .theme-btn.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* search clear + suggestions — positioned relative to nav-center */
+    #searchClear {
+      color: var(--text-2);
+      cursor: pointer;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+      transition: color 150ms;
+      padding: 0 0.2rem;
+    }
+    #searchClear:hover { color: var(--text-1); }
+
+    #searchSuggestions {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 110;
+      padding: 0.25rem 0;
+    }
+
+    #mobileSearchSuggestions {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 110;
+      padding: 0.25rem 0;
+    }
+
+    /* Lens chips row */
+    .header-chips {
+      display: flex;
+      align-items: center;
+      padding: 0.4rem 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 0.4rem;
+    }
+    .header-chips::-webkit-scrollbar { display: none; }
+
+    /* ══ MOBILE ══ */
+    .mobile-top-bar { display: none; }
+    .mobile-float   { display: none; }
+
+    @media (max-width: 768px) {
+      .header-wrap { display: none; }
+
+      .mobile-top-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.6rem 0.75rem;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: var(--bg);
+        transition: background 250ms;
+      }
+
+      /* search pill full-width on mobile */
+      .mobile-top-bar .nav-center {
+        position: relative;
+        transform: none;
+        flex: 1;
+        max-width: none;
+      }
+
+      .search-pill-text { max-width: 10ch; }
+
+      .mobile-float {
+        display: flex;
+        align-items: center;
+        position: fixed;
+        bottom: calc(1.5rem + env(safe-area-inset-bottom));
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 60;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 4px;
+        gap: 4px;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: var(--shadow);
+        white-space: nowrap;
+      }
+
+      .grid { padding-bottom: calc(6rem + env(safe-area-inset-bottom)) !important; }
+      footer.site-footer { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+    }
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Welcome screen -->
+  <div id="welcome"></div>
+
+  <!-- Transition screen -->
+  <div id="transition">
+    <svg class="transition-dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="4" ry="4"/>
+      <circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="16" r="1.8" fill="currentColor" stroke="none"/>
+    </svg>
+  </div>
+
+  <!-- App shell -->
+  <div id="appShell" style="display:none;">
+
+    <!-- ── Desktop header ── -->
+    <div class="header-wrap">
+      <header class="header">
+
+        <div class="nav-left">
+          <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
+          <div class="nav-switcher">
+            <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">Gallery</button>
+            <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Collections</button>
+          </div>
+        </div>
+
+        <div class="nav-center" id="searchContainer">
+          <span class="search-icon-svg">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input type="text" id="searchBar" placeholder="Search card, artist, creature...">
+          <span id="searchClear" style="display:none;">✕</span>
+          <div id="searchSuggestions" style="display:none;"></div>
+          <div class="search-sep"></div>
+          <button class="btn-advanced" id="btnAdvanced" onclick="setMode('advanced')" title="Advanced">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="nav-right">
+          <button class="draw-chip" id="drawBtn" onclick="triggerDrawRitual()" title="Draw a card">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+            Draw
+          </button>
+          <div class="theme-sw">
+            <button class="theme-btn active" id="btnDark"  onclick="setTheme('dark')"  title="Dark">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+            <button class="theme-btn" id="btnLight" onclick="setTheme('light')" title="Light">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- legacy chip elements kept for filters.js compatibility -->
+    </div>
+
+    <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
+    <div class="lens-row" id="lensRow">
+      <div class="lens-chips" id="lensChips">
+        <button class="lens-btn" data-lens="picks"      onclick="setLens(this)">All</button>
+        <button class="lens-btn" data-lens="new"        onclick="setLens(this)">New</button>
+        <button class="lens-btn" data-lens="moods"      onclick="setLens(this)">Moods</button>
+        <button class="lens-btn" data-lens="eras"       onclick="setLens(this)">Eras</button>
+        <button class="lens-btn" data-lens="characters" onclick="setLens(this)">Iconic Characters</button>
+        <button class="lens-btn" data-lens="lands"      onclick="setLens(this)">Lands</button>
+        <button class="lens-btn" data-lens="gems"       onclick="setLens(this)">Hidden Gems</button>
+      </div>
+      <div class="lens-controls" id="lensControls">
+        <button class="lens-ctrl-btn" id="lensGridBtn" title="Grid size" onclick="toggleLensGrid()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span class="ctrl-label">Grid</span>
+        </button>
+        <button class="lens-ctrl-btn" id="lensSortBtn" title="Sort" onclick="toggleLensSort()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
+          <span class="ctrl-label">Shuffle</span>
+        </button>
+      </div>
+    </div>
+    <div class="sub-row" id="subRow" style="display:none;"></div>
+
+    <!-- ── Mobile top bar ── -->
+    <div class="mobile-top-bar">
+      <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
+      <div class="nav-center">
+        <span class="search-icon-svg">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" id="mobileSearchBar" placeholder="Search card, artist, creature...">
+        <div id="mobileSearchSuggestions" style="display:none;"></div>
+      </div>
+      <button class="mobile-ctrl-btn" title="Grid size" onclick="toggleLensGrid()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+      <button class="mobile-ctrl-btn" title="Sort" onclick="toggleLensSort()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- ── Legacy hidden elements — required by filters.js ── -->
+    <div id="headerRow2" style="display:none;">
+      <div id="filters"></div>
+      <button id="clearFiltersBtn" style="display:none;" onclick="clearAllFilters()">Clear all</button>
+      <div id="row2Right"></div>
+    </div>
+
+    <!-- ── See All Sets Modal ── -->
+    <div class="set-modal-overlay" id="setModalOverlay" style="display:none;" onclick="closeSetModal()"></div>
+    <div class="set-modal" id="setModal" style="display:none;">
+      <div class="set-modal-header">
+        <span class="set-modal-title">All Sets</span>
+        <button class="set-modal-close" onclick="closeSetModal()">✕</button>
+      </div>
+      <input class="set-modal-search" id="setModalSearch" placeholder="Search sets..." autocomplete="off">
+      <div class="set-modal-list" id="setModalList"></div>
+    </div>
+
+    <!-- ── More Filters Modal ── -->
+    <div class="more-modal-overlay" id="moreModalOverlay" style="display:none;" onclick="closeMoreModal()"></div>
+    <div class="more-modal" id="moreModal" style="display:none;">
+      <div class="more-modal-header">
+        <span class="more-modal-title">More Filters</span>
+        <button class="more-modal-close" onclick="closeMoreModal()">✕</button>
+      </div>
+      <div class="more-modal-body" id="moreModalBody"></div>
+      <div class="more-modal-footer">
+        <span class="more-modal-clear" onclick="clearMoreFilters()">Clear all</span>
+        <button class="more-modal-apply" onclick="applyMoreModal()">Show Results</button>
+      </div>
+    </div>
+
+    <!-- ── Mobile filter drawer ── -->
+    <div class="drawer-overlay" id="drawerOverlay" style="display:none;" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+      <div class="drawer-handle" onclick="closeDrawer()"></div>
+      <div class="drawer-header">
+        <span class="drawer-title">Filters</span>
+        <span class="drawer-clear" onclick="clearAllFilters()">Clear all</span>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+      <div class="drawer-footer">
+        <button class="drawer-apply-btn" onclick="applySheet()">SHOW RESULTS</button>
+      </div>
+    </div>
+
+    <!-- ── Mode panels ── -->
+    <div id="chipBar" style="display:none;padding:0.6rem 2rem;"><div id="chipList" class="chip-list"></div></div>
+    <div class="ptr-indicator" id="ptrIndicator"></div>
+    <main class="grid" id="grid">
+      <div class="shimmer" style="min-height:220px"></div>
+      <div class="shimmer" style="min-height:200px"></div>
+      <div class="shimmer" style="min-height:240px"></div>
+      <div class="shimmer" style="min-height:210px"></div>
+      <div class="shimmer" style="min-height:230px"></div>
+      <div class="shimmer" style="min-height:200px"></div>
+      <div class="shimmer" style="min-height:220px"></div>
+      <div class="shimmer" style="min-height:210px"></div>
+    </main>
+    <div class="loading-more" id="loader" style="display:none;">Loading more artwork...</div>
+
+    <div id="collectionsPanel" class="mode-panel" style="display:none;">
+      <div class="collections-page" id="collectionsPage"></div>
+      <div class="collections-level2" id="collectionsLevel2" style="display:none;"></div>
+      <div class="collections-level3" id="collectionsLevel3" style="display:none;"></div>
+    </div>
+
+    <div id="advancedPanel" class="mode-panel" style="display:none;">
+      <div class="advanced-placeholder">Advanced search — coming soon</div>
+    </div>
+
+    <div id="discoverPanel" class="mode-panel" style="display:none;"></div>
+
+    <!-- Legacy alias -->
+    <div id="categoriesPanel" style="display:none;"></div>
+
+    <!-- Lightbox -->
+    <div id="lightbox"></div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <p>Magic: The Gallery is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images &copy; Wizards of the Coast.</p>
+    </footer>
+
+    <!-- ── Mobile floating switcher ── -->
+    <nav class="mobile-float">
+      <button class="sw-btn active" id="mSwAllArt"  onclick="setMode('gallery')">Gallery</button>
+      <button class="sw-btn"        id="mSwBrowse"  onclick="setMode('collections')">Collections</button>
+      <span class="mobile-float-divider"></span>
+      <button class="draw-chip draw-chip-mobile" id="mDrawBtn" onclick="triggerDrawRitual()" title="Draw a card">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+      </button>
+    </nav>
+
+    <!-- Draw ritual overlay -->
+    <div id="drawRitual" style="display:none;"></div>
+
+  </div><!-- end appShell -->
+
+  <script src="js/welcome.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/lightbox.js"></script>
+
+  <script>
+    // ── Mode map ──
+    const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', advanced:'btnAdvanced' };
+    const MOBILE_SW  = { gallery:'mSwAllArt', collections:'mSwBrowse' };
+    const PANELS     = { gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel' };
+
+    let _currentMode = 'gallery';
+
+    function setMode(mode) {
+      _currentMode = mode;
+      if (mode === 'gallery' || mode === 'collections') localStorage.setItem('mc_mode', mode);
+
+      // panels
+      ['grid','collectionsPanel','advancedPanel'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      const loader = document.getElementById('loader');
+      if (loader) loader.style.display = 'none';
+      const panel = document.getElementById(PANELS[mode]);
+      if (panel) panel.style.display = (mode === 'gallery') ? '' : 'block';
+
+      // desktop switcher
+      document.querySelectorAll('.sw-btn, .btn-advanced').forEach(b => b.classList.remove('active'));
+      if (DESKTOP_SW[mode]) document.getElementById(DESKTOP_SW[mode])?.classList.add('active');
+
+      // mobile switcher
+      document.querySelectorAll('.mobile-float .sw-btn').forEach(b => b.classList.remove('active'));
+      if (MOBILE_SW[mode]) document.getElementById(MOBILE_SW[mode])?.classList.add('active');
+
+      // lens chips — gallery only
+      const lensRow = document.getElementById('lensRow');
+      const subRow  = document.getElementById('subRow');
+      if (lensRow) lensRow.style.display = mode === 'gallery' ? '' : 'none';
+      if (subRow && mode !== 'gallery') subRow.style.display = 'none';
+
+      // collections — always return to main overview, hide sub-pages
+      if (mode === 'collections') {
+        const l2 = document.getElementById('collectionsLevel2');
+        const l3 = document.getElementById('collectionsLevel3');
+        const main = document.getElementById('collectionsPage');
+        if (l2) l2.style.display = 'none';
+        if (l3) l3.style.display = 'none';
+        if (main) main.style.display = '';
+      }
+
+      // load content
+      if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0 && !activeSearch) initLens();
+      if (mode === 'collections') renderCategories();
+    }
+
+    // ── Draw ritual ──────────────────────────────────────────────────────────
+    const _DRAW_DECK_SVG = (size) =>
+      `<svg width="${size}" height="${size}" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">` +
+      `<rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/>` +
+      `<rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/>` +
+      `<rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/>` +
+      `</svg>`;
+
+    function _cardGlow(card) {
+      const c = (card.colors || card.color_identity || [])[0];
+      return { W:'rgba(255,255,210,0.45)', U:'rgba(60,110,220,0.45)', B:'rgba(80,40,110,0.45)',
+               R:'rgba(200,70,40,0.45)',   G:'rgba(40,150,70,0.45)' }[c] || 'rgba(100,100,160,0.45)';
+    }
+
+    let _drawNonce = 0;
+
+    function triggerDrawRitual() {
+      const nonce = ++_drawNonce;
+      const compact = window.innerWidth <= 768;
+      const iconSize = compact ? 40 : 54;
+      const overlay  = document.getElementById('drawRitual');
+
+      // ── Phase A: anticipation beat ──
+      overlay.innerHTML =
+        `<div class="draw-ritual-radial"></div>` +
+        `<button class="draw-ritual-close" id="drClose">✕</button>` +
+        `<div class="draw-ritual-beat">` +
+          `<span class="draw-ritual-beat-icon">${_DRAW_DECK_SVG(iconSize)}</span>` +
+          `<span class="draw-ritual-beat-label">Drawing</span>` +
+        `</div>`;
+
+      overlay.style.cssText = 'display:flex;';   // triggers drawFadeIn from CSS
+      document.body.style.overflow = 'hidden';
+
+      document.getElementById('drClose').addEventListener('click', e => { e.stopPropagation(); closeDrawRitual(); });
+      overlay.addEventListener('click', closeDrawRitual);
+
+      // Fetch + beat run in parallel; reveal when both done
+      const beatDone = new Promise(r => setTimeout(r, 720));
+      const cardFetch = fetchRandomCard();
+
+      Promise.all([beatDone, cardFetch]).then(([, card]) => {
+        if (nonce !== _drawNonce) return;   // superseded by close or re-draw
+        if (!card) { closeDrawRitual(); return; }
+        _showDrawReveal(card, compact, nonce);
+      });
+    }
+
+    function _showDrawReveal(card, compact, nonce) {
+      if (nonce !== _drawNonce) return;
+      const w   = compact ? 232 : 360;
+      const h   = Math.round(w * 0.75);
+      const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop || '';
+      const nameSize   = compact ? '1.02rem' : '1.32rem';
+      const artistSize = compact ? '0.7rem'  : '0.8rem';
+      const platePad   = compact ? '26px 14px 12px' : '38px 20px 16px';
+      const glow       = _cardGlow(card);
+      const overlay    = document.getElementById('drawRitual');
+
+      overlay.removeEventListener('click', closeDrawRitual);   // remove old listener before rewrite
+      overlay.innerHTML =
+        `<div class="draw-ritual-art-bg" style="background-image:url('${art}')"></div>` +
+        `<div class="draw-ritual-radial"></div>` +
+        `<button class="draw-ritual-close" id="drClose">✕</button>` +
+        `<div class="draw-ritual-reveal" id="drReveal">` +
+          `<div class="draw-ritual-card-wrap" style="width:${w}px">` +
+            `<div class="draw-ritual-glow" style="background:${glow}"></div>` +
+            `<div class="draw-ritual-card" style="width:${w}px;height:${h}px;border-radius:var(--radius)">` +
+              `<img src="${art}" alt="${card.name || ''}">` +
+              `<div class="draw-ritual-plate" style="padding:${platePad}">` +
+                `<div class="draw-ritual-name"  style="font-size:${nameSize}">${card.name || ''}</div>` +
+                `<div class="draw-ritual-artist" style="font-size:${artistSize}">${card.artist || ''}</div>` +
+              `</div>` +
+            `</div>` +
+          `</div>` +
+          `<div class="draw-ritual-actions">` +
+            `<button class="draw-again-btn" id="drAgain">${_DRAW_DECK_SVG(13)} Draw again</button>` +
+            `<button class="draw-done-btn"  id="drDone">Done</button>` +
+          `</div>` +
+        `</div>`;
+
+      document.getElementById('drClose').addEventListener('click', e => { e.stopPropagation(); closeDrawRitual(); });
+      document.getElementById('drDone').addEventListener('click',  e => { e.stopPropagation(); closeDrawRitual(); });
+      document.getElementById('drAgain').addEventListener('click', e => { e.stopPropagation(); triggerDrawRitual(); });
+      document.getElementById('drReveal').addEventListener('click', e => e.stopPropagation());
+      overlay.addEventListener('click', closeDrawRitual);
+    }
+
+    function closeDrawRitual() {
+      _drawNonce++;   // invalidate any in-flight draw
+      const overlay = document.getElementById('drawRitual');
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // ── Lens cache — keyed by 'lens:sub', session-only ──
+    const _lensCache = {};
+    function _cacheKey(lens, sub) { const s = sub && typeof sub === 'object' ? (sub.code || '') : (sub || ''); return lens + ':' + s; }
+
+    function goHome() {
+      // Clear search if active
+      if (document.querySelector('.search-pill')) {
+        clearSearchPill();
+        return;
+      }
+      activeSearch = null;
+      setSearchMode(false);
+      setMode('gallery');
+      const picksBtn = document.querySelector('.lens-btn[data-lens="picks"]');
+      document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+      picksBtn.classList.add('active');
+      _activeLens = 'picks';
+      renderSubPills('picks');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const cached = _lensCache[_cacheKey('picks', null)];
+      if (cached) {
+        grid.innerHTML = '';
+        renderCards(cached.cards);
+        if (cached.hasMore) observeLastCard();
+      } else {
+        applyLensQuery('picks', null);
+      }
+    }
+
+    // ── Lens system ──
+    const MANA_SVGS = {
+      w: 'https://svgs.scryfall.io/card-symbols/W.svg',
+      u: 'https://svgs.scryfall.io/card-symbols/U.svg',
+      b: 'https://svgs.scryfall.io/card-symbols/B.svg',
+      r: 'https://svgs.scryfall.io/card-symbols/R.svg',
+      g: 'https://svgs.scryfall.io/card-symbols/G.svg',
+      m: 'https://svgs.scryfall.io/card-symbols/S.svg',
+      c: 'https://svgs.scryfall.io/card-symbols/C.svg',
+    };
+
+    const ICONIC_SETS = [
+      'lea','3ed','ice','mir','tmp','usg','inv','rav','tsp','lrw',
+      'ala','zen','isd','rtr','ths','ktk','bfz','soi','akh','xln',
+      'grn','war','eld','khm','stx','mid','neo','snc','bro','one',
+      'mom','woe','lci','mkm','blb','dsk'
+    ];
+
+    // ── New Lens System ──
+    const MOOD_CARDS = {
+      dark:    { label:'Dark & Haunting',   art:'https://cards.scryfall.io/art_crop/front/6/7/67aa7104-7acc-4827-b763-ac053c99baab.jpg?1557576435', query:'(s:isd OR s:soi OR s:emn OR s:vow OR s:mid) has:illustration' },
+      fae:     { label:'Fae & Ethereal',    art:'https://cards.scryfall.io/art_crop/front/b/9/b9640cbf-b016-410e-9eff-e8924883517b.jpg?1673147456', query:'(s:lrw OR s:shm OR s:eld) (t:faerie OR t:spirit) has:illustration' },
+      villain: { label:'Villains & Tyrants',art:'https://cards.scryfall.io/art_crop/front/c/5/c5408607-af8f-48fe-bc40-32828d1976de.jpg?1702429680', query:'(t:dragon OR t:demon) (t:legendary) has:illustration' },
+      epic:    { label:'Epic & Vast',       art:'https://cards.scryfall.io/art_crop/front/2/4/249db4d4-2542-47ee-a216-e13ffbc2319c.jpg?1758104027', query:'(s:war OR s:bfz OR s:znr OR s:roe) has:illustration' },
+      whimsy:  { label:'Whimsical',         art:'https://cards.scryfall.io/art_crop/front/8/8/8809830f-d8e1-4603-9652-0ad8b00234e9.jpg?1721427315', query:'(s:blb OR s:eld OR s:unf OR s:ust) has:illustration' },
+      cosmic:  { label:'Cosmic Horror',     art:'https://cards.scryfall.io/art_crop/front/c/7/c74ae706-b3b3-4097-a387-6f6c38a9b603.jpg?1689995438', query:'(t:eldrazi OR s:emn OR s:one OR s:mom) has:illustration' },
+      divine:  { label:'Divine & Mythic',   art:'https://cards.scryfall.io/art_crop/front/3/2/3245ff74-1f9c-4518-a23f-1579f338f232.jpg?1689995727', query:'(t:god OR t:angel OR t:archon) has:illustration' },
+      nature:  { label:'Nature & Wild',     art:'https://cards.scryfall.io/art_crop/front/2/7/276f5cee-a501-4658-bd4d-7a044bf1ccbc.jpg?1743204520', query:'(t:beast OR t:dinosaur OR t:hydra) color=g has:illustration' },
+      urban:   { label:'Urban & Civilized', art:'https://cards.scryfall.io/art_crop/front/f/9/f97a6d34-03ab-49f1-b02e-405b733f8843.jpg?1584832278', query:'(s:grn OR s:rna OR s:snc OR s:kld) has:illustration' },
+      violent: { label:'Violent & Chaotic', art:'https://cards.scryfall.io/art_crop/front/6/5/65ae241c-8955-4c97-8be6-7356fbee2195.jpg?1775941250', query:'(color=r t:instant OR color=r t:sorcery) has:illustration' },
+      serene:  { label:'Serene & Mystical', art:'https://cards.scryfall.io/art_crop/front/f/1/f185a734-a32a-4244-88e8-dabafbfd064f.jpg?1562837629', query:'(s:thb OR s:ths OR s:bng OR s:lrw OR s:shm) has:illustration' },
+    };
+
+    const ERA_RANGES = {
+      'Beginning 93\u201394': [1993,1994],
+      'Dark Age 95\u201397': [1995,1997],
+      'Invasion 98\u201303': [1998,2003],
+      'Modern Age 03\u201308': [2003,2008],
+      'Renaissance 08\u201314': [2008,2014],
+      'New Era 14\u201318': [2014,2018],
+      'Modern 18\u201322': [2018,2022],
+      'Multiverse 22+': [2022, new Date().getFullYear()],
+    };
+
+    function applyLensQuery(lens, sub) {
+      // Preserve activeSearch if a search pill is showing
+      const pill = document.querySelector('.search-pill');
+      const savedSearch = pill ? activeSearch : null;
+      activeArtist = []; activeType = []; activeCardType = [];
+      activeColour = []; activeSets = []; activeStyles = [];
+      activeYearMin = null; activeYearMax = null;
+      activeSearch = savedSearch;
+      // Keep current sort — user's choice persists across all lenses
+
+      // Persist lens state
+      localStorage.setItem('mc_lens', JSON.stringify({ lens, sub }));
+      // Suppress filter chips when lens is driving
+      localStorage.removeItem('mc_filters');
+
+      if (lens === 'picks') {
+        // pure random
+      } else if (lens === 'new') {
+        if (sub && sub.code) activeSets = [sub.code];
+      } else if (lens === 'eras') {
+        const range = ERA_RANGES[sub];
+        if (range) { activeYearMin = range[0]; activeYearMax = range[1]; }
+      } else if (lens === 'moods') {
+        const mood = MOOD_CARDS[sub];
+        if (mood) window._lensRawQuery = mood.query;
+      } else if (lens === 'characters') {
+        const char = CHARACTER_CARDS[sub];
+        if (char) window._lensRawQuery = char.query;
+      } else if (lens === 'lands') {
+        const land = LAND_TYPES[sub];
+        if (land) window._lensRawQuery = land.query;
+      } else if (lens === 'iconic') {
+        if (sub === 'commander') window._lensRawQuery = 't:legendary t:creature has:illustration';
+        else if (sub === 'standard') window._lensRawQuery = 'format:standard has:illustration';
+        else if (sub === 'modern') window._lensRawQuery = 'format:modern has:illustration';
+        else if (sub === 'premodern') { activeYearMin = 1993; activeYearMax = 2003; }
+      } else if (lens === 'gems') {
+        if (sub === 'one') window._lensRawQuery = 'prints=1 has:illustration';
+        else if (sub === 'pre2000') { activeYearMin = 1993; activeYearMax = 1999; }
+        else if (sub === 'uncommon') window._lensRawQuery = '(r:common OR r:uncommon) has:illustration';
+      } else if (lens === 'color') {
+        if (sub) activeColour = [sub];
+      }
+
+      const key = _cacheKey(lens, sub);
+      const cached = !activeSearch ? _lensCache[key] : null;
+      if (cached) {
+        grid.innerHTML = '';
+        renderCards(cached.cards);
+        if (cached.hasMore) observeLastCard();
+        return;
+      }
+      loadInitialGrid();
+    }
+
+    let _activeLens = 'picks';
+
+    function setLens(el) {
+      document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      _activeLens = el.dataset.lens;
+      window._activeSubPill = null;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      renderSubPills(_activeLens);
+    }
+
+    function renderSubPills(lens) {
+      const row = document.getElementById('subRow');
+      const savedSub = window._restoreSub || null;
+      if (lens === 'picks') {
+        row.style.display = 'none';
+        if (!window._suppressLensApply) applyLensQuery('picks', null);
+      } else if (lens === 'color') {
+        renderColorPills(row, savedSub);
+      } else if (lens === 'new') {
+        renderNewPills(row, savedSub);
+      } else if (lens === 'eras') {
+        renderEraPills(row, savedSub);
+      } else if (lens === 'characters') {
+        renderCharacterCards(row, savedSub);
+      } else if (lens === 'moods') {
+        renderMoodCards(row, savedSub);
+      } else if (lens === 'iconic') {
+        renderIconicPills(row, savedSub);
+      } else if (lens === 'lands') {
+        renderLandsPills(row, savedSub);
+      } else if (lens === 'gems') {
+        renderGemsPills(row, savedSub);
+      } else {
+        row.style.display = 'none';
+        if (!window._suppressLensApply) applyLensQuery(lens, null);
+      }
+      setTimeout(updateLensTop, 100);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    async function renderNewPills(row, savedSub) {
+      row.style.display = '';
+      row.innerHTML = '<span style="font-size:0.75rem;color:var(--text-2);padding:0 0.5rem;">Loading...</span>';
+      try {
+        const res = await fetch('https://api.scryfall.com/sets');
+        const json = await res.json();
+        const sets = (json.data || []).filter(s => s.set_type === 'expansion' || s.set_type === 'core');
+        const now = new Date();
+        const released = sets.filter(s => new Date(s.released_at) <= now);
+        const upcoming = sets.filter(s => new Date(s.released_at) > now);
+
+        // Check each upcoming set in parallel — only show a pill if cards exist
+        const previewChecks = await Promise.all(
+          upcoming.map(s =>
+            fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent('s:' + s.code + ' has:illustration')}&unique=art&page=1`)
+              .then(r => r.ok ? r.json() : null)
+              .then(j => (j && (j.total_cards || 0) > 0) ? s : null)
+              .catch(() => null)
+          )
+        );
+        const availablePreviews = previewChecks.filter(Boolean);
+
+        const pills = [];
+        if (released[0]) pills.push({ label: 'Latest: '   + released[0].name, code: released[0].code });
+        if (released[1]) pills.push({ label: 'Previous: ' + released[1].name, code: released[1].code });
+        availablePreviews.forEach(s => pills.push({ label: 'Preview: ' + s.name, code: s.code }));
+
+        if (!pills.length) { row.style.display = 'none'; applyLensQuery('new', null); return; }
+
+        const activeSub = savedSub?.code;
+        row.innerHTML = pills.map((p, i) =>
+          `<button class="sub-pill ${(activeSub ? activeSub === p.code : i === 0) ? 'active' : ''}" data-idx="${i}">${p.label}</button>`
+        ).join('');
+
+        row.querySelectorAll('.sub-pill').forEach((btn, i) => {
+          btn.addEventListener('click', () => {
+            row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            window._activeSubPill = pills[i];
+            applyLensQuery('new', pills[i]);
+          });
+        });
+
+        if (!window._suppressLensApply) {
+          window._activeSubPill = pills[0];
+          applyLensQuery('new', pills[0]);
+        }
+      } catch(e) { row.style.display = 'none'; applyLensQuery('new', null); }
+    }
+
+    function renderEraPills(row, savedSub) {
+      row.style.display = '';
+      const eras = Object.keys(ERA_RANGES);
+      row.innerHTML = eras.map((era, i) =>
+        `<button class="sub-pill ${(savedSub ? era === savedSub : i === 0) ? 'active' : ''}" data-era="${era}">${era}</button>`
+      ).join('');
+      row.querySelectorAll('.sub-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          window._activeSubPill = btn.dataset.era;
+          applyLensQuery('eras', btn.dataset.era);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('eras', eras[0]);
+    }
+
+    function renderMoodCards(row, savedSub) {
+      row.style.display = '';
+      const moods = Object.entries(MOOD_CARDS);
+      row.innerHTML = moods.map(([key, m], i) =>
+        `<div class="mood-card ${(savedSub ? key === savedSub : i === 0) ? 'active' : ''}" data-mood="${key}">
+          <div class="mood-card-img" style="background-image:url('${m.art}')"></div>
+          <div class="mood-card-label">${m.label}</div>
+        </div>`
+      ).join('');
+      row.querySelectorAll('.mood-card').forEach(card => {
+        card.addEventListener('click', () => {
+          row.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          window._activeSubPill = card.dataset.mood;
+          applyLensQuery('moods', card.dataset.mood);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('moods', moods[0][0]);
+    }
+
+    function renderIconicPills(row, savedSub) {
+      row.style.display = '';
+      const pills = [
+        { label: 'All time', key: 'all' },
+        { label: 'Commanders', key: 'commander' },
+        { label: 'Standard', key: 'standard' },
+        { label: 'Modern', key: 'modern' },
+        { label: 'Pre-modern', key: 'premodern' },
+      ];
+      row.innerHTML = pills.map((p, i) =>
+        `<button class="sub-pill ${(savedSub ? p.key === savedSub : i === 0) ? 'active' : ''}" data-key="${p.key}">${p.label}</button>`
+      ).join('');
+      row.querySelectorAll('.sub-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          window._activeSubPill = btn.dataset.key;
+          applyLensQuery('iconic', btn.dataset.key);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('iconic', 'all');
+    }
+
+    function renderColorPills(row, savedSub) {
+      row.style.display = '';
+      const colors = [
+        { label:'White', key:'w' },
+        { label:'Blue', key:'u' },
+        { label:'Black', key:'b' },
+        { label:'Red', key:'r' },
+        { label:'Green', key:'g' },
+        { label:'Multi', key:'m' },
+        { label:'Colorless', key:'c' },
+      ];
+      row.innerHTML = colors.map((c, i) =>
+        `<button class="sub-pill ${(savedSub ? c.key === savedSub : i === 0) ? 'active' : ''}" data-key="${c.key}"><img src="${MANA_SVGS[c.key]}" width="16" height="16" style="vertical-align:middle;margin-right:4px">${c.label}</button>`
+      ).join('');
+      row.querySelectorAll('.sub-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          window._activeSubPill = btn.dataset.key;
+          applyLensQuery('color', btn.dataset.key);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('color', colors[0].key);
+    }
+
+    // ── Iconic Characters data ──
+    const CHARACTER_CARDS = {
+      jace:     { label:'Jace',        query:'jace t:planeswalker has:illustration order:edhrec' },
+      liliana:  { label:'Liliana',     query:'liliana t:planeswalker has:illustration order:edhrec' },
+      chandra:  { label:'Chandra',     query:'chandra t:planeswalker has:illustration order:edhrec' },
+      nissa:    { label:'Nissa',       query:'nissa t:planeswalker has:illustration order:edhrec' },
+      nicol:    { label:'Nicol Bolas', query:'"nicol bolas" has:illustration order:edhrec' },
+      elesh:    { label:'Elesh Norn',  query:'"elesh norn" has:illustration order:edhrec' },
+      sheoldred:{ label:'Sheoldred',   query:'sheoldred has:illustration order:edhrec' },
+      sorin:    { label:'Sorin',       query:'sorin t:planeswalker has:illustration order:edhrec' },
+      ajani:    { label:'Ajani',       query:'ajani t:planeswalker has:illustration order:edhrec' },
+      teferi:   { label:'Teferi',      query:'teferi t:planeswalker has:illustration order:edhrec' },
+      garruk:   { label:'Garruk',      query:'garruk t:planeswalker has:illustration order:edhrec' },
+      karn:     { label:'Karn',        query:'karn has:illustration order:edhrec' },
+    };
+
+    // Dynamic art fetch for character cards (cached per session)
+    const _characterArtCache = {};
+    async function fetchCharacterArt(key, query) {
+      if (_characterArtCache[key] !== undefined) return _characterArtCache[key];
+      _characterArtCache[key] = '';
+      try {
+        const q = query.replace(/\s+order:\S+/, ''); // strip order: for art search
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}&order=edhrec&unique=art`);
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        const card = (json.data || [])[0];
+        const art = card?.image_uris?.art_crop || card?.card_faces?.[0]?.image_uris?.art_crop || '';
+        _characterArtCache[key] = art;
+        return art;
+      } catch(e) { return ''; }
+    }
+
+    // ── Plane art (basic land from each plane's set pool) ──
+    const _planeArtCache = {};
+    async function fetchPlaneArt(name, setCodes) {
+      if (_planeArtCache[name] !== undefined) return _planeArtCache[name];
+      _planeArtCache[name] = '';
+      try {
+        const codes = setCodes.split(',');
+        const orQ = codes.map(c => `s:${c.trim()}`).join(' OR ');
+        const base = '(' + orQ + ')';
+        // Try basics first; fall back to any land if the plane has no basics in its sets
+        let res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(base + ' t:basic has:illustration')}&unique=art&order=edhrec`);
+        if (!res.ok) {
+          res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(base + ' t:land has:illustration')}&unique=art&order=edhrec`);
+        }
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        const card = (json.data || [])[0];
+        const art = card?.image_uris?.art_crop || card?.card_faces?.[0]?.image_uris?.art_crop || '';
+        _planeArtCache[name] = art;
+        return art;
+      } catch(e) { return ''; }
+    }
+
+    // ── Lands data ──
+    const LAND_TYPES = {
+      plains:   { label:'Plains',        query:'t:basic name:plains has:illustration' },
+      island:   { label:'Island',        query:'t:basic name:island has:illustration' },
+      swamp:    { label:'Swamp',         query:'t:basic name:swamp has:illustration' },
+      mountain: { label:'Mountain',      query:'t:basic name:mountain has:illustration' },
+      forest:   { label:'Forest',        query:'t:basic name:forest has:illustration' },
+      dual:     { label:'Duals & Fetch', query:'has:illustration ((t:land (t:plains OR t:island OR t:swamp OR t:mountain OR t:forest) -t:basic) OR (t:land o:"search your library" o:sacrifice -t:basic))' },
+      utility:  { label:'Utility',       query:'has:illustration t:land -t:basic -t:snow -(o:"search your library" o:sacrifice) -(o:"pay 2 life, tap")' },
+      snow:     { label:'Snow',          query:'t:snow t:land has:illustration' },
+    };
+
+    function renderCharacterCards(row, savedSub) {
+      row.style.display = '';
+      const chars = Object.entries(CHARACTER_CARDS);
+      row.innerHTML = chars.map(([key, c], i) =>
+        `<div class="mood-card ${(savedSub ? key === savedSub : i === 0) ? 'active' : ''}" data-char="${key}">
+          <div class="mood-card-img mood-card-img--loading" id="char-img-${key}"></div>
+          <div class="mood-card-label">${c.label}</div>
+        </div>`
+      ).join('');
+      // Fetch art dynamically — avoids stale/wrong hardcoded URLs
+      chars.forEach(([key, c]) => {
+        fetchCharacterArt(key, c.query).then(art => {
+          if (!art) return;
+          const el = document.getElementById(`char-img-${key}`);
+          if (el) { el.style.backgroundImage = `url('${art}')`; el.classList.remove('mood-card-img--loading'); }
+        });
+      });
+      row.querySelectorAll('.mood-card').forEach(card => {
+        card.addEventListener('click', () => {
+          row.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          window._activeSubPill = card.dataset.char;
+          applyLensQuery('characters', card.dataset.char);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('characters', chars[0][0]);
+    }
+
+    function renderLandsPills(row, savedSub) {
+      row.style.display = '';
+      const lands = Object.entries(LAND_TYPES);
+      row.innerHTML = lands.map(([key, l], i) =>
+        `<button class="sub-pill ${(savedSub ? key === savedSub : i === 0) ? 'active' : ''}" data-key="${key}">${l.label}</button>`
+      ).join('');
+      row.querySelectorAll('.sub-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          window._activeSubPill = btn.dataset.key;
+          applyLensQuery('lands', btn.dataset.key);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('lands', lands[0][0]);
+    }
+
+    function renderGemsPills(row, savedSub) {
+      row.style.display = '';
+      const pills = [
+        { label: 'One printing', key: 'one' },
+        { label: 'Pre-2000', key: 'pre2000' },
+        { label: 'Uncommons & Commons', key: 'uncommon' },
+      ];
+      row.innerHTML = pills.map((p, i) =>
+        `<button class="sub-pill ${(savedSub ? p.key === savedSub : i === 0) ? 'active' : ''}" data-key="${p.key}">${p.label}</button>`
+      ).join('');
+      row.querySelectorAll('.sub-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          row.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          window._activeSubPill = btn.dataset.key;
+          applyLensQuery('gems', btn.dataset.key);
+        });
+      });
+      if (!window._suppressLensApply) applyLensQuery('gems', 'one');
+    }
+
+    function setSubPill(el, sub) {
+      document.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+      window._activeSubPill = sub;
+      applyLensQuery(_activeLens, sub);
+    }
+
+    // init lens on gallery entry
+    // Pre-fetch a lens+sub silently into cache without affecting the active grid
+    async function _prewarmLens(lens, sub) {
+      const key = _cacheKey(lens, sub);
+      if (_lensCache[key]) return; // already cached
+      // Temporarily snapshot active state
+      const snap = { activeArtist, activeType, activeCardType, activeColour,
+        activeSets, activeStyles, activeYearMin, activeYearMax, activeSearch, sortOrder, sortDir };
+      // Apply lens filters to state variables (no grid render)
+      activeArtist = []; activeType = []; activeCardType = [];
+      activeColour = []; activeSets = []; activeStyles = [];
+      activeYearMin = null; activeYearMax = null; activeSearch = null;
+      sortOrder = 'random'; sortDir = 'auto';
+      if (lens === 'latest') { if (sub === 'Previews only') activeSearch = 'is:preview'; }
+      else if (lens === 'era') {
+        const ERA_YEARS = { 'The Beginning':[1993,1994],'The Dark Age':[1995,1997],'The Invasion Era':[1998,2003],'The Modern Age':[2003,2008],'The Renaissance':[2008,2014],'The New Era':[2014,2018],'The Modern Era':[2018,2022],'The Multiverse Era':[2022,new Date().getFullYear()] };
+        const r = ERA_YEARS[sub]; if (r) { activeYearMin = r[0]; activeYearMax = r[1]; }
+      } else if (lens === 'creature') { if (sub) activeType = [sub.toLowerCase()]; }
+      else if (lens === 'color') { const M={White:'w',Blue:'u',Black:'b',Red:'r',Green:'g',Multicolor:'m',Colorless:'c'}; if(M[sub]) activeColour=[M[sub]]; }
+      else if (lens === 'style') { const i=(typeof ART_STYLES!=='undefined')?ART_STYLES.findIndex(s=>s.name===sub):-1; if(i>=0) activeStyles=[i]; }
+      const query = buildQuery(activeArtist,activeType,activeCardType,activeColour,activeSets,(typeof ART_STYLES!=='undefined'?activeStyles.map(i=>ART_STYLES[i]):[]),activeYearMin,activeYearMax,activeSearch);
+      // Restore active state before fetch completes
+      ({ activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles,
+        activeYearMin, activeYearMax, activeSearch, sortOrder, sortDir } = snap);
+      try {
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&unique=art&order=released&dir=asc&page=${Math.floor(Math.random()*20)+1}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json.object === 'error') return;
+        _lensCache[key] = { cards: shuffleArray(json.data || []), hasMore: json.has_more || false };
+      } catch(e) { /* silent */ }
+    }
+
+    // After active lens loads, pre-warm the next 2 lenses in background
+    const LENS_ORDER = ['picks','new','moods','eras','characters','lands','iconic','gems'];
+    function prewarmAdjacentLenses() {
+      const idx = LENS_ORDER.indexOf(_activeLens);
+      const toWarm = [
+        LENS_ORDER[(idx + 1) % LENS_ORDER.length],
+        LENS_ORDER[(idx + 2) % LENS_ORDER.length],
+      ];
+      setTimeout(() => {
+        toWarm.forEach(lens => {
+          const firstSub = (LENS_SUB_PILLS[lens] || [])[0] || null;
+          _prewarmLens(lens, firstSub);
+        });
+      }, 1500); // delay so it doesn't compete with active fetch
+    }
+
+    function shuffleLens() {
+      if (typeof _lensCache !== 'undefined') {
+        const key = _activeLens + ':' + (window._activeSubPill || '');
+        delete _lensCache[key];
+      }
+      loadInitialGrid();
+    }
+
+    let _lensGridOpen = false;
+    let _lensSortOpen = false;
+
+    function toggleLensGrid() {
+      if (_lensGridOpen) { closeLensGrid(); return; }
+      closeLensSort();
+      _lensGridOpen = true;
+      const anchor = document.getElementById('lensGridBtn');
+      const existing = document.getElementById('lensGridDropdown');
+      if (existing) existing.remove();
+      const dropdown = document.createElement('div');
+      dropdown.className = 'lens-dropdown';
+      dropdown.id = 'lensGridDropdown';
+      dropdown.innerHTML = [
+        { label: 'Small', size: 'sm' },
+        { label: 'Medium', size: 'md' },
+        { label: 'Large', size: 'lg' },
+      ].map(o => `<div class="lens-dropdown-item ${(typeof currentGridSize !== 'undefined' && currentGridSize === o.size) ? 'active' : ''}" data-size="${o.size}">${o.label}</div>`).join('');
+      dropdown.addEventListener('click', e => e.stopPropagation());
+      dropdown.querySelectorAll('.lens-dropdown-item').forEach(el => {
+        el.addEventListener('click', () => {
+          if (typeof setGridSize === 'function') setGridSize(el.dataset.size);
+          closeLensGrid();
+        });
+      });
+      anchor.style.position = 'relative';
+      anchor.appendChild(dropdown);
+      requestAnimationFrame(() => {
+        document.addEventListener('click', _closeGridOnOutside);
+      });
+    }
+
+    function _closeGridOnOutside(e) {
+      if (!e.target.closest('#lensGridBtn')) closeLensGrid();
+    }
+
+    function closeLensGrid() {
+      _lensGridOpen = false;
+      document.getElementById('lensGridDropdown')?.remove();
+      document.removeEventListener('click', _closeGridOnOutside);
+    }
+
+    function toggleLensSort() {
+      if (_lensSortOpen) { closeLensSort(); return; }
+      closeLensGrid();
+      _lensSortOpen = true;
+      const anchor = document.getElementById('lensSortBtn');
+      const existing = document.getElementById('lensSortDropdown');
+      if (existing) existing.remove();
+      const dropdown = document.createElement('div');
+      dropdown.className = 'lens-dropdown';
+      dropdown.id = 'lensSortDropdown';
+      dropdown.innerHTML = (typeof SORT_OPTIONS !== 'undefined' ? SORT_OPTIONS : []).map((opt, i) =>
+        `<div class="lens-dropdown-item ${sortOrder === opt.order && sortDir === opt.dir ? 'active' : ''}" data-idx="${i}">${opt.label}</div>`
+      ).join('');
+      dropdown.addEventListener('click', e => e.stopPropagation());
+      dropdown.querySelectorAll('.lens-dropdown-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const opt = SORT_OPTIONS[parseInt(el.dataset.idx)];
+          if (opt) {
+            sortOrder = opt.order; sortDir = opt.dir; localStorage.setItem("mc_sort", JSON.stringify({ order: opt.order, dir: opt.dir }));
+            document.getElementById('lensSortBtn').querySelector('.ctrl-label').textContent = opt.label;
+          }
+          closeLensSort();
+          loadInitialGrid();
+        });
+      });
+      anchor.style.position = 'relative';
+      anchor.appendChild(dropdown);
+      requestAnimationFrame(() => {
+        document.addEventListener('click', _closeSortOnOutside);
+      });
+    }
+
+    function _closeSortOnOutside(e) {
+      if (!e.target.closest('#lensSortBtn')) closeLensSort();
+    }
+
+    function closeLensSort() {
+      _lensSortOpen = false;
+      document.getElementById('lensSortDropdown')?.remove();
+      document.removeEventListener('click', _closeSortOnOutside);
+    }
+
+    const CREATURE_TYPES = ['Dragon','Angel','Demon','Elf','Human','Merfolk','Zombie','Vampire','Warrior','Wizard','Knight','Phoenix'];
+    const ALL_CREATURE_TYPES = [
+      'Angel','Artificer','Assassin','Barbarian','Bard','Bear','Berserker','Bird',
+      'Cat','Cleric','Demon','Dinosaur','Dragon','Druid','Dwarf','Elemental',
+      'Elf','Faerie','Giant','Goblin','Golem','Griffin','Horror','Human',
+      'Hydra','Insect','Knight','Kraken','Leviathan','Merfolk','Monk','Nightmare',
+      'Ogre','Orc','Paladin','Phoenix','Ranger','Rat','Rogue','Serpent',
+      'Shaman','Skeleton','Soldier','Sorcerer','Sphinx','Spider','Spirit',
+      'Troll','Vampire','Warrior','Werewolf','Wizard','Wolf','Wurm','Zombie'
+    ];
+    // Curated iconic card IDs per creature type — static, no API call needed
+    // Fetch art by Scryfall named card lookup — one per type, cached permanently
+    const _creatureArtCache = {};
+
+    async function fetchCreatureArt(type) {
+      if (_creatureArtCache[type] !== undefined) return _creatureArtCache[type];
+      _creatureArtCache[type] = '';
+      try {
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=t:${encodeURIComponent(type.toLowerCase())}+is:hires&order=edhrec&unique=art`);
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        const card = (json.data || [])[0];
+        const art = card?.image_uris?.art_crop || card?.card_faces?.[0]?.image_uris?.art_crop || '';
+        _creatureArtCache[type] = art;
+        return art;
+      } catch(e) { return ''; }
+    }
+
+    // One iconic card name per creature type
+
+    async function renderCreatureCards(row, activeType, prepend) {
+      row.style.display = '';
+      const types = prepend
+        ? [prepend, ...CREATURE_TYPES.filter(t => t !== prepend)]
+        : CREATURE_TYPES;
+
+      // Build skeleton — fill row with as many cards as fit + see all at end
+      row.innerHTML = `
+        <div class="creature-row-wrap">
+          <div class="creature-cards-scroll" id="creatureCardsScroll">
+            ${types.map(t => `
+              <div class="creature-card ${(activeType || types[0]) === t ? 'active' : ''}" data-type="${t}">
+                <div class="creature-card-img" id="ccard-${t}">
+                  <div class="creature-card-shimmer"></div>
+                </div>
+                <div class="creature-card-name">${t}</div>
+              </div>`).join('')}
+            <div class="creature-see-all-wrap">
+              <div id="creatureSelectedChip" class="creature-selected-chip" style="display:none;"></div>
+              <button class="creature-see-all" onclick="openCreatureAll()">See all</button>
+            </div>
+          </div>
+        </div>`;
+
+      // Wire clicks
+      row.querySelectorAll('.creature-card').forEach(card => {
+        card.addEventListener('click', () => selectCreatureType(card.dataset.type));
+      });
+
+      // Fetch art async
+      types.forEach(async t => {
+        const art = await fetchCreatureArt(t);
+        const el = document.getElementById(`ccard-${t}`);
+        if (el && art) {
+          el.innerHTML = '';
+          el.style.cssText = `background-image:url('${art}');background-size:cover;background-position:center;`;
+        }
+      });
+
+      // Auto-select first
+      selectCreatureType(activeType || types[0], true);
+    }
+
+    function selectCreatureType(type, silent) {
+      document.querySelectorAll('.creature-card').forEach(c => c.classList.toggle('active', c.dataset.type === type));
+      const sub = document.getElementById('creatureLabelSub');
+      if (sub) sub.textContent = type;
+      window._activeSubPill = type;
+      // Show selected chip if not one of the default 7
+      const chip = document.getElementById('creatureSelectedChip');
+      if (chip) {
+        if (!CREATURE_TYPES.includes(type)) {
+          chip.style.display = 'inline-flex';
+          chip.innerHTML = `${type} <span class="creature-chip-x" onclick="clearCreatureSelection()">&#215;</span>`;
+        } else {
+          chip.style.display = 'none';
+        }
+      }
+      if (!silent) applyLensQuery('creature', type);
+    }
+
+    function clearCreatureSelection() {
+      const chip = document.getElementById('creatureSelectedChip');
+      if (chip) chip.style.display = 'none';
+      selectCreatureType(CREATURE_TYPES[0]);
+      const row = document.getElementById('subRow');
+      renderCreatureCards(row, CREATURE_TYPES[0]);
+    }
+
+    function openCreatureAll() {
+      // Replace grid with creature selector
+      const grid = document.getElementById('grid');
+      const loader = document.getElementById('loader');
+      grid.style.display = 'none';
+      if (loader) loader.style.display = 'none';
+
+      let panel = document.getElementById('creatureAllPanel');
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'creatureAllPanel';
+        panel.className = 'creature-all-panel';
+        grid.parentNode.insertBefore(panel, grid);
+      }
+      panel.style.display = '';
+
+      const unique = ALL_CREATURE_TYPES;
+
+      document.getElementById('subRow').style.display = 'none';
+      panel.innerHTML = `
+        <div class="creature-all-header">
+          <button class="creature-all-back" onclick="closeCreatureAll()">&#8592; Back</button>
+          <h2 class="creature-all-title">All Creature Types</h2>
+          <div style="width:80px;"></div>
+        </div>
+        <div class="creature-all-grid" id="creatureAllGrid">
+          ${unique.map(t => `
+            <div class="creature-all-card" data-type="${t}">
+              <div class="creature-all-img" id="callcard-${t}">
+                <div class="creature-card-shimmer"></div>
+              </div>
+              <div class="creature-all-name">${t}</div>
+            </div>`).join('')}
+        </div>`;
+
+      panel.querySelectorAll('.creature-all-card').forEach(card => {
+        card.addEventListener('click', () => {
+          closeCreatureAll();
+          const row = document.getElementById('subRow');
+          renderCreatureCards(row, card.dataset.type, card.dataset.type);
+          setTimeout(updateLensTop, 400);
+        });
+      });
+
+      // Fetch art for visible cards
+      unique.forEach(async t => {
+        const art = await fetchCreatureArt(t);
+        const el = document.getElementById(`callcard-${t}`);
+        if (el && art) {
+          el.innerHTML = '';
+          el.style.cssText = `background-image:url('${art}');background-size:cover;background-position:center;`;
+        }
+      });
+    }
+
+    function closeCreatureAll() {
+      const panel = document.getElementById('creatureAllPanel');
+      if (panel) panel.style.display = 'none';
+      document.getElementById('grid').style.display = '';
+      document.getElementById('subRow').style.display = '';
+      // Do NOT reload — keep the current creature feed
+    }
+
+    function initLens() {
+      // Restore Collections mode immediately — no gallery flash
+      if (localStorage.getItem('mc_mode') === 'collections') { setMode('collections'); return; }
+
+      const saved = localStorage.getItem('mc_lens');
+      let lens = 'picks', sub = null;
+      if (saved) {
+        try {
+          const s = JSON.parse(saved);
+          lens = s.lens || 'picks';
+          sub = s.sub || null;
+        } catch(e) {}
+      }
+      // Restore sort from its own key
+      const savedSort = localStorage.getItem("mc_sort");
+      if (savedSort) {
+        try { const ss = JSON.parse(savedSort); sortOrder = ss.order || "random"; sortDir = ss.dir || "auto"; } catch(e) {}
+      }
+      _activeLens = lens;
+      // Activate the correct tab
+      document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.querySelector(`.lens-btn[data-lens="${lens}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+      // Update sort button label
+      const sortLabel = document.getElementById('lensSortBtn')?.querySelector('.ctrl-label');
+      if (sortLabel) {
+        const opt = (typeof SORT_OPTIONS !== 'undefined') ? SORT_OPTIONS.find(o => o.order === sortOrder && o.dir === sortDir) : null;
+        if (opt) sortLabel.textContent = opt.label;
+      }
+      // Show shimmers immediately
+      showShimmers();
+      // Render sub-pills and apply query
+      if (lens === 'picks') {
+        document.getElementById('subRow').style.display = 'none';
+        applyLensQuery('picks', null);
+      } else {
+        window._suppressLensApply = true; window._restoreSub = sub;
+        renderSubPills(lens);
+        window._suppressLensApply = false; window._restoreSub = null;
+        applyLensQuery(lens, sub);
+      }
+
+    }
+
+    // ── Pull-to-refresh (mobile only) ──
+    (function initPullToRefresh() {
+      if (!('ontouchstart' in window)) return;
+      let startY = 0, pulling = false, pullDist = 0;
+      const indicator = document.getElementById('ptrIndicator');
+      const threshold = 80;
+
+      document.addEventListener('touchstart', (e) => {
+        if (window.scrollY > 5 || _currentMode !== 'gallery') return;
+        startY = e.touches[0].clientY;
+        pulling = true;
+        pullDist = 0;
+      }, { passive: true });
+
+      document.addEventListener('touchmove', (e) => {
+        if (!pulling) return;
+        pullDist = Math.max(0, e.touches[0].clientY - startY);
+        if (pullDist > 0 && window.scrollY <= 0) {
+          const progress = Math.min(pullDist / threshold, 1);
+          indicator.style.height = (pullDist * 0.4) + 'px';
+          indicator.style.opacity = progress;
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchend', () => {
+        if (!pulling) return;
+        pulling = false;
+        if (pullDist >= threshold && window.scrollY <= 0) {
+          indicator.classList.add('refreshing');
+          setTimeout(() => {
+            loadInitialGrid();
+            indicator.classList.remove('refreshing');
+            indicator.style.height = '0';
+            indicator.style.opacity = '0';
+          }, 400);
+        } else {
+          indicator.style.height = '0';
+          indicator.style.opacity = '0';
+        }
+        pullDist = 0;
+      });
+    })();
+
+    // ── Set lens row top dynamically to match header height ──
+    function updateLensTop() {
+      const lensRow = document.getElementById('lensRow');
+      const subRow = document.getElementById('subRow');
+      if (!lensRow) return;
+      const header = document.querySelector('.header-wrap');
+      const mobileBar = document.querySelector('.mobile-top-bar');
+      const ref = (mobileBar && getComputedStyle(mobileBar).display !== 'none') ? mobileBar : header;
+      if (ref) {
+        const headerH = ref.offsetHeight;
+        lensRow.style.top = headerH + 'px';
+        if (subRow) subRow.style.top = (headerH + lensRow.offsetHeight) + 'px';
+      }
+    }
+    window.addEventListener('DOMContentLoaded', updateLensTop);
+    window.addEventListener('resize', updateLensTop);
+    setTimeout(updateLensTop, 100);
+
+    function setTheme(t) {
+      document.documentElement.dataset.theme = t;
+      document.getElementById('btnDark')?.classList.toggle('active', t === 'dark');
+      document.getElementById('btnLight')?.classList.toggle('active', t === 'light');
+      // persist
+      localStorage.setItem('mc_theme', t);
+    }
+
+    // ── Collections tab ──
+    const COL_ARTISTS = ['Seb McKinnon','Magali Villeneuve','Rebecca Guay','Chris Rahn','John Avon','Wayne Reynolds'];
+    const COL_SETS = [
+      { code:'dsk', name:'Duskmourn' },
+      { code:'blb', name:'Bloomburrow' },
+      { code:'mkm', name:'Karlov Manor' },
+      { code:'lci', name:'Lost Caverns' },
+      { code:'woe', name:'Wilds of Eldraine' },
+      { code:'mom', name:'March of the Machine' },
+      { code:'one', name:'All Will Be One' },
+    ];
+    const COL_CREATURES = ['Dragon','Angel','Demon','Elf','Merfolk','Zombie','Vampire','Phoenix','Hydra','Sphinx','Wurm','Knight'];
+    const COL_TYPES = [
+      { name:'Instant', count:'4,200+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>' },
+      { name:'Sorcery', count:'3,100+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' },
+      { name:'Enchantment', count:'2,800+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>' },
+      { name:'Artifact', count:'3,500+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 12l10 10 10-10L12 2z"/><circle cx="12" cy="12" r="3"/></svg>' },
+      { name:'Planeswalker', count:'300+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' },
+      { name:'Land', count:'1,200+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l5-8 4 5 5-7 4 10H3z"/></svg>' },
+    ];
+
+    let _collectionsRendered = false;
+
+    function renderCategories() {
+      if (_collectionsRendered) return;
+      _collectionsRendered = true;
+
+      const page = document.getElementById('collectionsPage');
+      page.innerHTML = `
+        <div class="collections-section">
+          <div class="collections-section-header">
+            <span class="collections-section-title">Artists</span>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('artists')">Show (847)</button>
+          </div>
+          <div class="collections-row" id="colArtistRow"></div>
+        </div>
+        <div class="collections-section">
+          <div class="collections-section-header">
+            <span class="collections-section-title">Planes</span>
+            <button class="collections-section-link">Show (22)</button>
+          </div>
+          <div class="collections-row" id="colWorldsRow"></div>
+        </div>
+        <div class="collections-section">
+          <div class="collections-section-header">
+            <span class="collections-section-title">Creatures</span>
+            <button class="collections-section-link">Show (267)</button>
+          </div>
+          <div class="collections-row" id="colCreatureRow"></div>
+        </div>
+        <div class="collections-section">
+          <div class="collections-section-header">
+            <span class="collections-section-title">Sets</span>
+            <button class="collections-section-link">Show (214)</button>
+          </div>
+          <div class="collections-row" id="colSetRow"></div>
+        </div>
+        <div class="collections-section">
+          <div class="collections-section-header">
+            <span class="collections-section-title">Mana Colors</span>
+          </div>
+          <div class="collections-row" id="colManaRow"></div>
+        </div>
+        <div class="collections-section">
+          <div class="collections-section-header">
+            <span class="collections-section-title">Card Types</span>
+            <button class="collections-section-link">Show (12)</button>
+          </div>
+          <div class="collections-row" id="colTypeRow"></div>
+        </div>
+      `;
+
+      // Render artist cards
+      const aRow = document.getElementById('colArtistRow');
+      COL_ARTISTS.forEach(name => {
+        aRow.insertAdjacentHTML('beforeend', `
+          <div class="col-artist-card" data-artist="${name}">
+            <div class="col-artist-triptych"><img alt=""><img alt=""><img alt=""></div>
+            <div class="col-artist-info">
+              <div class="col-artist-name">${name}</div>
+              <div class="col-artist-count">...</div>
+            </div>
+          </div>`);
+      });
+
+      // Render set pills (same style as Mana Colors)
+      const sRow = document.getElementById('colSetRow');
+      COL_SETS.forEach(s => {
+        sRow.insertAdjacentHTML('beforeend', `
+          <div class="col-type-pill" data-set="${s.code}">
+            <div class="col-type-icon"><img id="col-icon-${s.code}" src="" width="20" height="20" alt="" style="filter:brightness(0) invert(0.7)"></div>
+            <div class="col-type-text">
+              <span class="col-type-name">${s.name}</span>
+            </div>
+          </div>`);
+      });
+
+      // Render creature cards
+      const cRow = document.getElementById('colCreatureRow');
+      COL_CREATURES.forEach(t => {
+        cRow.insertAdjacentHTML('beforeend', `
+          <div class="col-creature-card" data-type="${t}">
+            <div class="col-creature-img"><img id="col-creature-img-${t.toLowerCase().replace(/\s+/g,'-')}" src="" alt="${t}"></div>
+            <div class="col-creature-name">${t}</div>
+          </div>`);
+        fetchCreatureArt(t).then(url => {
+          if (!url) return;
+          const img = document.getElementById(`col-creature-img-${t.toLowerCase().replace(/\s+/g,'-')}`);
+          if (img) img.src = url;
+        });
+      });
+
+      // Render planes — art loaded dynamically (basic lands, fallback to any land)
+      const COL_WORLDS = [
+        { name:'Ravnica',          sets:'rav,rtr,grn,rna,mkm' },
+        { name:'Innistrad',        sets:'isd,soi,emn,vow,mid,dsk' },
+        { name:'Zendikar',         sets:'zen,bfz,znr' },
+        { name:'Dominaria',        sets:'dom,dmu,bro' },
+        { name:'Mirrodin',         sets:'mrd,dst,5dn,som,mbs,nph' },
+        { name:'New Phyrexia',     sets:'one,mom' },
+        { name:'Kamigawa',         sets:'chk,neo' },
+        { name:'Theros',           sets:'ths,thb' },
+        { name:'Eldraine',         sets:'eld,woe' },
+        { name:'Ixalan',           sets:'xln,lci' },
+        { name:'Kaladesh',         sets:'kld,aer' },
+        { name:'Tarkir',           sets:'ktk,frf,dtk' },
+        { name:'Amonkhet',         sets:'akh,hou' },
+        { name:'Alara',            sets:'ala,con,arb' },
+        { name:'Lorwyn',           sets:'lrw,shm' },
+        { name:'Kaldheim',         sets:'khm' },
+        { name:'Ikoria',           sets:'iko' },
+        { name:'Strixhaven',       sets:'stx' },
+        { name:'New Capenna',      sets:'snc' },
+        { name:'Bloomburrow',      sets:'blb' },
+        { name:'Thunder Junction', sets:'otj' },
+        { name:'Forgotten Realms', sets:'afr' },
+      ];
+      const wRow = document.getElementById('colWorldsRow');
+      COL_WORLDS.slice(0, 11).forEach(w => {
+        const imgId = 'plane-img-' + w.name.toLowerCase().replace(/\s+/g, '-');
+        wRow.insertAdjacentHTML('beforeend', `
+          <div class="mood-card col-plane-card" data-sets="${w.sets}" style="opacity:1;">
+            <div class="mood-card-img mood-card-img--loading" id="${imgId}"></div>
+            <div class="mood-card-label">${w.name}</div>
+          </div>`);
+        fetchPlaneArt(w.name, w.sets).then(art => {
+          const el = document.getElementById(imgId);
+          if (el && art) { el.style.backgroundImage = `url('${art}')`; el.classList.remove('mood-card-img--loading'); }
+        });
+      });
+      wRow.querySelectorAll('.mood-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const sets = card.dataset.sets.split(',');
+          activeSets = sets;
+          setMode('gallery');
+          updateChips(); loadInitialGrid(); syncFilterUI();
+        });
+      });
+
+      // Render mana color pills
+      const mRow = document.getElementById('colManaRow');
+      const COL_MANA = [
+        { name:'White', key:'w' },
+        { name:'Blue', key:'u' },
+        { name:'Black', key:'b' },
+        { name:'Red', key:'r' },
+        { name:'Green', key:'g' },
+        { name:'Multicolor', key:'m' },
+        { name:'Colorless', key:'c' },
+      ];
+      COL_MANA.forEach(m => {
+        mRow.insertAdjacentHTML('beforeend', `
+          <div class="col-type-pill" data-color="${m.key}">
+            <div class="col-type-icon"><img src="${MANA_SVGS[m.key]}" width="24" height="24" alt="${m.name}"></div>
+            <div class="col-type-text">
+              <span class="col-type-name">${m.name}</span>
+            </div>
+          </div>`);
+      });
+
+      // Wire clicks — mana color pills
+      mRow.querySelectorAll('.col-type-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          activeColour = [pill.dataset.color];
+          setMode('gallery');
+          updateChips(); loadInitialGrid(); syncFilterUI();
+        });
+      });
+
+      // Render type pills
+      const tRow = document.getElementById('colTypeRow');
+      COL_TYPES.forEach(t => {
+        tRow.insertAdjacentHTML('beforeend', `
+          <div class="col-type-pill">
+            <div class="col-type-icon">${t.icon}</div>
+            <div class="col-type-text">
+              <span class="col-type-name">${t.name}</span>
+              <span class="col-type-count">${t.count}</span>
+            </div>
+          </div>`);
+      });
+
+      // Wire clicks — artist cards open gallery filtered by artist
+      aRow.querySelectorAll('.col-artist-card').forEach(card => {
+        card.addEventListener('click', () => {
+          activeArtist = [card.dataset.artist];
+          setMode('gallery');
+          updateChips(); loadInitialGrid(); syncFilterUI();
+        });
+      });
+
+      // Wire clicks — set pills
+      sRow.querySelectorAll('.col-type-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          activeSets = [pill.dataset.set];
+          setMode('gallery');
+          updateChips(); loadInitialGrid(); syncFilterUI();
+        });
+      });
+
+      // Wire clicks — creature cards
+      cRow.querySelectorAll('.col-creature-card').forEach(card => {
+        card.addEventListener('click', () => {
+          activeType = [card.dataset.type.toLowerCase()];
+          setMode('gallery');
+          updateChips(); loadInitialGrid(); syncFilterUI();
+        });
+      });
+
+      // Fetch art with localStorage cache
+      loadCollectionsArt();
+    }
+
+    async function loadCollectionsArt() {
+      const cache = JSON.parse(localStorage.getItem('mc_col_art') || '{}');
+      const now = Date.now();
+      const WEEK = 7 * 24 * 60 * 60 * 1000;
+
+      // Artists
+      for (const card of document.querySelectorAll('.col-artist-card')) {
+        const name = card.dataset.artist;
+        const key = 'a:' + name;
+        if (cache[key] && (now - cache[key].ts < WEEK)) {
+          applyArtistArt(card, cache[key].imgs, cache[key].count);
+          continue;
+        }
+        try {
+          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (!res.ok) continue;
+          const json = await res.json();
+          const imgs = (json.data || []).slice(0, 3).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
+          const count = json.total_cards || 0;
+          cache[key] = { imgs, count, ts: now };
+          applyArtistArt(card, imgs, count);
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      // Sets — load icons only (pill style, no art needed)
+      for (const pill of document.querySelectorAll('#colSetRow .col-type-pill')) {
+        const code = pill.dataset.set;
+        const key = 's:' + code;
+        if (cache[key] && (now - cache[key].ts < WEEK)) {
+          const iconEl = document.getElementById('col-icon-' + code);
+          if (iconEl && cache[key].icon) iconEl.src = cache[key].icon;
+          continue;
+        }
+        try {
+          let icon = '';
+          const setRes = await fetch('https://api.scryfall.com/sets/' + code);
+          if (setRes.ok) { const sj = await setRes.json(); icon = sj.icon_svg_uri || ''; }
+          cache[key] = { art:'', icon, ts: now };
+          const iconEl = document.getElementById('col-icon-' + code);
+          if (iconEl && icon) iconEl.src = icon;
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      // Creatures
+      for (const card of document.querySelectorAll('.col-creature-card')) {
+        const type = card.dataset.type;
+        const key = 'c:' + type;
+        if (cache[key] && (now - cache[key].ts < WEEK)) {
+          if (cache[key].art) card.querySelector('img').src = cache[key].art;
+          continue;
+        }
+        try {
+          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('t:' + type.toLowerCase() + ' has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (!res.ok) continue;
+          const json = await res.json();
+          const art = json.data?.[0]?.image_uris?.art_crop || json.data?.[0]?.card_faces?.[0]?.image_uris?.art_crop || '';
+          cache[key] = { art, ts: now };
+          if (art) card.querySelector('img').src = art;
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      localStorage.setItem('mc_col_art', JSON.stringify(cache));
+    }
+
+    function applyArtistArt(card, imgs, count) {
+      const triptych = card.querySelector('.col-artist-triptych');
+      const imgEls = triptych.querySelectorAll('img');
+      imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; });
+      triptych.classList.add('imgs-' + Math.min(imgs.length, 3));
+      triptych.classList.add('loaded');
+      card.querySelector('.col-artist-count').textContent = count + ' cards';
+    }
+
+    function applySetArt(card, code, art, icon) {
+      const iconEl = document.getElementById('col-icon-' + code);
+      if (iconEl && icon) iconEl.src = icon;
+    }
+
+    // ── Collections Level 2 ──
+    let _level2Category = null;
+    let _level2ArtistList = [];
+
+    function openCollectionsLevel2(category) {
+      _level2Category = category;
+      document.getElementById('collectionsPage').style.display = 'none';
+      const l2 = document.getElementById('collectionsLevel2');
+      l2.style.display = 'block';
+
+      if (category === 'artists') renderArtistsLevel2();
+    }
+
+    function closeCollectionsLevel2() {
+      document.getElementById('collectionsLevel2').style.display = 'none';
+      document.getElementById('collectionsPage').style.display = '';
+      _level2Category = null;
+    }
+
+
+    // ── Collections Level 3: Artist Detail Page ──
+    let _l3Sort = "random";
+    let _l3Dir = "auto";
+
+    function openArtistPage(name) {
+      document.getElementById("collectionsLevel2").style.display = "none";
+      const l3 = document.getElementById("collectionsLevel3");
+      l3.style.display = "block";
+      l3.innerHTML = `
+        <div class="l3-header">
+          <button class="l3-back" onclick="closeArtistPage()">← Back</button>
+          <div class="l2-sort" id="l3SortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
+        </div>
+        <div class="l3-artist-hero">
+          <h1 class="l3-artist-name">${name}</h1>
+          <span class="l3-artist-count" id="l3Count">Loading...</span>
+        </div>
+        <div class="l3-grid" id="l3Grid"></div>
+      `;
+      _l3Sort = "random"; _l3Dir = "auto";
+      loadArtistFeed(name);
+      document.getElementById("l3SortSwitcher").querySelectorAll(".l2-sort-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.getElementById("l3SortSwitcher").querySelectorAll(".l2-sort-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          _l3Sort = btn.dataset.sort; _l3Dir = btn.dataset.dir;
+          loadArtistFeed(name);
+        });
+      });
+    }
+
+    function closeArtistPage() {
+      document.getElementById("collectionsLevel3").style.display = "none";
+      document.getElementById("collectionsLevel2").style.display = "block";
+    }
+
+    const _artistFeedCache = {};
+
+    async function loadArtistFeed(name) {
+      const grid = document.getElementById("l3Grid");
+      const cacheKey = name + ':' + _l3Sort + ':' + _l3Dir;
+
+      // Instant render from cache
+      if (_artistFeedCache[cacheKey]) {
+        renderArtistFeedCards(grid, _artistFeedCache[cacheKey].cards, _artistFeedCache[cacheKey].total);
+        return;
+      }
+      grid.innerHTML = Array(6).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
+
+      const order = _l3Sort === 'random' ? 'released' : _l3Sort;
+      const dir = _l3Sort === 'random' ? 'asc' : _l3Dir;
+      const page = _l3Sort === 'random' ? Math.floor(Math.random() * 5) + 1 : 1;
+      try {
+        const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=' + order + '&dir=' + dir + '&page=' + page);
+        if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
+        const json = await res.json();
+        const cards = _l3Sort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
+        _artistFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
+        renderArtistFeedCards(grid, cards, json.total_cards || cards.length);
+      } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
+    }
+
+    function renderArtistFeedCards(grid, cards, total) {
+      if (!grid || !document.getElementById("l3Grid")) return;
+      document.getElementById('l3Count').textContent = total + ' cards';
+      grid.innerHTML = '';
+      cards.forEach(card => {
+        const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
+        if (!art) return;
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div></div>`;
+        el.addEventListener('click', () => openLightbox(card, 'feed'));
+        grid.appendChild(el);
+      });
+    }
+
+    async function renderArtistsLevel2() {
+      const l2 = document.getElementById('collectionsLevel2');
+      l2.innerHTML = `
+        <div class="l2-header">
+          <button class="l2-back" onclick="closeCollectionsLevel2()">← Back</button>
+          <h2 class="l2-title">Artists</h2>
+          <span class="l2-count" id="l2ArtistCount">Loading...</span>
+        </div>
+        <div class="l2-toolbar">
+          <input type="text" class="l2-search-input" id="l2ArtistSearch" placeholder="Search artists..." autocomplete="off">
+          <div class="l2-sort">
+            <button class="l2-sort-btn active" data-sort="az">A→Z</button>
+            <button class="l2-sort-btn" data-sort="za">Z→A</button>
+            <button class="l2-sort-btn" data-sort="shuffle">Shuffle</button>
+          </div>
+        </div>
+        <div class="l2-grid" id="l2ArtistGrid"></div>
+      `;
+
+      // Load artist list
+      if (!_level2ArtistList.length) {
+        _level2ArtistList = artistList.length ? artistList : await fetchArtistNames();
+      }
+
+      let currentList = [..._level2ArtistList].sort((a, b) => a.localeCompare(b));
+      let currentSort = 'az';
+
+      document.getElementById('l2ArtistCount').textContent = currentList.length + ' artists';
+      renderArtistGrid(currentList, "");
+
+      // Search
+      document.getElementById('l2ArtistSearch').addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        const filtered = q ? currentList.filter(a => a.toLowerCase().split(/\s+/).some(w => w.startsWith(q))) : currentList;
+        document.getElementById('l2ArtistCount').textContent = filtered.length + ' artists';
+        renderArtistGrid(filtered, q);
+      });
+
+      // Sort buttons
+      l2.querySelectorAll('.l2-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          l2.querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSort = btn.dataset.sort;
+          if (currentSort === 'az') currentList = [..._level2ArtistList].sort((a, b) => a.localeCompare(b));
+          else if (currentSort === 'za') currentList = [..._level2ArtistList].sort((a, b) => b.localeCompare(a));
+          else currentList = shuffleArray([..._level2ArtistList]);
+          const q = document.getElementById('l2ArtistSearch').value.toLowerCase();
+          const filtered = q ? currentList.filter(a => a.toLowerCase().split(/\s+/).some(w => w.startsWith(q))) : currentList;
+          document.getElementById('l2ArtistCount').textContent = filtered.length + ' artists';
+          renderArtistGrid(filtered, q);
+        });
+      });
+    }
+
+    function _highlightArtistName(name, query) {
+      if (!query) return name;
+      const words = name.split(/\s+/);
+      return words.map(w => {
+        if (w.toLowerCase().startsWith(query)) return `<strong>${w.slice(0, query.length)}</strong>${w.slice(query.length)}`;
+        return w;
+      }).join(" ");
+    }
+
+    function renderArtistGrid(artists, query) {
+      const grid = document.getElementById('l2ArtistGrid');
+      if (!grid) return;
+      // Show first 30, lazy load more on scroll
+      const batch = artists.slice(0, 30);
+      grid.innerHTML = '';
+      batch.forEach(name => {
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="l2-artist-card" data-artist="${name}">
+            <div class="l2-artist-triptych">
+              <img alt=""><img alt=""><img alt="">
+            </div>
+            <div class="l2-artist-info">
+              <div class="l2-artist-name">${_highlightArtistName(name, query)}</div>
+              <div class="l2-artist-count">...</div>
+            </div>
+          </div>`);
+      });
+
+      // Load more on scroll
+      if (artists.length > 30) {
+        const sentinel = document.createElement('div');
+        sentinel.id = 'l2Sentinel';
+        sentinel.style.height = '1px';
+        grid.appendChild(sentinel);
+        let loaded = 30;
+        const obs = new IntersectionObserver((entries) => {
+          if (entries[0].isIntersecting && loaded < artists.length) {
+            const next = artists.slice(loaded, loaded + 20);
+            next.forEach(name => {
+              sentinel.insertAdjacentHTML('beforebegin', `
+                <div class="l2-artist-card" data-artist="${name}">
+                  <div class="l2-artist-triptych">
+                    <img alt=""><img alt=""><img alt="">
+                  </div>
+                  <div class="l2-artist-info">
+                    <div class="l2-artist-name">${_highlightArtistName(name, query)}</div>
+                    <div class="l2-artist-count">...</div>
+                  </div>
+                </div>`);
+            });
+            loaded += next.length;
+            loadL2ArtistArt(grid);
+            if (loaded >= artists.length) { obs.disconnect(); sentinel.remove(); }
+          }
+        }, { rootMargin: '200px' });
+        obs.observe(sentinel);
+      }
+
+      // Wire clicks
+      grid.addEventListener('click', (e) => {
+        const card = e.target.closest('.l2-artist-card');
+        if (!card) return;
+        openArtistPage(card.dataset.artist);
+
+
+
+      });
+
+      // Load art
+      loadL2ArtistArt(grid);
+    }
+
+    async function loadL2ArtistArt(grid) {
+      const cache = JSON.parse(localStorage.getItem('mc_col_art') || '{}');
+      const now = Date.now();
+      const WEEK = 7 * 24 * 60 * 60 * 1000;
+      let updated = false;
+
+      const cards = grid.querySelectorAll('.l2-artist-card');
+      for (const card of cards) {
+        // Skip if already loaded
+        if (card.dataset.loaded) continue;
+        // Only load visible cards
+        const rect = card.getBoundingClientRect();
+        if (rect.top > window.innerHeight + 400) break;
+
+        const name = card.dataset.artist;
+        const key = 'a:' + name;
+
+        if (cache[key] && (now - cache[key].ts < WEEK)) {
+          const imgs = card.querySelectorAll('.l2-artist-triptych img');
+          cache[key].imgs.forEach((src, i) => { if (imgs[i]) imgs[i].src = src; }); card.querySelector(".l2-artist-triptych").classList.add("imgs-" + Math.min(cache[key].imgs.length, 3), "loaded");
+          card.querySelector('.l2-artist-count').textContent = cache[key].count + ' cards';
+          card.dataset.loaded = '1';
+          continue;
+        }
+
+        try {
+          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=edhrec&page=1');
+          if (!res.ok) continue;
+          const json = await res.json();
+          const imgs = (json.data || []).slice(0, 3).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
+          const count = json.total_cards || 0;
+          cache[key] = { imgs, count, ts: now };
+          updated = true;
+          const imgEls = card.querySelectorAll('.l2-artist-triptych img');
+          imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; }); card.querySelector(".l2-artist-triptych").classList.add("imgs-" + Math.min(imgs.length, 3), "loaded");
+          card.querySelector('.l2-artist-count').textContent = count + ' cards';
+          card.dataset.loaded = '1';
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      if (updated) localStorage.setItem('mc_col_art', JSON.stringify(cache));
+    }
+
+    // restore theme on load
+    const savedTheme = localStorage.getItem('mc_theme') || 'dark';
+    document.documentElement.dataset.theme = savedTheme;
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btnDark')?.classList.toggle('active', savedTheme === 'dark');
+      document.getElementById('btnLight')?.classList.toggle('active', savedTheme === 'light');
+    });
+
+    // ── Sync mobile search bar with desktop ── 
+    document.addEventListener('DOMContentLoaded', () => {
+      const mBar = document.getElementById('mobileSearchBar');
+      const dBar = document.getElementById('searchBar');
+      if (!mBar || !dBar) return;
+
+      // typing in mobile bar mirrors to desktop bar and triggers search
+      mBar.addEventListener('input', () => {
+        dBar.value = mBar.value;
+        dBar.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      mBar.addEventListener('keydown', (e) => {
+        dBar.dispatchEvent(new KeyboardEvent('keydown', { key: e.key, bubbles: true }));
+      });
+
+      // typing in desktop bar mirrors to mobile
+      dBar.addEventListener('input', () => {
+        if (mBar.value !== dBar.value) mBar.value = dBar.value;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -340,7 +340,7 @@
 
     /* ══ SIDEBAR (desktop ≥1024px) ══ */
     :root {
-      --sidebar-w:   220px;
+      --sidebar-w:   240px;
       --sidebar-collapsed-w: 64px;
     }
 
@@ -396,14 +396,13 @@
       .sidebar-brand:hover .sidebar-logo-mark { background: var(--surface-2); border-color: var(--border-hover); }
       .sidebar-brand-text {
         font-family: 'Cinzel', serif;
-        font-size: 0.72rem; font-weight: 600;
-        letter-spacing: 0.8px;
+        font-size: 0.68rem; font-weight: 600;
+        letter-spacing: 0.6px;
         color: var(--text-1);
-        line-height: 1.35;
-        white-space: nowrap;
+        line-height: 1.3;
         overflow: hidden;
-        max-width: 140px;
-        transition: opacity 180ms ease, max-width 220ms ease;
+        flex: 1;
+        min-width: 0;
       }
 
       /* Toggle button — same visual size as nav items */
@@ -496,24 +495,6 @@
         max-width: 160px;
         transition: opacity 180ms ease, max-width 220ms ease;
       }
-
-      /* Toggle button */
-      .sidebar-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        padding: 0.6rem 0.75rem;
-        margin-top: 0.25rem;
-        border: none;
-        background: transparent;
-        color: var(--text-2);
-        cursor: pointer;
-        border-radius: 10px;
-        transition: background 150ms, color 150ms;
-      }
-      .sidebar-toggle:hover { background: var(--surface); color: var(--text-1); }
-      .sidebar-toggle svg { transition: transform 220ms ease; }
 
       /* ── Collapsed state ── */
       body.sidebar-collapsed .sidebar { width: var(--sidebar-collapsed-w); }

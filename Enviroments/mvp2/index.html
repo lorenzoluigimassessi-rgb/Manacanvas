@@ -445,11 +445,11 @@
       #appShell { padding-left: var(--sidebar-w); }
 
       /* Header becomes search-only on desktop */
-      .header { padding: 1rem 1.5rem; }
+      .header { padding: 0.75rem 1.5rem; }
       .nav-left  { display: none; }
-      .nav-right .draw-chip { display: none; }
+      .nav-right { display: none; }
 
-      /* Search bar fills the header on desktop */
+      /* Search bar fills the full header on desktop */
       .nav-center {
         position: relative;
         left: auto;
@@ -457,7 +457,25 @@
         flex: 1;
         max-width: none;
         margin: 0;
+        padding: 4px 4px 4px 1.25rem;
       }
+
+      /* Search submit button (right side of bar) */
+      .btn-search-submit {
+        width: calc(var(--h) - 8px);
+        height: calc(var(--h) - 8px);
+        border-radius: 50%;
+        background: transparent;
+        border: none;
+        color: var(--text-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background 150ms, color 150ms;
+      }
+      .btn-search-submit:hover { background: var(--surface-2); color: var(--text-1); }
     }
 
     /* ══ MOBILE ══ */
@@ -579,30 +597,20 @@
         </div>
 
         <div class="nav-center" id="searchContainer">
-          <span class="search-icon-svg">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </span>
           <input type="text" id="searchBar" placeholder="Search card, artist, creature...">
           <span id="searchClear" style="display:none;">✕</span>
           <div id="searchSuggestions" style="display:none;"></div>
-          <div class="search-sep"></div>
-          <button class="btn-advanced" id="btnAdvanced" onclick="setMode('advanced')" title="Advanced">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          <button class="btn-search-submit" title="Search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </button>
         </div>
 
-        <div class="nav-right">
-          <button class="draw-chip" id="drawBtn" onclick="triggerDrawRitual()" title="Draw a card">
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
-            Draw
-          </button>
+        <!-- theme toggle moved to Settings (Batch 9) — kept hidden for JS compatibility -->
+        <div class="nav-right" style="display:none;">
+          <button class="draw-chip" id="drawBtn" onclick="triggerDrawRitual()" title="Draw a card"></button>
           <div class="theme-sw">
-            <button class="theme-btn active" id="btnDark"  onclick="setTheme('dark')"  title="Dark">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            </button>
-            <button class="theme-btn" id="btnLight" onclick="setTheme('light')" title="Light">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-            </button>
+            <button class="theme-btn active" id="btnDark"  onclick="setTheme('dark')"  title="Dark"></button>
+            <button class="theme-btn"        id="btnLight" onclick="setTheme('light')" title="Light"></button>
           </div>
         </div>
       </header>

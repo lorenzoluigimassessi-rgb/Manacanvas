@@ -834,13 +834,29 @@
       <p>Magic: The Gallery is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images &copy; Wizards of the Coast.</p>
     </footer>
 
-    <!-- ── Mobile floating switcher ── -->
-    <nav class="mobile-float">
-      <button class="sw-btn active" id="mSwAllArt"  onclick="setMode('gallery')">Gallery</button>
-      <button class="sw-btn"        id="mSwBrowse"  onclick="setMode('collections')">Collections</button>
-      <span class="mobile-float-divider"></span>
-      <button class="draw-chip draw-chip-mobile" id="mDrawBtn" onclick="triggerDrawRitual()" title="Draw a card">
-        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+    <!-- ── Mobile/tablet bottom bar ── -->
+    <nav class="bottom-bar" id="bottomBar">
+      <button class="bottom-tab active" id="btGallery" onclick="setMode('gallery')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Gallery</span>
+      </button>
+      <button class="bottom-tab" id="btSearch" onclick="mobileSearchFocus()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Search</span>
+      </button>
+      <button class="bottom-tab bottom-tab-pull" id="btPull" onclick="triggerDrawRitual()">
+        <span class="pull-bg">
+          <svg width="18" height="18" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4.75" y="3.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.3"/><rect x="2.75" y="1.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.1" opacity="0.55"/><rect x="0.75" y="0.75" width="8.5" height="9.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+        </span>
+        <span>Pull</span>
+      </button>
+      <button class="bottom-tab" id="btCollections" onclick="setMode('collections')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <span>Collections</span>
+      </button>
+      <button class="bottom-tab" id="btSettings" onclick="mobileSettings()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
       </button>
     </nav>
 
@@ -881,9 +897,10 @@
       document.querySelectorAll('.sw-btn, .btn-advanced').forEach(b => b.classList.remove('active'));
       if (DESKTOP_SW[mode]) document.getElementById(DESKTOP_SW[mode])?.classList.add('active');
 
-      // mobile switcher
-      document.querySelectorAll('.mobile-float .sw-btn').forEach(b => b.classList.remove('active'));
-      if (MOBILE_SW[mode]) document.getElementById(MOBILE_SW[mode])?.classList.add('active');
+      // bottom bar
+      document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
+      const btMap = { gallery: 'btGallery', collections: 'btCollections' };
+      if (btMap[mode]) document.getElementById(btMap[mode])?.classList.add('active');
 
       // lens chips — gallery only
       const lensRow = document.getElementById('lensRow');
@@ -904,6 +921,19 @@
       // load content
       if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0 && !activeSearch) initLens();
       if (mode === 'collections') renderCategories();
+    }
+
+    function mobileSearchFocus() {
+      document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById('btSearch')?.classList.add('active');
+      const bar = document.getElementById('mobileSearchBar');
+      if (bar) { bar.scrollIntoView({ behavior: 'smooth' }); setTimeout(() => bar.focus(), 300); }
+    }
+
+    function mobileSettings() {
+      document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById('btSettings')?.classList.add('active');
+      // Batch 9 — settings page placeholder
     }
 
     // ── Draw ritual ──────────────────────────────────────────────────────────

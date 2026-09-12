@@ -275,6 +275,16 @@ body {
   position: relative;
 }
 
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.8s ease;
+  z-index: 0;
+}
+
 .welcome-overlay {
   position: absolute;
   inset: 0;

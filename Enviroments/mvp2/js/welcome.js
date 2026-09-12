@@ -30,9 +30,50 @@ window.addEventListener('load', () => {
   fetchRandomCard().then(c => { _welcomeCard = c; });
 });
 
+// Background rotation state
+let _bgQueue = [];
+let _bgInterval = null;
+let _bgActiveIdx = 0;
+
+async function prefetchBgImages(count = 4) {
+  const results = await Promise.all(Array.from({ length: count }, () => fetchRandomArt()));
+  _bgQueue = results.filter(Boolean);
+}
+
+function startBgRotation() {
+  const layerA = document.getElementById('bgLayerA');
+  const layerB = document.getElementById('bgLayerB');
+  if (!layerA || !layerB || _bgQueue.length === 0) return;
+
+  let front = layerA, back = layerB, imgIdx = 0;
+
+  function showNext() {
+    imgIdx = (imgIdx + 1) % _bgQueue.length;
+    back.style.backgroundImage = `url('${_bgQueue[imgIdx]}')`;
+    back.style.opacity = '1';
+    front.style.opacity = '0';
+    [front, back] = [back, front];
+    // Keep queue fresh
+    if (_bgQueue.length < 6) fetchRandomArt().then(u => { if (u) _bgQueue.push(u); });
+  }
+
+  // Show first image immediately
+  layerA.style.backgroundImage = `url('${_bgQueue[0]}')`;
+  layerA.style.opacity = '1';
+
+  _bgInterval = setInterval(showNext, 7000);
+}
+
+function stopBgRotation() {
+  clearInterval(_bgInterval);
+  _bgInterval = null;
+}
+
 async function renderWelcome() {
   welcomeEl.innerHTML = `
     <div class="welcome-page" id="welcomeBg">
+      <div class="bg-layer" id="bgLayerA"></div>
+      <div class="bg-layer" id="bgLayerB"></div>
       <div class="welcome-overlay"></div>
       <div class="welcome-hero">
         <h1 class="welcome-title">MAGIC: THE GALLERY</h1>
@@ -44,11 +85,8 @@ async function renderWelcome() {
       </footer>
     </div>
   `;
-  fetchRandomArt().then(artUrl => {
-    if (!artUrl) return;
-    const bg = document.getElementById("welcomeBg");
-    if (bg) bg.style.cssText = `background-image:url('${artUrl}');background-size:cover;background-position:center;`;
-  });
+  await prefetchBgImages(4);
+  startBgRotation();
 }
 
 function showWelcome() {
@@ -86,6 +124,7 @@ function triggerSurprise() {
 }
 
 function startBrowse() {
+  stopBgRotation();
   localStorage.setItem("mc_entered", "1");
   sortOrder = "released";
   sortDir = "asc";

@@ -123,6 +123,19 @@ function triggerSurprise() {
   });
 }
 
+// Sidebar collapse toggle — saves preference to localStorage
+function toggleSidebar() {
+  const collapsed = document.body.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('mg_sidebar_collapsed', collapsed ? '1' : '0');
+}
+
+// Restore sidebar state on load
+(function restoreSidebar() {
+  if (localStorage.getItem('mg_sidebar_collapsed') === '1') {
+    document.body.classList.add('sidebar-collapsed');
+  }
+})();
+
 function sidebarNav(mode) {
   const items = document.querySelectorAll('.sidebar-item');
   items.forEach(el => el.classList.remove('active'));

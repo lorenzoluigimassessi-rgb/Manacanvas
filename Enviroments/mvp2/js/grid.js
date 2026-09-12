@@ -52,13 +52,43 @@ async function loadInitialGrid() {
   }
 }
 
+// Deterministic height class from card id — same card always gets same height
+function cardHeightClass(id) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  const n = Math.abs(h) % 10;
+  if (n < 2) return 'card-short';  // 20%
+  if (n < 8) return 'card-normal'; // 60%
+  return 'card-tall';              // 20%
+}
+
+// Entrance animation observer
+let _entranceObserver = null;
+function observeCardEntrance(el) {
+  if (!_entranceObserver) {
+    _entranceObserver = new IntersectionObserver((entries) => {
+      let delay = 0;
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const card = entry.target;
+        card.style.transitionDelay = `${delay}ms`;
+        delay += 40;
+        card.classList.add('card-visible');
+        _entranceObserver.unobserve(card);
+        setTimeout(() => { card.style.transitionDelay = '0ms'; }, 400 + delay);
+      });
+    }, { threshold: 0.05 });
+  }
+  _entranceObserver.observe(el);
+}
+
 function renderCards(cards) {
   cards.forEach(card => {
     const artCrop = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
     if (!artCrop) return;
 
     const el = document.createElement("div");
-    el.className = "card";
+    el.className = `card ${cardHeightClass(card.id)}`;
     el.innerHTML = `
       <img src="${artCrop}" alt="${card.name}" loading="lazy" onerror="this.outerHTML='<div class=card-error>${card.name}<br><small>Image unavailable</small></div>'">
       <div class="overlay">
@@ -68,15 +98,17 @@ function renderCards(cards) {
     `;
     el.addEventListener("click", () => openLightbox(card, 'feed'));
     grid.appendChild(el);
+    observeCardEntrance(el);
   });
 }
 
 function showShimmers() {
+  if (_entranceObserver) { _entranceObserver.disconnect(); _entranceObserver = null; }
   grid.innerHTML = "";
+  const hClasses = ['card-short', 'card-normal', 'card-normal', 'card-normal', 'card-tall', 'card-normal', 'card-normal', 'card-short'];
   for (let i = 0; i < 12; i++) {
     const s = document.createElement("div");
-    s.className = "shimmer";
-    s.style.minHeight = `${180 + Math.random() * 80}px`;
+    s.className = `shimmer ${hClasses[i % hClasses.length]}`;
     grid.appendChild(s);
   }
 }

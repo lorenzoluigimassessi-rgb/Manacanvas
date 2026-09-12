@@ -123,6 +123,21 @@ function triggerSurprise() {
   });
 }
 
+function sidebarNav(mode) {
+  const items = document.querySelectorAll('.sidebar-item');
+  items.forEach(el => el.classList.remove('active'));
+  const map = { gallery: 'sideGallery', search: 'sideSearch', collections: 'sideCollections', settings: 'sideSettings' };
+  if (map[mode]) document.getElementById(map[mode])?.classList.add('active');
+
+  if (mode === 'gallery')     setMode('gallery');
+  else if (mode === 'collections') setMode('collections');
+  else if (mode === 'search') {
+    setMode('gallery');
+    setTimeout(() => document.getElementById('searchBar')?.focus(), 50);
+  }
+  // 'settings' — placeholder until Batch 9
+}
+
 function startBrowse() {
   stopBgRotation();
   localStorage.setItem("mc_entered", "1");

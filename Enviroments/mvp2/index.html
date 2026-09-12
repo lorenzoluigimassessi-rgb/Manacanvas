@@ -338,6 +338,107 @@
     }
     .header-chips::-webkit-scrollbar { display: none; }
 
+    /* ══ SIDEBAR (desktop ≥1024px) ══ */
+    :root { --sidebar-w: 220px; }
+
+    .sidebar { display: none; }
+
+    @media (min-width: 1024px) {
+      /* Sidebar panel */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+        width: var(--sidebar-w);
+        background: var(--bg);
+        border-right: 1px solid var(--border);
+        z-index: 50;
+        padding: 1.25rem 0.75rem;
+        transition: background 250ms, border-color 250ms;
+      }
+
+      /* Logo lockup */
+      .sidebar-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.4rem 0.5rem 1.75rem;
+        cursor: pointer;
+        text-decoration: none;
+        flex-shrink: 0;
+      }
+      .sidebar-logo-mark {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Cinzel', serif;
+        font-size: 0.6rem; font-weight: 600; letter-spacing: 1px;
+        color: var(--text-1);
+        flex-shrink: 0;
+        transition: background 150ms, border-color 150ms;
+      }
+      .sidebar-logo:hover .sidebar-logo-mark { background: var(--surface-2); border-color: var(--border-hover); }
+      .sidebar-logo-text {
+        font-family: 'Cinzel', serif;
+        font-size: 0.68rem; font-weight: 600;
+        letter-spacing: 0.5px;
+        color: var(--text-1);
+        line-height: 1.3;
+      }
+
+      /* Nav items */
+      .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+      }
+      .sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.7rem 0.75rem;
+        border-radius: 10px;
+        border: none;
+        background: transparent;
+        color: var(--text-2);
+        font-family: 'Josefin Sans', sans-serif;
+        font-size: 0.88rem; font-weight: 500;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        transition: background 150ms, color 150ms;
+      }
+      .sidebar-item:hover { background: var(--surface); color: var(--text-1); }
+      .sidebar-item.active { background: var(--surface); color: var(--text-1); }
+      .sidebar-item svg { flex-shrink: 0; }
+
+      /* Sidebar spacer — pushes Settings to bottom */
+      .sidebar-spacer { flex: 1; }
+
+      /* Content shifts right */
+      #appShell { padding-left: var(--sidebar-w); }
+
+      /* Header becomes search-only on desktop */
+      .header { padding: 1rem 1.5rem; }
+      .nav-left  { display: none; }
+      .nav-right .draw-chip { display: none; }
+
+      /* Re-center search without logo */
+      .nav-center {
+        position: relative;
+        left: auto;
+        transform: none;
+        flex: 1;
+        max-width: 640px;
+        margin: 0 auto;
+      }
+    }
+
     /* ══ MOBILE ══ */
     .mobile-top-bar { display: none; }
     .mobile-float   { display: none; }
@@ -410,12 +511,43 @@
   <!-- App shell -->
   <div id="appShell" style="display:none;">
 
+    <!-- ── Desktop sidebar ── -->
+    <nav class="sidebar" id="sidebar">
+      <a class="sidebar-logo" onclick="goHome()">
+        <span class="sidebar-logo-mark">MG</span>
+        <span class="sidebar-logo-text">Magic:<br>The Gallery</span>
+      </a>
+      <div class="sidebar-nav">
+        <button class="sidebar-item active" id="sideGallery" onclick="sidebarNav('gallery')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Gallery</span>
+        </button>
+        <button class="sidebar-item" id="sideSearch" onclick="sidebarNav('search')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Search</span>
+        </button>
+        <button class="sidebar-item" id="sidePull" onclick="triggerDrawRitual()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="5" width="12" height="15" rx="2" opacity="0.4"/><rect x="4" y="3" width="12" height="15" rx="2" opacity="0.7"/><rect x="2" y="1" width="12" height="15" rx="2"/></svg>
+          <span>Pull</span>
+        </button>
+        <button class="sidebar-item" id="sideCollections" onclick="sidebarNav('collections')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <span>Collections</span>
+        </button>
+        <div class="sidebar-spacer"></div>
+        <button class="sidebar-item" id="sideSettings" onclick="sidebarNav('settings')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Settings</span>
+        </button>
+      </div>
+    </nav>
+
     <!-- ── Desktop header ── -->
     <div class="header-wrap">
       <header class="header">
 
         <div class="nav-left">
-          <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
+          <a class="nav-logo" onclick="goHome()"><span>MG</span></a>
           <div class="nav-switcher">
             <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">Gallery</button>
             <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Collections</button>
@@ -480,7 +612,7 @@
 
     <!-- ── Mobile top bar ── -->
     <div class="mobile-top-bar">
-      <a class="nav-logo" onclick="goHome()"><span>MC</span></a>
+      <a class="nav-logo" onclick="goHome()"><span>MG</span></a>
       <div class="nav-center">
         <span class="search-icon-svg">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>

@@ -129,12 +129,29 @@ function toggleSidebar() {
   localStorage.setItem('mg_sidebar_expanded', expanded ? '1' : '0');
 }
 
-// Restore last state on load (collapsed by default)
+// Restore last state on load — only for returning users who've seen the auto-collapse
 (function restoreSidebar() {
-  if (localStorage.getItem('mg_sidebar_expanded') === '1') {
-    document.body.classList.add('sidebar-expanded');
+  if (localStorage.getItem('mg_sidebar_seen') === '1') {
+    if (localStorage.getItem('mg_sidebar_expanded') === '1') {
+      document.body.classList.add('sidebar-expanded');
+    }
   }
 })();
+
+// First-visit only: expand sidebar, then auto-collapse on first meaningful scroll
+function _initFirstScrollCollapse() {
+  if (localStorage.getItem('mg_sidebar_seen') === '1') return;
+  document.body.classList.add('sidebar-expanded');
+  function onFirstScroll() {
+    if (window.scrollY > 80) {
+      document.body.classList.remove('sidebar-expanded');
+      localStorage.setItem('mg_sidebar_expanded', '0');
+      localStorage.setItem('mg_sidebar_seen', '1');
+      window.removeEventListener('scroll', onFirstScroll);
+    }
+  }
+  window.addEventListener('scroll', onFirstScroll, { passive: true });
+}
 
 function sidebarNav(mode) {
   const items = document.querySelectorAll('.sidebar-item');
@@ -160,6 +177,7 @@ function startBrowse() {
   if (sortBtn) sortBtn.textContent = "Oldest First ⇅";
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
+  _initFirstScrollCollapse();
   setMode('gallery');
 }
 
@@ -200,6 +218,7 @@ function startSurprise() {
 if (localStorage.getItem("mc_entered")) {
   welcomeEl.style.display = "none";
   appShell.style.display = "block";
+  _initFirstScrollCollapse();
   // Restore lightbox if it was open before reload
   const savedLb = localStorage.getItem('mc_lightbox');
   if (savedLb) {

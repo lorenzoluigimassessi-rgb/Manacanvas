@@ -142,12 +142,19 @@ function toggleSidebar() {
 function _initFirstScrollCollapse() {
   if (localStorage.getItem('mg_sidebar_seen') === '1') return;
   document.body.classList.add('sidebar-expanded');
+  let _collapseTimer = null;
   function onFirstScroll() {
-    if (window.scrollY > 80) {
-      document.body.classList.remove('sidebar-expanded');
-      localStorage.setItem('mg_sidebar_expanded', '0');
-      localStorage.setItem('mg_sidebar_seen', '1');
-      window.removeEventListener('scroll', onFirstScroll);
+    if (window.scrollY > 120) {
+      if (_collapseTimer) return;
+      _collapseTimer = setTimeout(() => {
+        document.body.classList.remove('sidebar-expanded');
+        localStorage.setItem('mg_sidebar_expanded', '0');
+        localStorage.setItem('mg_sidebar_seen', '1');
+        window.removeEventListener('scroll', onFirstScroll);
+      }, 400);
+    } else {
+      clearTimeout(_collapseTimer);
+      _collapseTimer = null;
     }
   }
   window.addEventListener('scroll', onFirstScroll, { passive: true });

@@ -78,7 +78,35 @@ async function renderWelcome() {
       <div class="welcome-hero">
         <h1 class="welcome-title">MAGIC: THE GALLERY</h1>
         <p class="welcome-subtitle">Discover the art of Magic: The Gathering&#174;</p>
-        <button class="welcome-cta" onclick="startBrowse()">Enter the Gallery</button>
+        <div class="home-actions">
+          <button class="home-action" onclick="goGallery()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <span>Gallery</span>
+          </button>
+          <button class="home-action" onclick="goSearch()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span>Search</span>
+          </button>
+          <button class="home-action" onclick="goCollections()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+            </svg>
+            <span>Collections</span>
+          </button>
+          <button class="home-action" onclick="goPull()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="M21 15l-5-5L5 21"/>
+            </svg>
+            <span>Pull</span>
+          </button>
+        </div>
       </div>
       <footer class="site-footer welcome-footer">
         <p>Magic: The Gallery is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images &copy; Wizards of the Coast.</p>
@@ -89,13 +117,48 @@ async function renderWelcome() {
   startBgRotation();
 }
 
-function showWelcome() {
-  localStorage.removeItem("mc_entered");
-  localStorage.removeItem("mc_filters");
-  resetAllState();
-  appShell.style.display = "none";
-  welcomeEl.style.display = "block";
+function goHome() {
+  stopBgRotation();
+  if (typeof closeSidePanel === 'function') closeSidePanel();
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  appShell.style.display = 'none';
+  welcomeEl.style.display = 'block';
   renderWelcome();
+}
+
+function showWelcome() { goHome(); }
+
+function goGallery() {
+  stopBgRotation();
+  welcomeEl.style.display = 'none';
+  appShell.style.display = 'block';
+  _initFirstScrollCollapse();
+  sidebarNav('gallery');
+}
+
+function goSearch() {
+  stopBgRotation();
+  welcomeEl.style.display = 'none';
+  appShell.style.display = 'block';
+  _initFirstScrollCollapse();
+  sidebarNav('search');
+}
+
+function goCollections() {
+  stopBgRotation();
+  welcomeEl.style.display = 'none';
+  appShell.style.display = 'block';
+  _initFirstScrollCollapse();
+  sidebarNav('collections');
+}
+
+function goPull() {
+  stopBgRotation();
+  welcomeEl.style.display = 'none';
+  appShell.style.display = 'block';
+  _initFirstScrollCollapse();
+  setMode('gallery');
+  if (typeof triggerDrawRitual === 'function') triggerDrawRitual();
 }
 
 function showTransition(callback) {
@@ -164,18 +227,7 @@ function sidebarNav(mode) {
   else if (mode === 'settings') openSidePanel('settings');
 }
 
-function startBrowse() {
-  stopBgRotation();
-  localStorage.setItem("mc_entered", "1");
-  sortOrder = "released";
-  sortDir = "asc";
-  const sortBtn = document.getElementById("sortBtn");
-  if (sortBtn) sortBtn.textContent = "Oldest First ⇅";
-  welcomeEl.style.display = "none";
-  appShell.style.display = "block";
-  _initFirstScrollCollapse();
-  setMode('gallery');
-}
+function startBrowse() { goGallery(); }
 
 function startSurprise() {
   localStorage.setItem('mc_entered', '1');
@@ -210,34 +262,8 @@ function startSurprise() {
   }
 }
 
-// On load: skip welcome if user has been here before
-if (localStorage.getItem("mc_entered")) {
-  welcomeEl.style.display = "none";
-  appShell.style.display = "block";
-  _initFirstScrollCollapse();
-  // Restore lightbox if it was open before reload
-  const savedLb = localStorage.getItem('mc_lightbox');
-  if (savedLb) {
-    try {
-      const { id, mode } = JSON.parse(savedLb);
-      // Wait for grid to load, then restore
-      const restoreLightbox = () => {
-        if (mode === 'feed') {
-          // Try from filteredCards first, fallback to Scryfall
-          const card = filteredCards.find(c => c.id === id);
-          if (card) { openLightbox(card, 'feed'); return; }
-        }
-        // For surprise or card not in feed — fetch by id
-        fetch(`https://api.scryfall.com/cards/${id}`)
-          .then(r => r.ok ? r.json() : null)
-          .then(card => { if (card && card.id) openLightbox(card, mode); });
-      };
-      // Give grid a moment to populate filteredCards
-      setTimeout(restoreLightbox, 600);
-    } catch(e) { localStorage.removeItem('mc_lightbox'); }
-  }
-} else {
-  const bar = document.getElementById("mobileActionBar");
-  if (bar) bar.style.display = "none";
-  renderWelcome();
-}
+// Always start at Home — prefetch grid data in background
+const bar = document.getElementById("mobileActionBar");
+if (bar) bar.style.display = "none";
+renderWelcome();
+if (typeof loadInitialGrid === 'function') loadInitialGrid();

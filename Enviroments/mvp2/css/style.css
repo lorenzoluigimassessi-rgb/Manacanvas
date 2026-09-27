@@ -3539,6 +3539,30 @@ input[type=range]::-moz-range-thumb {
 .l2-sort-btn:hover { color: var(--text-primary); }
 .l2-sort-btn.active { background: var(--surface-2); color: var(--text-primary); }
 
+.l2-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 5rem 1rem;
+  text-align: center;
+}
+.l2-placeholder-label {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.l2-placeholder-sub {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  margin: 0;
+}
+
 .l2-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

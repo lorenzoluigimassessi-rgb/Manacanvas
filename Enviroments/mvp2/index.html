@@ -872,7 +872,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=34">
+  <link rel="stylesheet" href="css/style.css?v=35">
 </head>
 <body>
 
@@ -2301,35 +2301,29 @@
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
-            <span class="collections-section-title">Planes</span>
-            <button class="collections-section-link">Show (22)</button>
-          </div>
-          <div class="collections-row" id="colWorldsRow"></div>
-        </div>
-        <div class="collections-section">
-          <div class="collections-section-header">
             <span class="collections-section-title">Creatures</span>
-            <button class="collections-section-link">Show (267)</button>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('creatures')">Show (267)</button>
           </div>
           <div class="collections-row" id="colCreatureRow"></div>
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Sets</span>
-            <button class="collections-section-link">Show (214)</button>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('sets')">Show (214)</button>
           </div>
           <div class="collections-row" id="colSetRow"></div>
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Mana Colors</span>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('color')">Show (7)</button>
           </div>
           <div class="collections-row" id="colManaRow"></div>
         </div>
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Card Types</span>
-            <button class="collections-section-link">Show (12)</button>
+            <button class="collections-section-link" onclick="openCollectionsLevel2('type')">Show (12)</button>
           </div>
           <div class="collections-row" id="colTypeRow"></div>
         </div>
@@ -2372,53 +2366,6 @@
           if (!url) return;
           const img = document.getElementById(`col-creature-img-${t.toLowerCase().replace(/\s+/g,'-')}`);
           if (img) img.src = url;
-        });
-      });
-
-      // Render planes — art loaded dynamically (basic lands, fallback to any land)
-      const COL_WORLDS = [
-        { name:'Ravnica',          sets:'rav,rtr,grn,rna,mkm' },
-        { name:'Innistrad',        sets:'isd,soi,emn,vow,mid,dsk' },
-        { name:'Zendikar',         sets:'zen,bfz,znr' },
-        { name:'Dominaria',        sets:'dom,dmu,bro' },
-        { name:'Mirrodin',         sets:'mrd,dst,5dn,som,mbs,nph' },
-        { name:'New Phyrexia',     sets:'one,mom' },
-        { name:'Kamigawa',         sets:'chk,neo' },
-        { name:'Theros',           sets:'ths,thb' },
-        { name:'Eldraine',         sets:'eld,woe' },
-        { name:'Ixalan',           sets:'xln,lci' },
-        { name:'Kaladesh',         sets:'kld,aer' },
-        { name:'Tarkir',           sets:'ktk,frf,dtk' },
-        { name:'Amonkhet',         sets:'akh,hou' },
-        { name:'Alara',            sets:'ala,con,arb' },
-        { name:'Lorwyn',           sets:'lrw,shm' },
-        { name:'Kaldheim',         sets:'khm' },
-        { name:'Ikoria',           sets:'iko' },
-        { name:'Strixhaven',       sets:'stx' },
-        { name:'New Capenna',      sets:'snc' },
-        { name:'Bloomburrow',      sets:'blb' },
-        { name:'Thunder Junction', sets:'otj' },
-        { name:'Forgotten Realms', sets:'afr' },
-      ];
-      const wRow = document.getElementById('colWorldsRow');
-      COL_WORLDS.slice(0, 11).forEach(w => {
-        const imgId = 'plane-img-' + w.name.toLowerCase().replace(/\s+/g, '-');
-        wRow.insertAdjacentHTML('beforeend', `
-          <div class="mood-card col-plane-card" data-sets="${w.sets}" style="opacity:1;">
-            <div class="mood-card-img mood-card-img--loading" id="${imgId}"></div>
-            <div class="mood-card-label">${w.name}</div>
-          </div>`);
-        fetchPlaneArt(w.name, w.sets).then(art => {
-          const el = document.getElementById(imgId);
-          if (el && art) { el.style.backgroundImage = `url('${art}')`; el.classList.remove('mood-card-img--loading'); }
-        });
-      });
-      wRow.querySelectorAll('.mood-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const sets = card.dataset.sets.split(',');
-          activeSets = sets;
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
         });
       });
 
@@ -2587,7 +2534,25 @@
       const l2 = document.getElementById('collectionsLevel2');
       l2.style.display = 'block';
 
-      if (category === 'artists') renderArtistsLevel2();
+      if (category === 'artists') {
+        renderArtistsLevel2();
+      } else {
+        const TITLES = { creatures:'Creatures', sets:'Sets', color:'Mana Colors', type:'Card Types' };
+        const title = TITLES[category] || category;
+        l2.innerHTML = `
+          <div class="l2-header">
+            <button class="l2-back" onclick="closeCollectionsLevel2()">← Back</button>
+            <h2 class="l2-title">${title}</h2>
+          </div>
+          <div class="l2-placeholder">
+            <div class="l2-placeholder-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4"/></svg>
+            </div>
+            <p class="l2-placeholder-label">Coming soon</p>
+            <p class="l2-placeholder-sub">This collection is being curated.</p>
+          </div>
+        `;
+      }
     }
 
     function closeCollectionsLevel2() {
@@ -2937,23 +2902,9 @@
 
     function openCollectionSub(sub) {
       hideFlyout();
-      switch(sub) {
-        case 'artists':
-        case 'sets':
-        case 'type':
-          setMode('collections');
-          break;
-        case 'creatures':
-          if (typeof activeType !== 'undefined') activeType = ['creature'];
-          if (typeof updateChips === 'function') updateChips();
-          loadInitialGrid();
-          setMode('gallery');
-          break;
-        case 'color':
-          setMode('gallery');
-          if (typeof openDrawer === 'function') openDrawer();
-          break;
-      }
+      setMode('collections');
+      const map = { artists:'artists', creatures:'creatures', sets:'sets', color:'color', type:'type' };
+      if (map[sub]) openCollectionsLevel2(map[sub]);
     }
 
     // ── Hover tooltip (simple items, collapsed sidebar only) ──

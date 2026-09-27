@@ -453,16 +453,16 @@ body {
   border: none;
   cursor: pointer;
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(240,240,240,0.4);
+  color: rgba(240,240,240,0.62);
   padding: 0;
   transition: color 180ms;
 }
 
 .home-alt-link:hover {
-  color: rgba(240,240,240,0.75);
+  color: rgba(240,240,240,0.92);
 }
 
 .home-alt-sep {

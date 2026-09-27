@@ -3636,16 +3636,16 @@ input[type=range]::-moz-range-thumb {
   background: linear-gradient(transparent, rgba(0,0,0,0.82));
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.82rem;
-  font-weight: 400;
+  font-weight: 300;
   letter-spacing: 0.3px;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.55);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
   text-shadow: 0 1px 6px rgba(0,0,0,0.9);
 }
-.mood-card.active .mood-card-label { color: rgba(255,255,255,1); font-weight: 500; }
+.mood-card.active .mood-card-label { color: rgba(255,255,255,0.95); font-weight: 400; }
 
 /* Plane cards: fixed width on desktop, 4-per-row on mobile (2 rows of 4) */
 .col-plane-card { flex: 0 0 auto; width: 140px; }

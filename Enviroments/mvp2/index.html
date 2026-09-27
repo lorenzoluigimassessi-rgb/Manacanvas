@@ -2849,16 +2849,24 @@
       },
     };
 
+    let _sidePanelType = null;
     function openSidePanel(type) {
       const cfg = _PANEL[type];
       if (!cfg) return;
+      const panel = document.getElementById('sidePanel');
+      if (panel.classList.contains('open') && _sidePanelType === type) {
+        closeSidePanel();
+        return;
+      }
+      _sidePanelType = type;
       document.getElementById('sidePanelTitle').textContent = cfg.title;
       document.getElementById('sidePanelBody').innerHTML = cfg.html();
-      document.getElementById('sidePanel').classList.add('open');
+      panel.classList.add('open');
       document.getElementById('sidePanelOverlay').classList.add('open');
     }
 
     function closeSidePanel() {
+      _sidePanelType = null;
       document.getElementById('sidePanel').classList.remove('open');
       document.getElementById('sidePanelOverlay').classList.remove('open');
     }

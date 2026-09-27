@@ -394,7 +394,7 @@ body {
   line-height: 1.5;
   color: rgba(240,240,240,0.25);
   z-index: 2;
-  padding: 0.6rem 1.5rem 0.75rem;
+  padding: 16px 24px;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }

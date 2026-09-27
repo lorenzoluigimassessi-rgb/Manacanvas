@@ -351,6 +351,7 @@ body {
   display: flex !important;
   align-items: center;
   justify-content: center;
+  padding-bottom: 10vh;
   overflow: hidden;
   background: #0c0c0f;
 }
@@ -394,7 +395,6 @@ body {
   color: rgba(240,240,240,0.25);
   z-index: 2;
   padding: 0.6rem 1.5rem 0.75rem;
-  border-top: 1px solid rgba(255,255,255,0.07);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }

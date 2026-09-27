@@ -1,12 +1,12 @@
 const WELCOME_ART_QUERIES = [
-  "t:dragon is:hires",
-  "t:angel is:hires",
-  "t:demon is:hires",
-  "t:horror is:hires",
-  "t:eldrazi is:hires",
-  "a:\"Seb McKinnon\" is:hires",
-  "a:\"Magali Villeneuve\" is:hires",
-  "a:\"John Avon\" t:land is:hires",
+  "t:dragon is:hires year>=2010",
+  "t:angel is:hires year>=2010",
+  "t:demon is:hires year>=2010",
+  "t:horror is:hires year>=2012",
+  "t:eldrazi is:hires year>=2010",
+  "a:\"Seb McKinnon\" is:hires year>=2010",
+  "a:\"Magali Villeneuve\" is:hires year>=2010",
+  "a:\"John Avon\" t:land is:hires year>=2005",
 ];
 
 async function fetchRandomArt() {

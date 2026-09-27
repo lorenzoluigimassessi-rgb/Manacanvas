@@ -1350,14 +1350,10 @@
         `<div class="draw-ritual-radial"></div>` +
         `<button class="draw-ritual-close" id="drClose">✕</button>` +
         `<div class="draw-ritual-reveal" id="drReveal">` +
-          `<div class="draw-ritual-card-wrap" style="width:${w}px">` +
+          `<div class="draw-ritual-card-wrap" style="width:${w}px;cursor:pointer" id="drCardWrap">` +
             `<div class="draw-ritual-glow" style="background:${glow}"></div>` +
             `<div class="draw-ritual-card" style="width:${w}px;height:${h}px;border-radius:var(--radius)">` +
               `<img src="${art}" alt="${card.name || ''}">` +
-              `<div class="draw-ritual-plate" style="padding:${platePad}">` +
-                `<div class="draw-ritual-name"  style="font-size:${nameSize}">${card.name || ''}</div>` +
-                `<div class="draw-ritual-artist" style="font-size:${artistSize}">${card.artist || ''}</div>` +
-              `</div>` +
             `</div>` +
           `</div>` +
           `<div class="draw-ritual-actions">` +
@@ -1367,6 +1363,7 @@
 
       document.getElementById('drClose').addEventListener('click', e => { e.stopPropagation(); closeDrawRitual(); });
       document.getElementById('drAgain').addEventListener('click', e => { e.stopPropagation(); triggerDrawRitual(); });
+      document.getElementById('drCardWrap').addEventListener('click', e => { e.stopPropagation(); closeDrawRitual(); openLightbox(card, 'feed'); });
       document.getElementById('drReveal').addEventListener('click', e => e.stopPropagation());
       overlay.addEventListener('click', closeDrawRitual);
     }

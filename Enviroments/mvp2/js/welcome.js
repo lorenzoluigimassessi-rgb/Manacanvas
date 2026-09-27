@@ -146,7 +146,7 @@ function _initFirstScrollCollapse() {
 function sidebarNav(mode) {
   const items = document.querySelectorAll('.sidebar-item');
   items.forEach(el => el.classList.remove('active'));
-  const map = { gallery: 'sideGallery', search: 'sideSearch', collections: 'sideCollections', settings: 'sideSettings' };
+  const map = { gallery: 'sideGallery', search: 'sideSearch', collections: 'sideCollections', settings: 'sideSettings', about: 'sideAbout' };
   if (map[mode]) document.getElementById(map[mode])?.classList.add('active');
 
   if (mode !== 'collections' && typeof _collAccOpen !== 'undefined' && _collAccOpen) {
@@ -156,12 +156,12 @@ function sidebarNav(mode) {
 
   if (mode === 'gallery')          setMode('gallery');
   else if (mode === 'collections') setMode('collections');
+  else if (mode === 'about')       setMode('about');
   else if (mode === 'search') {
     setMode('gallery');
     setTimeout(() => document.getElementById('searchBar')?.focus(), 50);
   }
   else if (mode === 'settings') openSidePanel('settings');
-  else if (mode === 'about')    openSidePanel('about');
 }
 
 function startBrowse() {

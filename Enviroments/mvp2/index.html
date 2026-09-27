@@ -872,7 +872,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=33">
+  <link rel="stylesheet" href="css/style.css?v=34">
 </head>
 <body>
 
@@ -984,7 +984,7 @@
 
         <!-- theme toggle moved to Settings (Batch 9) — kept hidden for JS compatibility -->
         <div class="nav-right" style="display:none;">
-          <button class="draw-chip" id="drawBtn" onclick="triggerDrawRitual()" title="Draw a card"></button>
+          <button class="draw-chip" id="drawBtn" onclick="triggerDrawRitual()" title="Pull a card"></button>
           <div class="theme-sw">
             <button class="theme-btn active" id="btnDark"  onclick="setTheme('dark')"  title="Dark"></button>
             <button class="theme-btn"        id="btnLight" onclick="setTheme('light')" title="Light"></button>
@@ -1309,7 +1309,7 @@
         `<button class="draw-ritual-close" id="drClose">✕</button>` +
         `<div class="draw-ritual-beat">` +
           `<span class="draw-ritual-beat-icon">${_DRAW_DECK_SVG(iconSize)}</span>` +
-          `<span class="draw-ritual-beat-label">Drawing</span>` +
+          `<span class="draw-ritual-beat-label">Pulling</span>` +
         `</div>`;
 
       overlay.style.cssText = 'display:flex;';   // triggers drawFadeIn from CSS
@@ -1357,7 +1357,7 @@
             `</div>` +
           `</div>` +
           `<div class="draw-ritual-actions">` +
-            `<button class="draw-again-btn" id="drAgain">${_DRAW_DECK_SVG(13)} Draw again</button>` +
+            `<button class="draw-again-btn" id="drAgain">${_DRAW_DECK_SVG(13)} Pull again</button>` +
             `<button class="draw-done-btn"  id="drDone">Done</button>` +
           `</div>` +
         `</div>`;

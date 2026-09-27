@@ -1343,22 +1343,22 @@ body {
 
 .filter-btn {
   background: transparent;
-  color: rgba(240,240,240,0.5);
-  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(240,240,240,0.4);
+  border: none;
   height: 28px;
   padding: 0 0.9rem;
-  border-radius: 14px;
+  border-radius: 0;
   font-size: 0.65rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+  transition: color var(--transition-fast);
   font-family: inherit;
   white-space: nowrap;
 }
 
-.filter-btn:hover { border-color: rgba(255,255,255,0.3); color: rgba(240,240,240,0.85); }
-.filter-btn.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.22); color: rgba(240,240,240,0.95); }
+.filter-btn:hover { color: rgba(240,240,240,0.75); }
+.filter-btn.active { color: rgba(240,240,240,0.95); font-weight: 500; }
 
 .header-row-3 {
   display: flex;

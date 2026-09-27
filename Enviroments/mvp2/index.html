@@ -872,7 +872,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=28">
+  <link rel="stylesheet" href="css/style.css?v=29">
 </head>
 <body>
 
@@ -1589,8 +1589,8 @@
 
         const pills = [];
         if (released[0]) pills.push({ label: 'Latest: '   + released[0].name, code: released[0].code });
-        if (released[1]) pills.push({ label: 'Previous: ' + released[1].name, code: released[1].code });
-        availablePreviews.forEach(s => pills.push({ label: 'Preview: ' + s.name, code: s.code }));
+        if (released[1]) pills.push({ label: 'Recent: '   + released[1].name, code: released[1].code });
+        availablePreviews.forEach(s => pills.push({ label: 'Spoilers: ' + s.name, code: s.code }));
 
         if (!pills.length) { row.style.display = 'none'; applyLensQuery('new', null); return; }
 
@@ -2146,6 +2146,8 @@
     function initLens() {
       // Restore Collections mode immediately — no gallery flash
       if (localStorage.getItem('mc_mode') === 'collections') { setMode('collections'); return; }
+      // Restore Gallery mode — skip home screen, fetch fresh images
+      if (localStorage.getItem('mc_mode') === 'gallery') setMode('gallery');
 
       const saved = localStorage.getItem('mc_lens');
       let lens = 'picks', sub = null;

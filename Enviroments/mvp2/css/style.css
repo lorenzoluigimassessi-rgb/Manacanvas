@@ -3607,7 +3607,7 @@ input[type=range]::-moz-range-thumb {
   flex: 1;
   min-width: 0;
   cursor: pointer;
-  text-align: center;
+  position: relative;
   border-radius: 8px;
   overflow: hidden;
   filter: grayscale(1) brightness(0.65);
@@ -3627,19 +3627,26 @@ input[type=range]::-moz-range-thumb {
   aspect-ratio: 3 / 2;
   background-size: cover;
   background-position: center;
+  display: block;
 }
 
 .mood-card-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.4rem 0.5rem 0.4rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.72));
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   letter-spacing: 0.3px;
-  color: rgba(240,240,240,0.45);
-  padding: 0.4rem 0.4rem 0;
+  color: rgba(255,255,255,0.75);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
 }
-.mood-card.active .mood-card-label { color: rgba(240,240,240,0.95); font-weight: 500; }
+.mood-card.active .mood-card-label { color: rgba(255,255,255,1); font-weight: 500; }
 
 /* Plane cards: fixed width on desktop, 4-per-row on mobile (2 rows of 4) */
 .col-plane-card { flex: 0 0 auto; width: 140px; }

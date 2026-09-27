@@ -149,6 +149,11 @@ function sidebarNav(mode) {
   const map = { gallery: 'sideGallery', search: 'sideSearch', collections: 'sideCollections', settings: 'sideSettings' };
   if (map[mode]) document.getElementById(map[mode])?.classList.add('active');
 
+  if (mode !== 'collections' && typeof _collAccOpen !== 'undefined' && _collAccOpen) {
+    _collAccOpen = false;
+    if (typeof _applyCollAcc === 'function') _applyCollAcc();
+  }
+
   if (mode === 'gallery')          setMode('gallery');
   else if (mode === 'collections') setMode('collections');
   else if (mode === 'search') {

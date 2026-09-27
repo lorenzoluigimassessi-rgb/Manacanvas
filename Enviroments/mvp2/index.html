@@ -513,6 +513,83 @@
       }
       body.sidebar-expanded .sidebar-discord span { opacity: 1; max-width: 160px; pointer-events: auto; }
 
+      /* ── Collections accordion ── */
+      .sidebar-item-group { position: relative; }
+      .sidebar-chevron {
+        margin-left: auto;
+        flex-shrink: 0;
+        max-width: 0; opacity: 0; overflow: hidden; pointer-events: none;
+        transition: transform 220ms ease, opacity 180ms ease, max-width 200ms ease;
+      }
+      body.sidebar-expanded .sidebar-chevron { max-width: 20px; opacity: 1; pointer-events: auto; }
+      .collections-accordion-open .sidebar-chevron { transform: rotate(90deg); }
+      .sidebar-sub {
+        max-height: 0; overflow: hidden;
+        transition: max-height 280ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      body.sidebar-expanded .sidebar-sub.open { max-height: 250px; }
+      .sidebar-sub-item {
+        display: flex; align-items: center; gap: 0.55rem;
+        padding: 0.4rem 0.75rem 0.4rem 2.35rem;
+        width: 100%; border: none; background: transparent;
+        color: var(--text-2);
+        font-family: 'Josefin Sans', sans-serif;
+        font-size: 0.78rem; font-weight: 400; letter-spacing: 0.3px;
+        cursor: pointer; border-radius: 8px;
+        text-align: left; white-space: nowrap;
+        transition: background 150ms, color 150ms;
+      }
+      .sidebar-sub-item:hover { background: var(--surface); color: var(--text-1); }
+      .sidebar-sub-item svg { flex-shrink: 0; opacity: 0.55; }
+      .sidebar-sub-item:hover svg { opacity: 1; }
+
+      /* ── Hover tooltip (JS-positioned, fixed) ── */
+      .sidebar-tooltip {
+        position: fixed; z-index: 300;
+        padding: 0.28rem 0.65rem;
+        background: var(--surface-2); border: 1px solid var(--border);
+        border-radius: 6px; color: var(--text-1);
+        font-family: 'Josefin Sans', sans-serif;
+        font-size: 0.72rem; font-weight: 500; letter-spacing: 0.4px;
+        white-space: nowrap; pointer-events: none;
+        transform: translateY(-50%);
+        opacity: 0; transition: opacity 120ms ease;
+      }
+      .sidebar-tooltip.visible { opacity: 1; }
+
+      /* ── Collections flyout (JS-positioned, fixed) ── */
+      .collections-flyout {
+        position: fixed; z-index: 300;
+        left: calc(var(--sidebar-collapsed-w) + 8px);
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; padding: 0.5rem 0.25rem;
+        min-width: 158px;
+        box-shadow: 4px 8px 24px rgba(0,0,0,0.35);
+        opacity: 0; pointer-events: none;
+        transform: translateX(6px);
+        transition: opacity 150ms ease, transform 150ms ease;
+      }
+      .collections-flyout.visible { opacity: 1; pointer-events: auto; transform: translateX(0); }
+      .flyout-label {
+        font-family: 'Josefin Sans', sans-serif;
+        font-size: 0.57rem; font-weight: 600;
+        letter-spacing: 2.5px; text-transform: uppercase;
+        color: var(--text-3); padding: 0.1rem 0.75rem 0.55rem;
+      }
+      .flyout-item {
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 0.42rem 0.75rem; width: 100%;
+        border: none; background: transparent; color: var(--text-2);
+        font-family: 'Josefin Sans', sans-serif;
+        font-size: 0.8rem; font-weight: 500; letter-spacing: 0.3px;
+        cursor: pointer; border-radius: 7px;
+        text-align: left; white-space: nowrap;
+        transition: background 150ms, color 150ms;
+      }
+      .flyout-item:hover { background: var(--surface-2); color: var(--text-1); }
+      .flyout-item svg { flex-shrink: 0; opacity: 0.6; }
+      .flyout-item:hover svg { opacity: 1; }
+
       /* Content shifts right on expand */
       #appShell {
         padding-left: var(--sidebar-collapsed-w);
@@ -768,10 +845,35 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="5" width="12" height="15" rx="2" opacity="0.4"/><rect x="4" y="3" width="12" height="15" rx="2" opacity="0.7"/><rect x="2" y="1" width="12" height="15" rx="2"/></svg>
           <span>Pull</span>
         </button>
-        <button class="sidebar-item" id="sideCollections" onclick="sidebarNav('collections')" data-label="Collections">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          <span>Collections</span>
-        </button>
+        <div class="sidebar-item-group">
+          <button class="sidebar-item" id="sideCollections" onclick="handleCollectionsClick()" data-label="Collections">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            <span>Collections</span>
+            <svg class="sidebar-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="sidebar-sub" id="collectionsAccordion">
+            <button class="sidebar-sub-item" onclick="openCollectionSub('artists')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              Artists
+            </button>
+            <button class="sidebar-sub-item" onclick="openCollectionSub('creatures')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Creatures
+            </button>
+            <button class="sidebar-sub-item" onclick="openCollectionSub('sets')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="9" height="13" rx="1"/><rect x="13" y="9" width="9" height="13" rx="1" opacity="0.5"/></svg>
+              Sets
+            </button>
+            <button class="sidebar-sub-item" onclick="openCollectionSub('color')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="7" r="3"/><circle cx="16" cy="7" r="3"/><circle cx="12" cy="14" r="3"/></svg>
+              Mana Color
+            </button>
+            <button class="sidebar-sub-item" onclick="openCollectionSub('type')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h6"/></svg>
+              Card Type
+            </button>
+          </div>
+        </div>
         <div class="sidebar-spacer"></div>
         <button class="sidebar-item" id="sideSettings" onclick="openSidePanel('settings')" data-label="Settings">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -787,7 +889,7 @@
           <span>Join Discord</span>
         </a>
         <!-- Collapse toggle — bottom of rail, chevron rotates on expand -->
-        <button class="sidebar-collapse" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+        <button class="sidebar-collapse" onclick="toggleSidebar()" aria-label="Toggle sidebar" data-label="Collapse">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           <span class="sidebar-collapse-label">Collapse</span>
         </button>
@@ -2710,6 +2812,144 @@
     }
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidePanel(); });
+
+    // ── Collections accordion ──
+    let _collAccOpen = false;
+
+    function handleCollectionsClick() {
+      const expanded = document.body.classList.contains('sidebar-expanded');
+      if (!expanded) {
+        toggleSidebar();
+        setTimeout(() => { _collAccOpen = true; _applyCollAcc(); }, 320);
+      } else {
+        _collAccOpen = !_collAccOpen;
+        _applyCollAcc();
+      }
+      document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+      document.getElementById('sideCollections').classList.add('active');
+    }
+
+    function _applyCollAcc() {
+      document.getElementById('collectionsAccordion').classList.toggle('open', _collAccOpen);
+      document.getElementById('sideCollections').classList.toggle('collections-accordion-open', _collAccOpen);
+    }
+
+    function openCollectionSub(sub) {
+      hideFlyout();
+      switch(sub) {
+        case 'artists':
+        case 'sets':
+        case 'type':
+          setMode('collections');
+          break;
+        case 'creatures':
+          if (typeof activeType !== 'undefined') activeType = ['creature'];
+          if (typeof updateChips === 'function') updateChips();
+          loadInitialGrid();
+          setMode('gallery');
+          break;
+        case 'color':
+          setMode('gallery');
+          if (typeof openDrawer === 'function') openDrawer();
+          break;
+      }
+    }
+
+    // ── Hover tooltip (simple items, collapsed sidebar only) ──
+    let _ttEl = null, _flyoutEl = null;
+    let _ttTimer = null, _flyTimer = null;
+
+    function _ensureTT() {
+      if (!_ttEl) {
+        _ttEl = document.createElement('div');
+        _ttEl.className = 'sidebar-tooltip';
+        document.body.appendChild(_ttEl);
+      }
+      return _ttEl;
+    }
+    function _showTT(el) {
+      if (document.body.classList.contains('sidebar-expanded')) return;
+      const label = el.dataset.label;
+      if (!label) return;
+      const tt = _ensureTT();
+      tt.textContent = label;
+      const r = el.getBoundingClientRect();
+      tt.style.top  = (r.top + r.height / 2) + 'px';
+      tt.style.left = (r.right + 10) + 'px';
+      tt.classList.add('visible');
+    }
+    function _hideTT() { _ttEl?.classList.remove('visible'); }
+
+    // ── Collections flyout (collapsed sidebar hover) ──
+    function _ensureFlyout() {
+      if (!_flyoutEl) {
+        _flyoutEl = document.createElement('div');
+        _flyoutEl.className = 'collections-flyout';
+        _flyoutEl.innerHTML = `
+          <div class="flyout-label">Collections</div>
+          <button class="flyout-item" onclick="openCollectionSub('artists')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Artists
+          </button>
+          <button class="flyout-item" onclick="openCollectionSub('creatures')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Creatures
+          </button>
+          <button class="flyout-item" onclick="openCollectionSub('sets')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="9" height="13" rx="1"/><rect x="13" y="9" width="9" height="13" rx="1" opacity="0.5"/></svg>
+            Sets
+          </button>
+          <button class="flyout-item" onclick="openCollectionSub('color')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="7" r="3"/><circle cx="16" cy="7" r="3"/><circle cx="12" cy="14" r="3"/></svg>
+            Mana Color
+          </button>
+          <button class="flyout-item" onclick="openCollectionSub('type')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h6"/></svg>
+            Card Type
+          </button>`;
+        _flyoutEl.addEventListener('mouseenter', () => clearTimeout(_flyTimer));
+        _flyoutEl.addEventListener('mouseleave', () => { _flyTimer = setTimeout(hideFlyout, 80); });
+        document.body.appendChild(_flyoutEl);
+      }
+      return _flyoutEl;
+    }
+    function showFlyout() {
+      if (document.body.classList.contains('sidebar-expanded')) return;
+      const fly = _ensureFlyout();
+      const r = document.getElementById('sideCollections').getBoundingClientRect();
+      fly.style.top = (r.top - 8) + 'px';
+      fly.classList.add('visible');
+    }
+    function hideFlyout() { _flyoutEl?.classList.remove('visible'); }
+
+    // ── Init hover events ──
+    (function() {
+      const simpleIds = ['sideGallery', 'sidePull', 'sideSettings', 'sideAbout'];
+      simpleIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('mouseenter', () => { clearTimeout(_ttTimer); _ttTimer = setTimeout(() => _showTT(el), 300); });
+        el.addEventListener('mouseleave', () => { clearTimeout(_ttTimer); _hideTT(); });
+      });
+      ['.sidebar-discord', '.sidebar-collapse'].forEach(sel => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        el.addEventListener('mouseenter', () => { clearTimeout(_ttTimer); _ttTimer = setTimeout(() => _showTT(el), 300); });
+        el.addEventListener('mouseleave', () => { clearTimeout(_ttTimer); _hideTT(); });
+      });
+
+      const colBtn = document.getElementById('sideCollections');
+      if (colBtn) {
+        colBtn.addEventListener('mouseenter', () => {
+          clearTimeout(_flyTimer);
+          _flyTimer = setTimeout(showFlyout, 300);
+        });
+        colBtn.addEventListener('mouseleave', () => {
+          clearTimeout(_flyTimer);
+          _flyTimer = setTimeout(() => { if (!_flyoutEl?.matches(':hover')) hideFlyout(); }, 80);
+        });
+      }
+    })();
   </script>
 </body>
 </html>

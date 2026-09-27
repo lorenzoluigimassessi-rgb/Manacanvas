@@ -872,7 +872,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=38">
+  <link rel="stylesheet" href="css/style.css?v=39">
 </head>
 <body>
 
@@ -995,6 +995,22 @@
       <!-- legacy chip elements kept for filters.js compatibility -->
     </div>
 
+    <!-- ── Mobile gallery header (gallery mode only, collapses on scroll) ── -->
+    <div id="mobileGalleryHeader" class="mobile-gallery-header" style="display:none;">
+      <span class="mobile-gallery-title">MAGIC: THE GALLERY</span>
+      <div style="display:flex;align-items:center;gap:0.35rem;">
+        <button class="mobile-ctrl-btn" title="Grid size" onclick="toggleLensGrid()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+        <button class="mobile-ctrl-btn" title="Sort" onclick="toggleLensSort()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
+        </button>
+        <button class="mobile-more-btn" onclick="openMobileSettings()" aria-label="More options">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+        </button>
+      </div>
+    </div>
+
     <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
     <div class="lens-row" id="lensRow">
       <div class="lens-chips" id="lensChips">
@@ -1008,21 +1024,19 @@
     </div>
     <div class="sub-row" id="subRow" style="display:none;"></div>
 
-    <!-- ── Mobile top bar ── -->
+    <!-- ── Mobile top bar (non-gallery modes) ── -->
     <div class="mobile-top-bar">
       <a class="nav-logo" onclick="navToHome()"><span>MG</span></a>
-      <div class="nav-center">
+      <span id="mobileTopBarTitle" class="mobile-topbar-title" style="display:none;"></span>
+      <div class="nav-center" style="display:none;">
         <span class="search-icon-svg">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </span>
         <input type="text" id="mobileSearchBar" placeholder="Search card, artist, creature...">
         <div id="mobileSearchSuggestions" style="display:none;"></div>
       </div>
-      <button class="mobile-ctrl-btn" title="Grid size" onclick="toggleLensGrid()">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
-      </button>
-      <button class="mobile-ctrl-btn" title="Sort" onclick="toggleLensSort()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
+      <button class="mobile-more-btn" onclick="openMobileSettings()" aria-label="More options">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
       </button>
     </div>
 
@@ -1095,6 +1109,30 @@
 
     <div id="advancedPanel" class="mode-panel" style="display:none;">
       <div class="advanced-placeholder">Advanced search — coming soon</div>
+    </div>
+
+    <!-- ── Mobile search hero panel ── -->
+    <div id="searchPanel" class="mode-panel mobile-search-panel" style="display:none;">
+      <div class="search-bg-layer" id="searchBgA"></div>
+      <div class="search-bg-layer" id="searchBgB"></div>
+      <div class="search-scene-overlay"></div>
+      <div class="search-hero">
+        <h1 class="search-hero-title">Discover</h1>
+        <p class="search-hero-sub">Search by card name, artist, creature type, color&hellip;</p>
+        <div class="search-hero-input-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="heroSearchBar" class="search-hero-input" placeholder="Dragon, Seb McKinnon, Plains&hellip;" autocomplete="off">
+        </div>
+        <div class="search-hints">
+          <button class="search-hint-tag" onclick="applyHintSearch('t:dragon')">t:dragon</button>
+          <button class="search-hint-tag" onclick="applyHintSearch('t:angel')">t:angel</button>
+          <button class="search-hint-tag" onclick="applyHintSearch('t:land')">t:land</button>
+          <button class="search-hint-tag" onclick="applyHintSearch('is:hires')">is:hires</button>
+          <button class="search-hint-tag" onclick="applyHintSearch('a:&quot;Seb McKinnon&quot;')">a:"Seb McKinnon"</button>
+          <button class="search-hint-tag" onclick="applyHintSearch('t:eldrazi')">t:eldrazi</button>
+        </div>
+        <p class="search-tip">Scryfall syntax works &mdash; <code>a:"artist"</code> &nbsp;<code>t:type</code> &nbsp;<code>year&gt;=2020</code></p>
+      </div>
     </div>
 
     <div id="aboutPanel" class="mode-panel" style="display:none;">
@@ -1177,28 +1215,54 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         <span>Collections</span>
       </button>
-      <button class="bottom-tab" id="btSettings" onclick="mobileSettings()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span>Settings</span>
-      </button>
     </nav>
 
     <!-- Draw ritual overlay -->
     <div id="drawRitual" style="display:none;"></div>
 
+    <!-- Mobile settings bottom sheet -->
+    <div class="mobile-settings-overlay" id="mobileSettingsOverlay" onclick="closeMobileSettings()"></div>
+    <div class="mobile-settings-sheet" id="mobileSettingsSheet">
+      <div class="mobile-settings-handle"></div>
+      <div class="mobile-settings-row" onclick="toggleThemeFromSheet()">
+        <span class="mobile-settings-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          Dark mode
+        </span>
+        <label class="tog" onclick="event.stopPropagation()">
+          <input type="checkbox" id="mobileThemeChk" onchange="setTheme(this.checked ? 'dark' : 'light')">
+          <span class="tog-track"></span>
+        </label>
+      </div>
+      <div class="mobile-settings-row" onclick="setMode('about');closeMobileSettings()">
+        <span class="mobile-settings-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          About
+        </span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <a class="mobile-settings-row" href="https://discord.gg/manacanvas" target="_blank" rel="noopener" onclick="closeMobileSettings()">
+        <span class="mobile-settings-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.082.114 18.105.134 18.12a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.292a.074.074 0 0 1 .078.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.1.245.199.372.293a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+          Discord
+        </span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+    </div>
+
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=22"></script>
-  <script src="js/api.js?v=22"></script>
-  <script src="js/grid.js?v=22"></script>
-  <script src="js/filters.js?v=22"></script>
-  <script src="js/lightbox.js?v=22"></script>
+  <script src="js/welcome.js?v=23"></script>
+  <script src="js/api.js?v=23"></script>
+  <script src="js/grid.js?v=23"></script>
+  <script src="js/filters.js?v=23"></script>
+  <script src="js/lightbox.js?v=23"></script>
 
   <script>
     // ── Mode map ──
     const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', advanced:'btnAdvanced' };
     const MOBILE_SW  = { gallery:'mSwAllArt', collections:'mSwBrowse' };
-    const PANELS     = { home:'homePanel', gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel', about:'aboutPanel' };
+    const PANELS     = { home:'homePanel', gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel', about:'aboutPanel', search:'searchPanel' };
 
     let _currentMode = 'gallery';
 
@@ -1210,7 +1274,7 @@
       if (_dr && _dr.style.display !== 'none') { _drawNonce++; _dr.style.display = 'none'; document.body.style.overflow = ''; document.getElementById('sidePull')?.classList.remove('active'); document.getElementById('btPull')?.classList.remove('active'); }
 
       // panels
-      ['homePanel','grid','collectionsPanel','advancedPanel','aboutPanel'].forEach(id => {
+      ['homePanel','grid','collectionsPanel','advancedPanel','aboutPanel','searchPanel'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
       });
@@ -1228,13 +1292,28 @@
       const searchContainer = document.getElementById('searchContainer');
       const hideSearch = mode === 'home' || mode === 'about' || mode === 'collections';
       if (searchContainer) searchContainer.style.display = hideSearch ? 'none' : '';
+
+      // Mobile-specific headers
+      const mobileGalleryHeader = document.getElementById('mobileGalleryHeader');
       const mobileTopBar = document.querySelector('.mobile-top-bar');
-      if (mobileTopBar) mobileTopBar.style.display = mode === 'home' ? 'none' : '';
-      const mobileSearch = document.querySelector('.mobile-top-bar .nav-center');
-      if (mobileSearch) mobileSearch.style.display = (mode === 'gallery') ? '' : 'none';
-      document.querySelectorAll('.mobile-ctrl-btn').forEach(b => {
-        b.style.display = (mode === 'gallery') ? '' : 'none';
-      });
+      if (mobileGalleryHeader) mobileGalleryHeader.style.display = (mode === 'gallery') ? '' : 'none';
+      // mobile-top-bar: hide in gallery (replaced by gallery header) and search (full hero panel), home (full bg)
+      if (mobileTopBar) mobileTopBar.style.display = (mode === 'home' || mode === 'gallery' || mode === 'search') ? 'none' : '';
+      // Section title in non-gallery top bar
+      const mobileTitle = document.getElementById('mobileTopBarTitle');
+      const titleMap = { collections: 'Collections', about: 'About', advanced: 'Search' };
+      if (mobileTitle) {
+        const t = titleMap[mode] || '';
+        mobileTitle.textContent = t;
+        mobileTitle.style.display = t ? '' : 'none';
+      }
+      // Gallery header scroll state — reset hidden state on mode enter
+      if (mode === 'gallery') {
+        mobileGalleryHeader?.classList.remove('header-hidden');
+        document.getElementById('lensRow')?.classList.remove('header-hidden');
+      }
+      // Search panel bg
+      if (mode === 'search') startSearchPanelBg();
       const siteFooter = document.querySelector('.site-footer');
       if (siteFooter) siteFooter.style.display = mode === 'home' ? 'none' : '';
 
@@ -1247,7 +1326,7 @@
 
       // bottom bar
       document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
-      const btMap = { gallery: 'btGallery', collections: 'btCollections' };
+      const btMap = { gallery: 'btGallery', collections: 'btCollections', search: 'btSearch' };
       if (btMap[mode]) document.getElementById(btMap[mode])?.classList.add('active');
 
       // lens chips — gallery only
@@ -1280,17 +1359,95 @@
     }
 
     function mobileSearchFocus() {
-      document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
-      document.getElementById('btSearch')?.classList.add('active');
-      const bar = document.getElementById('mobileSearchBar');
-      if (bar) { bar.scrollIntoView({ behavior: 'smooth' }); setTimeout(() => bar.focus(), 300); }
+      if (window.innerWidth < 1024) {
+        setMode('search');
+        setTimeout(() => document.getElementById('heroSearchBar')?.focus(), 200);
+      } else {
+        const bar = document.getElementById('searchBar');
+        if (bar) { bar.scrollIntoView({ behavior: 'smooth' }); setTimeout(() => bar.focus(), 100); }
+      }
     }
 
-    function mobileSettings() {
-      document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
-      document.getElementById('btSettings')?.classList.add('active');
-      // Batch 9 — settings page placeholder
+    function openMobileSettings() {
+      const chk = document.getElementById('mobileThemeChk');
+      if (chk) chk.checked = document.documentElement.dataset.theme !== 'light';
+      document.getElementById('mobileSettingsOverlay')?.classList.add('open');
+      document.getElementById('mobileSettingsSheet')?.classList.add('open');
     }
+    function closeMobileSettings() {
+      document.getElementById('mobileSettingsOverlay')?.classList.remove('open');
+      document.getElementById('mobileSettingsSheet')?.classList.remove('open');
+    }
+    function toggleThemeFromSheet() {
+      const isDark = document.documentElement.dataset.theme !== 'light';
+      setTheme(isDark ? 'light' : 'dark');
+      const chk = document.getElementById('mobileThemeChk');
+      if (chk) chk.checked = !isDark;
+    }
+    function applyHintSearch(query) {
+      const bar = document.getElementById('heroSearchBar');
+      if (bar) { bar.value = query; bar.focus(); }
+    }
+
+    // Search panel background
+    let _searchBgInterval = null;
+    function startSearchPanelBg() {
+      const layerA = document.getElementById('searchBgA');
+      const layerB = document.getElementById('searchBgB');
+      if (!layerA || !layerB || layerA.style.opacity === '1') return;
+      const getImg = () => (typeof _bgQueue !== 'undefined' && _bgQueue.length > 0)
+        ? _bgQueue[Math.floor(Math.random() * _bgQueue.length)]
+        : null;
+      const init = () => {
+        const url = getImg();
+        if (url) { layerA.style.backgroundImage = `url('${url}')`; layerA.style.opacity = '1'; layerB.style.opacity = '0'; }
+        let front = layerA, back = layerB;
+        clearInterval(_searchBgInterval);
+        _searchBgInterval = setInterval(() => {
+          if (_currentMode !== 'search') { clearInterval(_searchBgInterval); return; }
+          const u = getImg();
+          if (u) { back.style.backgroundImage = `url('${u}')`; back.style.opacity = '1'; front.style.opacity = '0'; [front, back] = [back, front]; }
+        }, 6000);
+      };
+      if (typeof _bgQueue !== 'undefined' && _bgQueue.length > 0) { init(); }
+      else if (typeof _prefetchHomeBg === 'function') { _prefetchHomeBg(4).then(init); }
+    }
+
+    // Hero search bar submit
+    (function() {
+      document.addEventListener('DOMContentLoaded', () => {});
+      const bar = document.getElementById('heroSearchBar');
+      if (bar) {
+        bar.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter') return;
+          const q = bar.value.trim();
+          if (!q) return;
+          activeSearch = q;
+          bar.blur();
+          setMode('gallery');
+          loadInitialGrid();
+        });
+      }
+    })();
+
+    // Gallery header collapse on scroll (mobile only)
+    (function() {
+      let _lastY = 0;
+      window.addEventListener('scroll', () => {
+        if (_currentMode !== 'gallery' || window.innerWidth >= 1024) return;
+        const y = window.scrollY;
+        const header = document.getElementById('mobileGalleryHeader');
+        const lens   = document.getElementById('lensRow');
+        if (y > _lastY && y > 80) {
+          header?.classList.add('header-hidden');
+          lens?.classList.add('header-hidden');
+        } else if (y < _lastY - 12 || y < 20) {
+          header?.classList.remove('header-hidden');
+          lens?.classList.remove('header-hidden');
+        }
+        _lastY = y;
+      }, { passive: true });
+    })();
 
     // ── Draw ritual ──────────────────────────────────────────────────────────
     const _DRAW_DECK_SVG = (size) =>

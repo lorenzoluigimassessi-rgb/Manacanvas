@@ -3610,17 +3610,10 @@ input[type=range]::-moz-range-thumb {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  filter: grayscale(1) brightness(0.65);
-  transition: filter 220ms ease, transform 220ms ease;
+  transition: transform 220ms ease;
 }
-.mood-card:hover {
-  filter: grayscale(0.5) brightness(0.85);
-  transform: scale(1.02);
-}
-.mood-card.active {
-  filter: grayscale(0) brightness(1);
-  transform: scale(1.04);
-}
+.mood-card:hover { transform: scale(1.02); }
+.mood-card.active { transform: scale(1.04); }
 
 .mood-card-img {
   width: 100%;
@@ -3628,23 +3621,29 @@ input[type=range]::-moz-range-thumb {
   background-size: cover;
   background-position: center;
   display: block;
+  filter: grayscale(1) brightness(0.65);
+  transition: filter 220ms ease;
 }
+.mood-card:hover .mood-card-img { filter: grayscale(0.5) brightness(0.85); }
+.mood-card.active .mood-card-img { filter: grayscale(0) brightness(1); }
 
 .mood-card-label {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 1.4rem 0.5rem 0.4rem;
-  background: linear-gradient(transparent, rgba(0,0,0,0.72));
+  padding: 2.8rem 0.6rem 0.55rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.82));
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.82rem;
+  font-weight: 400;
   letter-spacing: 0.3px;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.8);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
 }
 .mood-card.active .mood-card-label { color: rgba(255,255,255,1); font-weight: 500; }
 

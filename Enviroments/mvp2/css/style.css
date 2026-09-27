@@ -822,10 +822,10 @@ body {
 .lens-dropdown-item.active { color: var(--text-primary); font-weight: 500; }
 
 .lens-btn {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 20px;
-  color: rgba(240,240,240,0.7);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: rgba(240,240,240,0.45);
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.68rem;
   font-weight: 400;
@@ -836,12 +836,10 @@ body {
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: color 150ms, background 150ms, border-color 150ms;
+  transition: color 150ms;
 }
-.lens-btn:hover { background: rgba(255,255,255,0.1); color: rgba(240,240,240,0.95); }
+.lens-btn:hover { color: rgba(240,240,240,0.8); }
 .lens-btn.active {
-  background: rgba(255,255,255,0.18);
-  border-color: rgba(255,255,255,0.35);
   color: rgba(240,240,240,1);
   font-weight: 500;
 }

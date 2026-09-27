@@ -872,7 +872,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=26">
+  <link rel="stylesheet" href="css/style.css?v=27">
 </head>
 <body>
 
@@ -1000,11 +1000,9 @@
       <div class="lens-chips" id="lensChips">
         <button class="lens-btn" data-lens="picks"      onclick="setLens(this)">All</button>
         <button class="lens-btn" data-lens="new"        onclick="setLens(this)">New</button>
-        <button class="lens-btn" data-lens="moods"      onclick="setLens(this)">Moods</button>
         <button class="lens-btn" data-lens="eras"       onclick="setLens(this)">Eras</button>
         <button class="lens-btn" data-lens="characters" onclick="setLens(this)">Iconic Characters</button>
         <button class="lens-btn" data-lens="lands"      onclick="setLens(this)">Lands</button>
-        <button class="lens-btn" data-lens="gems"       onclick="setLens(this)">Hidden Gems</button>
       </div>
       <div class="lens-controls" id="lensControls" style="display:none;"></div>
     </div>
@@ -1760,14 +1758,13 @@
 
     // ── Lands data ──
     const LAND_TYPES = {
-      plains:   { label:'Plains',        query:'t:basic name:plains has:illustration' },
-      island:   { label:'Island',        query:'t:basic name:island has:illustration' },
-      swamp:    { label:'Swamp',         query:'t:basic name:swamp has:illustration' },
-      mountain: { label:'Mountain',      query:'t:basic name:mountain has:illustration' },
-      forest:   { label:'Forest',        query:'t:basic name:forest has:illustration' },
-      dual:     { label:'Duals & Fetch', query:'has:illustration ((t:land (t:plains OR t:island OR t:swamp OR t:mountain OR t:forest) -t:basic) OR (t:land o:"search your library" o:sacrifice -t:basic))' },
-      utility:  { label:'Utility',       query:'has:illustration t:land -t:basic -t:snow -(o:"search your library" o:sacrifice) -(o:"pay 2 life, tap")' },
-      snow:     { label:'Snow',          query:'t:snow t:land has:illustration' },
+      plains:   { label:'Plains',   mana:'w', query:'t:basic name:plains has:illustration' },
+      island:   { label:'Island',   mana:'u', query:'t:basic name:island has:illustration' },
+      swamp:    { label:'Swamp',    mana:'b', query:'t:basic name:swamp has:illustration' },
+      mountain: { label:'Mountain', mana:'r', query:'t:basic name:mountain has:illustration' },
+      forest:   { label:'Forest',   mana:'g', query:'t:basic name:forest has:illustration' },
+      wastes:   { label:'Wastes',   mana:'c', query:'name:wastes has:illustration' },
+      other:    { label:'Other',    mana:null, query:'has:illustration (((t:land (t:plains OR t:island OR t:swamp OR t:mountain OR t:forest) -t:basic) OR (t:land o:"search your library" o:sacrifice -t:basic)) OR (t:land -t:basic -t:snow -(o:"search your library" o:sacrifice) -(o:"pay 2 life, tap")))' },
     };
 
     function renderCharacterCards(row, savedSub) {
@@ -1802,7 +1799,7 @@
       row.style.display = '';
       const lands = Object.entries(LAND_TYPES);
       row.innerHTML = lands.map(([key, l], i) =>
-        `<button class="sub-pill ${(savedSub ? key === savedSub : i === 0) ? 'active' : ''}" data-key="${key}">${l.label}</button>`
+        `<button class="sub-pill ${(savedSub ? key === savedSub : i === 0) ? 'active' : ''}" data-key="${key}">${l.mana ? `<img src="${MANA_SVGS[l.mana]}" width="14" height="14" style="vertical-align:middle;margin-right:4px;opacity:0.85">` : ''}${l.label}</button>`
       ).join('');
       row.querySelectorAll('.sub-pill').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1877,7 +1874,7 @@
     }
 
     // After active lens loads, pre-warm the next 2 lenses in background
-    const LENS_ORDER = ['picks','new','moods','eras','characters','lands','iconic','gems'];
+    const LENS_ORDER = ['picks','new','eras','characters','lands','iconic'];
     function prewarmAdjacentLenses() {
       const idx = LENS_ORDER.indexOf(_activeLens);
       const toWarm = [

@@ -1205,6 +1205,9 @@
     function setMode(mode) {
       _currentMode = mode;
       if (mode === 'gallery' || mode === 'collections' || mode === 'home') localStorage.setItem('mc_mode', mode);
+      // Dismiss pull overlay when navigating away
+      const _dr = document.getElementById('drawRitual');
+      if (_dr && _dr.style.display !== 'none') { _drawNonce++; _dr.style.display = 'none'; document.body.style.overflow = ''; }
 
       // panels
       ['homePanel','grid','collectionsPanel','advancedPanel','aboutPanel'].forEach(id => {
@@ -1301,6 +1304,7 @@
       const nonce = ++_drawNonce;
       const compact = window.innerWidth <= 768;
       const iconSize = compact ? 40 : 54;
+
       const overlay  = document.getElementById('drawRitual');
 
       // ── Phase A: anticipation beat ──
@@ -1331,12 +1335,12 @@
 
     function _showDrawReveal(card, compact, nonce) {
       if (nonce !== _drawNonce) return;
-      const w   = compact ? 232 : 360;
+      const w   = compact ? 300 : 480;
       const h   = Math.round(w * 0.75);
       const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop || '';
-      const nameSize   = compact ? '1.02rem' : '1.32rem';
-      const artistSize = compact ? '0.7rem'  : '0.8rem';
-      const platePad   = compact ? '26px 14px 12px' : '38px 20px 16px';
+      const nameSize   = compact ? '1.1rem'  : '1.5rem';
+      const artistSize = compact ? '0.72rem' : '0.85rem';
+      const platePad   = compact ? '30px 16px 14px' : '48px 24px 18px';
       const glow       = _cardGlow(card);
       const overlay    = document.getElementById('drawRitual');
 
@@ -1358,12 +1362,10 @@
           `</div>` +
           `<div class="draw-ritual-actions">` +
             `<button class="draw-again-btn" id="drAgain">${_DRAW_DECK_SVG(13)} Pull again</button>` +
-            `<button class="draw-done-btn"  id="drDone">Done</button>` +
           `</div>` +
         `</div>`;
 
       document.getElementById('drClose').addEventListener('click', e => { e.stopPropagation(); closeDrawRitual(); });
-      document.getElementById('drDone').addEventListener('click',  e => { e.stopPropagation(); closeDrawRitual(); });
       document.getElementById('drAgain').addEventListener('click', e => { e.stopPropagation(); triggerDrawRitual(); });
       document.getElementById('drReveal').addEventListener('click', e => e.stopPropagation());
       overlay.addEventListener('click', closeDrawRitual);

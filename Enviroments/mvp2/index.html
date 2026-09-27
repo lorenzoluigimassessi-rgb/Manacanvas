@@ -857,7 +857,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
 
@@ -1122,7 +1122,11 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             <span>Gallery</span>
           </button>
-<button class="home-action" onclick="goCollections()">
+          <button class="home-action" onclick="goSearch()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Search</span>
+          </button>
+          <button class="home-action" onclick="goCollections()">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
             <span>Collections</span>
           </button>
@@ -1179,11 +1183,11 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=6"></script>
-  <script src="js/api.js?v=6"></script>
-  <script src="js/grid.js?v=6"></script>
-  <script src="js/filters.js?v=6"></script>
-  <script src="js/lightbox.js?v=6"></script>
+  <script src="js/welcome.js?v=7"></script>
+  <script src="js/api.js?v=7"></script>
+  <script src="js/grid.js?v=7"></script>
+  <script src="js/filters.js?v=7"></script>
+  <script src="js/lightbox.js?v=7"></script>
 
   <script>
     // ── Mode map ──
@@ -1208,6 +1212,12 @@
       if (loader) loader.style.display = 'none';
       const panel = document.getElementById(PANELS[mode]);
       if (panel) panel.style.display = (mode === 'gallery') ? '' : 'block';
+
+      // search bar — hide on home, show everywhere else
+      const searchContainer = document.getElementById('searchContainer');
+      if (searchContainer) searchContainer.style.display = mode === 'home' ? 'none' : '';
+      const mobileTopBar = document.querySelector('.mobile-top-bar');
+      if (mobileTopBar) mobileTopBar.style.display = mode === 'home' ? 'none' : '';
 
       // sidebar — clear active when on home (logo is the home anchor)
       if (mode === 'home') document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));

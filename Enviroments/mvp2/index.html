@@ -2148,6 +2148,8 @@
       if (localStorage.getItem('mc_mode') === 'collections') { setMode('collections'); return; }
       // Restore Gallery mode — skip home screen, fetch fresh images
       if (localStorage.getItem('mc_mode') === 'gallery') setMode('gallery');
+      // If we're not in gallery (e.g. home mode), don't run gallery init
+      if (_currentMode !== 'gallery') return;
 
       const saved = localStorage.getItem('mc_lens');
       let lens = 'picks', sub = null;

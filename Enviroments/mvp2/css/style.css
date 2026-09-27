@@ -384,24 +384,32 @@ body {
 
 .home-actions {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 0.75rem;
-  justify-content: center;
-  flex-wrap: wrap;
   margin-top: 2.5rem;
+  width: 100%;
+  max-width: 340px;
+}
+
+.home-actions-secondary {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .home-action {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
   gap: 0.65rem;
-  padding: 1.25rem 1.5rem;
-  min-width: 96px;
+  padding: 1rem 1.5rem;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 12px;
   cursor: pointer;
-  color: rgba(240,240,240,0.8);
+  color: rgba(240,240,240,0.75);
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.65rem;
   letter-spacing: 2px;
@@ -415,12 +423,34 @@ body {
   background: rgba(255,255,255,0.12);
   border-color: rgba(255,255,255,0.28);
   color: rgba(240,240,240,1);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
 .home-action svg {
   stroke: currentColor;
   flex-shrink: 0;
+}
+
+.home-action--primary {
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.22);
+  color: rgba(240,240,240,0.95);
+  font-size: 0.72rem;
+  letter-spacing: 2.5px;
+}
+
+.home-action--primary:hover {
+  background: rgba(255,255,255,0.17);
+  border-color: rgba(255,255,255,0.38);
+}
+
+.home-actions-secondary .home-action {
+  flex: 1;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.9rem 0.75rem;
 }
 
 .welcome-draw-separator {

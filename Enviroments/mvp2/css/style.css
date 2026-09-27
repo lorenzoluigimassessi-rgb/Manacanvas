@@ -829,8 +829,8 @@ body {
   font-family: 'Josefin Sans', sans-serif;
   font-size: 0.68rem;
   font-weight: 400;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-transform: none;
   padding: 0.38rem 0.85rem;
   margin: 0;
   cursor: pointer;
@@ -842,6 +842,8 @@ body {
 .lens-btn.active {
   color: rgba(240,240,240,1);
   font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 /* ── Sub-pill row ── */

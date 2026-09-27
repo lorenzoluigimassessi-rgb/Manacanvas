@@ -851,7 +851,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=17">
+  <link rel="stylesheet" href="css/style.css?v=18">
 </head>
 <body>
 
@@ -875,7 +875,7 @@
     <nav class="sidebar" id="sidebar">
 
       <!-- Brand logo — home link, collapsed: MG circle, expanded: + text -->
-      <a class="sidebar-logo" onclick="navToHome()" aria-label="Home">
+      <a class="sidebar-logo" onclick="navToHome()" aria-label="Home" data-label="Home">
         <span class="sidebar-logo-mark">MG</span>
         <span class="sidebar-logo-text">Magic: The Gallery</span>
       </a>
@@ -1169,11 +1169,11 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=17"></script>
-  <script src="js/api.js?v=17"></script>
-  <script src="js/grid.js?v=17"></script>
-  <script src="js/filters.js?v=17"></script>
-  <script src="js/lightbox.js?v=17"></script>
+  <script src="js/welcome.js?v=18"></script>
+  <script src="js/api.js?v=18"></script>
+  <script src="js/grid.js?v=18"></script>
+  <script src="js/filters.js?v=18"></script>
+  <script src="js/lightbox.js?v=18"></script>
 
   <script>
     // ── Mode map ──
@@ -3001,7 +3001,7 @@
         el.addEventListener('mouseenter', () => { clearTimeout(_ttTimer); _ttTimer = setTimeout(() => _showTT(el), 300); });
         el.addEventListener('mouseleave', () => { clearTimeout(_ttTimer); _hideTT(); });
       });
-      ['.sidebar-discord', '.sidebar-collapse'].forEach(sel => {
+      ['.sidebar-logo', '.sidebar-discord', '.sidebar-collapse'].forEach(sel => {
         const el = document.querySelector(sel);
         if (!el) return;
         el.addEventListener('mouseenter', () => { clearTimeout(_ttTimer); _ttTimer = setTimeout(() => _showTT(el), 300); });

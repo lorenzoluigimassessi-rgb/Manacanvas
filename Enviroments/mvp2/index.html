@@ -635,7 +635,10 @@
       overflow-y: auto;
     }
     body.sidebar-expanded .side-panel { left: var(--sidebar-w); }
-    .side-panel.open { transform: translateX(0); z-index: 201; }
+    .side-panel.open {
+      transform: translateX(0);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.35);
+    }
 
     .side-panel-header {
       display: flex; align-items: center; justify-content: space-between;

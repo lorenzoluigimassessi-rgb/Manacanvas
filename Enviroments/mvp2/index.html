@@ -1864,7 +1864,7 @@
       ({ activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles,
         activeYearMin, activeYearMax, activeSearch, sortOrder, sortDir } = snap);
       try {
-        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&unique=art&order=name&dir=asc&page=${Math.floor(Math.random()*80)+1}`);
+        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&unique=art&order=released&dir=${Math.random()<0.5?'asc':'desc'}&page=${Math.floor(Math.random()*200)+1}`);
         if (!res.ok) return;
         const json = await res.json();
         if (json.object === 'error') return;

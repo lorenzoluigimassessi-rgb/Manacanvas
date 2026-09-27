@@ -17,9 +17,9 @@ const SORT_OPTIONS = [
 async function fetchCards(query = "t:creature", page = 1) {
   isLoading = true;
   const isRandom = sortOrder === "random";
-  const randomPage = isRandom ? Math.floor(Math.random() * 80) + 1 : page;
-  const order = isRandom ? "name" : sortOrder;
-  const dir = isRandom ? "asc" : sortDir;
+  const randomPage = isRandom ? Math.floor(Math.random() * 200) + 1 : page;
+  const order = isRandom ? "released" : sortOrder;
+  const dir = isRandom ? (Math.random() < 0.5 ? "asc" : "desc") : sortDir;
   const url = (!isRandom && nextPageUrl) || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=${randomPage}`;
   try {
     const res = await fetch(url);

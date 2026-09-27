@@ -857,7 +857,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=9">
+  <link rel="stylesheet" href="css/style.css?v=10">
 </head>
 <body>
 
@@ -1114,6 +1114,7 @@
       <div class="home-bg-layer" id="homeBgA"></div>
       <div class="home-bg-layer" id="homeBgB"></div>
       <div class="home-overlay"></div>
+      <p class="home-legal">Unofficial Fan Content · Card images &copy; Wizards of the Coast · Data by Scryfall</p>
       <div class="home-hero">
         <h1 class="welcome-title">MAGIC: THE GALLERY</h1>
         <p class="welcome-subtitle">Discover the art of Magic: The Gathering&#174;</p>
@@ -1175,11 +1176,11 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=9"></script>
-  <script src="js/api.js?v=9"></script>
-  <script src="js/grid.js?v=9"></script>
-  <script src="js/filters.js?v=9"></script>
-  <script src="js/lightbox.js?v=9"></script>
+  <script src="js/welcome.js?v=10"></script>
+  <script src="js/api.js?v=10"></script>
+  <script src="js/grid.js?v=10"></script>
+  <script src="js/filters.js?v=10"></script>
+  <script src="js/lightbox.js?v=10"></script>
 
   <script>
     // ── Mode map ──
@@ -1205,11 +1206,15 @@
       const panel = document.getElementById(PANELS[mode]);
       if (panel) panel.style.display = (mode === 'gallery') ? '' : 'block';
 
-      // search bar — hide on home, show everywhere else
+      // header + search bar — hide entirely on home so bg reaches the top
+      const headerWrap = document.querySelector('.header-wrap');
+      if (headerWrap) headerWrap.style.display = mode === 'home' ? 'none' : '';
       const searchContainer = document.getElementById('searchContainer');
       if (searchContainer) searchContainer.style.display = mode === 'home' ? 'none' : '';
       const mobileTopBar = document.querySelector('.mobile-top-bar');
       if (mobileTopBar) mobileTopBar.style.display = mode === 'home' ? 'none' : '';
+      const siteFooter = document.querySelector('.site-footer');
+      if (siteFooter) siteFooter.style.display = mode === 'home' ? 'none' : '';
 
       // sidebar — clear active when on home (logo is the home anchor)
       if (mode === 'home') document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));

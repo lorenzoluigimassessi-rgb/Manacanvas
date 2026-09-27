@@ -386,71 +386,68 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.25rem;
   margin-top: 2.5rem;
   width: 100%;
-  max-width: 340px;
-}
-
-.home-actions-secondary {
-  display: flex;
-  gap: 0.75rem;
-  width: 100%;
+  max-width: 300px;
 }
 
 .home-action {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 0.65rem;
-  padding: 1rem 1.5rem;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
+  background: none;
+  border: none;
   cursor: pointer;
-  color: rgba(240,240,240,0.75);
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.65rem;
-  letter-spacing: 2px;
   text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.home-action--primary {
+  width: 100%;
+  padding: 1.1rem 2rem;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 10px;
+  color: rgba(240,240,240,0.95);
+  font-size: 0.75rem;
+  letter-spacing: 3px;
   transition: background 200ms, border-color 200ms, transform 200ms;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
-.home-action:hover {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.28);
-  color: rgba(240,240,240,1);
+.home-action--primary:hover {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.4);
   transform: translateY(-2px);
 }
 
-.home-action svg {
-  stroke: currentColor;
-  flex-shrink: 0;
+.home-actions-alt {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.home-action--primary {
-  width: 100%;
-  padding: 1.2rem 1.5rem;
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.22);
-  color: rgba(240,240,240,0.95);
-  font-size: 0.72rem;
-  letter-spacing: 2.5px;
+.home-alt-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(240,240,240,0.4);
+  padding: 0;
+  transition: color 180ms;
 }
 
-.home-action--primary:hover {
-  background: rgba(255,255,255,0.17);
-  border-color: rgba(255,255,255,0.38);
+.home-alt-link:hover {
+  color: rgba(240,240,240,0.75);
 }
 
-.home-actions-secondary .home-action {
-  flex: 1;
-  flex-direction: column;
-  gap: 0.55rem;
-  padding: 0.9rem 0.75rem;
+.home-alt-sep {
+  color: rgba(240,240,240,0.2);
+  font-size: 0.75rem;
+  line-height: 1;
 }
 
 .welcome-draw-separator {

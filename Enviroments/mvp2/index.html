@@ -857,12 +857,12 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
 
-  <!-- Welcome screen -->
-  <div id="welcome"></div>
+  <!-- Welcome screen (kept for startSurprise compatibility) -->
+  <div id="welcome" style="display:none;"></div>
 
   <!-- Transition screen -->
   <div id="transition">
@@ -875,13 +875,13 @@
   </div>
 
   <!-- App shell -->
-  <div id="appShell" style="display:none;">
+  <div id="appShell">
 
     <!-- ── Desktop sidebar ── -->
     <nav class="sidebar" id="sidebar">
 
       <!-- Brand logo — home link, collapsed: MG circle, expanded: + text -->
-      <a class="sidebar-logo" onclick="goHome()" aria-label="Home">
+      <a class="sidebar-logo" onclick="navToHome()" aria-label="Home">
         <span class="sidebar-logo-mark">MG</span>
         <span class="sidebar-logo-text">Magic: The Gallery</span>
       </a>
@@ -952,7 +952,7 @@
 
         <!-- logo in sidebar; switcher kept hidden for JS -->
         <div class="nav-left" style="display:none;">
-          <a class="nav-logo" onclick="goHome()"><span>MG</span></a>
+          <a class="nav-logo" onclick="navToHome()"><span>MG</span></a>
           <div class="nav-switcher" style="display:none;">
             <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">Gallery</button>
             <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Collections</button>
@@ -998,7 +998,7 @@
 
     <!-- ── Mobile top bar ── -->
     <div class="mobile-top-bar">
-      <a class="nav-logo" onclick="goHome()"><span>MG</span></a>
+      <a class="nav-logo" onclick="navToHome()"><span>MG</span></a>
       <div class="nav-center">
         <span class="search-icon-svg">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1109,6 +1109,35 @@
 
     <div id="discoverPanel" class="mode-panel" style="display:none;"></div>
 
+    <!-- Home hub panel -->
+    <div id="homePanel" class="mode-panel home-panel" style="display:none;">
+      <div class="home-bg-layer" id="homeBgA"></div>
+      <div class="home-bg-layer" id="homeBgB"></div>
+      <div class="home-overlay"></div>
+      <div class="home-hero">
+        <h1 class="welcome-title">MAGIC: THE GALLERY</h1>
+        <p class="welcome-subtitle">Discover the art of Magic: The Gathering&#174;</p>
+        <div class="home-actions">
+          <button class="home-action" onclick="goGallery()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Gallery</span>
+          </button>
+          <button class="home-action" onclick="goSearch()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Search</span>
+          </button>
+          <button class="home-action" onclick="goCollections()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span>Collections</span>
+          </button>
+          <button class="home-action" onclick="goPull()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>Pull</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Legacy alias -->
     <div id="categoriesPanel" style="display:none;"></div>
 
@@ -1154,17 +1183,17 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=4"></script>
-  <script src="js/api.js?v=4"></script>
-  <script src="js/grid.js?v=4"></script>
-  <script src="js/filters.js?v=4"></script>
-  <script src="js/lightbox.js?v=4"></script>
+  <script src="js/welcome.js?v=5"></script>
+  <script src="js/api.js?v=5"></script>
+  <script src="js/grid.js?v=5"></script>
+  <script src="js/filters.js?v=5"></script>
+  <script src="js/lightbox.js?v=5"></script>
 
   <script>
     // ── Mode map ──
     const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', advanced:'btnAdvanced' };
     const MOBILE_SW  = { gallery:'mSwAllArt', collections:'mSwBrowse' };
-    const PANELS     = { gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel', about:'aboutPanel' };
+    const PANELS     = { home:'homePanel', gallery:'grid', collections:'collectionsPanel', advanced:'advancedPanel', about:'aboutPanel' };
 
     let _currentMode = 'gallery';
 
@@ -1173,14 +1202,19 @@
       if (mode === 'gallery' || mode === 'collections') localStorage.setItem('mc_mode', mode);
 
       // panels
-      ['grid','collectionsPanel','advancedPanel','aboutPanel'].forEach(id => {
+      ['homePanel','grid','collectionsPanel','advancedPanel','aboutPanel'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
       });
+      if (mode !== 'home' && typeof stopBgRotation === 'function') stopBgRotation();
+      if (mode === 'home' && typeof startHomeBg === 'function') startHomeBg();
       const loader = document.getElementById('loader');
       if (loader) loader.style.display = 'none';
       const panel = document.getElementById(PANELS[mode]);
       if (panel) panel.style.display = (mode === 'gallery') ? '' : 'block';
+
+      // sidebar — clear active when on home (logo is the home anchor)
+      if (mode === 'home') document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
 
       // desktop switcher
       document.querySelectorAll('.sw-btn, .btn-advanced').forEach(b => b.classList.remove('active'));
@@ -3010,6 +3044,9 @@
         });
       }
     })();
+
+    // Start in Home mode — called here so setMode is guaranteed defined
+    setMode('home');
   </script>
 </body>
 </html>

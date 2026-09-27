@@ -557,7 +557,7 @@
         left: calc(var(--sidebar-collapsed-w) + 8px);
         background: var(--surface); border: 1px solid var(--border);
         border-radius: 10px; padding: 0.5rem 0.25rem;
-        min-width: 158px;
+        min-width: 180px;
         box-shadow: 4px 8px 24px rgba(0,0,0,0.35);
         opacity: 0; pointer-events: none;
         transform: translateX(6px);
@@ -571,17 +571,17 @@
         color: var(--text-3); padding: 0.1rem 0.75rem 0.55rem;
       }
       .flyout-item {
-        display: flex; align-items: center; gap: 0.6rem;
-        padding: 0.42rem 0.75rem; width: 100%;
+        display: flex; align-items: center; gap: 0.7rem;
+        padding: 0.62rem 1rem; width: 100%;
         border: none; background: transparent; color: var(--text-2);
         font-family: 'Josefin Sans', sans-serif;
-        font-size: 0.8rem; font-weight: 500; letter-spacing: 0.3px;
+        font-size: 0.88rem; font-weight: 500; letter-spacing: 0.3px;
         cursor: pointer; border-radius: 7px;
         text-align: left; white-space: nowrap;
         transition: background 150ms, color 150ms;
       }
       .flyout-item:hover { background: var(--surface-2); color: var(--text-1); }
-      .flyout-item svg { flex-shrink: 0; opacity: 0.6; }
+      .flyout-item svg { flex-shrink: 0; width: 15px; height: 15px; opacity: 0.6; }
       .flyout-item:hover svg { opacity: 1; }
 
       /* Content shifts right on expand */
@@ -851,7 +851,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=16">
+  <link rel="stylesheet" href="css/style.css?v=17">
 </head>
 <body>
 
@@ -896,7 +896,7 @@
           </button>
           <div class="sidebar-sub" id="collectionsAccordion">
             <button class="sidebar-sub-item" onclick="openCollectionSub('artists')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               Artists
             </button>
             <button class="sidebar-sub-item" onclick="openCollectionSub('creatures')">
@@ -1169,11 +1169,11 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=16"></script>
-  <script src="js/api.js?v=16"></script>
-  <script src="js/grid.js?v=16"></script>
-  <script src="js/filters.js?v=16"></script>
-  <script src="js/lightbox.js?v=16"></script>
+  <script src="js/welcome.js?v=17"></script>
+  <script src="js/api.js?v=17"></script>
+  <script src="js/grid.js?v=17"></script>
+  <script src="js/filters.js?v=17"></script>
+  <script src="js/lightbox.js?v=17"></script>
 
   <script>
     // ── Mode map ──
@@ -2958,7 +2958,7 @@
         _flyoutEl.innerHTML = `
           <div class="flyout-label">Collections</div>
           <button class="flyout-item" onclick="openCollectionSub('artists')">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Artists
           </button>
           <button class="flyout-item" onclick="openCollectionSub('creatures')">

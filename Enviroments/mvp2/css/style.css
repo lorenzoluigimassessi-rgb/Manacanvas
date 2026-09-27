@@ -849,9 +849,9 @@ body {
 /* ── Sub-pill row ── */
 .sub-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
-  padding: 0.5rem 1.5rem;
+  padding: 0.6rem 1.5rem 0.8rem;
   overflow-x: auto;
   scrollbar-width: none;
   animation: subRowIn 150ms ease;
@@ -3602,21 +3602,25 @@ input[type=range]::-moz-range-thumb {
 }
 
 
-/* ═══ Mood Cards (Moods lens sub-pills) ═══ */
+/* ═══ Character Cards (Iconic Characters lens sub-pills) ═══ */
 .mood-card {
   flex: 1;
   min-width: 0;
   cursor: pointer;
   text-align: center;
-  opacity: 0.55;
-  transition: opacity 150ms, transform 150ms;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
+  filter: grayscale(1) brightness(0.65);
+  transition: filter 220ms ease, transform 220ms ease;
 }
-.mood-card:hover { opacity: 0.8; transform: translateY(-2px); border-color: var(--border-hover); }
-.mood-card.active { opacity: 1; border-color: var(--border-hover); }
+.mood-card:hover {
+  filter: grayscale(0.5) brightness(0.85);
+  transform: scale(1.02);
+}
+.mood-card.active {
+  filter: grayscale(0) brightness(1);
+  transform: scale(1.04);
+}
 
 .mood-card-img {
   width: 100%;
@@ -3626,14 +3630,16 @@ input[type=range]::-moz-range-thumb {
 }
 
 .mood-card-label {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
-  padding: 0.45rem 0.5rem;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.3px;
+  color: rgba(240,240,240,0.45);
+  padding: 0.4rem 0.4rem 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.mood-card.active .mood-card-label { color: var(--text-primary); font-weight: 500; }
+.mood-card.active .mood-card-label { color: rgba(240,240,240,0.95); font-weight: 500; }
 
 /* Plane cards: fixed width on desktop, 4-per-row on mobile (2 rows of 4) */
 .col-plane-card { flex: 0 0 auto; width: 140px; }

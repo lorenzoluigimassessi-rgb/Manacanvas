@@ -138,26 +138,9 @@ function toggleSidebar() {
   }
 })();
 
-// First-visit only: expand sidebar, then auto-collapse on first meaningful scroll
 function _initFirstScrollCollapse() {
   if (localStorage.getItem('mg_sidebar_seen') === '1') return;
-  document.body.classList.add('sidebar-expanded');
-  let _collapseTimer = null;
-  function onFirstScroll() {
-    if (window.scrollY > 120) {
-      if (_collapseTimer) return;
-      _collapseTimer = setTimeout(() => {
-        document.body.classList.remove('sidebar-expanded');
-        localStorage.setItem('mg_sidebar_expanded', '0');
-        localStorage.setItem('mg_sidebar_seen', '1');
-        window.removeEventListener('scroll', onFirstScroll);
-      }, 400);
-    } else {
-      clearTimeout(_collapseTimer);
-      _collapseTimer = null;
-    }
-  }
-  window.addEventListener('scroll', onFirstScroll, { passive: true });
+  localStorage.setItem('mg_sidebar_seen', '1');
 }
 
 function sidebarNav(mode) {
@@ -166,13 +149,14 @@ function sidebarNav(mode) {
   const map = { gallery: 'sideGallery', search: 'sideSearch', collections: 'sideCollections', settings: 'sideSettings' };
   if (map[mode]) document.getElementById(map[mode])?.classList.add('active');
 
-  if (mode === 'gallery')     setMode('gallery');
+  if (mode === 'gallery')          setMode('gallery');
   else if (mode === 'collections') setMode('collections');
   else if (mode === 'search') {
     setMode('gallery');
     setTimeout(() => document.getElementById('searchBar')?.focus(), 50);
   }
-  // 'settings' — placeholder until Batch 9
+  else if (mode === 'settings') openSidePanel('settings');
+  else if (mode === 'about')    openSidePanel('about');
 }
 
 function startBrowse() {

@@ -1763,7 +1763,7 @@
       swamp:    { label:'Swamp',    mana:'b', query:'t:basic name:swamp has:illustration' },
       mountain: { label:'Mountain', mana:'r', query:'t:basic name:mountain has:illustration' },
       forest:   { label:'Forest',   mana:'g', query:'t:basic name:forest has:illustration' },
-      wastes:   { label:'Wastes',   mana:'c', query:'name:wastes has:illustration' },
+      wastes:   { label:'Wastes',   mana:'c', query:'t:basic !"Wastes" has:illustration' },
       other:    { label:'Other',    mana:null, query:'has:illustration (((t:land (t:plains OR t:island OR t:swamp OR t:mountain OR t:forest) -t:basic) OR (t:land o:"search your library" o:sacrifice -t:basic)) OR (t:land -t:basic -t:snow -(o:"search your library" o:sacrifice) -(o:"pay 2 life, tap")))' },
     };
 

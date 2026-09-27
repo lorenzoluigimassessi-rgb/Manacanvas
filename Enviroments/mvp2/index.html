@@ -872,7 +872,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=35">
+  <link rel="stylesheet" href="css/style.css?v=38">
 </head>
 <body>
 
@@ -1207,7 +1207,7 @@
       if (mode === 'gallery' || mode === 'collections' || mode === 'home') localStorage.setItem('mc_mode', mode);
       // Dismiss pull overlay when navigating away
       const _dr = document.getElementById('drawRitual');
-      if (_dr && _dr.style.display !== 'none') { _drawNonce++; _dr.style.display = 'none'; document.body.style.overflow = ''; }
+      if (_dr && _dr.style.display !== 'none') { _drawNonce++; _dr.style.display = 'none'; document.body.style.overflow = ''; document.getElementById('sidePull')?.classList.remove('active'); document.getElementById('btPull')?.classList.remove('active'); }
 
       // panels
       ['homePanel','grid','collectionsPanel','advancedPanel','aboutPanel'].forEach(id => {
@@ -1255,6 +1255,14 @@
       const subRow  = document.getElementById('subRow');
       if (lensRow) lensRow.style.display = mode === 'gallery' ? '' : 'none';
       if (subRow && mode !== 'gallery') subRow.style.display = 'none';
+      // Always restore the active lens chip when entering gallery (even if cards already loaded)
+      if (mode === 'gallery') {
+        let _savedLens = 'picks';
+        try { const _sl = localStorage.getItem('mc_lens'); if (_sl) _savedLens = JSON.parse(_sl).lens || 'picks'; } catch(e) {}
+        if (!document.querySelector('.lens-btn.active')) {
+          document.querySelector(`.lens-btn[data-lens="${_savedLens}"]`)?.classList.add('active');
+        }
+      }
 
       // collections — always return to main overview, hide sub-pages
       if (mode === 'collections') {
@@ -1304,6 +1312,13 @@
       const nonce = ++_drawNonce;
       const compact = window.innerWidth <= 768;
       const iconSize = compact ? 40 : 54;
+
+      // Mark pull as the active destination — deselect all other nav items
+      document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.bottom-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.sw-btn, .btn-advanced').forEach(b => b.classList.remove('active'));
+      document.getElementById('sidePull')?.classList.add('active');
+      document.getElementById('btPull')?.classList.add('active');
 
       const overlay  = document.getElementById('drawRitual');
 
@@ -1373,6 +1388,15 @@
       const overlay = document.getElementById('drawRitual');
       overlay.style.display = 'none';
       document.body.style.overflow = '';
+      // Restore nav active state to the underlying mode
+      document.getElementById('sidePull')?.classList.remove('active');
+      document.getElementById('btPull')?.classList.remove('active');
+      const sideMap = { gallery: 'sideGallery', collections: 'sideCollections' };
+      const btMap   = { gallery: 'btGallery',   collections: 'btCollections' };
+      const swMap   = { gallery: 'swAllArt',     collections: 'swBrowse' };
+      if (sideMap[_currentMode]) document.getElementById(sideMap[_currentMode])?.classList.add('active');
+      if (btMap[_currentMode])   document.getElementById(btMap[_currentMode])?.classList.add('active');
+      if (swMap[_currentMode])   document.getElementById(swMap[_currentMode])?.classList.add('active');
     }
 
     // ── Lens cache — keyed by 'lens:sub', session-only ──
@@ -1882,7 +1906,7 @@
       ];
       setTimeout(() => {
         toWarm.forEach(lens => {
-          const firstSub = (LENS_SUB_PILLS[lens] || [])[0] || null;
+          const firstSub = (typeof LENS_SUB_PILLS !== 'undefined' ? LENS_SUB_PILLS[lens] || [] : [])[0] || null;
           _prewarmLens(lens, firstSub);
         });
       }, 1500); // delay so it doesn't compete with active fetch
@@ -2145,9 +2169,8 @@
     function initLens() {
       // Restore Collections mode immediately — no gallery flash
       if (localStorage.getItem('mc_mode') === 'collections') { setMode('collections'); return; }
-      // Restore Gallery mode — skip home screen, fetch fresh images
-      if (localStorage.getItem('mc_mode') === 'gallery') setMode('gallery');
       // If we're not in gallery (e.g. home mode), don't run gallery init
+      // NOTE: do NOT call setMode('gallery') here — it would recurse back into initLens
       if (_currentMode !== 'gallery') return;
 
       const saved = localStorage.getItem('mc_lens');

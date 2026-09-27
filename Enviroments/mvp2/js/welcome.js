@@ -94,7 +94,7 @@ function goCollections() {
 
 function goPull() {
   _initFirstScrollCollapse();
-  setMode('gallery');
+  if (typeof _currentMode === 'undefined' || _currentMode !== 'gallery') setMode('gallery');
   if (typeof triggerDrawRitual === 'function') triggerDrawRitual();
 }
 

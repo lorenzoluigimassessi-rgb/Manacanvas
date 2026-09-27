@@ -980,7 +980,8 @@ body {
   transition: background 150ms, border-color 150ms;
 }
 .bottom-tab-pull:hover .pull-bg,
-.bottom-tab-pull:active .pull-bg {
+.bottom-tab-pull:active .pull-bg,
+.bottom-tab-pull.active .pull-bg {
   background: var(--surface-2);
   border-color: var(--border-hover);
 }

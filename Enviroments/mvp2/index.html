@@ -851,7 +851,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=14">
+  <link rel="stylesheet" href="css/style.css?v=15">
 </head>
 <body>
 
@@ -1169,11 +1169,11 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=14"></script>
-  <script src="js/api.js?v=14"></script>
-  <script src="js/grid.js?v=14"></script>
-  <script src="js/filters.js?v=14"></script>
-  <script src="js/lightbox.js?v=14"></script>
+  <script src="js/welcome.js?v=15"></script>
+  <script src="js/api.js?v=15"></script>
+  <script src="js/grid.js?v=15"></script>
+  <script src="js/filters.js?v=15"></script>
+  <script src="js/lightbox.js?v=15"></script>
 
   <script>
     // ── Mode map ──
@@ -1193,11 +1193,12 @@
         if (el) el.style.display = 'none';
       });
       if (mode !== 'home' && typeof stopBgRotation === 'function') stopBgRotation();
-      if (mode === 'home' && typeof startHomeBg === 'function') startHomeBg();
       const loader = document.getElementById('loader');
       if (loader) loader.style.display = 'none';
       const panel = document.getElementById(PANELS[mode]);
       if (panel) panel.style.display = (mode === 'gallery') ? '' : 'block';
+      // start bg after panel is visible so opacity transitions fire correctly
+      if (mode === 'home' && typeof startHomeBg === 'function') startHomeBg();
 
       // header + search bar — hide entirely on home so bg reaches the top
       const headerWrap = document.querySelector('.header-wrap');

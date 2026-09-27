@@ -1204,7 +1204,7 @@
 
     function setMode(mode) {
       _currentMode = mode;
-      if (mode === 'gallery' || mode === 'collections') localStorage.setItem('mc_mode', mode);
+      if (mode === 'gallery' || mode === 'collections' || mode === 'home') localStorage.setItem('mc_mode', mode);
 
       // panels
       ['homePanel','grid','collectionsPanel','advancedPanel','aboutPanel'].forEach(id => {

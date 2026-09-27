@@ -712,6 +712,27 @@
       z-index: 201;
     }
 
+    @media (max-width: 1023px) {
+      .side-panel {
+        top: auto !important;
+        left: 0 !important;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 70vh;
+        border-right: none;
+        border-top: 1px solid var(--border);
+        border-radius: 16px 16px 0 0;
+        transform: translateY(100%);
+        transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .side-panel.open {
+        transform: translateY(0);
+        box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+      }
+      .side-panel-overlay { left: 0 !important; }
+    }
+
     .side-panel-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 1.1rem 1.25rem;
@@ -851,7 +872,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=19">
+  <link rel="stylesheet" href="css/style.css?v=20">
 </head>
 <body>
 
@@ -1169,11 +1190,11 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=19"></script>
-  <script src="js/api.js?v=19"></script>
-  <script src="js/grid.js?v=19"></script>
-  <script src="js/filters.js?v=19"></script>
-  <script src="js/lightbox.js?v=19"></script>
+  <script src="js/welcome.js?v=20"></script>
+  <script src="js/api.js?v=20"></script>
+  <script src="js/grid.js?v=20"></script>
+  <script src="js/filters.js?v=20"></script>
+  <script src="js/lightbox.js?v=20"></script>
 
   <script>
     // ── Mode map ──
@@ -1204,9 +1225,15 @@
       const headerWrap = document.querySelector('.header-wrap');
       if (headerWrap) headerWrap.style.display = mode === 'home' ? 'none' : '';
       const searchContainer = document.getElementById('searchContainer');
-      if (searchContainer) searchContainer.style.display = mode === 'home' ? 'none' : '';
+      const hideSearch = mode === 'home' || mode === 'about' || mode === 'collections';
+      if (searchContainer) searchContainer.style.display = hideSearch ? 'none' : '';
       const mobileTopBar = document.querySelector('.mobile-top-bar');
       if (mobileTopBar) mobileTopBar.style.display = mode === 'home' ? 'none' : '';
+      const mobileSearch = document.querySelector('.mobile-top-bar .nav-center');
+      if (mobileSearch) mobileSearch.style.display = (mode === 'gallery') ? '' : 'none';
+      document.querySelectorAll('.mobile-ctrl-btn').forEach(b => {
+        b.style.display = (mode === 'gallery') ? '' : 'none';
+      });
       const siteFooter = document.querySelector('.site-footer');
       if (siteFooter) siteFooter.style.display = mode === 'home' ? 'none' : '';
 
@@ -2261,6 +2288,9 @@
 
       const page = document.getElementById('collectionsPage');
       page.innerHTML = `
+        <div class="collections-page-header">
+          <h1 class="collections-page-title">Collections</h1>
+        </div>
         <div class="collections-section">
           <div class="collections-section-header">
             <span class="collections-section-title">Artists</span>

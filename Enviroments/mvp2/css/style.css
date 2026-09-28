@@ -1077,6 +1077,16 @@ body {
     color: var(--text-primary);
   }
 
+  /* ── Mobile home panel — fixed so it covers the screen regardless of scroll position ── */
+  .home-panel {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    bottom: calc(56px + env(safe-area-inset-bottom));
+    min-height: unset;
+    overflow-y: auto;
+    z-index: 10;
+  }
+
   /* ── Mobile search hero panel ── */
   .mobile-search-panel {
     position: fixed;
@@ -1723,18 +1733,27 @@ body {
   margin: 0.25rem 0;
 }
 
-/* Grid */
+/* Grid — masonry columns on all breakpoints */
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  columns: 3;
+  column-gap: 1rem;
   padding: 2rem;
 }
+.grid > .card, .grid > .shimmer {
+  break-inside: avoid;
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+.grid > .feed-set-header, .grid > .empty-state { column-span: all; }
 
 /* Grid size variants */
-.grid.grid-sm { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
-.grid.grid-md { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-.grid.grid-lg { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1.2rem; }
+.grid.grid-sm { columns: 4; column-gap: 0.5rem; }
+.grid.grid-sm > .card, .grid.grid-sm > .shimmer { margin-bottom: 0.5rem; }
+.grid.grid-lg { columns: 2; column-gap: 1.2rem; }
+.grid.grid-lg > .card, .grid.grid-lg > .shimmer { margin-bottom: 1.2rem; }
+
+@media (min-width: 1600px) { .grid { columns: 4; } }
 
 /* Card height — varied aspect ratios for dynamic masonry feel */
 .card.card-short  { grid-row: auto; aspect-ratio: 16/9; }

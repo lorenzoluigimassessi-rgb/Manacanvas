@@ -1070,23 +1070,11 @@ body {
     overflow: hidden;
     z-index: 10;
     display: none;
+    background: var(--bg);
   }
   .mobile-search-panel[style*="block"],
   .mobile-search-panel:not([style*="none"]) {
     display: block !important;
-  }
-  .search-bg-layer {
-    position: absolute; inset: 0;
-    background-size: cover;
-    background-position: center;
-    transition: opacity 1.8s ease;
-    opacity: 0;
-  }
-  .search-scene-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to bottom,
-      rgba(12,12,15,0.45) 0%,
-      rgba(12,12,15,0.82) 100%);
   }
   .search-hero {
     position: relative;
@@ -1733,9 +1721,13 @@ body {
 .grid.grid-md { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
 .grid.grid-lg { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1.2rem; }
 
-/* Card height — uniform landscape ratio matching art_crop proportions */
-.card.card-short, .card.card-normal, .card.card-tall { grid-row: auto; }
-.shimmer.card-short, .shimmer.card-normal, .shimmer.card-tall { grid-row: auto; }
+/* Card height — varied aspect ratios for dynamic masonry feel */
+.card.card-short  { grid-row: auto; aspect-ratio: 16/9; }
+.card.card-normal { grid-row: auto; }
+.card.card-tall   { grid-row: auto; aspect-ratio: 3/4; }
+.shimmer.card-short  { grid-row: auto; aspect-ratio: 16/9; }
+.shimmer.card-normal { grid-row: auto; }
+.shimmer.card-tall   { grid-row: auto; aspect-ratio: 3/4; }
 
 /* Set name header in feed (New lens) */
 .feed-set-header {

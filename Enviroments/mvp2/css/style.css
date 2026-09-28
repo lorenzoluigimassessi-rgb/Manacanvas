@@ -1001,7 +1001,22 @@ body {
     border-bottom: 1px solid var(--border);
   }
   .mobile-top-bar .nav-center { position: static; transform: none; flex: 1; max-width: none; }
-  .grid { padding-bottom: calc(4rem + 56px + env(safe-area-inset-bottom)) !important; }
+  /* Masonry-style column layout — cards flow into shortest column */
+  .grid {
+    display: block !important;
+    columns: 2;
+    column-gap: 0.5rem;
+    padding: 0.7rem;
+    padding-bottom: calc(4rem + 56px + env(safe-area-inset-bottom)) !important;
+  }
+  .grid > .card, .grid > .shimmer {
+    break-inside: avoid;
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  /* Full-width elements in column context */
+  .feed-set-header, .empty-state { column-span: all; grid-column: unset; }
   footer.site-footer { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
 
   /* ── Gallery mode header ── */
@@ -2490,9 +2505,7 @@ body {
 
 /* ── Responsive (non-header) ── */
 @media (max-width: 768px) {
-  .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; padding: 1rem; }
-  .grid.grid-sm { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-  .grid.grid-lg { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .grid { column-gap: 0.5rem; padding: 0.75rem; }
   .card .overlay { opacity: 1; translate: 0 0; padding: 0.5rem 0.6rem; }
   .card .overlay .name { font-size: 0.8rem; }
   .card .overlay .artist { font-size: 0.7rem; }
@@ -2516,7 +2529,7 @@ body {
 
 @media (max-width: 480px) {
   .header-row-1 { padding: 0.6rem 0.8rem; }
-  .grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.7rem; }
+  .grid { column-gap: 0.4rem; padding: 0.5rem; }
   .card { border-radius: 4px; }
   .lightbox .art-container { max-width: 98vw; max-height: 45vh; }
   .lightbox .art-container img { max-height: 45vh; }

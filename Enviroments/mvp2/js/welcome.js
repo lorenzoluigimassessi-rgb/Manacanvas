@@ -157,12 +157,14 @@ function triggerSurprise() {
 function toggleSidebar() {
   const expanded = document.body.classList.toggle('sidebar-expanded');
   localStorage.setItem('mg_sidebar_expanded', expanded ? '1' : '0');
+  document.querySelector('.sidebar-collapse')?.setAttribute('aria-expanded', expanded);
 }
 
 (function restoreSidebar() {
   if (localStorage.getItem('mg_sidebar_seen') === '1') {
     if (localStorage.getItem('mg_sidebar_expanded') === '1') {
       document.body.classList.add('sidebar-expanded');
+      document.querySelector('.sidebar-collapse')?.setAttribute('aria-expanded', 'true');
     }
   }
 })();

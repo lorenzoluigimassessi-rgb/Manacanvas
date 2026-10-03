@@ -564,12 +564,7 @@
         transition: opacity 150ms ease, transform 150ms ease;
       }
       .collections-flyout.visible { opacity: 1; pointer-events: auto; transform: translateX(0); }
-      .flyout-label {
-        font-family: 'Josefin Sans', sans-serif;
-        font-size: 0.57rem; font-weight: 600;
-        letter-spacing: 2.5px; text-transform: uppercase;
-        color: var(--text-3); padding: 0.1rem 0.75rem 0.55rem;
-      }
+      .flyout-divider { height: 1px; background: var(--border); margin: 0.3rem 0.5rem; }
       .flyout-item {
         display: flex; align-items: center; gap: 0.7rem;
         padding: 0.62rem 1rem; width: 100%;
@@ -3108,7 +3103,11 @@
         _flyoutEl = document.createElement('div');
         _flyoutEl.className = 'collections-flyout';
         _flyoutEl.innerHTML = `
-          <div class="flyout-label">Categories</div>
+          <button class="flyout-item" onclick="hideFlyout(); sidebarNav('collections')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            All Categories
+          </button>
+          <div class="flyout-divider"></div>
           <button class="flyout-item" onclick="openCollectionSub('artists')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.83-.67-1.5-1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/><circle cx="6.5" cy="11.5" r="1"/><circle cx="9.5" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/><circle cx="17.5" cy="11.5" r="1"/></svg>
             Artists

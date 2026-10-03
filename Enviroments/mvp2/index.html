@@ -872,7 +872,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=40">
+  <link rel="stylesheet" href="css/style.css?v=41">
 </head>
 <body>
 
@@ -969,7 +969,7 @@
           <a class="nav-logo" onclick="navToHome()"><span>MG</span></a>
           <div class="nav-switcher" style="display:none;">
             <button class="sw-btn active" id="swAllArt" onclick="setMode('gallery')">Gallery</button>
-            <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Collections</button>
+            <button class="sw-btn"        id="swBrowse" onclick="setMode('collections')">Categories</button>
           </div>
         </div>
 
@@ -1162,7 +1162,7 @@
             Browse the Gallery
           </button>
           <div class="home-actions-alt">
-            <button class="home-alt-link" onclick="goCollections()">Collections</button>
+            <button class="home-alt-link" onclick="goCollections()">Categories</button>
             <span class="home-alt-sep">·</span>
             <button class="home-alt-link" onclick="goPull()">Pull a Card</button>
           </div>
@@ -3108,7 +3108,7 @@
         _flyoutEl = document.createElement('div');
         _flyoutEl.className = 'collections-flyout';
         _flyoutEl.innerHTML = `
-          <div class="flyout-label">Collections</div>
+          <div class="flyout-label">Categories</div>
           <button class="flyout-item" onclick="openCollectionSub('artists')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.83-.67-1.5-1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/><circle cx="6.5" cy="11.5" r="1"/><circle cx="9.5" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/><circle cx="17.5" cy="11.5" r="1"/></svg>
             Artists

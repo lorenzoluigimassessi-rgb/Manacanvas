@@ -1754,6 +1754,8 @@ body {
 
 /* Small laptops: 3 columns so cards keep a readable size (esp. with sidebar open) */
 @media (min-width: 1024px) and (max-width: 1279px) { .grid { columns: 3; } }
+/* Large monitors: 5 columns keeps card size close to 4-col on a laptop */
+@media (min-width: 1700px) { .grid { columns: 5; } .grid.grid-sm { columns: 6; } .grid.grid-lg { columns: 4; } }
 /* Mobile + tablet: always 2 (after the base rule so it wins) */
 @media (max-width: 1023px) { .grid, .grid.grid-sm, .grid.grid-lg { columns: 2; } }
 

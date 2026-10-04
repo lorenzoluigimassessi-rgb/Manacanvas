@@ -3779,8 +3779,8 @@ input[type=range]::-moz-range-thumb {
 .l3-crumbs .crumb { opacity: 1; text-transform: uppercase; }
 
 /* Search results header (gallery) */
-.search-head { padding: 0 2rem; } /* bar→chip = chip→first card (20px) */
-.grid.grid--search { padding-top: 1.25rem; }
+.search-head { padding: 0 2rem; } /* controls close to the bar (20px), a bit more air before the art (28px) */
+.grid.grid--search { padding-top: 1.75rem; }
 .search-head .l3-toolbar { margin-bottom: 0; }
 .search-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .search-row .l2-sort { margin-left: auto; }

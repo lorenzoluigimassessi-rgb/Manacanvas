@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=45">
+  <link rel="stylesheet" href="css/style.css?v=47">
 </head>
 <body>
 
@@ -2448,6 +2448,29 @@
 
     let _collectionsRendered = false;
 
+    // Each section: 5 preview cards in the artist-card style (art triptych + icon + name + count)
+    const COL_MANA = [
+      { name:'White', key:'w', q:'color=w' },
+      { name:'Blue', key:'u', q:'color=u' },
+      { name:'Black', key:'b', q:'color=b' },
+      { name:'Red', key:'r', q:'color=r' },
+      { name:'Green', key:'g', q:'color=g' },
+    ];
+    function colSections() {
+      return [
+        { id:'artists', title:'Artists', count:847, items: COL_ARTISTS.map(n => ({ name:n, q:`a:"${n}"`,
+            go: () => { activeArtist = [n]; } })) },
+        { id:'creatures', title:'Creatures', count:267, items: COL_CREATURES.map(t => ({ name:t, q:`t:${t.toLowerCase()}`,
+            go: () => { activeType = [t.toLowerCase()]; } })) },
+        { id:'sets', title:'Sets', count:214, items: COL_SETS.map(st => ({ name:st.name, q:`e:${st.code}`, set:st.code,
+            icon:'<img alt="" class="col-set-icon">', go: () => { activeSets = [st.code]; } })) },
+        { id:'color', title:'Mana Colors', count:7, items: COL_MANA.map(m => ({ name:m.name, q:m.q,
+            icon:`<img src="${MANA_SVGS[m.key]}" alt="">`, go: () => { activeColour = [m.key]; } })) },
+        { id:'type', title:'Card Types', count:12, items: COL_TYPES.map(t => ({ name:t.name, q:`t:${t.name.toLowerCase()}`,
+            icon:t.icon, go: () => { activeCardType = [t.name.toLowerCase()]; } })) },
+      ];
+    }
+
     function renderCategories() {
       if (_collectionsRendered) return;
       _collectionsRendered = true;
@@ -2455,152 +2478,40 @@
       const page = document.getElementById('collectionsPage');
       page.innerHTML = `
         <div class="collections-page-header">
+          <span class="collections-page-eyebrow">Browse the archive</span>
           <h1 class="collections-page-title">Categories</h1>
-        </div>
-        <div class="collections-section">
-          <div class="collections-section-header">
-            <span class="collections-section-title">Artists</span>
-            <button class="collections-section-link" onclick="openCollectionsLevel2('artists')">Show (847)</button>
-          </div>
-          <div class="collections-row" id="colArtistRow"></div>
-        </div>
-        <div class="collections-section">
-          <div class="collections-section-header">
-            <span class="collections-section-title">Creatures</span>
-            <button class="collections-section-link" onclick="openCollectionsLevel2('creatures')">Show (267)</button>
-          </div>
-          <div class="collections-row" id="colCreatureRow"></div>
-        </div>
-        <div class="collections-section">
-          <div class="collections-section-header">
-            <span class="collections-section-title">Sets</span>
-            <button class="collections-section-link" onclick="openCollectionsLevel2('sets')">Show (214)</button>
-          </div>
-          <div class="collections-row" id="colSetRow"></div>
-        </div>
-        <div class="collections-section">
-          <div class="collections-section-header">
-            <span class="collections-section-title">Mana Colors</span>
-            <button class="collections-section-link" onclick="openCollectionsLevel2('color')">Show (7)</button>
-          </div>
-          <div class="collections-row" id="colManaRow"></div>
-        </div>
-        <div class="collections-section">
-          <div class="collections-section-header">
-            <span class="collections-section-title">Card Types</span>
-            <button class="collections-section-link" onclick="openCollectionsLevel2('type')">Show (12)</button>
-          </div>
-          <div class="collections-row" id="colTypeRow"></div>
-        </div>
-      `;
+        </div>`;
 
-      // Render artist cards
-      const aRow = document.getElementById('colArtistRow');
-      COL_ARTISTS.forEach(name => {
-        aRow.insertAdjacentHTML('beforeend', `
-          <div class="col-artist-card" data-artist="${name}">
+      colSections().forEach(sec => {
+        page.insertAdjacentHTML('beforeend', `
+          <div class="collections-section">
+            <div class="collections-section-header">
+              <span class="collections-section-title">${sec.title}</span>
+              <button class="collections-section-link" onclick="openCollectionsLevel2('${sec.id}')">Show (${sec.count})</button>
+            </div>
+            <div class="collections-row"></div>
+          </div>`);
+        const row = page.lastElementChild.querySelector('.collections-row');
+        sec.items.slice(0, 5).forEach(it => {
+          const card = document.createElement('div');
+          card.className = 'col-artist-card';
+          card.dataset.q = it.q;
+          if (it.set) card.dataset.set = it.set;
+          card.innerHTML = `
             <div class="col-artist-triptych"><img alt=""><img alt=""><img alt=""></div>
             <div class="col-artist-info">
-              <div class="col-artist-name">${name}</div>
-              <div class="col-artist-count">...</div>
-            </div>
-          </div>`);
-      });
-
-      // Render set pills (same style as Mana Colors)
-      const sRow = document.getElementById('colSetRow');
-      COL_SETS.forEach(s => {
-        sRow.insertAdjacentHTML('beforeend', `
-          <div class="col-type-pill" data-set="${s.code}">
-            <div class="col-type-icon"><img id="col-icon-${s.code}" src="" width="20" height="20" alt="" style="filter:brightness(0) invert(0.7)"></div>
-            <div class="col-type-text">
-              <span class="col-type-name">${s.name}</span>
-            </div>
-          </div>`);
-      });
-
-      // Render creature cards
-      const cRow = document.getElementById('colCreatureRow');
-      COL_CREATURES.forEach(t => {
-        cRow.insertAdjacentHTML('beforeend', `
-          <div class="col-creature-card" data-type="${t}">
-            <div class="col-creature-img"><img id="col-creature-img-${t.toLowerCase().replace(/\s+/g,'-')}" src="" alt="${t}"></div>
-            <div class="col-creature-name">${t}</div>
-          </div>`);
-        fetchCreatureArt(t).then(url => {
-          if (!url) return;
-          const img = document.getElementById(`col-creature-img-${t.toLowerCase().replace(/\s+/g,'-')}`);
-          if (img) img.src = url;
-        });
-      });
-
-      // Render mana color pills
-      const mRow = document.getElementById('colManaRow');
-      const COL_MANA = [
-        { name:'White', key:'w' },
-        { name:'Blue', key:'u' },
-        { name:'Black', key:'b' },
-        { name:'Red', key:'r' },
-        { name:'Green', key:'g' },
-        { name:'Multicolor', key:'m' },
-        { name:'Colorless', key:'c' },
-      ];
-      COL_MANA.forEach(m => {
-        mRow.insertAdjacentHTML('beforeend', `
-          <div class="col-type-pill" data-color="${m.key}">
-            <div class="col-type-icon"><img src="${MANA_SVGS[m.key]}" width="24" height="24" alt="${m.name}"></div>
-            <div class="col-type-text">
-              <span class="col-type-name">${m.name}</span>
-            </div>
-          </div>`);
-      });
-
-      // Wire clicks — mana color pills
-      mRow.querySelectorAll('.col-type-pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-          activeColour = [pill.dataset.color];
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
-        });
-      });
-
-      // Render type pills
-      const tRow = document.getElementById('colTypeRow');
-      COL_TYPES.forEach(t => {
-        tRow.insertAdjacentHTML('beforeend', `
-          <div class="col-type-pill">
-            <div class="col-type-icon">${t.icon}</div>
-            <div class="col-type-text">
-              <span class="col-type-name">${t.name}</span>
-              <span class="col-type-count">${t.count}</span>
-            </div>
-          </div>`);
-      });
-
-      // Wire clicks — artist cards open gallery filtered by artist
-      aRow.querySelectorAll('.col-artist-card').forEach(card => {
-        card.addEventListener('click', () => {
-          activeArtist = [card.dataset.artist];
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
-        });
-      });
-
-      // Wire clicks — set pills
-      sRow.querySelectorAll('.col-type-pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-          activeSets = [pill.dataset.set];
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
-        });
-      });
-
-      // Wire clicks — creature cards
-      cRow.querySelectorAll('.col-creature-card').forEach(card => {
-        card.addEventListener('click', () => {
-          activeType = [card.dataset.type.toLowerCase()];
-          setMode('gallery');
-          updateChips(); loadInitialGrid(); syncFilterUI();
+              ${it.icon ? `<span class="col-card-icon">${it.icon}</span>` : ''}
+              <div class="col-artist-text">
+                <div class="col-artist-name">${it.name}</div>
+                <div class="col-artist-count">&nbsp;</div>
+              </div>
+            </div>`;
+          card.addEventListener('click', () => {
+            it.go();
+            setMode('gallery');
+            updateChips(); loadInitialGrid(); syncFilterUI();
+          });
+          row.appendChild(card);
         });
       });
 
@@ -2612,64 +2523,36 @@
       const cache = JSON.parse(localStorage.getItem('mc_col_art') || '{}');
       const now = Date.now();
       const WEEK = 7 * 24 * 60 * 60 * 1000;
+      const fresh = k => cache[k] && (now - cache[k].ts < WEEK);
+      const pause = () => new Promise(r => setTimeout(r, 120));
 
-      // Artists
-      for (const card of document.querySelectorAll('.col-artist-card')) {
-        const name = card.dataset.artist;
-        const key = 'a:' + name;
-        if (cache[key] && (now - cache[key].ts < WEEK)) {
-          applyArtistArt(card, cache[key].imgs, cache[key].count);
-          continue;
+      for (const card of document.querySelectorAll('#collectionsPage .col-artist-card')) {
+        const key = 'q:' + card.dataset.q;
+        if (!fresh(key)) {
+          try {
+            const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(card.dataset.q + ' has:illustration') + '&unique=art&order=edhrec&page=1');
+            if (res.ok) {
+              const json = await res.json();
+              const imgs = (json.data || []).slice(0, 3).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
+              cache[key] = { imgs, count: json.total_cards || 0, ts: now };
+            }
+          } catch(e) {}
+          await pause();
         }
-        try {
-          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=edhrec&page=1');
-          if (!res.ok) continue;
-          const json = await res.json();
-          const imgs = (json.data || []).slice(0, 3).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
-          const count = json.total_cards || 0;
-          cache[key] = { imgs, count, ts: now };
-          applyArtistArt(card, imgs, count);
-        } catch(e) {}
-        await new Promise(r => setTimeout(r, 120));
-      }
+        if (cache[key]) applyArtistArt(card, cache[key].imgs, cache[key].count);
 
-      // Sets — load icons only (pill style, no art needed)
-      for (const pill of document.querySelectorAll('#colSetRow .col-type-pill')) {
-        const code = pill.dataset.set;
-        const key = 's:' + code;
-        if (cache[key] && (now - cache[key].ts < WEEK)) {
-          const iconEl = document.getElementById('col-icon-' + code);
-          if (iconEl && cache[key].icon) iconEl.src = cache[key].icon;
-          continue;
+        const code = card.dataset.set;
+        if (code) {
+          const sKey = 's:' + code;
+          if (!fresh(sKey)) {
+            try {
+              const res = await fetch('https://api.scryfall.com/sets/' + code);
+              if (res.ok) cache[sKey] = { icon: (await res.json()).icon_svg_uri || '', ts: now };
+            } catch(e) {}
+            await pause();
+          }
+          if (cache[sKey]?.icon) card.querySelector('.col-set-icon').src = cache[sKey].icon;
         }
-        try {
-          let icon = '';
-          const setRes = await fetch('https://api.scryfall.com/sets/' + code);
-          if (setRes.ok) { const sj = await setRes.json(); icon = sj.icon_svg_uri || ''; }
-          cache[key] = { art:'', icon, ts: now };
-          const iconEl = document.getElementById('col-icon-' + code);
-          if (iconEl && icon) iconEl.src = icon;
-        } catch(e) {}
-        await new Promise(r => setTimeout(r, 120));
-      }
-
-      // Creatures
-      for (const card of document.querySelectorAll('.col-creature-card')) {
-        const type = card.dataset.type;
-        const key = 'c:' + type;
-        if (cache[key] && (now - cache[key].ts < WEEK)) {
-          if (cache[key].art) card.querySelector('img').src = cache[key].art;
-          continue;
-        }
-        try {
-          const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('t:' + type.toLowerCase() + ' has:illustration') + '&unique=art&order=edhrec&page=1');
-          if (!res.ok) continue;
-          const json = await res.json();
-          const art = json.data?.[0]?.image_uris?.art_crop || json.data?.[0]?.card_faces?.[0]?.image_uris?.art_crop || '';
-          cache[key] = { art, ts: now };
-          if (art) card.querySelector('img').src = art;
-        } catch(e) {}
-        await new Promise(r => setTimeout(r, 120));
       }
 
       localStorage.setItem('mc_col_art', JSON.stringify(cache));
@@ -2681,12 +2564,7 @@
       imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; });
       triptych.classList.add('imgs-' + Math.min(imgs.length, 3));
       triptych.classList.add('loaded');
-      card.querySelector('.col-artist-count').textContent = count + ' cards';
-    }
-
-    function applySetArt(card, code, art, icon) {
-      const iconEl = document.getElementById('col-icon-' + code);
-      if (iconEl && icon) iconEl.src = icon;
+      card.querySelector('.col-artist-count').textContent = count.toLocaleString() + ' cards';
     }
 
     // ── Collections Level 2 ──

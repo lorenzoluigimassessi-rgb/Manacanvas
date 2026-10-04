@@ -1003,7 +1003,6 @@ body {
   .mobile-top-bar .nav-center { position: static; transform: none; flex: 1; max-width: none; }
   /* Masonry-style column layout — cards flow into shortest column */
   .grid {
-    display: block !important;
     column-gap: 0.5rem;
     padding: 0.7rem;
     padding-bottom: calc(4rem + 56px + env(safe-area-inset-bottom)) !important;
@@ -3568,24 +3567,32 @@ input[type=range]::-moz-range-thumb {
 
 
 /* ═══ Collections Tab ═══ */
-.collections-page { padding: 2rem 0; }
-.collections-page-header { padding: 0 2rem 1.5rem; }
-.collections-page-title {
+.collections-page { padding: 3rem 0 2rem; }
+.collections-page-header { padding: 0 2rem 2.5rem; }
+.collections-page-eyebrow {
+  display: block;
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--text-3, rgba(140,140,140,0.7));
+  font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.6rem;
+}
+.collections-page-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 500;
+  letter-spacing: 2px;
+  line-height: 1.05;
+  color: var(--text-primary);
   margin: 0;
 }
 
-.collections-section { margin-bottom: 2.5rem; }
+.collections-section { margin-bottom: 3rem; }
 .collections-section-header {
   display: flex; align-items: baseline; justify-content: space-between;
-  padding: 0 1.5rem; margin-bottom: 0.8rem;
+  padding: 0 2rem; margin-bottom: 1rem;
 }
-.collections-section-title { font-size: 1.05rem; font-weight: 500; letter-spacing: 0.5px; }
+.collections-section-title { font-family: 'Cinzel', serif; font-size: 1.35rem; font-weight: 500; letter-spacing: 1px; }
 .collections-section-link {
   font-size: 0.82rem; color: var(--text-secondary); text-decoration: underline;
   text-underline-offset: 3px; cursor: pointer;
@@ -3596,14 +3603,13 @@ input[type=range]::-moz-range-thumb {
 .collections-section-link:hover { color: var(--text-primary); }
 
 .collections-row {
-  display: flex; gap: 0.75rem;
-  padding: 0.25rem 1.5rem;
-  align-items: stretch;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem;
+  padding: 0.25rem 2rem;
 }
 
-/* Artist card — pinterest mosaic */
+/* Preview card — art triptych + icon + name (used by every section) */
 .col-artist-card {
-  flex: 1; min-width: 0;
+  min-width: 0;
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 10px; overflow: hidden; cursor: pointer;
   transition: transform 150ms, border-color 150ms;
@@ -3615,7 +3621,7 @@ input[type=range]::-moz-range-thumb {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 2px;
   padding: 2px;
-  aspect-ratio: 2.5 / 1;
+  aspect-ratio: 2 / 1;
   overflow: hidden;
 }
 .col-artist-triptych.imgs-1 { grid-template-columns: 1fr; }
@@ -3637,90 +3643,39 @@ input[type=range]::-moz-range-thumb {
 .col-artist-triptych.imgs-2 img:first-child { border-radius: 8px 0 0 8px; }
 .col-artist-triptych.imgs-2 img:nth-child(2) { border-radius: 0 8px 8px 0; }
 
-.col-artist-info { padding: 0.65rem 0.75rem; }
+.col-artist-info { padding: 0.8rem 0.9rem; display: flex; align-items: center; gap: 0.65rem; }
+.col-artist-text { min-width: 0; }
 .col-artist-name {
-  font-size: 0.85rem; font-weight: 500; color: var(--text-primary);
+  font-size: 0.95rem; font-weight: 500; color: var(--text-primary);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.col-artist-count { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.15rem; }
+.col-artist-count { font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.15rem; }
 
-/* Set card */
-.col-set-card {
-  flex: 1; min-width: 0;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; overflow: hidden; cursor: pointer;
-  transition: transform 150ms, border-color 150ms;
-}
-.col-set-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
-
-.col-set-art {
-  width: 100%; aspect-ratio: 2 / 1;
-  background: var(--surface-2); overflow: hidden;
-}
-.col-set-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-.col-set-info {
-  padding: 0.55rem 0.7rem;
-  display: flex; align-items: center; gap: 0.45rem;
-}
-.col-set-icon { width: 16px; height: 16px; filter: brightness(0) invert(0.7); flex-shrink: 0; }
-.col-set-name {
-  font-size: 0.78rem; font-weight: 500; color: var(--text-primary);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-/* Creature card */
-.col-creature-card {
-  flex: 1; min-width: 0; text-align: center;
-  cursor: pointer; transition: transform 150ms;
-}
-.col-creature-card:hover { transform: translateY(-2px); }
-.col-creature-img {
-  width: 100%; aspect-ratio: 1; border-radius: 10px;
-  background: var(--surface-2); overflow: hidden;
-  border: 1px solid var(--border); transition: border-color 150ms;
-}
-.col-creature-card:hover .col-creature-img { border-color: var(--border-hover); }
-.col-creature-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.col-creature-name {
-  font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.4rem;
-  transition: color 150ms;
-}
-.col-creature-card:hover .col-creature-name { color: var(--text-primary); }
-
-/* Card type pill */
-.col-type-pill {
-  flex: 1; min-width: 0;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: 0.7rem 1.1rem;
-  cursor: pointer; display: flex; align-items: center; gap: 0.6rem;
-  transition: transform 150ms, border-color 150ms, background 150ms;
-}
-.col-type-pill:hover { transform: translateY(-2px); border-color: var(--border-hover); background: var(--surface-2); }
-
-.col-type-icon {
-  width: 28px; height: 28px; border-radius: 6px;
+/* Logo next to the name — set symbol, mana symbol, card-type glyph */
+.col-card-icon {
+  width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0;
   background: rgba(255,255,255,0.04);
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; color: var(--text-secondary);
+  color: var(--text-secondary);
 }
-.col-type-icon svg { width: 16px; height: 16px; }
-.col-type-text { display: flex; flex-direction: column; gap: 0.1rem; }
-.col-type-name { font-size: 0.82rem; font-weight: 500; color: var(--text-primary); white-space: nowrap; }
-.col-type-count { font-size: 0.65rem; color: var(--text-secondary); }
+.col-card-icon img, .col-card-icon svg { width: 18px; height: 18px; display: block; }
+.col-card-icon .col-set-icon { filter: brightness(0) invert(0.7); }
+.col-card-icon .col-set-icon:not([src]) { visibility: hidden; }
 
-/* Collections mobile */
+/* Collections tablet + mobile */
+@media (max-width: 1100px) {
+  .collections-row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .collections-row::-webkit-scrollbar { display: none; }
+  .col-artist-card { flex: 0 0 calc(33% - 0.5rem); scroll-snap-align: start; }
+}
 @media (max-width: 768px) {
-  .collections-section-header { padding: 0 1rem; }
-  .collections-row { padding: 0.25rem 1rem; gap: 0.5rem; flex-wrap: wrap; }
-  .col-artist-card { flex: 0 0 calc(50% - 0.25rem); }
-  .col-artist-card:nth-child(n+5) { display: none; }
-  .col-set-card { flex: 0 0 calc(50% - 0.25rem); }
-  .col-set-card:nth-child(n+5) { display: none; }
-  .col-creature-card { flex: 0 0 calc(25% - 0.375rem); }
-  .col-creature-card:nth-child(n+9) { display: none; }
-  .col-type-pill { flex: 0 0 calc(50% - 0.25rem); }
-  .col-type-pill:nth-child(n+5) { display: none; }
+  .collections-page { padding-top: 1.5rem; }
+  .collections-page-header, .collections-section-header { padding-left: 1rem; padding-right: 1rem; }
+  .collections-page-header { padding-bottom: 1.5rem; }
+  .collections-section { margin-bottom: 2rem; }
+  .collections-section-title { font-size: 1.1rem; }
+  .collections-row { padding: 0.25rem 1rem; gap: 0.6rem; scroll-padding: 0 1rem; }
+  .col-artist-card { flex-basis: 72%; }
 }
 
 

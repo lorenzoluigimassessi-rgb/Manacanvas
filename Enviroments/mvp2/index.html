@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=50">
+  <link rel="stylesheet" href="css/style.css?v=51">
 </head>
 <body>
 
@@ -2449,13 +2449,14 @@
     let _collectionsRendered = false;
 
     // Each section: 5 preview cards in the artist-card style (art triptych + icon + name + count)
+    // Mana previews are hand-picked: art where the colour dominates (scored by hue, then checked by eye)
     const COL_MANA = [
-      { name:'White', key:'w', q:'color=w' },
-      { name:'Blue', key:'u', q:'color=u' },
-      { name:'Black', key:'b', q:'color=b' },
-      { name:'Red', key:'r', q:'color=r' },
-      { name:'Green', key:'g', q:'color=g' },
-    ];
+      { name:'White', key:'w', q:'color=w', art:[['Wrath of God','c/3/c3700519-b74c-4445-b42e-03690b8d4463'],['Mondrak, Glory Dominus','8/2/8296a455-21d5-498e-9029-2bdf0da855a8'],['Farewell','1/1/114d2180-093b-4838-97ad-badbc8ee50b0']] },
+      { name:'Blue', key:'u', q:'color=u', art:[['Wizard Class','d/1/d1f629fb-b097-4240-8560-ef47f5678f48'],['Swan Song','8/3/83d0b761-d694-4232-9f40-5bd8c82a05f1'],['Counterspell','0/c/0c9a7cb0-5bff-48ff-b620-2838816ac9b5']] },
+      { name:'Black', key:'b', q:'color=b', art:[['Braids, Arisen Nightmare','4/f/4ff97c69-6a6b-401c-b0a1-55fa81045d19'],['Vampiric Tutor','e/7/e7e778ce-3f1e-4626-8f55-bba03970d91a'],['Exquisite Blood','4/c/4cd54279-57f5-4cd9-b524-4f094bd2fc36']] },
+      { name:'Red', key:'r', q:'color=r', art:[['Blasphemous Act','7/d/7d4b1d44-126e-4987-9a9f-f0f9627a09cb'],['Twinflame Tyrant','1/e/1eb34f51-0bd2-43c3-af95-2ce8dabcc7bb'],["Jeska's Will",'9/9/99e0c371-1024-4432-9fd9-3bc29c8d38e4']] },
+      { name:'Green', key:'g', q:'color=g', art:[['Wild Growth','4/7/47260e7c-29bf-46f1-a029-9da7bbb418b5'],['Elvish Mystic','0/8/08b9a296-3b76-4f8f-9d71-7c9af92bb3b4'],['Worldly Tutor','f/3/f39aa2e9-e294-4ce6-bf5e-e1f579101a7a']] },
+    ].map(m => ({ ...m, art: m.art.map(([n, id]) => ({ n, u: 'https://cards.scryfall.io/art_crop/front/' + id + '.jpg' })) }));
     function colSections() {
       return [
         { id:'artists', title:'Artists', count:847, items: COL_ARTISTS.map(n => ({ name:n, q:`a:"${n}"`,
@@ -2464,7 +2465,7 @@
             go: () => { activeType = [t.toLowerCase()]; } })) },
         { id:'sets', title:'Sets', count:214, items: COL_SETS.map(st => ({ name:st.name, q:`e:${st.code}`, set:st.code,
             icon:'<img alt="" class="col-set-icon">', go: () => { activeSets = [st.code]; } })) },
-        { id:'color', title:'Mana Colors', count:7, items: COL_MANA.map(m => ({ name:m.name, q:m.q,
+        { id:'color', title:'Mana Colors', count:7, items: COL_MANA.map(m => ({ name:m.name, q:m.q, art:m.art,
             icon:`<img src="${MANA_SVGS[m.key]}" alt="">`, go: () => { activeColour = [m.key]; } })) },
         { id:'type', title:'Card Types', count:12, items: COL_TYPES.map(t => ({ name:t.name, q:`t:${t.name.toLowerCase()}`,
             icon:t.icon, go: () => { activeCardType = [t.name.toLowerCase()]; } })) },
@@ -2495,6 +2496,7 @@
           const card = document.createElement('div');
           card.className = 'col-artist-card';
           card.dataset.q = it.q;
+          card._art = it.art;
           if (it.set) card.dataset.set = it.set;
           card.innerHTML = `
             <div class="col-artist-triptych"><img alt=""><img alt=""><img alt=""></div>
@@ -2505,6 +2507,7 @@
                 <div class="col-artist-count">&nbsp;</div>
               </div>
             </div>`;
+          if (it.art) applyArtistArt(card, it.art.map(a => a.u), null);
           card.addEventListener('click', () => {
             it.go();
             setMode('gallery');
@@ -2518,9 +2521,9 @@
       loadCollectionsArt();
     }
 
-    // Original printings with a classic frame only — full-art, borderless, showcase,
-    // Secret Lair and promo art crops carry rules text / logos over the art
-    const COL_ICONIC = 'has:illustration not:reprint -is:full_art -is:borderless -is:showcase -is:extendedart -is:promo -st:funny -st:box -st:promo -st:memorabilia lang:en';
+    // Modern-frame, hi-res printings only: old 1993/97 frames give small low-res crops, and
+    // full-art / borderless / showcase / Secret Lair / promo crops carry text over the art
+    const COL_ICONIC = '(frame:2003 OR frame:2015) is:hires has:illustration -is:full_art -is:borderless -is:showcase -is:extendedart -is:promo -st:funny -st:box -st:promo -st:memorabilia lang:en';
 
     async function loadCollectionsArt() {
       const cache = JSON.parse(localStorage.getItem('mc_col_art') || '{}');
@@ -2528,23 +2531,31 @@
       const WEEK = 7 * 24 * 60 * 60 * 1000;
       const fresh = k => cache[k] && (now - cache[k].ts < WEEK);
       const pause = () => new Promise(r => setTimeout(r, 120));
+      const cards = [...document.querySelectorAll('#collectionsPage .col-artist-card')];
+      // No card art repeats across the page — hand-picked mana art is reserved first
+      const used = new Set(cards.flatMap(c => (c._art || []).map(a => a.n)));
 
-      for (const card of document.querySelectorAll('#collectionsPage .col-artist-card')) {
-        const key = 'i:' + card.dataset.q;
+      for (const card of cards) {
+        const key = 'v3:' + card.dataset.q;
         if (!fresh(key)) {
           try {
             const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(card.dataset.q + ' ' + COL_ICONIC) + '&unique=art&order=edhrec&page=1');
             if (res.ok) {
               const json = await res.json();
               const seen = new Set();
-              const imgs = (json.data || []).filter(c => !seen.has(c.name) && seen.add(c.name))
-                .map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean).slice(0, 3);
-              cache[key] = { imgs, count: json.total_cards || 0, ts: now };
+              const cand = (json.data || []).filter(c => !seen.has(c.name) && seen.add(c.name))
+                .map(c => ({ n: c.name, u: c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop })).filter(c => c.u).slice(0, 24);
+              cache[key] = { cand, count: json.total_cards || 0, ts: now };
             }
           } catch(e) {}
           await pause();
         }
-        if (cache[key]) applyArtistArt(card, cache[key].imgs, cache[key].count);
+        if (cache[key]) {
+          const pick = card._art || cache[key].cand.filter(c => !used.has(c.n)).slice(0, 3);
+          pick.forEach(c => used.add(c.n));
+          if (card._art) card.querySelector('.col-artist-count').textContent = cache[key].count.toLocaleString() + ' cards';
+          else applyArtistArt(card, pick.map(c => c.u), cache[key].count);
+        }
 
         const code = card.dataset.set;
         if (code) {
@@ -2560,6 +2571,8 @@
         }
       }
 
+      // Drop this page's entries from older cache formats ('a:' belongs to the Artists page)
+      for (const k of Object.keys(cache)) if (/^[qic]:/.test(k)) delete cache[k];
       localStorage.setItem('mc_col_art', JSON.stringify(cache));
     }
 
@@ -2569,7 +2582,7 @@
       imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; });
       triptych.classList.add('imgs-' + Math.min(imgs.length, 3));
       triptych.classList.add('loaded');
-      card.querySelector('.col-artist-count').textContent = count.toLocaleString() + ' cards';
+      if (count != null) card.querySelector('.col-artist-count').textContent = count.toLocaleString() + ' cards';
     }
 
     // ── Collections Level 2 ──

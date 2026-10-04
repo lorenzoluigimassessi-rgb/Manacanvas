@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=59">
+  <link rel="stylesheet" href="css/style.css?v=60">
 </head>
 <body>
 
@@ -2427,12 +2427,14 @@
 
     // ── Collections tab ──
     const COL_ARTISTS = ['Seb McKinnon','Magali Villeneuve','Rebecca Guay','Mark Tedin','John Avon','Wayne Reynolds'];
+    // Artists with hand-picked signature pieces; the rest pull art from Scryfall
+    const COL_ARTIST_ART = { 'Mark Tedin': [['Abomination', '4/f/4fe42ef8-2126-4453-8509-563abcf9890d'], ['Chaos Orb', '7/a/7a601041-926f-40fd-8106-39099b87806f'], ['Juzam Djinn', 'b/0/b03bc922-782b-4254-897c-90d202b4cda4']] };
     // Sets with hand-picked iconic art; the rest pull art from Scryfall
     const COL_SETS = [
       { code:'mrd', name:'Mirrodin', art:[['Memnarch', '9/f/9f48defb-888b-4040-9dd2-16a0643c5c30'], ['Chrome Mox', '6/a/6a058e68-70af-4a64-859c-c881e5578368'], ['Seat of the Synod', '5/f/5f1c04db-fea1-48eb-be4c-b525d89450b6']] },
       { code:'blb', name:'Bloomburrow', art:[['Three Tree City', '5/6/56f88a48-cced-4a9d-8c19-e4f105f0d8a2'], ["Dawn's Truce", '8/f/8f72bfa0-efef-48ce-aff8-d5818ed71ba6'], ['Heartfire Hero', '4/8/48ace959-66b2-40c8-9bff-fd7ed9c99a82']] },
       { code:'mkm', name:'Karlov Manor', art:[['Massacre Girl, Known Killer', 'f/7/f7c28657-f1d1-4fec-ac52-535aca7bc9ce'], ['Alquist Proft, Master Sleuth', '4/1/41129b44-4fa7-473b-b2b7-48c6a58be03c'], ['Judith, Carnage Connoisseur', '3/e/3eaa19ce-cace-499e-8b23-ef9e56b23700']] },
-      { code:'lrw', name:'Lorwyn', art:[["Wren's Run Vanquisher", 'f/6/f61eae36-9c4a-4d72-9431-6cac34dbb527'], ["Mulldrifter", '3/a/3a0229db-bd2d-4c6a-8f36-00762ac7931a'], ["Mosswort Bridge", '9/4/94aff478-6040-4a13-be89-24e0edf1ffe5']] },
+      { code:'lrw', name:'Lorwyn', art:[["Wren's Run Vanquisher", 'f/6/f61eae36-9c4a-4d72-9431-6cac34dbb527'], ['Thoughtseize', 'b/2/b281a308-ab6b-47b6-bec7-632c9aaecede'], ["Mosswort Bridge", '9/4/94aff478-6040-4a13-be89-24e0edf1ffe5']] },
       { code:'woe', name:'Wilds of Eldraine' },
       { code:'mom', name:'March of the Machine' },
       { code:'one', name:'All Will Be One' },
@@ -2462,7 +2464,7 @@
     ].map(m => ({ ...m, art: colArt(m.art) }));
     function colSections() {
       return [
-        { id:'artists', title:'Artists', count:847, items: COL_ARTISTS.map(n => ({ name:n, q:`a:"${n}"`,
+        { id:'artists', title:'Artists', count:847, items: COL_ARTISTS.map(n => ({ name:n, q:`a:"${n}"`, art:colArt(COL_ARTIST_ART[n]),
             go: () => { activeArtist = [n]; } })) },
         { id:'creatures', title:'Creatures', count:267, items: COL_CREATURES.map(t => ({ name:t, q:`t:${t.toLowerCase()}`,
             go: () => { activeType = [t.toLowerCase()]; } })) },

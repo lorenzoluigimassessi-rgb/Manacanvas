@@ -3708,6 +3708,8 @@ input[type=range]::-moz-range-thumb {
 .l2-title-wrap { min-width: 0; }
 /* arrow + icon sit on the title line, not the breadcrumb line */
 .l2-header > .l2-back { padding-bottom: 0.55rem; }
+.l2-header > .l2-title-wrap, .l2-header > .l2-count { align-self: last baseline; }
+.l2-header > .l2-count { padding-bottom: 0; }
 .l2-header > .l2-title-icon { margin-bottom: 0.2rem; }
 /* Back = long thin arrow, sized to the title's cap height */
 .l2-back {

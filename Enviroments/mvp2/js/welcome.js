@@ -176,7 +176,7 @@ function _initFirstScrollCollapse() {
 }
 
 function sidebarNav(mode) {
-  if (mode === 'gallery')          setMode('gallery');
+  if (mode === 'gallery')          (typeof galleryTab === 'function' ? galleryTab : () => setMode('gallery'))();
   else if (mode === 'collections') setMode('collections');
   else if (mode === 'about')       setMode('about');
   else if (mode === 'search') {

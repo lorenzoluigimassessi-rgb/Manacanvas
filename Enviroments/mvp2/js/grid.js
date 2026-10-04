@@ -115,8 +115,8 @@ window.addEventListener('scroll', () => { if (window.scrollY > 1500 && _currentM
 
 // ── Search results: an editorial header (what you searched, count, sort) replaces the lens tabs ──
 const SEARCH_SORTS = [
-  { key: 'popular', label: 'Popular', order: 'edhrec',   dir: 'auto' },
   { key: 'random',  label: 'Shuffle', order: 'random',   dir: 'auto' },
+  { key: 'popular', label: 'Popular', order: 'edhrec',   dir: 'auto' },
   { key: 'newest',  label: 'Newest',  order: 'released', dir: 'desc' },
   { key: 'oldest',  label: 'Oldest',  order: 'released', dir: 'asc'  },
 ];
@@ -151,13 +151,12 @@ function renderSearchHead() {
   if (lensRow && typeof _currentMode !== 'undefined') lensRow.style.display = _currentMode === 'gallery' && !activeSearch ? '' : 'none';
   if (!on) return;
   const m = _searchMeta || { label: activeSearch, tag: 'Card' };
-  const active = (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[1]).key;
-  // Compact: what you searched + its kind, × to clear, count right; then the sort
+  const active = (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
+  // Compact: what you searched + its kind, count on the title's baseline; then the sort
   head.innerHTML = `
     <div class="search-title-row">
       <h2 class="search-title">${m.label}</h2>
       <span class="search-kind">${SEARCH_KINDS[m.tag] || m.tag}</span>
-      <button class="search-x" onclick="clearSearchPill()" aria-label="Clear search" title="Clear search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <span class="l2-count" id="searchCount">${_feedTotal ? _feedTotal.toLocaleString() + ' artworks' : ''}</span>
     </div>
     <div class="l3-toolbar"><div class="l2-sort">${SEARCH_SORTS.map(o =>

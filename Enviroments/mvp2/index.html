@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=54">
+  <link rel="stylesheet" href="css/style.css?v=55">
 </head>
 <body>
 
@@ -2455,7 +2455,7 @@
       { name:'White', key:'w', q:'color=w', art:[['Swords to Plowshares','7/e/7e7f00d0-4be4-4d4c-8c56-8bde093936d7'],['Path to Exile','c/2/c2f0feee-99aa-4878-bc81-0c0a6ea9ffe2'],['Wrath of God','a/8/a80f95b8-71b7-49e5-af43-44c8846fd253']] },
       { name:'Blue', key:'u', q:'color=u', art:[['Counterspell','8/3/83390164-f00b-4be1-9cec-5de088c9debc'],["An Offer You Can't Refuse",'a/8/a829747f-cf9b-4d81-ba66-9f0630ed4565'],['Rhystic Study','0/d/0dec7e20-047d-46e6-b0ed-fba450494895']] },
       { name:'Black', key:'b', q:'color=b', art:[['Dark Ritual','c/7/c72d2bb0-471a-4b4d-9ae3-9de4699c9ef3'],['Reanimate','e/2/e2f1fea1-f008-4bf9-93ae-869ac60aa55c'],['Demonic Tutor','1/0/10c0eaca-47f1-4460-80a3-d77e283c807f']] },
-      { name:'Red', key:'r', q:'color=r', art:[["Jeska's Will",'9/9/99e0c371-1024-4432-9fd9-3bc29c8d38e4'],['Lightning Bolt','5/4/54be73dd-cb3b-411b-8f48-d12ca5183dee'],['Pyretic Ritual','a/c/ac3f40b1-fcd7-456c-afb9-759df8352e43']] },
+      { name:'Red', key:'r', q:'color=r', art:[["Jeska's Will",'9/9/99e0c371-1024-4432-9fd9-3bc29c8d38e4'],['Goblin Chieftain','3/5/35ac943e-8747-40a0-ac2a-8b88cfa32ca8'],['Pyretic Ritual','a/c/ac3f40b1-fcd7-456c-afb9-759df8352e43']] },
       { name:'Green', key:'g', q:'color=g', art:[['Azusa, Lost but Seeking','b/9/b96fc9e1-d0f0-4c91-a049-6fe685c15031'],['Branching Evolution','4/a/4a6971ad-cbb4-4f66-9bc4-b407c5805e85'],['Chord of Calling','b/1/b18fe7e0-8344-40cc-b242-83f01c6be7a6']] },
     ].map(m => ({ ...m, art: m.art.map(([n, id]) => ({ n, u: 'https://cards.scryfall.io/art_crop/front/' + id + '.jpg' })) }));
     function colSections() {
@@ -2525,6 +2525,7 @@
     // Original art of each card (first printing); full-art / borderless / showcase / Secret Lair /
     // promo crops carry text over the art, so they're excluded
     const COL_ICONIC = 'has:illustration not:reprint -is:full_art -is:borderless -is:showcase -is:extendedart -is:promo -st:funny -st:box -st:promo -st:memorabilia lang:en';
+    const COL_SKIP = ['Mystic Remora'];
     const artOf = c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop;
 
     // Same illustration, cleanest printing: modern frame > digital rescan > hi-res > newest; no promos/stamps
@@ -2543,8 +2544,9 @@
       const fresh = k => cache[k] && (now - cache[k].ts < WEEK);
       const pause = () => new Promise(r => setTimeout(r, 120));
       const cards = [...document.querySelectorAll('#collectionsPage .col-artist-card')];
-      // No card art repeats across the page — hand-picked mana art is reserved first
-      const used = new Set(cards.flatMap(c => (c._art || []).map(a => a.n)));
+      // No card art repeats across the page — hand-picked mana art is reserved first,
+      // plus cards whose art crops badly in the triptych
+      const used = new Set([...COL_SKIP, ...cards.flatMap(c => (c._art || []).map(a => a.n))]);
       const upgrades = [];
 
       for (const card of cards) {

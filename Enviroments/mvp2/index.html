@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=76">
+  <link rel="stylesheet" href="css/style.css?v=77">
 </head>
 <body>
 
@@ -2371,6 +2371,16 @@
     }
 
     // ── Pull-to-refresh (mobile only) ──
+    // What a pull at the top reshuffles: the gallery, or a layer-3 page set to Shuffle (else nothing)
+    function pullAction() {
+      if (_currentMode === 'gallery') return () => {
+        if (sortOrder !== 'random') { sortOrder = 'random'; sortDir = 'auto'; localStorage.setItem("mc_sort", JSON.stringify({ order: 'random', dir: 'auto' })); }
+        reshuffleFeed();
+      };
+      if (_currentMode === 'collections' && _l3Open() && _l3Sort === 'random') return () => loadDetailFeed(true);
+      return null;
+    }
+
     (function initPullToRefresh() {
       if (!('ontouchstart' in window)) return;
       let startY = 0, pulling = false, pullDist = 0;
@@ -2378,7 +2388,7 @@
       const threshold = 80;
 
       document.addEventListener('touchstart', (e) => {
-        if (window.scrollY > 5 || _currentMode !== 'gallery') return;
+        if (window.scrollY > 5 || !pullAction()) return;
         startY = e.touches[0].clientY;
         pulling = true;
         pullDist = 0;
@@ -2402,8 +2412,7 @@
           ptrClear(indicator);
           indicator.classList.add('refreshing');
           setTimeout(() => {
-            if (sortOrder !== 'random') { sortOrder = 'random'; sortDir = 'auto'; localStorage.setItem("mc_sort", JSON.stringify({ order: 'random', dir: 'auto' })); }
-            reshuffleFeed();
+            pullAction()?.();
             indicator.classList.remove('refreshing');
             indicator.style.height = '0';
             indicator.style.opacity = '0';
@@ -2436,7 +2445,7 @@
         if (window.scrollY > 0) atTopSince = null; else if (atTopSince === null) atTopSince = Date.now();
       }, { passive: true });
       window.addEventListener('wheel', (e) => {
-        if (_currentMode !== 'gallery' || busy || e.deltaY >= 0 || window.scrollY > 0) return;
+        if (busy || e.deltaY >= 0 || window.scrollY > 0 || !pullAction()) return;
         // Ignore momentum from a fast scroll that just reached the top
         if (atTopSince === null || Date.now() - atTopSince < 350) return;
         acc += Math.min(-e.deltaY, 60);
@@ -2450,8 +2459,7 @@
           ptrClear(indicator);
           indicator.classList.add('refreshing');
           setTimeout(() => {
-            if (sortOrder !== 'random') { sortOrder = 'random'; sortDir = 'auto'; localStorage.setItem("mc_sort", JSON.stringify({ order: 'random', dir: 'auto' })); }
-            reshuffleFeed();
+            pullAction()?.();
             indicator.classList.remove('refreshing');
             indicator.style.height = '0'; indicator.style.opacity = '0';
             setTimeout(() => { busy = false; atTopSince = Date.now(); }, 800);
@@ -2598,7 +2606,7 @@
             <div class="collections-row"></div>
           </div>`);
         const row = page.lastElementChild.querySelector('.collections-row');
-        sec.items.slice(0, 5).forEach(it => row.appendChild(colCardEl(it, 'l1')));
+        sec.items.slice(0, 5).forEach(it => row.appendChild(colCardEl({ ...it, cat: sec.id }, 'l1')));
         if (sec.id === 'sets' && !_setList) loadSetList().then(list => { if (list.length) page.querySelector(`[onclick="openCollectionsLevel2('sets')"]`).textContent = `Show (${list.length})`; });
       });
 
@@ -2830,11 +2838,11 @@
         arrange(list, sortKey).forEach(g => {
           if (g.title) {
             body.insertAdjacentHTML('beforeend', `<h3 class="l2-group-title">${g.title}${g.sub ? `<span>${g.sub}</span>` : ''}${g.all ? '<button class="l2-group-link">See the whole block <span aria-hidden="true">→</span></button>' : ''}</h3>`);
-            if (g.all) body.lastElementChild.querySelector('.l2-group-link').addEventListener('click', () => openDetailPage(g.all, 'l2'));
+            if (g.all) body.lastElementChild.querySelector('.l2-group-link').addEventListener('click', () => openDetailPage({ ...g.all, cat: 'sets' }, 'l2'));
           }
           const grid = document.createElement('div');
           grid.className = 'l2-grid';
-          g.items.forEach(it => { const card = colCardEl(it, 'l2'); grid.appendChild(card); lazy.observe(card); });
+          g.items.forEach(it => { const card = colCardEl({ ...it, cat: _level2Category }, 'l2'); grid.appendChild(card); lazy.observe(card); });
           body.appendChild(grid);
         });
       };
@@ -2853,7 +2861,7 @@
       const counts = CATEGORY_COUNTS.creature;
       const items = Object.keys(counts).map(t => ({ name: t, q: typeQ(t), count: counts[t], meta: counts[t].toLocaleString() + ' artworks' }));
       renderListLevel2({ title: 'Creatures', noun: 'creature types', items,
-        sorts: [{ key: 'most', label: 'Most popular' }, { key: 'az', label: 'A→Z' }, { key: 'za', label: 'Z→A' }, { key: 'shuffle', label: 'Shuffle' }],
+        sorts: [{ key: 'most', label: 'Most popular' }, { key: 'shuffle', label: 'Shuffle' }, { key: 'az', label: 'A→Z' }, { key: 'za', label: 'Z→A' }],
         arrange: (list, k) => flat(k === 'shuffle' ? shuffleArray(list)
           : [...list].sort(k === 'az' ? byName : k === 'za' ? (a, b) => byName(b, a) : (a, b) => b.count - a.count || byName(a, b))) });
     }
@@ -2904,82 +2912,126 @@
       window.scrollTo(0, 0);
     }
 
-    // ── Level 3: one artist / creature type / set / colour / card type — its art, shuffled or by date ──
-    let _l3Sort = "random";
-    let _l3Dir = "auto";
-    let _l3From = 'l2', _l3ScrollY = 0;
+    // ── Level 3: one artist / creature type / set / colour / card type — Popular first, endless scroll ──
+    const L3_SORTS = [
+      { key: 'popular', label: 'Popular', order: 'edhrec',   dir: 'auto' },
+      { key: 'random',  label: 'Shuffle' },
+      { key: 'newest',  label: 'Newest',  order: 'released', dir: 'desc' },
+      { key: 'oldest',  label: 'Oldest',  order: 'released', dir: 'asc'  },
+    ];
+    const SECTION_NAMES = { artists: 'Artists', creatures: 'Creatures', sets: 'Sets', color: 'Mana Colors', type: 'Card Types' };
+    let _l3Sort = 'popular', _l3Q = null, _l3From = 'l2', _l3ScrollY = 0;
+    let _l3 = { gen: 0, next: null, pages: 0, seen: new Set(), more: false, obs: null };
+    const _l3Open = () => document.getElementById('collectionsLevel3').style.display === 'block';
 
     function openDetailPage(it, from = 'l2') {
-      _l3From = from; _l3ScrollY = window.scrollY;
+      _l3From = from; _l3ScrollY = window.scrollY; _l3Q = it.q; _l3Sort = 'popular';
       document.getElementById('collectionsPage').style.display = 'none';
       document.getElementById('collectionsLevel2').style.display = 'none';
       const l3 = document.getElementById("collectionsLevel3");
       l3.style.display = "block";
+      // Breadcrumb: where this page sits (Categories › Section); the arrow still goes back one step
+      const crumbs = it.cat ? `<nav class="l3-crumbs" aria-label="Breadcrumb">
+          <button onclick="setMode('collections')">Categories</button><span aria-hidden="true">›</span>
+          <button onclick="openCollectionsLevel2('${it.cat}')">${SECTION_NAMES[it.cat]}</button></nav>` : '';
       l3.innerHTML = `
+        ${crumbs}
         ${l2Header(it.name, '<span class="l2-count" id="l3Count"></span>', 'closeDetailPage()', it.icon || '')}
         <div class="l3-toolbar">
-          <div class="l2-sort" id="l3SortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
+          <div class="l2-sort" id="l3SortSwitcher">${L3_SORTS.map((o, i) => `<button class="l2-sort-btn ${i ? '' : 'active'}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>
         </div>
         <div class="l3-grid" id="l3Grid"></div>
       `;
       window.scrollTo(0, 0);
-      _l3Sort = "random"; _l3Dir = "auto";
-      loadDetailFeed(it.q);
-      document.getElementById("l3SortSwitcher").querySelectorAll(".l2-sort-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.getElementById("l3SortSwitcher").querySelectorAll(".l2-sort-btn").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          _l3Sort = btn.dataset.sort; _l3Dir = btn.dataset.dir;
-          loadDetailFeed(it.q);
-        });
-      });
+      loadDetailFeed();
+      l3.querySelectorAll('#l3SortSwitcher .l2-sort-btn').forEach(btn => btn.addEventListener('click', () => {
+        l3.querySelectorAll('#l3SortSwitcher .l2-sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+        _l3Sort = btn.dataset.sort;
+        loadDetailFeed();
+      }));
     }
-    function openArtistPage(name) { openDetailPage({ name, q: `a:"${name}"` }, 'l2'); }
+    function openArtistPage(name) { openDetailPage({ name, q: `a:"${name}"`, cat: 'artists' }, 'l2'); }
 
     function closeDetailPage() {
+      if (_l3.obs) _l3.obs.disconnect();
+      _l3.gen++;
       document.getElementById("collectionsLevel3").style.display = "none";
       document.getElementById(_l3From === 'l1' ? 'collectionsPage' : 'collectionsLevel2').style.display = _l3From === 'l1' ? '' : 'block';
       requestAnimationFrame(() => window.scrollTo(0, _l3ScrollY));
     }
     const closeArtistPage = closeDetailPage;
 
-    const _artistFeedCache = {};
-
-    async function loadDetailFeed(q) {
-      const grid = document.getElementById("l3Grid");
-      const cacheKey = q + ':' + _l3Sort + ':' + _l3Dir;
-
-      // Instant render from cache
-      if (_artistFeedCache[cacheKey]) {
-        renderArtistFeedCards(grid, _artistFeedCache[cacheKey].cards, _artistFeedCache[cacheKey].total);
-        return;
+    // One page of the current detail feed. Shuffle draws random pages (learned page count) and never repeats a card.
+    async function _l3Page() {
+      const opt = L3_SORTS.find(o => o.key === _l3Sort);
+      const base = 'https://api.scryfall.com/cards/search?q=' + encodeURIComponent(_l3Q + ' has:illustration') + '&unique=art';
+      let json;
+      if (opt.key === 'random') {
+        const dir = Math.random() < 0.5 ? 'asc' : 'desc';
+        const page = n => fetch(`${base}&order=released&dir=${dir}&page=${n}`).then(r => r.ok ? r.json() : null).catch(() => null);
+        json = await page(Math.floor(Math.random() * (_l3.pages || 5)) + 1);
+        if (!json && !_l3.pages) json = await page(1); // fewer pages than guessed
+        if (json) {
+          _l3.pages = Math.max(1, Math.floor((json.total_cards || 0) / 175));
+          json.has_more = _l3.seen.size + (json.data || []).length < (json.total_cards || 0);
+        }
+      } else {
+        const url = _l3.next || `${base}&order=${opt.order}&dir=${opt.dir}`;
+        json = await fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+        if (json) _l3.next = json.has_more ? json.next_page : null;
       }
-      grid.innerHTML = Array(6).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
-
-      const order = _l3Sort === 'random' ? 'released' : _l3Sort;
-      const dir = _l3Sort === 'random' ? (Math.random() < 0.5 ? 'asc' : 'desc') : _l3Dir;
-      const url = page => 'https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q + ' has:illustration') + '&unique=art&order=' + order + '&dir=' + dir + '&page=' + page;
-      try {
-        let res = await fetch(url(_l3Sort === 'random' ? Math.floor(Math.random() * 5) + 1 : 1));
-        if (!res.ok && _l3Sort === 'random') res = await fetch(url(1)); // fewer than 5 pages
-        if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
-        const json = await res.json();
-        const cards = _l3Sort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
-        _artistFeedCache[cacheKey] = { cards, total: json.total_cards || cards.length };
-        renderArtistFeedCards(grid, cards, json.total_cards || cards.length);
-      } catch(e) { grid.innerHTML = '<div class="empty-state">Error loading artwork</div>'; }
+      if (!json) return null;
+      const cards = (json.data || []).filter(c => !_l3.seen.has(c.id));
+      cards.forEach(c => _l3.seen.add(c.id));
+      return { cards: opt.key === 'random' ? shuffleArray(cards) : cards, total: json.total_cards || 0, more: !!json.has_more };
     }
 
-    function renderArtistFeedCards(grid, cards, total) {
-      if (!grid || !document.getElementById("l3Grid")) return;
-      document.getElementById('l3Count').textContent = total.toLocaleString() + ' artworks';
+    async function loadDetailFeed(reshuffle) {
+      const grid = document.getElementById('l3Grid');
+      if (!grid) return;
+      if (_l3.obs) _l3.obs.disconnect();
+      const gen = ++_l3.gen;
+      _l3 = { gen, next: null, pages: reshuffle ? _l3.pages : 0, seen: new Set(), more: false, obs: null };
+      if (reshuffle) window.scrollTo({ top: 0, behavior: 'smooth' });
+      grid.innerHTML = Array(8).fill(0).map((_, i) => `<div class="shimmer ${['card-normal','card-tall','card-short','card-normal'][i % 4]}"></div>`).join('');
+      const res = await _l3Page();
+      if (gen !== _l3.gen) return;
       grid.innerHTML = '';
+      if (!res || !res.cards.length) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
+      document.getElementById('l3Count').textContent = res.total.toLocaleString() + ' artworks';
+      _l3.more = res.more;
+      renderDetailCards(grid, res.cards);
+      _l3ObserveEnd(grid);
+    }
+
+    // Endless scroll: placeholders while the next page loads
+    function _l3ObserveEnd(grid) {
+      if (!_l3.more) return;
+      const last = grid.querySelector('.card:last-of-type');
+      if (!last) return;
+      _l3.obs = new IntersectionObserver(async entries => {
+        if (!entries[0].isIntersecting) return;
+        _l3.obs.disconnect();
+        const gen = _l3.gen;
+        const holders = Array(6).fill(0).map((_, i) => { const d = document.createElement('div'); d.className = `shimmer ${['card-normal','card-tall','card-short'][i % 3]}`; grid.appendChild(d); return d; });
+        let res = null;
+        for (let t = 0; t < 3 && !(res && res.cards.length) ; t++) { res = await _l3Page(); if (res && !res.more) break; }
+        holders.forEach(h => h.remove());
+        if (gen !== _l3.gen || !res) return;
+        _l3.more = res.more && res.cards.length > 0;
+        renderDetailCards(grid, res.cards);
+        _l3ObserveEnd(grid);
+      }, { rootMargin: '600px' });
+      _l3.obs.observe(last);
+    }
+
+    function renderDetailCards(grid, cards) {
       cards.forEach(card => {
         const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
         if (!art) return;
         const el = document.createElement('div');
         el.className = `card ${cardHeightClass(card.id)}`;
-        el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div><div class="artist">${card.artist || ''}</div></div>`;
+        el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '&quot;')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div><div class="artist">${card.artist || ''}</div></div>`;
         el.addEventListener('click', () => openLightbox(card, 'feed'));
         grid.appendChild(el);
         observeCardEntrance(el); // cards fade in on view, like the gallery
@@ -2994,9 +3046,9 @@
           ${l2Search('l2ArtistSearch', 0, 'artists')}
           <div class="l2-sort">
             <button class="l2-sort-btn active" data-sort="most">Most artworks</button>
+            <button class="l2-sort-btn" data-sort="shuffle">Shuffle</button>
             <button class="l2-sort-btn" data-sort="az">A→Z</button>
             <button class="l2-sort-btn" data-sort="za">Z→A</button>
-            <button class="l2-sort-btn" data-sort="shuffle">Shuffle</button>
           </div>
         </div>
         <div class="l2-grid" id="l2ArtistGrid"></div>

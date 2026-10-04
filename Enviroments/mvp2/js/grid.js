@@ -75,16 +75,23 @@ function showFeed(cards, hasMore, query, fromNetwork) {
   if (hasMore) observeLastCard();
 }
 
-// "Browse by category" band after the first rows of the All feed
+// "Looking for something specific?" band after the first rows of the All feed — gone once used
 function insertFeedBridge() {
   if (typeof _activeLens === 'undefined' || _activeLens !== 'picks' || activeSearch) return;
+  try { if (localStorage.getItem('mc_bridge_used') === '1') return; } catch (e) {}
   const after = grid.querySelectorAll('.card')[19];
   if (!after) return;
   const band = document.createElement('div');
   band.className = 'feed-bridge';
   band.innerHTML = `<span class="feed-bridge-q">Looking for something specific?</span>
-    <button onclick="setMode('collections')">Explore artists, sets &amp; colours <span class="feed-bridge-arrow" aria-hidden="true">→</span></button>`;
+    <button onclick="useFeedBridge()">Explore by categories <span class="feed-bridge-arrow" aria-hidden="true">→</span></button>`;
   after.after(band);
+}
+
+function useFeedBridge() {
+  try { localStorage.setItem('mc_bridge_used', '1'); } catch (e) {}
+  document.querySelectorAll('.feed-bridge').forEach(el => el.remove());
+  setMode('collections');
 }
 
 // One-time hint that the feed can be reshuffled; gone once used or after scrolling into the feed

@@ -3899,7 +3899,7 @@ input[type=range]::-moz-range-thumb {
 .feed-bridge-q { font-family: 'Cinzel', serif; font-size: clamp(1.15rem, 2vw, 1.5rem); letter-spacing: 1px; color: var(--text-primary); }
 .feed-bridge button {
   background: none; border: none; cursor: pointer; padding: 0.25rem 0;
-  font-family: 'Josefin Sans', sans-serif; font-size: 0.82rem; letter-spacing: 1.2px; text-transform: uppercase;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.9rem; letter-spacing: 0.3px;
   color: var(--text-secondary); transition: color 150ms;
 }
 .feed-bridge button:hover { color: var(--text-primary); }

@@ -3786,6 +3786,20 @@ input[type=range]::-moz-range-thumb {
 .search-row .l2-sort { margin-left: auto; }
 .search-count { font-size: 0.78rem; letter-spacing: 1px; color: var(--text-secondary); }
 
+/* Variant '?search=title': title + kind chip */
+.search-row--title .search-title {
+  font-family: 'Cinzel', serif; font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-weight: 500; letter-spacing: 1px;
+  line-height: 1.1; color: var(--text-primary); margin: 0; min-width: 0;
+}
+.search-kind-chip {
+  --chip: 129,212,250;
+  padding: 0.28rem 0.75rem; border-radius: 999px; white-space: nowrap;
+  font-size: 0.62rem; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase;
+  color: rgb(var(--chip)); background: rgba(var(--chip), 0.1); border: 1px solid rgba(var(--chip), 0.32);
+}
+.search-row--title .search-count { align-self: center; }
+@media (max-width: 768px) { .search-row--title .search-title { flex-basis: 100%; } }
+
 /* The active search as a chip, tinted by kind (same hues as the search tags) */
 .search-chip {
   --chip: 129,212,250;

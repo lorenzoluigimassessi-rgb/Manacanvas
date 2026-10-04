@@ -123,6 +123,15 @@ const SEARCH_SORTS = [
 const SEARCH_KINDS = { Card: 'Cards', Artist: 'Artist', Creature: 'Creature type', Type: 'Card type', Set: 'Set' };
 let _searchMeta = null, _preSearchSort = null;
 
+// A/B test of the results header: '?search=title' (title + kind chip) vs '?search=chip' (default); sticks per browser
+const SEARCH_HEAD_STYLE = (() => {
+  try {
+    const v = new URLSearchParams(location.search).get('search');
+    if (v === 'title' || v === 'chip') localStorage.setItem('mc_search_head', v);
+    return localStorage.getItem('mc_search_head') || 'chip';
+  } catch (e) { return 'chip'; }
+})();
+
 // A search opens on Shuffle; the gallery's own order comes back when the search ends
 function startSearchSort(label, tag) {
   _searchMeta = { label, tag };
@@ -153,6 +162,20 @@ function renderSearchHead() {
   if (!on) return;
   const m = _searchMeta || { label: activeSearch, tag: 'Card' };
   const active = (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
+  const sortPills = `<div class="l2-sort">${SEARCH_SORTS.map(o =>
+    `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div>`;
+  const count = `<span class="search-count" id="searchCount">${_feedTotal ? _feedTotal.toLocaleString() + ' artworks' : ''}</span>`;
+  if (SEARCH_HEAD_STYLE === 'title') {
+    // Variant: the search as a title, its kind as a tinted chip beside it; cleared from the search bar
+    head.innerHTML = `
+      <div class="search-row search-row--title">
+        <h2 class="search-title">${m.label}</h2>
+        <span class="search-kind-chip search-chip--${m.tag.toLowerCase()}">${SEARCH_KINDS[m.tag] || m.tag}</span>
+        ${count}
+        ${sortPills}
+      </div>`;
+    return;
+  }
   // One row: the search as a chip (name · kind · ×), the count, then the sort
   head.innerHTML = `
     <div class="search-row">

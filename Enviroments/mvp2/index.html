@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=83">
+  <link rel="stylesheet" href="css/style.css?v=84">
 </head>
 <body>
 
@@ -1245,10 +1245,10 @@
 
   <script src="js/welcome.js?v=27"></script>
   <script src="js/api.js?v=27"></script>
-  <script src="js/grid.js?v=33"></script>
+  <script src="js/grid.js?v=34"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
-  <script src="js/filters.js?v=24"></script>
+  <script src="js/filters.js?v=25"></script>
   <script src="js/lightbox.js?v=23"></script>
 
   <script>
@@ -1577,7 +1577,7 @@
 
     function goHome() {
       // Clear search if active
-      if (document.querySelector('.search-pill')) {
+      if (activeSearch) {
         clearSearchPill();
         return;
       }
@@ -1666,7 +1666,7 @@
 
     function applyLensQuery(lens, sub) {
       // Preserve activeSearch if a search pill is showing
-      const pill = document.querySelector('.search-pill');
+      const pill = typeof _searchMeta !== 'undefined' && _searchMeta;
       const savedSearch = pill ? activeSearch : null;
       activeArtist = []; activeType = []; activeCardType = [];
       activeColour = []; activeSets = []; activeStyles = [];

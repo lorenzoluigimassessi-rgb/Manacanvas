@@ -877,24 +877,10 @@ function showSearchPill(text, tag) {
     const subRow = document.getElementById('subRow');
     if (subRow) subRow.style.display = 'none';
   }
-  const input = document.getElementById('searchBar');
-  const mInput = document.getElementById('mobileSearchBar');
-  input.style.display = 'none';
-  if (mInput) mInput.style.display = 'none';
+  // The bar shows what was searched as plain text, ready to refine; the chip (with ×) is in the results header
+  ['searchBar', 'mobileSearchBar'].forEach(id => { const el = document.getElementById(id); if (el) { el.style.display = ''; el.value = text; } });
   const clearBtn = document.getElementById('searchClear');
-  if (clearBtn) clearBtn.style.display = 'none';
-
-  // Insert pill into both desktop and mobile containers
-  document.querySelectorAll('.nav-center').forEach(container => {
-    const pill = document.createElement('span');
-    pill.className = 'search-pill';
-    pill.innerHTML = `<span class="search-pill-text">${text}</span><span class="search-pill-tag search-pill-tag-${tag.toLowerCase()}">${tag}</span><span class="search-pill-x" aria-label="Clear search">✕</span>`;
-    pill.querySelector('.search-pill-x').addEventListener('click', clearSearchPill);
-    // Insert after the search icon
-    const icon = container.querySelector('.search-icon-svg');
-    if (icon) icon.after(pill);
-    else container.prepend(pill);
-  });
+  if (clearBtn) clearBtn.style.display = 'block';
 }
 
 function clearSearchPill() {

@@ -152,15 +152,18 @@ function renderSearchHead() {
   if (!on) return;
   const m = _searchMeta || { label: activeSearch, tag: 'Card' };
   const active = (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
-  // Compact: what you searched + its kind, count on the title's baseline; then the sort
+  // One row: the search as a chip (name · kind · ×), the count, then the sort
   head.innerHTML = `
-    <div class="search-title-row">
-      <h2 class="search-title">${m.label}</h2>
-      <span class="search-kind">${SEARCH_KINDS[m.tag] || m.tag}</span>
-      <span class="l2-count" id="searchCount">${_feedTotal ? _feedTotal.toLocaleString() + ' artworks' : ''}</span>
-    </div>
-    <div class="l3-toolbar"><div class="l2-sort">${SEARCH_SORTS.map(o =>
-      `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div></div>`;
+    <div class="search-row">
+      <span class="search-chip search-chip--${m.tag.toLowerCase()}">
+        <span class="search-chip-name">${m.label}</span>
+        <span class="search-chip-kind">${SEARCH_KINDS[m.tag] || m.tag}</span>
+        <button class="search-chip-x" onclick="clearSearchPill()" aria-label="Clear search" title="Clear search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+      </span>
+      <span class="search-count" id="searchCount">${_feedTotal ? _feedTotal.toLocaleString() + ' artworks' : ''}</span>
+      <div class="l2-sort">${SEARCH_SORTS.map(o =>
+        `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div>
+    </div>`;
 }
 
 // New random cards for the same lens/filters (↻ button, pull-to-refresh)

@@ -3786,7 +3786,7 @@ input[type=range]::-moz-range-thumb {
 .search-row .l2-sort { margin-left: auto; }
 .search-count { font-size: 0.78rem; letter-spacing: 1px; color: var(--text-secondary); }
 
-/* Variant '?search=title': title + kind chip */
+/* Search results: title + kind chip (tinted by kind) */
 .search-row--title .search-title {
   font-family: 'Cinzel', serif; font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-weight: 500; letter-spacing: 1px;
   line-height: 1.1; color: var(--text-primary); margin: 0; min-width: 0;
@@ -3800,28 +3800,10 @@ input[type=range]::-moz-range-thumb {
 .search-row--title .search-count { align-self: center; }
 @media (max-width: 768px) { .search-row--title .search-title { flex-basis: 100%; } }
 
-/* The active search as a chip, tinted by kind (same hues as the search tags) */
-.search-chip {
-  --chip: 129,212,250;
-  display: inline-flex; align-items: center; gap: 0.65rem; max-width: 100%;
-  padding: 0.4rem 0.6rem 0.4rem 1.05rem; border-radius: 999px;
-  background: rgba(var(--chip), 0.08); border: 1px solid rgba(var(--chip), 0.28);
-}
+/* Kind hues (same as the search suggestion tags) */
 .search-chip--artist   { --chip: 179,157,219; }
 .search-chip--creature, .search-chip--type { --chip: 129,199,132; }
 .search-chip--set      { --chip: 255,183,77; }
-.search-chip-name {
-  font-family: 'Cinzel', serif; font-size: 1.02rem; font-weight: 500; letter-spacing: 0.6px;
-  color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.search-chip-kind { font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase; color: rgb(var(--chip)); white-space: nowrap; }
-.search-chip-x {
-  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-  width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer;
-  background: rgba(255,255,255,0.06); color: var(--text-secondary); transition: background 150ms, color 150ms;
-}
-.search-chip-x svg { width: 12px; height: 12px; }
-.search-chip-x:hover { background: rgba(255,255,255,0.14); color: var(--text-primary); }
 
 /* Mobile search page suggestions */
 .hero-suggestions {
@@ -3835,7 +3817,6 @@ input[type=range]::-moz-range-thumb {
   .grid.grid--search { padding-top: 0.5rem; }
   .search-row { gap: 0.6rem 0.75rem; }
   .search-row .l2-sort { margin-left: 0; }
-  .search-chip-name { font-size: 0.95rem; }
 }
 
 .l2-sort {

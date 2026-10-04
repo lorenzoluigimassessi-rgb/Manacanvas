@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=55">
+  <link rel="stylesheet" href="css/style.css?v=56">
 </head>
 <body>
 
@@ -2427,11 +2427,12 @@
 
     // ── Collections tab ──
     const COL_ARTISTS = ['Seb McKinnon','Magali Villeneuve','Rebecca Guay','Chris Rahn','John Avon','Wayne Reynolds'];
+    // Sets with hand-picked iconic art; the rest pull art from Scryfall
     const COL_SETS = [
-      { code:'dsk', name:'Duskmourn' },
-      { code:'blb', name:'Bloomburrow' },
-      { code:'mkm', name:'Karlov Manor' },
-      { code:'lci', name:'Lost Caverns' },
+      { code:'mrd', name:'Mirrodin', art:[['Solemn Simulacrum', '2/5/250d4c03-b350-4cd0-9e52-d5fcdd228ed3'], ['Chrome Mox', '6/a/6a058e68-70af-4a64-859c-c881e5578368'], ['Seat of the Synod', '5/f/5f1c04db-fea1-48eb-be4c-b525d89450b6']] },
+      { code:'blb', name:'Bloomburrow', art:[['Fabled Passage', '7/6/76edd22f-808e-4a7c-b941-13c0f5e30418'], ["Dawn's Truce", '8/f/8f72bfa0-efef-48ce-aff8-d5818ed71ba6'], ['Patchwork Banner', '2/0/205c527c-0055-4d2a-86b1-18d1c58a898d']] },
+      { code:'mkm', name:'Karlov Manor', art:[['Massacre Girl, Known Killer', 'f/7/f7c28657-f1d1-4fec-ac52-535aca7bc9ce'], ['Alquist Proft, Master Sleuth', '4/1/41129b44-4fa7-473b-b2b7-48c6a58be03c'], ['Judith, Carnage Connoisseur', '3/e/3eaa19ce-cace-499e-8b23-ef9e56b23700']] },
+      { code:'isd', name:'Innistrad', art:[['Olivia Voldaren', '5/6/561d616c-df11-4144-acec-f9fe47efa5c7'], ['Snapcaster Mage', '9/6/96791b5f-88d1-4455-95cb-73d529977b1c'], ['Liliana of the Veil', 'e/6/e653437e-2e56-4443-aec5-5bb7d8860238']] },
       { code:'woe', name:'Wilds of Eldraine' },
       { code:'mom', name:'March of the Machine' },
       { code:'one', name:'All Will Be One' },
@@ -2447,6 +2448,7 @@
     ];
 
     let _collectionsRendered = false;
+    const colArt = list => list && list.map(([n, id]) => ({ n, u: 'https://cards.scryfall.io/art_crop/front/' + id + '.jpg' }));
 
     // Each section: 5 preview cards in the artist-card style (art triptych + icon + name + count)
     // Mana previews are hand-picked: iconic original art (white/blue/black = each colour's staples;
@@ -2457,14 +2459,14 @@
       { name:'Black', key:'b', q:'color=b', art:[['Dark Ritual','c/7/c72d2bb0-471a-4b4d-9ae3-9de4699c9ef3'],['Reanimate','e/2/e2f1fea1-f008-4bf9-93ae-869ac60aa55c'],['Demonic Tutor','1/0/10c0eaca-47f1-4460-80a3-d77e283c807f']] },
       { name:'Red', key:'r', q:'color=r', art:[["Jeska's Will",'9/9/99e0c371-1024-4432-9fd9-3bc29c8d38e4'],['Goblin Chieftain','3/5/35ac943e-8747-40a0-ac2a-8b88cfa32ca8'],['Pyretic Ritual','a/c/ac3f40b1-fcd7-456c-afb9-759df8352e43']] },
       { name:'Green', key:'g', q:'color=g', art:[['Azusa, Lost but Seeking','b/9/b96fc9e1-d0f0-4c91-a049-6fe685c15031'],['Branching Evolution','4/a/4a6971ad-cbb4-4f66-9bc4-b407c5805e85'],['Chord of Calling','b/1/b18fe7e0-8344-40cc-b242-83f01c6be7a6']] },
-    ].map(m => ({ ...m, art: m.art.map(([n, id]) => ({ n, u: 'https://cards.scryfall.io/art_crop/front/' + id + '.jpg' })) }));
+    ].map(m => ({ ...m, art: colArt(m.art) }));
     function colSections() {
       return [
         { id:'artists', title:'Artists', count:847, items: COL_ARTISTS.map(n => ({ name:n, q:`a:"${n}"`,
             go: () => { activeArtist = [n]; } })) },
         { id:'creatures', title:'Creatures', count:267, items: COL_CREATURES.map(t => ({ name:t, q:`t:${t.toLowerCase()}`,
             go: () => { activeType = [t.toLowerCase()]; } })) },
-        { id:'sets', title:'Sets', count:214, items: COL_SETS.map(st => ({ name:st.name, q:`e:${st.code}`, set:st.code,
+        { id:'sets', title:'Sets', count:214, items: COL_SETS.map(st => ({ name:st.name, q:`e:${st.code}`, set:st.code, art:colArt(st.art),
             icon:'<img alt="" class="col-set-icon">', go: () => { activeSets = [st.code]; } })) },
         { id:'color', title:'Mana Colors', count:7, items: COL_MANA.map(m => ({ name:m.name, q:m.q, art:m.art,
             icon:`<img src="${MANA_SVGS[m.key]}" alt="">`, go: () => { activeColour = [m.key]; } })) },

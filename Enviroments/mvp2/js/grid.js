@@ -91,6 +91,10 @@ function renderCards(cards) {
     el.className = `card ${cardHeightClass(card.id)}`;
     el.innerHTML = `
       <img src="${artCrop}" alt="${card.name}" loading="lazy" onerror="this.outerHTML='<div class=card-error>${card.name}<br><small>Image unavailable</small></div>'">
+      <div class="overlay">
+        <div class="name">${card.name}</div>
+        <div class="artist">${card.artist || "Unknown"}</div>
+      </div>
     `;
     el.addEventListener("click", () => openLightbox(card, 'feed'));
     grid.appendChild(el);

@@ -1860,6 +1860,8 @@ body {
 }
 
 .card:hover .overlay { opacity: 1; translate: 0 0; }
+/* Touch / mobile: art only — name & artist live in the lightbox */
+@media (hover: none), (max-width: 768px) { .card .overlay { display: none; } }
 
 .card .overlay .name {
   font-family: 'Josefin Sans', sans-serif;
@@ -2527,9 +2529,6 @@ body {
 /* ── Responsive (non-header) ── */
 @media (max-width: 768px) {
   .grid { column-gap: 0.5rem; padding: 0.75rem; }
-  .card .overlay { opacity: 1; translate: 0 0; padding: 0.5rem 0.6rem; }
-  .card .overlay .name { font-size: 0.8rem; }
-  .card .overlay .artist { font-size: 0.7rem; }
   .lightbox .art-container { max-width: 95vw; max-height: 55vh; }
   .lightbox .art-container img { max-height: 55vh; }
   .lightbox .meta .name { font-size: 0.95rem; }

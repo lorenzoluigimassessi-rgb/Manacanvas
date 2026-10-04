@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=75">
+  <link rel="stylesheet" href="css/style.css?v=76">
 </head>
 <body>
 
@@ -2782,11 +2782,11 @@
     function setItems(sets) {
       return sets.map(st => {
         const fixed = COL_SETS.find(c => c.code === st.code);
-        return { name: st.name, q: `e:${st.code}`, date: st.date, block: st.block, art: fixed && colArt(fixed.art),
+        return { name: st.name, code: st.code, q: `e:${st.code}`, date: st.date, block: st.block, art: fixed && colArt(fixed.art),
           icon: `<img src="${st.icon}" alt="" class="col-set-icon">`, meta: `${st.date.slice(0, 4)} · ${st.cards.toLocaleString()} cards` };
       });
     }
-    function groupSets(items) {
+    function groupSets(items, oldestFirst) {
       const groups = new Map();
       items.forEach(it => {
         const key = it.block === 'Core Set' ? 'Core sets' : it.block ? `${it.block} block` : it.date.slice(0, 4);
@@ -2796,8 +2796,11 @@
       return [...groups].map(([title, list]) => {
         list.sort((a, b) => a.date.localeCompare(b.date));
         const y1 = list[0].date.slice(0, 4), y2 = list[list.length - 1].date.slice(0, 4);
-        return { title, sub: /block|sets/.test(title) ? (y1 === y2 ? y1 : `${y1}–${y2}`) : '', items: list, last: list[list.length - 1].date };
-      }).sort((a, b) => (a.title === 'Core sets') - (b.title === 'Core sets') || b.last.localeCompare(a.last)); // core sets span decades: last
+        const isBlock = / block$/.test(title) && list.length > 1;
+        return { title, sub: /block|sets/.test(title) ? (y1 === y2 ? y1 : `${y1}–${y2}`) : '', items: oldestFirst || isBlock ? list : [...list].reverse(), last: list[list.length - 1].date,
+          // A block can also be browsed as one collection
+          all: isBlock && { name: title, q: '(' + list.map(it => 'e:' + it.code).join(' OR ') + ')', icon: list[0].icon } };
+      }).sort((a, b) => (a.title === 'Core sets') - (b.title === 'Core sets') || (oldestFirst ? a.last.localeCompare(b.last) : b.last.localeCompare(a.last))); // core sets span decades: last
     }
 
     // ── Generic level-2 list: search, sort, optional groups, lazy-loaded art ──
@@ -2825,7 +2828,10 @@
         }), { rootMargin: '300px' });
         if (!list.length) { body.innerHTML = '<p class="l2-empty">Nothing matches your search.</p>'; return; }
         arrange(list, sortKey).forEach(g => {
-          if (g.title) body.insertAdjacentHTML('beforeend', `<h3 class="l2-group-title">${g.title}${g.sub ? `<span>${g.sub}</span>` : ''}</h3>`);
+          if (g.title) {
+            body.insertAdjacentHTML('beforeend', `<h3 class="l2-group-title">${g.title}${g.sub ? `<span>${g.sub}</span>` : ''}${g.all ? '<button class="l2-group-link">See the whole block <span aria-hidden="true">→</span></button>' : ''}</h3>`);
+            if (g.all) body.lastElementChild.querySelector('.l2-group-link').addEventListener('click', () => openDetailPage(g.all, 'l2'));
+          }
           const grid = document.createElement('div');
           grid.className = 'l2-grid';
           g.items.forEach(it => { const card = colCardEl(it, 'l2'); grid.appendChild(card); lazy.observe(card); });
@@ -2847,8 +2853,8 @@
       const counts = CATEGORY_COUNTS.creature;
       const items = Object.keys(counts).map(t => ({ name: t, q: typeQ(t), count: counts[t], meta: counts[t].toLocaleString() + ' artworks' }));
       renderListLevel2({ title: 'Creatures', noun: 'creature types', items,
-        sorts: [{ key: 'most', label: 'Most art' }, { key: 'az', label: 'A→Z' }],
-        arrange: (list, k) => flat([...list].sort(k === 'az' ? byName : (a, b) => b.count - a.count || byName(a, b))) });
+        sorts: [{ key: 'most', label: 'Most art' }, { key: 'az', label: 'A→Z' }, { key: 'za', label: 'Z→A' }],
+        arrange: (list, k) => flat([...list].sort(k === 'az' ? byName : k === 'za' ? (a, b) => byName(b, a) : (a, b) => b.count - a.count || byName(a, b))) });
     }
 
     function renderColorsLevel2() {
@@ -2875,9 +2881,9 @@
       const sets = await loadSetList();
       if (_level2Category !== 'sets') return;
       renderListLevel2({ title: 'Sets', noun: 'sets', items: setItems(sets),
-        sorts: [{ key: 'block', label: 'By block' }, { key: 'new', label: 'Newest' }, { key: 'az', label: 'A→Z' }],
-        arrange: (list, k) => k === 'block' ? groupSets(list)
-          : flat([...list].sort(k === 'az' ? byName : (a, b) => b.date.localeCompare(a.date))) });
+        sorts: [{ key: 'new', label: 'Newest' }, { key: 'old', label: 'Oldest' }, { key: 'az', label: 'A→Z' }, { key: 'za', label: 'Z→A' }],
+        arrange: (list, k) => k === 'new' || k === 'old' ? groupSets(list, k === 'old')
+          : flat([...list].sort(k === 'az' ? byName : (a, b) => byName(b, a))) });
     }
 
     function openCollectionsLevel2(category) {

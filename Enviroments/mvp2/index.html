@@ -1243,7 +1243,7 @@
   <script src="js/welcome.js?v=24"></script>
   <script src="js/api.js?v=23"></script>
   <script src="js/grid.js?v=24"></script>
-  <script src="js/artist-counts.js?v=1"></script>
+  <script src="js/artist-counts.js?v=2"></script>
   <script src="js/filters.js?v=23"></script>
   <script src="js/lightbox.js?v=23"></script>
 
@@ -2465,7 +2465,7 @@
     ].map(m => ({ ...m, art: colArt(m.art) }));
     function colSections() {
       return [
-        { id:'artists', title:'Artists', count:847, items: COL_ARTISTS.map(n => ({ name:n, q:`a:"${n}"`, art:colArt(COL_ARTIST_ART[n]),
+        { id:'artists', title:'Artists', count:Object.keys(ARTIST_ART_COUNTS).length.toLocaleString(), items: COL_ARTISTS.map(n => ({ name:n, q:`a:"${n}"`, art:colArt(COL_ARTIST_ART[n]),
             go: () => { activeArtist = [n]; } })) },
         { id:'creatures', title:'Creatures', count:267, items: COL_CREATURES.map(t => ({ name:t, q:`t:${t.toLowerCase()}`,
             go: () => { activeType = [t.toLowerCase()]; } })) },
@@ -2769,6 +2769,7 @@
       // Load artist list
       if (!_level2ArtistList.length) {
         _level2ArtistList = artistList.length ? artistList : await fetchArtistNames();
+        _level2ArtistList = _level2ArtistList.filter(n => !ARTIST_NO_ART.has(n));
       }
 
       // Most art first (static counts), then A→Z for artists without a count

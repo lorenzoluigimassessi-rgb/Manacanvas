@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=49">
+  <link rel="stylesheet" href="css/style.css?v=50">
 </head>
 <body>
 
@@ -2518,6 +2518,10 @@
       loadCollectionsArt();
     }
 
+    // Original printings with a classic frame only — full-art, borderless, showcase,
+    // Secret Lair and promo art crops carry rules text / logos over the art
+    const COL_ICONIC = 'has:illustration not:reprint -is:full_art -is:borderless -is:showcase -is:extendedart -is:promo -st:funny -st:box -st:promo -st:memorabilia lang:en';
+
     async function loadCollectionsArt() {
       const cache = JSON.parse(localStorage.getItem('mc_col_art') || '{}');
       const now = Date.now();
@@ -2526,13 +2530,15 @@
       const pause = () => new Promise(r => setTimeout(r, 120));
 
       for (const card of document.querySelectorAll('#collectionsPage .col-artist-card')) {
-        const key = 'q:' + card.dataset.q;
+        const key = 'i:' + card.dataset.q;
         if (!fresh(key)) {
           try {
-            const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(card.dataset.q + ' has:illustration') + '&unique=art&order=edhrec&page=1');
+            const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(card.dataset.q + ' ' + COL_ICONIC) + '&unique=art&order=edhrec&page=1');
             if (res.ok) {
               const json = await res.json();
-              const imgs = (json.data || []).slice(0, 3).map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean);
+              const seen = new Set();
+              const imgs = (json.data || []).filter(c => !seen.has(c.name) && seen.add(c.name))
+                .map(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop).filter(Boolean).slice(0, 3);
               cache[key] = { imgs, count: json.total_cards || 0, ts: now };
             }
           } catch(e) {}

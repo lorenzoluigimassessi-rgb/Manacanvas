@@ -1243,6 +1243,7 @@
   <script src="js/welcome.js?v=24"></script>
   <script src="js/api.js?v=23"></script>
   <script src="js/grid.js?v=24"></script>
+  <script src="js/artist-counts.js?v=1"></script>
   <script src="js/filters.js?v=23"></script>
   <script src="js/lightbox.js?v=23"></script>
 
@@ -2756,7 +2757,8 @@
         <div class="l2-toolbar">
           <input type="text" class="l2-search-input" id="l2ArtistSearch" placeholder="Search artists..." autocomplete="off">
           <div class="l2-sort">
-            <button class="l2-sort-btn active" data-sort="az">A→Z</button>
+            <button class="l2-sort-btn active" data-sort="most">Most art</button>
+            <button class="l2-sort-btn" data-sort="az">A→Z</button>
             <button class="l2-sort-btn" data-sort="za">Z→A</button>
             <button class="l2-sort-btn" data-sort="shuffle">Shuffle</button>
           </div>
@@ -2769,8 +2771,11 @@
         _level2ArtistList = artistList.length ? artistList : await fetchArtistNames();
       }
 
-      let currentList = [..._level2ArtistList].sort((a, b) => a.localeCompare(b));
-      let currentSort = 'az';
+      // Most art first (static counts), then A→Z for artists without a count
+      const artCount = n => (typeof ARTIST_ART_COUNTS !== 'undefined' && ARTIST_ART_COUNTS[n]) || 0;
+      const byMostArt = list => list.sort((a, b) => artCount(b) - artCount(a) || a.localeCompare(b));
+      let currentList = byMostArt([..._level2ArtistList]);
+      let currentSort = 'most';
 
       document.getElementById('l2ArtistCount').textContent = currentList.length.toLocaleString() + ' artists';
       renderArtistGrid(currentList, "");
@@ -2789,7 +2794,8 @@
           l2.querySelectorAll('.l2-sort-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           currentSort = btn.dataset.sort;
-          if (currentSort === 'az') currentList = [..._level2ArtistList].sort((a, b) => a.localeCompare(b));
+          if (currentSort === 'most') currentList = byMostArt([..._level2ArtistList]);
+          else if (currentSort === 'az') currentList = [..._level2ArtistList].sort((a, b) => a.localeCompare(b));
           else if (currentSort === 'za') currentList = [..._level2ArtistList].sort((a, b) => b.localeCompare(a));
           else currentList = shuffleArray([..._level2ArtistList]);
           const q = document.getElementById('l2ArtistSearch').value.toLowerCase();

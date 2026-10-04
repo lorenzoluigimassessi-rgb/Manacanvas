@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=79">
+  <link rel="stylesheet" href="css/style.css?v=81">
 </head>
 <body>
 
@@ -972,7 +972,7 @@
           <span class="search-icon-svg" style="color:var(--text-2);display:flex;align-items:center;flex-shrink:0;padding-right:0.25rem;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </span>
-          <input type="text" id="searchBar" placeholder="Search card, artist, creature...">
+          <input type="text" id="searchBar" placeholder="Search card, artist, creature, set...">
           <span id="searchClear" style="display:none;">✕</span>
           <div id="searchSuggestions" style="display:none;"></div>
         </div>
@@ -1011,6 +1011,7 @@
     </div>
     <div class="sub-row" id="subRow" style="display:none;"></div>
     <div class="feed-hint" id="feedHint" style="display:none;"></div>
+    <div class="search-head" id="searchHead" style="display:none;"></div>
 
     <!-- ── Mobile top bar (non-gallery modes) ── -->
     <div class="mobile-top-bar">
@@ -1020,7 +1021,7 @@
         <span class="search-icon-svg">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </span>
-        <input type="text" id="mobileSearchBar" placeholder="Search card, artist, creature...">
+        <input type="text" id="mobileSearchBar" placeholder="Search card, artist, creature, set...">
         <div id="mobileSearchSuggestions" style="display:none;"></div>
       </div>
       <button class="mobile-more-btn" onclick="openMobileSettings()" aria-label="More options">
@@ -1103,11 +1104,12 @@
     <div id="searchPanel" class="mode-panel mobile-search-panel" style="display:none;">
       <div class="search-hero">
         <h1 class="search-hero-title">Discover</h1>
-        <p class="search-hero-sub">Search by card name, artist, creature type, color&hellip;</p>
+        <p class="search-hero-sub">Search by card name, artist, creature type, set&hellip;</p>
         <div class="search-hero-input-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="heroSearchBar" class="search-hero-input" placeholder="Dragon, Seb McKinnon, Plains&hellip;" autocomplete="off">
+          <input type="text" id="heroSearchBar" class="search-hero-input" placeholder="Dragon, Seb McKinnon, Mirrodin&hellip;" autocomplete="off">
         </div>
+        <div id="heroSearchSuggestions" class="hero-suggestions" style="display:none;"></div>
         <div class="search-hints">
           <button class="search-hint-tag" onclick="applyHintSearch('t:dragon')">t:dragon</button>
           <button class="search-hint-tag" onclick="applyHintSearch('t:angel')">t:angel</button>
@@ -1243,13 +1245,20 @@
 
   <script src="js/welcome.js?v=26"></script>
   <script src="js/api.js?v=27"></script>
-  <script src="js/grid.js?v=30"></script>
+  <script src="js/grid.js?v=31"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
-  <script src="js/filters.js?v=23"></script>
+  <script src="js/filters.js?v=24"></script>
   <script src="js/lightbox.js?v=23"></script>
 
   <script>
+    // ── Where you are in Categories (level + sort), per tab: a reload lands on the same page ──
+    const catNav = {
+      get() { try { return JSON.parse(sessionStorage.getItem('mc_cat_nav')) || {}; } catch (e) { return {}; } },
+      set(v) { try { sessionStorage.setItem('mc_cat_nav', JSON.stringify(v)); } catch (e) {} },
+    };
+    // Restore only when the page was reloaded on Categories
+    let _bootCatNav = localStorage.getItem('mc_mode') === 'collections' ? catNav.get() : null;
     // ── Mode map ──
     const DESKTOP_SW = { gallery:'swAllArt', collections:'swBrowse', advanced:'btnAdvanced' };
     const MOBILE_SW  = { gallery:'mSwAllArt', collections:'mSwBrowse' };
@@ -1327,8 +1336,9 @@
       // lens chips — gallery only
       const lensRow = document.getElementById('lensRow');
       const subRow  = document.getElementById('subRow');
-      if (lensRow) lensRow.style.display = mode === 'gallery' ? '' : 'none';
+      if (lensRow) lensRow.style.display = mode === 'gallery' && !activeSearch ? '' : 'none';
       if (mode === 'gallery') updateFeedHint(); else document.getElementById('feedHint').style.display = 'none';
+      renderSearchHead();
       if (subRow && mode !== 'gallery') subRow.style.display = 'none';
       // Always restore the active lens chip when entering gallery (even if cards already loaded)
       if (mode === 'gallery') {
@@ -1341,6 +1351,7 @@
 
       // collections — always return to main overview, hide sub-pages
       if (mode === 'collections') {
+        if (!_bootCatNav) catNav.set({});
         const l2 = document.getElementById('collectionsLevel2');
         const l3 = document.getElementById('collectionsLevel3');
         const main = document.getElementById('collectionsPage');
@@ -1419,14 +1430,17 @@
       document.addEventListener('DOMContentLoaded', () => {});
       const bar = document.getElementById('heroSearchBar');
       if (bar) {
+        let t = null;
+        bar.addEventListener('input', () => {
+          clearTimeout(t);
+          t = setTimeout(() => { const v = bar.value.trim(); if (v.length >= 2) showSearchSuggestions(v, 'heroSearchSuggestions'); else hideSearchSuggestions(); }, 200);
+        });
         bar.addEventListener('keydown', (e) => {
           if (e.key !== 'Enter') return;
           const q = bar.value.trim();
           if (!q) return;
-          activeSearch = q;
           bar.blur();
-          setMode('gallery');
-          loadInitialGrid();
+          runSearch(q, q, 'Card');
         });
       }
     })();
@@ -2324,7 +2338,8 @@
 
     function initLens() {
       // Restore Collections mode immediately — no gallery flash
-      if (localStorage.getItem('mc_mode') === 'collections') { setMode('collections'); return; }
+      // Boot already opened Categories (and may have restored a sub-page) — don't reset it
+      if (localStorage.getItem('mc_mode') === 'collections') { if (_currentMode !== 'collections') setMode('collections'); return; }
       // If we're not in gallery (e.g. home mode), don't run gallery init
       // NOTE: do NOT call setMode('gallery') here — it would recurse back into initLens
       if (_currentMode !== 'gallery') return;
@@ -2373,6 +2388,7 @@
     // ── Pull-to-refresh (mobile only) ──
     // What a pull at the top reshuffles: the gallery, or a layer-3 page set to Shuffle (else nothing)
     function pullAction() {
+      if (_currentMode === 'gallery' && activeSearch) return sortOrder === 'random' ? reshuffleFeed : null;
       if (_currentMode === 'gallery') return () => {
         if (sortOrder !== 'random') { sortOrder = 'random'; sortDir = 'auto'; localStorage.setItem("mc_sort", JSON.stringify({ order: 'random', dir: 'auto' })); }
         reshuffleFeed();
@@ -2611,6 +2627,7 @@
       });
 
       loadCollectionsArt();
+      restoreCatNav();
     }
 
     // Original art of each card (first printing); full-art / borderless / showcase / Secret Lair /
@@ -2730,6 +2747,23 @@
         triptych.classList.add('loaded');
       }
       if (count != null) card.querySelector('.col-artist-count').textContent = count.toLocaleString() + ' cards';
+    }
+
+    // Any sort pill click on level 2/3 is remembered for that level
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('#collectionsPanel .l2-sort-btn');
+      if (!btn) return;
+      const nav = catNav.get(), lvl = _l3Open() ? 'l3' : 'l2';
+      if (nav[lvl]) { nav[lvl].sort = btn.dataset.sort; catNav.set(nav); }
+    });
+    async function restoreCatNav() {
+      const nav = _bootCatNav; _bootCatNav = null;
+      if (!nav || (!nav.l2 && !nav.l3)) return;
+      if (nav.l2) {
+        await openCollectionsLevel2(nav.l2.cat);
+        if (nav.l2.sort) document.querySelector(`#collectionsLevel2 .l2-sort-btn[data-sort="${nav.l2.sort}"]`)?.click();
+      }
+      if (nav.l3) openDetailPage(nav.l3.it, nav.l3.from, nav.l3.sort);
     }
 
     // ── Collections Level 2 ──
@@ -2905,7 +2939,8 @@
       document.getElementById('collectionsLevel3').style.display = 'none';
       document.getElementById('collectionsLevel2').style.display = 'block';
       window.scrollTo(0, 0);
-      ({ artists: renderArtistsLevel2, creatures: renderCreaturesLevel2, sets: renderSetsLevel2,
+      catNav.set({ l2: { cat: category } });
+      return ({ artists: renderArtistsLevel2, creatures: renderCreaturesLevel2, sets: renderSetsLevel2,
          color: renderColorsLevel2, type: renderTypesLevel2 })[category]();
     }
 
@@ -2913,6 +2948,7 @@
       document.getElementById('collectionsLevel2').style.display = 'none';
       document.getElementById('collectionsPage').style.display = '';
       _level2Category = null;
+      catNav.set({});
       window.scrollTo(0, 0);
     }
 
@@ -2928,8 +2964,11 @@
     let _l3 = { gen: 0, next: null, pages: 0, seen: new Set(), more: false, obs: null };
     const _l3Open = () => document.getElementById('collectionsLevel3').style.display === 'block';
 
-    function openDetailPage(it, from = 'l2') {
-      _l3From = from; _l3ScrollY = window.scrollY; _l3Q = it.q; _l3Sort = 'popular';
+    function openDetailPage(it, from = 'l2', sort = 'popular') {
+      _l3From = from; _l3ScrollY = window.scrollY; _l3Q = it.q; _l3Sort = sort;
+      const nav = from === 'l1' ? {} : catNav.get();
+      nav.l3 = { it: { name: it.name, q: it.q, icon: it.icon || '', cat: it.cat }, from, sort };
+      catNav.set(nav);
       document.getElementById('collectionsPage').style.display = 'none';
       document.getElementById('collectionsLevel2').style.display = 'none';
       const l3 = document.getElementById("collectionsLevel3");
@@ -2939,7 +2978,7 @@
       l3.innerHTML = `
         ${l2Header(it.name, '<span class="l2-count" id="l3Count"></span>', 'closeDetailPage()', it.icon || '', crumbs)}
         <div class="l3-toolbar">
-          <div class="l2-sort" id="l3SortSwitcher">${L3_SORTS.map((o, i) => `<button class="l2-sort-btn ${i ? '' : 'active'}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>
+          <div class="l2-sort" id="l3SortSwitcher">${L3_SORTS.map(o => `<button class="l2-sort-btn ${o.key === sort ? 'active' : ''}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>
         </div>
         <div class="l3-grid" id="l3Grid"></div>
       `;
@@ -2954,6 +2993,7 @@
     function openArtistPage(name) { openDetailPage({ name, q: `a:"${name}"`, cat: 'artists' }, 'l2'); }
 
     function closeDetailPage() {
+      const nav = catNav.get(); delete nav.l3; catNav.set(nav);
       if (_l3.obs) _l3.obs.disconnect();
       _l3.gen++;
       document.getElementById("collectionsLevel3").style.display = "none";

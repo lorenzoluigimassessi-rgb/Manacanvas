@@ -72,6 +72,8 @@ function showFeed(cards, hasMore, query, fromNetwork) {
   filteredCards = cards;
   renderCards(cards);
   insertFeedBridge();
+  const sc = document.getElementById('searchCount');
+  if (sc) sc.textContent = activeSearch && _feedTotal ? _feedTotal.toLocaleString() + ' artworks' : '';
   if (hasMore) observeLastCard();
 }
 
@@ -102,7 +104,7 @@ function updateFeedHint() {
   let seen = false;
   try { seen = localStorage.getItem('mc_hint_mix') === '1'; } catch (e) {}
   hint.innerHTML = `<span class="feed-hint-pill"><svg class="feed-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>Pull down for a new mix</span>`;
-  hint.style.display = seen ? 'none' : '';
+  hint.style.display = seen || activeSearch ? 'none' : '';
 }
 function dismissFeedHint() {
   try { localStorage.setItem('mc_hint_mix', '1'); } catch (e) {}
@@ -110,6 +112,58 @@ function dismissFeedHint() {
   if (hint && hint.style.display !== 'none') { hint.classList.add('fade'); setTimeout(() => { hint.style.display = 'none'; hint.classList.remove('fade'); }, 400); }
 }
 window.addEventListener('scroll', () => { if (window.scrollY > 1500 && _currentMode === 'gallery') dismissFeedHint(); }, { passive: true });
+
+// ── Search results: an editorial header (what you searched, count, sort) replaces the lens tabs ──
+const SEARCH_SORTS = [
+  { key: 'popular', label: 'Popular', order: 'edhrec',   dir: 'auto' },
+  { key: 'random',  label: 'Shuffle', order: 'random',   dir: 'auto' },
+  { key: 'newest',  label: 'Newest',  order: 'released', dir: 'desc' },
+  { key: 'oldest',  label: 'Oldest',  order: 'released', dir: 'asc'  },
+];
+const SEARCH_KINDS = { Card: 'Cards', Artist: 'Artist', Creature: 'Creature type', Type: 'Card type', Set: 'Set' };
+let _searchMeta = null, _preSearchSort = null;
+
+// A search opens on Shuffle; the gallery's own order comes back when the search ends
+function startSearchSort(label, tag) {
+  _searchMeta = { label, tag };
+  if (!_preSearchSort) _preSearchSort = { order: sortOrder, dir: sortDir };
+  sortOrder = 'random'; sortDir = 'auto';
+  renderSearchHead();
+}
+function endSearchSort() {
+  _searchMeta = null;
+  if (_preSearchSort) { sortOrder = _preSearchSort.order; sortDir = _preSearchSort.dir; _preSearchSort = null; }
+}
+function setSearchSort(key) {
+  const o = SEARCH_SORTS.find(x => x.key === key);
+  sortOrder = o.order; sortDir = o.dir;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  renderSearchHead();
+  loadInitialGrid(currentQuery);
+}
+
+function renderSearchHead() {
+  const head = document.getElementById('searchHead');
+  if (!head) return;
+  const on = !!activeSearch && typeof _currentMode !== 'undefined' && _currentMode === 'gallery';
+  head.style.display = on ? '' : 'none';
+  const lensRow = document.getElementById('lensRow');
+  if (lensRow && typeof _currentMode !== 'undefined') lensRow.style.display = _currentMode === 'gallery' && !activeSearch ? '' : 'none';
+  if (!on) return;
+  const m = _searchMeta || { label: activeSearch, tag: 'Card' };
+  const active = (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[1]).key;
+  head.innerHTML = `
+    <div class="l2-header">
+      <button class="l2-back" onclick="clearSearchPill()" aria-label="Clear search" title="Clear search"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
+      <div class="l2-title-wrap">
+        <nav class="l3-crumbs"><span class="crumb">Search</span><span aria-hidden="true">›</span><span class="crumb">${SEARCH_KINDS[m.tag] || m.tag}</span></nav>
+        <h2 class="l2-title">${m.label}</h2>
+      </div>
+      <span class="l2-count" id="searchCount">${_feedTotal ? _feedTotal.toLocaleString() + ' artworks' : ''}</span>
+    </div>
+    <div class="l3-toolbar"><div class="l2-sort">${SEARCH_SORTS.map(o =>
+      `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div></div>`;
+}
 
 // New random cards for the same lens/filters (↻ button, pull-to-refresh)
 function reshuffleFeed() {

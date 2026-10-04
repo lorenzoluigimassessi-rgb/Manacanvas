@@ -79,6 +79,7 @@ async function initFilters() {
     fetchCreatureTypes(),
     fetchCardTypes(),
   ]);
+  loadSetsIfNeeded(); // sets in search suggestions (background)
 
   document.addEventListener("click", () => { closeDropdown(); closeViewDropdown(); closeSortDropdown(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeDropdown(); closeViewDropdown(); closeSortDropdown(); } });
@@ -839,6 +840,7 @@ function highlightMatch(text, query) {
 let searchTimeout = null;
 
 function setSearchMode(active) {
+  if (!active && typeof endSearchSort === 'function') endSearchSort();
   const subRow  = document.getElementById('subRow');
   const containers = document.querySelectorAll('.nav-center');
   if (active) {
@@ -851,6 +853,7 @@ function setSearchMode(active) {
     }
     containers.forEach(c => c.classList.remove('search-active'));
   }
+  if (typeof renderSearchHead === 'function') renderSearchHead();
 }
 
 // Search pill (Cosmos pattern) — single pill inside search bar
@@ -864,6 +867,7 @@ function clearSearchPillUI() {
 
 function showSearchPill(text, tag) {
   clearSearchPillUI();
+  if (typeof startSearchSort === 'function') startSearchSort(text, tag);
   // Reset lens to All — search is a top-level action
   if (typeof _activeLens !== 'undefined') {
     _activeLens = 'picks';
@@ -956,14 +960,8 @@ function initSearch() {
         items[highlightedIdx].dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
       } else {
         hideSearchSuggestions();
-        activeSearch = input.value.trim() || null;
-        if (activeSearch) {
-          if (typeof setMode === 'function') setMode('gallery');
-          setSearchMode(true);
-          showSearchPill(activeSearch, 'Card');
-        }
-        loadInitialGrid();
-        updateChips();
+        const q = input.value.trim();
+        if (q) runSearch(q, q, 'Card');
       }
     } else if (e.key === "Escape") {
       hideSearchSuggestions();
@@ -981,8 +979,19 @@ function initSearch() {
   });
 }
 
-async function showSearchSuggestions(query) {
-  const container = document.getElementById(isMobile() ? "mobileSearchSuggestions" : "searchSuggestions");
+// Run a search and show its results page (label + tag drive the results header)
+function runSearch(query, label, tag) {
+  activeSearch = query;
+  hideSearchSuggestions();
+  if (typeof setMode === "function") setMode("gallery");
+  setSearchMode(true);
+  showSearchPill(label, tag);
+  loadInitialGrid();
+  updateChips();
+}
+
+async function showSearchSuggestions(query, containerId) {
+  const container = document.getElementById(containerId || (isMobile() ? "mobileSearchSuggestions" : "searchSuggestions"));
   if (!container) return;
   const input = document.getElementById("searchBar");
   input.dataset.query = query;
@@ -990,21 +999,21 @@ async function showSearchSuggestions(query) {
   const suggestions = [];
 
   artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 3)
-    .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => { activeSearch = `a:"${a}"`; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(a, "Artist"); loadInitialGrid(); updateChips(); } }));
+    .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => runSearch(`a:"${a}"`, a, "Artist") }));
   creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
-    .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => { activeSearch = `t:${t.toLowerCase()}`; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(t, "Creature"); loadInitialGrid(); updateChips(); } }));
+    .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => runSearch(`t:"${t.toLowerCase()}"`, t, "Creature") }));
   cardTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
-    .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => { activeSearch = `t:${t.toLowerCase()}`; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(t, "Type"); loadInitialGrid(); updateChips(); } }));
+    .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => runSearch(`t:${t.toLowerCase()}`, t, "Type") }));
   setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 3)
-    .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => { activeSearch = `s:${s.code}`; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(s.name, "Set"); loadInitialGrid(); updateChips(); } }));
+    .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => runSearch(`s:${s.code}`, s.name, "Set") }));
 
-  suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => { activeSearch = query; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(query, "Card"); loadInitialGrid(); updateChips(); } });
+  suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => runSearch(query, query, "Card") });
 
   try {
     const res = await fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(query)}`);
     const json = await res.json();
     (json.data || []).slice(0, 4).forEach(name => {
-      suggestions.splice(suggestions.length - 1, 0, { label: name, tag: "Card", action: () => { activeSearch = name; hideSearchSuggestions(); if (typeof setMode === "function") setMode("gallery"); setSearchMode(true); showSearchPill(name, "Card"); loadInitialGrid(); updateChips(); } });
+      suggestions.splice(suggestions.length - 1, 0, { label: name, tag: "Card", action: () => runSearch(`!"${name}"`, name, "Card") });
     });
   } catch (e) { /* ignore */ }
 
@@ -1034,6 +1043,7 @@ function highlightSuggestion(text, query) {
 function hideSearchSuggestions() {
   document.getElementById("searchSuggestions")?.style.setProperty('display', 'none');
   document.getElementById("mobileSearchSuggestions")?.style.setProperty('display', 'none');
+  document.getElementById("heroSearchSuggestions")?.style.setProperty('display', 'none');
 }
 
 // Mobile flat sheet

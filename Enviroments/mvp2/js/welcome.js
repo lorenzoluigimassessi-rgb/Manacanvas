@@ -79,7 +79,8 @@ function showWelcome() { navToHome(); }
 
 function goGallery() {
   _initFirstScrollCollapse();
-  sidebarNav('gallery');
+  if (typeof freshGallery === 'function') freshGallery(); // fresh shuffle from Home
+  else sidebarNav('gallery');
 }
 
 function goSearch() {

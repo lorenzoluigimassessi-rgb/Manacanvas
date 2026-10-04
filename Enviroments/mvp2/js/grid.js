@@ -16,10 +16,18 @@ let activeSearch = null;
 // Track cards currently in the feed for lightbox prev/next
 let filteredCards = [];
 
-async function loadInitialGrid() {
+// Query behind the current feed — reused by infinite scroll, reshuffle and sort changes
+let currentQuery = null;
+let _feedHasMore = false;
+let _feedGen = 0; // bumps on every new feed so late page loads from an old feed are dropped
+
+function currentFiltersQuery() {
+  return buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, (typeof ART_STYLES !== 'undefined' ? activeStyles.map(i => ART_STYLES[i]) : []), activeYearMin, activeYearMax, activeSearch);
+}
+
+async function loadInitialGrid(query) {
   // Reset all fetch state immediately to prevent stale data from previous queries
   isLoading = false;
-  nextPageUrl = null;
   window._randomPool = [];
   window._randomPoolQuery = null;
   // Only persist filters in prod (staging uses lens system)
@@ -32,8 +40,11 @@ async function loadInitialGrid() {
   }
   showShimmers();
   resetPagination();
-  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, (typeof ART_STYLES !== 'undefined' ? activeStyles.map(i => ART_STYLES[i]) : []), activeYearMin, activeYearMax, activeSearch);
-  const { data, hasMore, rateLimited } = await fetchCards(query);
+  const gen = ++_feedGen;
+  currentQuery = query || currentFiltersQuery();
+  updateFeedBar();
+  const { data, hasMore, rateLimited } = await fetchCards(currentQuery);
+  if (gen !== _feedGen) return; // a newer feed started meanwhile
   grid.innerHTML = "";
   if (!data.length) {
     grid.innerHTML = rateLimited
@@ -41,15 +52,67 @@ async function loadInitialGrid() {
       : `<div class="empty-state"><h2>No artwork found</h2><p>Try adjusting your filters or clearing them to browse all art.</p></div>`;
     return;
   }
-  filteredCards = data;
-  renderCards(data);
-  if (hasMore) observeLastCard();
-  // Write to lens cache — but NOT if search is active (prevents cache poisoning)
-  if (typeof _lensCache !== 'undefined' && typeof _activeLens !== 'undefined' && !activeSearch) {
+  showFeed(data, hasMore, currentQuery, true);
+  // Write to lens cache (shuffle only) — but NOT if search is active (prevents cache poisoning)
+  if (typeof _lensCache !== 'undefined' && typeof _activeLens !== 'undefined' && !activeSearch && sortOrder === 'random') {
     const key = _activeLens + ':' + (typeof _activeSubPill !== 'undefined' ? (_activeSubPill || '') : '');
-    _lensCache[key] = { cards: data, hasMore };
+    _lensCache[key] = { cards: data, hasMore, query: currentQuery };
     if (typeof prewarmAdjacentLenses === 'function') prewarmAdjacentLenses();
   }
+}
+
+// Render a fresh feed (from network or lens cache) and arm infinite scroll
+function showFeed(cards, hasMore, query, fromNetwork) {
+  if (scrollObserver) scrollObserver.disconnect();
+  _feedGen++;
+  if (!fromNetwork) resetPagination();
+  currentQuery = query;
+  _seenIds = new Set(cards.map(c => c.id));
+  _feedHasMore = hasMore;
+  grid.innerHTML = '';
+  filteredCards = cards;
+  renderCards(cards);
+  insertFeedBridge();
+  updateFeedBar();
+  if (hasMore) observeLastCard();
+}
+
+// "Browse by category" band after the first rows of the All feed
+function insertFeedBridge() {
+  if (typeof _activeLens === 'undefined' || _activeLens !== 'picks' || activeSearch) return;
+  const after = grid.querySelectorAll('.card')[19];
+  if (!after) return;
+  const band = document.createElement('div');
+  band.className = 'feed-bridge';
+  band.innerHTML = `<span>Looking for something specific?</span>
+    <button onclick="setMode('collections')">Browse by artist, set or colour <span aria-hidden="true">→</span></button>`;
+  after.after(band);
+}
+
+// Order caption + sort control above the grid
+function updateFeedBar() {
+  const bar = document.getElementById('feedBar');
+  if (!bar) return;
+  const opt = SORT_OPTIONS.find(o => o.order === sortOrder && o.dir === sortDir) || SORT_OPTIONS[0];
+  document.getElementById('feedCaption').textContent = opt.caption;
+  document.getElementById('feedShuffle').style.display = opt.order === 'random' ? '' : 'none';
+  document.getElementById('feedSort').innerHTML = SORT_OPTIONS.map((o, i) =>
+    `<button class="l2-sort-btn ${o === opt ? 'active' : ''}" onclick="setFeedSort(${i})">${o.label}</button>`).join('');
+}
+
+function setFeedSort(i) {
+  const opt = SORT_OPTIONS[i];
+  sortOrder = opt.order; sortDir = opt.dir;
+  localStorage.setItem("mc_sort", JSON.stringify({ order: opt.order, dir: opt.dir }));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  loadInitialGrid(currentQuery);
+}
+
+// New random cards for the same lens/filters (↻ button, pull-to-refresh)
+function reshuffleFeed() {
+  if (typeof _lensCache !== 'undefined' && typeof _activeLens !== 'undefined') delete _lensCache[_activeLens + ':' + (window._activeSubPill || '')];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  loadInitialGrid(currentQuery);
 }
 
 // Deterministic height class from card id — same card always gets same height
@@ -90,7 +153,7 @@ function renderCards(cards) {
     const el = document.createElement("div");
     el.className = `card ${cardHeightClass(card.id)}`;
     el.innerHTML = `
-      <img src="${artCrop}" alt="${card.name}" loading="lazy" onerror="this.outerHTML='<div class=card-error>${card.name}<br><small>Image unavailable</small></div>'">
+      <img src="${artCrop}" alt="${card.name.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'), { className: 'card-error', textContent: this.alt }))">
       <div class="overlay">
         <div class="name">${card.name}</div>
         <div class="artist">${card.artist || "Unknown"}</div>
@@ -119,18 +182,33 @@ let scrollObserver = null;
 function observeLastCard() {
   if (scrollObserver) scrollObserver.disconnect();
   scrollObserver = new IntersectionObserver(async (entries) => {
-    if (entries[0].isIntersecting && !isLoading && nextPageUrl) {
-      loader.style.display = "block";
-      const { data, hasMore } = await fetchCards();
-      loader.style.display = "none";
-      filteredCards = filteredCards.concat(data);
-      renderCards(data);
-      if (hasMore) observeLastCard();
-    }
-  }, { rootMargin: "200px" });
+    if (!entries[0].isIntersecting || isLoading || !_feedHasMore) return;
+    scrollObserver.disconnect();
+    const query = currentQuery, gen = _feedGen;
+    const placeholders = appendShimmers(6);
+    let data = [], hasMore = false;
+    // Shuffle can land on a page already shown — try a couple of other pages
+    for (let tries = 0; tries < 3 && !data.length; tries++) ({ data, hasMore } = await fetchCards(query));
+    placeholders.forEach(el => el.remove());
+    if (gen !== _feedGen) return; // feed changed while loading
+    _feedHasMore = hasMore && data.length > 0;
+    filteredCards = filteredCards.concat(data);
+    renderCards(data);
+    if (_feedHasMore) observeLastCard();
+  }, { rootMargin: "600px" });
 
   const cards = grid.querySelectorAll(".card");
   if (cards.length) scrollObserver.observe(cards[cards.length - 1]);
+}
+
+function appendShimmers(n) {
+  const hClasses = ['card-normal', 'card-tall', 'card-short', 'card-normal', 'card-normal', 'card-tall'];
+  return Array.from({ length: n }, (_, i) => {
+    const s = document.createElement("div");
+    s.className = `shimmer ${hClasses[i % hClasses.length]}`;
+    grid.appendChild(s);
+    return s;
+  });
 }
 
 // ── Tab switching ──────────────────────────────────────────────────────────────

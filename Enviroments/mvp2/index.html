@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=63">
+  <link rel="stylesheet" href="css/style.css?v=64">
 </head>
 <body>
 
@@ -1010,6 +1010,13 @@
       <div class="lens-controls" id="lensControls" style="display:none;"></div>
     </div>
     <div class="sub-row" id="subRow" style="display:none;"></div>
+    <div class="feed-bar" id="feedBar">
+      <span class="feed-caption" id="feedCaption"></span>
+      <button class="feed-shuffle" id="feedShuffle" onclick="reshuffleFeed()" aria-label="Shuffle again" title="Shuffle again">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
+      <div class="l2-sort feed-sort" id="feedSort"></div>
+    </div>
 
     <!-- ── Mobile top bar (non-gallery modes) ── -->
     <div class="mobile-top-bar">
@@ -1240,9 +1247,9 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=24"></script>
-  <script src="js/api.js?v=23"></script>
-  <script src="js/grid.js?v=24"></script>
+  <script src="js/welcome.js?v=25"></script>
+  <script src="js/api.js?v=25"></script>
+  <script src="js/grid.js?v=26"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/filters.js?v=23"></script>
   <script src="js/lightbox.js?v=23"></script>
@@ -1255,7 +1262,11 @@
 
     let _currentMode = 'gallery';
 
+    let _galleryScrollY = 0, _galleryShown = false;
+
     function setMode(mode) {
+      const prevMode = _currentMode;
+      if (prevMode === 'gallery' && mode !== 'gallery') _galleryScrollY = window.scrollY;
       _currentMode = mode;
       if (mode === 'gallery' || mode === 'collections' || mode === 'home') localStorage.setItem('mc_mode', mode);
       // Dismiss pull overlay when navigating away
@@ -1320,6 +1331,8 @@
       const lensRow = document.getElementById('lensRow');
       const subRow  = document.getElementById('subRow');
       if (lensRow) lensRow.style.display = mode === 'gallery' ? '' : 'none';
+      const feedBar = document.getElementById('feedBar');
+      if (feedBar) feedBar.style.display = mode === 'gallery' ? '' : 'none';
       if (subRow && mode !== 'gallery') subRow.style.display = 'none';
       // Always restore the active lens chip when entering gallery (even if cards already loaded)
       if (mode === 'gallery') {
@@ -1339,6 +1352,11 @@
         if (l3) l3.style.display = 'none';
         if (main) main.style.display = '';
       }
+
+      // Gallery keeps its feed and scroll position when you come back; other pages start at the top
+      if (mode === 'gallery' && prevMode !== 'gallery') requestAnimationFrame(() => window.scrollTo(0, _galleryScrollY));
+      else if (prevMode === 'gallery' && mode !== 'gallery') window.scrollTo(0, 0);
+      if (mode === 'gallery') _galleryShown = true;
 
       // load content
       if (mode === 'gallery' && typeof filteredCards !== 'undefined' && filteredCards.length === 0 && !activeSearch) initLens();
@@ -1562,14 +1580,22 @@
       _activeLens = 'picks';
       renderSubPills('picks');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      const cached = _lensCache[_cacheKey('picks', null)];
-      if (cached) {
-        grid.innerHTML = '';
-        renderCards(cached.cards);
-        if (cached.hasMore) observeLastCard();
-      } else {
-        applyLensQuery('picks', null);
-      }
+      applyLensQuery('picks', null);
+    }
+
+    // Home → "Browse the Gallery": always a fresh shuffle of All (other entry points keep the feed)
+    function freshGallery() {
+      const fresh = !_galleryShown && _activeLens === 'picks' && sortOrder === 'random' && !activeSearch && filteredCards.length;
+      setMode('gallery');
+      if (fresh) return; // the feed prefetched on load is already a fresh shuffle
+      if (activeSearch) { activeSearch = null; setSearchMode(false); }
+      sortOrder = 'random'; sortDir = 'auto';
+      document.querySelectorAll('.lens-btn').forEach(b => b.classList.toggle('active', b.dataset.lens === 'picks'));
+      _activeLens = 'picks'; window._activeSubPill = null;
+      document.getElementById('subRow').style.display = 'none';
+      _galleryScrollY = 0; window.scrollTo(0, 0);
+      delete _lensCache[_cacheKey('picks', null)];
+      applyLensQuery('picks', null);
     }
 
     // ── Lens system ──
@@ -1661,14 +1687,10 @@
       }
 
       const key = _cacheKey(lens, sub);
-      const cached = !activeSearch ? _lensCache[key] : null;
-      if (cached) {
-        grid.innerHTML = '';
-        renderCards(cached.cards);
-        if (cached.hasMore) observeLastCard();
-        return;
-      }
-      loadInitialGrid();
+      const query = currentFiltersQuery();
+      const cached = !activeSearch && sortOrder === 'random' ? _lensCache[key] : null;
+      if (cached) { showFeed(cached.cards, cached.hasMore, query); return; }
+      loadInitialGrid(query);
     }
 
     let _activeLens = 'picks';
@@ -2056,13 +2078,7 @@
       }, 1500); // delay so it doesn't compete with active fetch
     }
 
-    function shuffleLens() {
-      if (typeof _lensCache !== 'undefined') {
-        const key = _activeLens + ':' + (window._activeSubPill || '');
-        delete _lensCache[key];
-      }
-      loadInitialGrid();
-    }
+    function shuffleLens() { reshuffleFeed(); }
 
     let _lensGridOpen = false;
     let _lensSortOpen = false;
@@ -2330,6 +2346,7 @@
       const savedSort = localStorage.getItem("mc_sort");
       if (savedSort) {
         try { const ss = JSON.parse(savedSort); sortOrder = ss.order || "random"; sortDir = ss.dir || "auto"; } catch(e) {}
+        if (!SORT_OPTIONS.some(o => o.order === sortOrder && o.dir === sortDir)) { sortOrder = 'random'; sortDir = 'auto'; }
       }
       _activeLens = lens;
       // Activate the correct tab
@@ -2378,6 +2395,7 @@
           const progress = Math.min(pullDist / threshold, 1);
           indicator.style.height = (pullDist * 0.4) + 'px';
           indicator.style.opacity = progress;
+          indicator.textContent = progress >= 1 ? 'Release to shuffle' : 'Pull to shuffle';
         }
       }, { passive: true });
 
@@ -2385,14 +2403,17 @@
         if (!pulling) return;
         pulling = false;
         if (pullDist >= threshold && window.scrollY <= 0) {
+          indicator.textContent = '';
           indicator.classList.add('refreshing');
           setTimeout(() => {
-            loadInitialGrid();
+            if (sortOrder !== 'random') { sortOrder = 'random'; sortDir = 'auto'; localStorage.setItem("mc_sort", JSON.stringify({ order: 'random', dir: 'auto' })); }
+            reshuffleFeed();
             indicator.classList.remove('refreshing');
             indicator.style.height = '0';
             indicator.style.opacity = '0';
           }, 400);
         } else {
+          indicator.textContent = '';
           indicator.style.height = '0';
           indicator.style.opacity = '0';
         }

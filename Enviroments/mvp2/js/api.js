@@ -7,54 +7,64 @@ let sortOrder = "random";
 let sortDir = "auto";
 
 const SORT_OPTIONS = [
-  { label: "Shuffle",      order: "random",   dir: "auto" },
-  { label: "Newest First", order: "released", dir: "desc" },
-  { label: "Oldest First", order: "released", dir: "asc"  },
-  { label: "A → Z",        order: "name",     dir: "asc"  },
-  { label: "Z → A",        order: "name",     dir: "desc" },
+  { label: "Shuffle", order: "random",   dir: "auto", caption: "Shuffled · a random walk through Magic art" },
+  { label: "Popular", order: "edhrec",   dir: "auto", caption: "Most-played cards first" },
+  { label: "Newest",  order: "released", dir: "desc", caption: "Newest releases first" },
+  { label: "Oldest",  order: "released", dir: "asc",  caption: "Oldest first · from 1993" },
 ];
 
-async function fetchCards(query = "t:creature", page = 1) {
+// Feed state for infinite scroll: shuffle keeps drawing random pages of the
+// current query, never repeating a card, until the whole query is seen
+const PAGE_SIZE = 175;
+const _pageCounts = {};      // query -> number of result pages (learned from responses)
+let _seenIds = new Set();
+let _feedTotal = 0;
+let _feedEpoch = 0; // bumped by resetPagination; responses from an older feed are discarded
+
+async function _search(query, order, dir, page) {
+  const url = `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=${page}`;
+  let res = await fetch(url);
+  if (res.status === 429) { await new Promise(r => setTimeout(r, 2000)); res = await fetch(url); }
+  if (res.status === 429) return { rateLimited: true };
+  if (!res.ok) return null;
+  const json = await res.json();
+  if (json.object === 'error') return null;
+  _pageCounts[query] = Math.max(1, Math.ceil((json.total_cards || 0) / PAGE_SIZE));
+  return json;
+}
+
+async function fetchCards(query = "t:creature") {
   isLoading = true;
-  const isRandom = sortOrder === "random";
-  const randomPage = isRandom ? Math.floor(Math.random() * 200) + 1 : page;
-  const order = isRandom ? "released" : sortOrder;
-  const dir = isRandom ? (Math.random() < 0.5 ? "asc" : "desc") : sortDir;
-  const url = (!isRandom && nextPageUrl) || `${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=${randomPage}`;
+  const epoch = _feedEpoch;
   try {
-    const res = await fetch(url);
-    if (res.status === 429) {
-      // Rate limited — wait and retry once
-      await new Promise(r => setTimeout(r, 2000));
-      const retry = await fetch(url);
-      if (!retry.ok) { isLoading = false; return { data: [], hasMore: false, rateLimited: true }; }
-      const rjson = await retry.json();
-      nextPageUrl = rjson.has_more ? rjson.next_page : null;
-      isLoading = false;
-      return { data: isRandom ? shuffleArray(rjson.data || []) : (rjson.data || []), hasMore: rjson.has_more || false };
-    }
-    if (!res.ok) {
-      if (isRandom) {
-        const fallback = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=${order}&dir=${dir}&page=1`);
-        if (!fallback.ok) { isLoading = false; return { data: [], hasMore: false }; }
-        const fjson = await fallback.json();
-        if (fjson.object === 'error') { isLoading = false; return { data: [], hasMore: false }; }
-        nextPageUrl = fjson.has_more ? fjson.next_page : null;
-        isLoading = false;
-        return { data: shuffleArray(fjson.data || []), hasMore: fjson.has_more || false };
+    const isRandom = sortOrder === "random";
+    let json;
+    if (isRandom) {
+      // Random page (and direction) of the query; learn the page count on first miss
+      const dir = Math.random() < 0.5 ? "asc" : "desc";
+      const pages = _pageCounts[query] || 200;
+      json = await _search(query, "released", dir, Math.floor(Math.random() * pages) + 1);
+      if (!json && !_pageCounts[query]) {
+        json = await _search(query, "released", dir, 1);
+        const known = _pageCounts[query] || 1;
+        if (json && known > 1) json = await _search(query, "released", dir, Math.floor(Math.random() * known) + 1) || json;
       }
-      isLoading = false;
-      return { data: [], hasMore: false };
+    } else {
+      json = nextPageUrl ? await (await fetch(nextPageUrl)).json() : await _search(query, sortOrder, sortDir, 1);
+      if (json && json.object === 'error') json = null;
     }
-    const json = await res.json();
-    if (json.object === 'error') { isLoading = false; return { data: [], hasMore: false }; }
-    nextPageUrl = json.has_more ? json.next_page : null;
-    isLoading = false;
-    const data = json.data || [];
-    return { data: isRandom ? shuffleArray(data) : data, hasMore: json.has_more || false };
+    if (epoch !== _feedEpoch) return { data: [], hasMore: false, stale: true };
+    if (!json || json.rateLimited) return { data: [], hasMore: false, rateLimited: !!(json && json.rateLimited) };
+    nextPageUrl = !isRandom && json.has_more ? json.next_page : null;
+    _feedTotal = json.total_cards || 0;
+    const data = (json.data || []).filter(c => !_seenIds.has(c.id));
+    data.forEach(c => _seenIds.add(c.id));
+    const hasMore = isRandom ? _seenIds.size < _feedTotal : !!json.has_more;
+    return { data: isRandom ? shuffleArray(data) : data, hasMore };
   } catch (e) {
-    isLoading = false;
     return { data: [], hasMore: false };
+  } finally {
+    isLoading = false;
   }
 }
 
@@ -69,6 +79,9 @@ function shuffleArray(arr) {
 
 function resetPagination() {
   nextPageUrl = null;
+  _seenIds = new Set();
+  _feedTotal = 0;
+  _feedEpoch++;
 }
 
 async function fetchCreatureTypes() {

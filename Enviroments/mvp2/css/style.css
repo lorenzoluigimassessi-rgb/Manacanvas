@@ -1734,7 +1734,7 @@ body {
 
 /* Grid — masonry columns on all breakpoints */
 .grid {
-  columns: 5;
+  columns: 4;
   column-gap: 1rem;
   padding: 2rem;
 }
@@ -1747,13 +1747,15 @@ body {
 .grid > .feed-set-header, .grid > .empty-state { column-span: all; }
 
 /* Grid size variants */
-.grid.grid-sm { columns: 6; column-gap: 0.5rem; }
+.grid.grid-sm { columns: 5; column-gap: 0.5rem; }
 .grid.grid-sm > .card, .grid.grid-sm > .shimmer { margin-bottom: 0.5rem; }
-.grid.grid-lg { columns: 4; column-gap: 1.2rem; }
+.grid.grid-lg { columns: 3; column-gap: 1.2rem; }
 .grid.grid-lg > .card, .grid.grid-lg > .shimmer { margin-bottom: 1.2rem; }
 
 /* Small laptops: 3 columns so cards keep a readable size (esp. with sidebar open) */
 @media (min-width: 1024px) and (max-width: 1279px) { .grid { columns: 3; } }
+/* Large monitors: 5 columns keeps card size close to 4-col on a laptop */
+@media (min-width: 1700px) { .grid { columns: 5; } .grid.grid-sm { columns: 6; } .grid.grid-lg { columns: 4; } }
 /* Mobile + tablet: always 2 (after the base rule so it wins) */
 @media (max-width: 1023px) { .grid, .grid.grid-sm, .grid.grid-lg { columns: 2; } }
 

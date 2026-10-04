@@ -3877,21 +3877,13 @@ input[type=range]::-moz-range-thumb {
 }
 
 
-/* ═══ Feed bar: names the order, reshuffle, sort ═══ */
-.feed-bar {
-  display: flex; align-items: center; gap: 0.6rem;
-  padding: 0.9rem 2rem 0;
+/* ═══ One-time "new mix" hint above the feed ═══ */
+.feed-hint {
+  text-align: center; padding: 0.9rem 1rem 0; white-space: pre;
+  font-size: 0.75rem; letter-spacing: 1px; color: var(--text-secondary);
+  transition: opacity 400ms;
 }
-.feed-caption { font-size: 0.78rem; letter-spacing: 0.3px; color: var(--text-secondary); }
-.feed-shuffle {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 30px; height: 30px; border-radius: 50%;
-  background: none; border: 1px solid var(--border); color: var(--text-secondary);
-  cursor: pointer; transition: color 150ms, border-color 150ms, transform 300ms;
-}
-.feed-shuffle svg { width: 14px; height: 14px; }
-.feed-shuffle:hover { color: var(--text-primary); border-color: var(--border-hover); transform: rotate(-90deg); }
-.feed-sort { margin-left: auto; }
+.feed-hint.fade { opacity: 0; }
 
 /* "Browse by category" band inside the All feed */
 .feed-bridge {
@@ -3910,10 +3902,7 @@ input[type=range]::-moz-range-thumb {
 .feed-bridge button:hover { color: var(--text-primary); }
 
 @media (max-width: 768px) {
-  .feed-bar { padding: 0.6rem 0.75rem 0; }
-  .feed-caption { display: none; }
-  .feed-sort { margin-left: 0; order: -1; }
-  .feed-shuffle { margin-left: auto; }
+  .feed-hint { padding-top: 0.6rem; }
   .feed-bridge { font-size: 0.95rem; margin: 1rem 0 1.25rem; padding: 1.1rem 0.75rem; }
 }
 

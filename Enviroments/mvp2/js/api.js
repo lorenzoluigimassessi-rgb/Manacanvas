@@ -7,10 +7,10 @@ let sortOrder = "random";
 let sortDir = "auto";
 
 const SORT_OPTIONS = [
-  { label: "Shuffle", order: "random",   dir: "auto", caption: "Shuffled · a random walk through Magic art" },
-  { label: "Popular", order: "edhrec",   dir: "auto", caption: "Most-played cards first" },
-  { label: "Newest",  order: "released", dir: "desc", caption: "Newest releases first" },
-  { label: "Oldest",  order: "released", dir: "asc",  caption: "Oldest first · from 1993" },
+  { label: "Shuffle", order: "random",   dir: "auto" },
+  { label: "Popular", order: "edhrec",   dir: "auto" },
+  { label: "Newest",  order: "released", dir: "desc" },
+  { label: "Oldest",  order: "released", dir: "asc"  },
 ];
 
 // Feed state for infinite scroll: shuffle keeps drawing random pages of the
@@ -29,7 +29,8 @@ async function _search(query, order, dir, page) {
   if (!res.ok) return null;
   const json = await res.json();
   if (json.object === 'error') return null;
-  _pageCounts[query] = Math.max(1, Math.ceil((json.total_cards || 0) / PAGE_SIZE));
+  // Full pages only — Scryfall can reject the last, partial page
+  _pageCounts[query] = Math.max(1, Math.floor((json.total_cards || 0) / PAGE_SIZE));
   return json;
 }
 
@@ -44,7 +45,8 @@ async function fetchCards(query = "t:creature") {
       const dir = Math.random() < 0.5 ? "asc" : "desc";
       const pages = _pageCounts[query] || 200;
       json = await _search(query, "released", dir, Math.floor(Math.random() * pages) + 1);
-      if (!json && !_pageCounts[query]) {
+      if (!json) {
+        // Page out of range (count unknown or off by one): learn it from page 1, then try a page inside it
         json = await _search(query, "released", dir, 1);
         const known = _pageCounts[query] || 1;
         if (json && known > 1) json = await _search(query, "released", dir, Math.floor(Math.random() * known) + 1) || json;

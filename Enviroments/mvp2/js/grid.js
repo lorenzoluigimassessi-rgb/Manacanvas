@@ -42,7 +42,6 @@ async function loadInitialGrid(query) {
   resetPagination();
   const gen = ++_feedGen;
   currentQuery = query || currentFiltersQuery();
-  updateFeedBar();
   const { data, hasMore, rateLimited } = await fetchCards(currentQuery);
   if (gen !== _feedGen) return; // a newer feed started meanwhile
   grid.innerHTML = "";
@@ -73,7 +72,6 @@ function showFeed(cards, hasMore, query, fromNetwork) {
   filteredCards = cards;
   renderCards(cards);
   insertFeedBridge();
-  updateFeedBar();
   if (hasMore) observeLastCard();
 }
 
@@ -89,27 +87,26 @@ function insertFeedBridge() {
   after.after(band);
 }
 
-// Order caption + sort control above the grid
-function updateFeedBar() {
-  const bar = document.getElementById('feedBar');
-  if (!bar) return;
-  const opt = SORT_OPTIONS.find(o => o.order === sortOrder && o.dir === sortDir) || SORT_OPTIONS[0];
-  document.getElementById('feedCaption').textContent = opt.caption;
-  document.getElementById('feedShuffle').style.display = opt.order === 'random' ? '' : 'none';
-  document.getElementById('feedSort').innerHTML = SORT_OPTIONS.map((o, i) =>
-    `<button class="l2-sort-btn ${o === opt ? 'active' : ''}" onclick="setFeedSort(${i})">${o.label}</button>`).join('');
+// One-time hint that the feed can be reshuffled; gone once used or after scrolling into the feed
+const _isTouch = 'ontouchstart' in window;
+function updateFeedHint() {
+  const hint = document.getElementById('feedHint');
+  if (!hint) return;
+  let seen = false;
+  try { seen = localStorage.getItem('mc_hint_mix') === '1'; } catch (e) {}
+  hint.textContent = _isTouch ? '↓  Pull down for a new mix' : '↑  Scroll up for a new mix';
+  hint.style.display = seen ? 'none' : '';
 }
-
-function setFeedSort(i) {
-  const opt = SORT_OPTIONS[i];
-  sortOrder = opt.order; sortDir = opt.dir;
-  localStorage.setItem("mc_sort", JSON.stringify({ order: opt.order, dir: opt.dir }));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  loadInitialGrid(currentQuery);
+function dismissFeedHint() {
+  try { localStorage.setItem('mc_hint_mix', '1'); } catch (e) {}
+  const hint = document.getElementById('feedHint');
+  if (hint && hint.style.display !== 'none') { hint.classList.add('fade'); setTimeout(() => { hint.style.display = 'none'; hint.classList.remove('fade'); }, 400); }
 }
+window.addEventListener('scroll', () => { if (window.scrollY > 1500 && _currentMode === 'gallery') dismissFeedHint(); }, { passive: true });
 
 // New random cards for the same lens/filters (↻ button, pull-to-refresh)
 function reshuffleFeed() {
+  dismissFeedHint();
   if (typeof _lensCache !== 'undefined' && typeof _activeLens !== 'undefined') delete _lensCache[_activeLens + ':' + (window._activeSubPill || '')];
   window.scrollTo({ top: 0, behavior: 'smooth' });
   loadInitialGrid(currentQuery);
@@ -387,40 +384,3 @@ function restoreFilters() {
 
 // Init
 // restoreFilters() is called from filters.js after all functions are defined
-
-// Pull-to-refresh — mobile only, triggers new shuffle on All lens
-(function initPullToRefresh() {
-  if (!('ontouchstart' in window)) return;
-  let startY = 0, pulling = false;
-  const indicator = document.createElement('div');
-  indicator.id = 'pullIndicator';
-  indicator.style.cssText = 'position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-100%);background:var(--surface);border:1px solid var(--border);border-radius:0 0 20px 20px;padding:0.4rem 1.2rem;font-size:0.75rem;color:var(--text-secondary);z-index:99;transition:transform 200ms ease;pointer-events:none;';
-  indicator.textContent = '↓ Pull to shuffle';
-  document.body.appendChild(indicator);
-
-  document.addEventListener('touchstart', (e) => {
-    if (window.scrollY === 0) { startY = e.touches[0].clientY; pulling = true; }
-  }, { passive: true });
-
-  document.addEventListener('touchmove', (e) => {
-    if (!pulling) return;
-    const delta = e.touches[0].clientY - startY;
-    if (delta > 10) indicator.style.transform = `translateX(-50%) translateY(${Math.min(delta - 10, 48)}px)`;
-    if (delta > 60) indicator.textContent = '↑ Release to shuffle';
-    else indicator.textContent = '↓ Pull to shuffle';
-  }, { passive: true });
-
-  document.addEventListener('touchend', (e) => {
-    if (!pulling) return;
-    pulling = false;
-    const delta = e.changedTouches[0].clientY - startY;
-    indicator.style.transform = 'translateX(-50%) translateY(-100%)';
-    indicator.textContent = '↓ Pull to shuffle';
-    if (delta > 60 && window.scrollY === 0) {
-      // Clear All lens cache so reshuffle fetches fresh cards
-      if (typeof _lensCache !== 'undefined') delete _lensCache['picks:'];
-      window.scrollTo({ top: 0 });
-      loadInitialGrid();
-    }
-  });
-})();

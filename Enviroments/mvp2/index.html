@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=64">
+  <link rel="stylesheet" href="css/style.css?v=65">
 </head>
 <body>
 
@@ -1010,13 +1010,7 @@
       <div class="lens-controls" id="lensControls" style="display:none;"></div>
     </div>
     <div class="sub-row" id="subRow" style="display:none;"></div>
-    <div class="feed-bar" id="feedBar">
-      <span class="feed-caption" id="feedCaption"></span>
-      <button class="feed-shuffle" id="feedShuffle" onclick="reshuffleFeed()" aria-label="Shuffle again" title="Shuffle again">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-      </button>
-      <div class="l2-sort feed-sort" id="feedSort"></div>
-    </div>
+    <div class="feed-hint" id="feedHint" style="display:none;"></div>
 
     <!-- ── Mobile top bar (non-gallery modes) ── -->
     <div class="mobile-top-bar">
@@ -1248,8 +1242,8 @@
   </div><!-- end appShell -->
 
   <script src="js/welcome.js?v=25"></script>
-  <script src="js/api.js?v=25"></script>
-  <script src="js/grid.js?v=26"></script>
+  <script src="js/api.js?v=27"></script>
+  <script src="js/grid.js?v=28"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/filters.js?v=23"></script>
   <script src="js/lightbox.js?v=23"></script>
@@ -1331,8 +1325,7 @@
       const lensRow = document.getElementById('lensRow');
       const subRow  = document.getElementById('subRow');
       if (lensRow) lensRow.style.display = mode === 'gallery' ? '' : 'none';
-      const feedBar = document.getElementById('feedBar');
-      if (feedBar) feedBar.style.display = mode === 'gallery' ? '' : 'none';
+      if (mode === 'gallery') updateFeedHint(); else document.getElementById('feedHint').style.display = 'none';
       if (subRow && mode !== 'gallery') subRow.style.display = 'none';
       // Always restore the active lens chip when entering gallery (even if cards already loaded)
       if (mode === 'gallery') {
@@ -2395,7 +2388,7 @@
           const progress = Math.min(pullDist / threshold, 1);
           indicator.style.height = (pullDist * 0.4) + 'px';
           indicator.style.opacity = progress;
-          indicator.textContent = progress >= 1 ? 'Release to shuffle' : 'Pull to shuffle';
+          indicator.textContent = progress >= 1 ? 'Release for a new mix' : 'Pull for a new mix';
         }
       }, { passive: true });
 
@@ -2419,6 +2412,41 @@
         }
         pullDist = 0;
       });
+    })();
+
+    // ── Desktop: keep scrolling up while already at the top → reshuffle ──
+    (function initWheelReshuffle() {
+      const indicator = document.getElementById('ptrIndicator');
+      const threshold = 320;          // px of deliberate upward scroll
+      let atTopSince = Date.now(), acc = 0, idle = null, busy = false;
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 0) atTopSince = null; else if (atTopSince === null) atTopSince = Date.now();
+      }, { passive: true });
+      window.addEventListener('wheel', (e) => {
+        if (_currentMode !== 'gallery' || busy || e.deltaY >= 0 || window.scrollY > 0) return;
+        // Ignore momentum from a fast scroll that just reached the top
+        if (atTopSince === null || Date.now() - atTopSince < 350) return;
+        acc += Math.min(-e.deltaY, 60);
+        const progress = Math.min(acc / threshold, 1);
+        indicator.style.height = (progress * 40) + 'px';
+        indicator.style.opacity = progress;
+        indicator.textContent = 'Keep scrolling for a new mix';
+        clearTimeout(idle);
+        if (acc >= threshold) {
+          busy = true; acc = 0;
+          indicator.textContent = '';
+          indicator.classList.add('refreshing');
+          setTimeout(() => {
+            if (sortOrder !== 'random') { sortOrder = 'random'; sortDir = 'auto'; localStorage.setItem("mc_sort", JSON.stringify({ order: 'random', dir: 'auto' })); }
+            reshuffleFeed();
+            indicator.classList.remove('refreshing');
+            indicator.style.height = '0'; indicator.style.opacity = '0';
+            setTimeout(() => { busy = false; atTopSince = Date.now(); }, 800);
+          }, 400);
+          return;
+        }
+        idle = setTimeout(() => { acc = 0; indicator.textContent = ''; indicator.style.height = '0'; indicator.style.opacity = '0'; }, 400);
+      }, { passive: true });
     })();
 
     // ── Set lens row top dynamically to match header height ──

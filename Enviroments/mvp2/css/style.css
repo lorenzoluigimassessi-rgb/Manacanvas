@@ -308,16 +308,18 @@ body {
   letter-spacing: 10px;
   color: #f0f0f0;
   margin-bottom: 0.6rem;
+  text-shadow: 0 2px 30px rgba(0,0,0,0.55);
 }
 
 .welcome-subtitle {
   font-size: 1rem;
-  color: rgba(240, 240, 240, 0.85);
+  color: rgba(240, 240, 240, 0.92);
   font-weight: 300;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   margin-bottom: 2.5rem;
   white-space: nowrap;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.7);
 }
 
 .welcome-cta {
@@ -369,7 +371,11 @@ body {
 .home-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(12,12,15,0.65) 0%, rgba(12,12,15,0.88) 65%, rgba(12,12,15,0.97) 100%);
+  /* Let the art breathe: light base tint, soft scrim only behind the hero, vignette at the edges */
+  background:
+    radial-gradient(ellipse 58% 50% at 50% 48%, rgba(12,12,15,0.62) 0%, rgba(12,12,15,0.25) 60%, rgba(12,12,15,0) 100%),
+    radial-gradient(ellipse at center, rgba(12,12,15,0) 45%, rgba(12,12,15,0.7) 100%),
+    linear-gradient(rgba(12,12,15,0.32), rgba(12,12,15,0.32));
   z-index: 1;
 }
 
@@ -425,8 +431,8 @@ body {
 .home-action--primary {
   width: 100%;
   padding: 1.1rem 2rem;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(12,12,15,0.35);
+  border: 1px solid rgba(255,255,255,0.28);
   border-radius: 10px;
   color: rgba(240,240,240,0.95);
   font-size: 0.75rem;
@@ -437,7 +443,7 @@ body {
 }
 
 .home-action--primary:hover {
-  background: rgba(255,255,255,0.18);
+  background: rgba(12,12,15,0.5);
   border-color: rgba(255,255,255,0.4);
   transform: translateY(-2px);
 }
@@ -456,8 +462,9 @@ body {
   font-size: 0.7rem;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(240,240,240,0.62);
+  color: rgba(240,240,240,0.82);
   padding: 0;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.8);
   transition: color 180ms;
 }
 
@@ -2540,7 +2547,13 @@ body {
   .lb-nav-arrow { display: none; }
   .random-btn-primary { font-size: 1rem; padding: 0.85rem 2rem; }
   .welcome-title { font-size: 2.8rem; letter-spacing: 5px; }
-  .welcome-subtitle { font-size: 0.78rem; letter-spacing: 1px; white-space: normal; text-align: center; }
+  .welcome-subtitle { font-size: 0.78rem; font-weight: 400; letter-spacing: 1px; white-space: normal; text-align: center; }
+  .home-overlay {
+    background:
+      radial-gradient(ellipse 95% 42% at 50% 42%, rgba(12,12,15,0.68) 0%, rgba(12,12,15,0.3) 60%, rgba(12,12,15,0) 100%),
+      radial-gradient(ellipse at center, rgba(12,12,15,0) 45%, rgba(12,12,15,0.7) 100%),
+      linear-gradient(rgba(12,12,15,0.32), rgba(12,12,15,0.32));
+  }
   .welcome-footer { padding: 0 2.5rem; font-size: 0.7rem; color: rgba(240,240,240,0.6); position: fixed; bottom: 1rem; left: 0; right: 0; z-index: 3; }
   .lightbox .meta .name { font-size: 1.1rem; }
   .welcome-cta { width: 100%; max-width: 280px; height: 52px; }

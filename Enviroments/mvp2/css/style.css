@@ -3798,15 +3798,9 @@ input[type=range]::-moz-range-thumb {
   color: rgb(var(--chip)); background: rgba(var(--chip), 0.1); border: 1px solid rgba(var(--chip), 0.32);
 }
 .search-row--title .search-count { align-self: center; }
-.search-clear-link {
-  align-self: center; background: none; border: none; padding: 0; cursor: pointer;
-  font-family: 'Josefin Sans', sans-serif; font-size: 0.78rem; letter-spacing: 1px;
-  color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px;
-  text-decoration-color: rgba(255,255,255,0.25); transition: color 150ms, text-decoration-color 150ms;
-}
-.search-clear-link::before { content: '·'; margin-right: 0.75rem; text-decoration: none; display: inline-block; opacity: 0.5; }
-.search-clear-link:hover { color: var(--text-primary); text-decoration-color: currentColor; }
-@media (max-width: 768px) { .search-row--title .search-title { flex-basis: 100%; } }
+.search-title-group { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.search-title-group .l2-back svg { width: clamp(2rem, 2.8vw, 2.6rem); }
+@media (max-width: 768px) { .search-title-group { flex-basis: 100%; gap: 0.75rem; } }
 
 /* Kind hues (same as the search suggestion tags) */
 .search-chip--artist   { --chip: 179,157,219; }

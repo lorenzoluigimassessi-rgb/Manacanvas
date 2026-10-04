@@ -157,13 +157,15 @@ function renderSearchHead() {
   const sortPills = `<div class="l2-sort">${SEARCH_SORTS.map(o =>
     `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div>`;
   const count = `<span class="search-count" id="searchCount">${_feedTotal ? _feedTotal.toLocaleString() + ' artworks' : ''}</span>`;
-  // The search as a title, its kind as a tinted chip beside it; a plain 'Clear' after the count ends the search
+  // The search as a title (with the site's back arrow, which ends the search), its kind as a tinted chip, count, sort
   head.innerHTML = `
     <div class="search-row search-row--title">
-      <h2 class="search-title">${m.label}</h2>
+      <div class="search-title-group">
+        <button class="l2-back" onclick="clearSearchPill()" aria-label="Back to the gallery" title="Back to the gallery"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
+        <h2 class="search-title">${m.label}</h2>
+      </div>
       <span class="search-kind-chip search-chip--${m.tag.toLowerCase()}">${SEARCH_KINDS[m.tag] || m.tag}</span>
       ${count}
-      <button class="search-clear-link" onclick="clearSearchPill()">Clear</button>
       ${sortPills}
     </div>`;
 }

@@ -3779,7 +3779,7 @@ input[type=range]::-moz-range-thumb {
 .l3-crumbs .crumb { opacity: 1; text-transform: uppercase; }
 
 /* Search results header (gallery) */
-.search-head { padding: 1.25rem 2rem 0; }
+.search-head { padding: 0.75rem 2rem 0; } /* bar→chip = chip→first card (32px) */
 .search-head .l3-toolbar { margin-bottom: 0; }
 .search-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .search-row .l2-sort { margin-left: auto; }
@@ -3816,7 +3816,7 @@ input[type=range]::-moz-range-thumb {
 .hero-suggestions .suggestion-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-primary); }
 .hero-suggestions .suggestion-item + .suggestion-item { border-top: 1px solid var(--border); }
 @media (max-width: 768px) {
-  .search-head { padding: 0.9rem 0.75rem 0; }
+  .search-head { padding: 0.9rem 0.75rem 0.4rem; } /* header→chip = sort→first card */
   .search-row { gap: 0.6rem 0.75rem; }
   .search-row .l2-sort { margin-left: 0; }
   .search-chip-name { font-size: 0.95rem; }

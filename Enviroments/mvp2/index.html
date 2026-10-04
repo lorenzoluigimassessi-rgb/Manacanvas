@@ -2881,7 +2881,7 @@
       const GROUPS = [
         { title: 'Card types', names: ['Creature','Instant','Sorcery','Enchantment','Artifact','Land','Planeswalker','Battle','Kindred'] },
         { title: 'Supertypes', names: ['Legendary','Basic','Snow','World'] },
-        { title: 'Beyond the duel', sub: 'Planechase, Archenemy, Vanguard, Conspiracy', names: ['Plane','Phenomenon','Scheme','Vanguard','Conspiracy'] },
+        { title: 'Beyond the duel', names: ['Plane','Phenomenon','Scheme','Vanguard','Conspiracy'] },
       ].map(g => ({ ...g, items: g.names.filter(n => counts[n]).map(name => ({ name, q: typeQ(name), icon: TYPE_ICONS[name],
         meta: counts[name].toLocaleString() + ' artworks' })) }));
       renderListLevel2({ title: 'Card Types', noun: 'card types', items: GROUPS.flatMap(g => g.items),

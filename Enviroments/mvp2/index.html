@@ -294,12 +294,15 @@
     #searchClear {
       color: var(--text-2);
       cursor: pointer;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       flex-shrink: 0;
-      transition: color 150ms;
-      padding: 0 0.2rem;
+      transition: color 150ms, background 150ms;
+      width: 26px; height: 26px; border-radius: 50%;
+      align-items: center; justify-content: center;
+      margin-right: 0.35rem; /* breathing room from the bar's edge */
     }
-    #searchClear:hover { color: var(--text-1); }
+    #searchClear[style*="block"] { display: inline-flex !important; }
+    #searchClear:hover { color: var(--text-1); background: rgba(255,255,255,0.06); }
 
     #searchSuggestions {
       position: absolute;
@@ -867,7 +870,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=84">
+  <link rel="stylesheet" href="css/style.css?v=85">
 </head>
 <body>
 
@@ -1248,7 +1251,7 @@
   <script src="js/grid.js?v=34"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
-  <script src="js/filters.js?v=25"></script>
+  <script src="js/filters.js?v=26"></script>
   <script src="js/lightbox.js?v=23"></script>
 
   <script>

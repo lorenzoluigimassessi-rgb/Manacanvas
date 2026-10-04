@@ -921,6 +921,8 @@ function initSearch() {
     highlightedIdx = -1;
     const hasValue = !!input.value;
     clearBtn.style.display = hasValue ? "block" : "none";
+    // Emptying the bar ends the search: back to the gallery
+    if (!hasValue && activeSearch) { hideSearchSuggestions(); clearSearchPill(); return; }
     searchTimeout = setTimeout(() => {
       const val = input.value.trim();
       if (val.length >= 2) showSearchSuggestions(val);
@@ -953,6 +955,24 @@ function initSearch() {
       hideSearchSuggestions();
       input.blur();
     }
+  });
+
+  // Clicking back into a finished search reopens the suggestions for its text
+  input.addEventListener("focus", () => {
+    const val = input.value.trim();
+    if (val.length >= 2) showSearchSuggestions(val);
+  });
+  // Edited but not submitted: leaving the bar restores the active search's text
+  input.addEventListener("blur", () => {
+    setTimeout(() => {
+      if (document.activeElement === input) return;
+      hideSearchSuggestions();
+      const meta = typeof _searchMeta !== 'undefined' && _searchMeta;
+      if (activeSearch && meta && input.value !== meta.label) {
+        input.value = meta.label;
+        clearBtn.style.display = "block";
+      }
+    }, 150);
   });
 
   clearBtn.addEventListener("click", () => {

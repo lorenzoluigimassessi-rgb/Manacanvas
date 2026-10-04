@@ -374,8 +374,8 @@ body {
   /* Let the art breathe: light base tint, soft scrim only behind the hero, vignette at the edges */
   background:
     radial-gradient(ellipse 58% 50% at 50% 48%, rgba(12,12,15,0.62) 0%, rgba(12,12,15,0.25) 60%, rgba(12,12,15,0) 100%),
-    radial-gradient(ellipse at center, rgba(12,12,15,0) 45%, rgba(12,12,15,0.7) 100%),
-    linear-gradient(rgba(12,12,15,0.32), rgba(12,12,15,0.32));
+    radial-gradient(ellipse at center, rgba(12,12,15,0) 45%, rgba(12,12,15,0.78) 100%),
+    linear-gradient(rgba(12,12,15,0.45), rgba(12,12,15,0.45));
   z-index: 1;
 }
 
@@ -2551,8 +2551,8 @@ body {
   .home-overlay {
     background:
       radial-gradient(ellipse 95% 42% at 50% 42%, rgba(12,12,15,0.68) 0%, rgba(12,12,15,0.3) 60%, rgba(12,12,15,0) 100%),
-      radial-gradient(ellipse at center, rgba(12,12,15,0) 45%, rgba(12,12,15,0.7) 100%),
-      linear-gradient(rgba(12,12,15,0.32), rgba(12,12,15,0.32));
+      radial-gradient(ellipse at center, rgba(12,12,15,0) 45%, rgba(12,12,15,0.78) 100%),
+      linear-gradient(rgba(12,12,15,0.45), rgba(12,12,15,0.45));
   }
   .welcome-footer { padding: 0 2.5rem; font-size: 0.7rem; color: rgba(240,240,240,0.6); position: fixed; bottom: 1rem; left: 0; right: 0; z-index: 3; }
   .lightbox .meta .name { font-size: 1.1rem; }

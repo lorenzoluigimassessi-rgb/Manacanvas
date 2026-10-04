@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=51">
+  <link rel="stylesheet" href="css/style.css?v=52">
 </head>
 <body>
 
@@ -2449,13 +2449,14 @@
     let _collectionsRendered = false;
 
     // Each section: 5 preview cards in the artist-card style (art triptych + icon + name + count)
-    // Mana previews are hand-picked: art where the colour dominates (scored by hue, then checked by eye)
+    // Mana previews are hand-picked: original art where the colour dominates (scored by hue,
+    // checked by eye), each from its cleanest printing
     const COL_MANA = [
-      { name:'White', key:'w', q:'color=w', art:[['Wrath of God','c/3/c3700519-b74c-4445-b42e-03690b8d4463'],['Mondrak, Glory Dominus','8/2/8296a455-21d5-498e-9029-2bdf0da855a8'],['Farewell','1/1/114d2180-093b-4838-97ad-badbc8ee50b0']] },
-      { name:'Blue', key:'u', q:'color=u', art:[['Wizard Class','d/1/d1f629fb-b097-4240-8560-ef47f5678f48'],['Swan Song','8/3/83d0b761-d694-4232-9f40-5bd8c82a05f1'],['Counterspell','0/c/0c9a7cb0-5bff-48ff-b620-2838816ac9b5']] },
-      { name:'Black', key:'b', q:'color=b', art:[['Braids, Arisen Nightmare','4/f/4ff97c69-6a6b-401c-b0a1-55fa81045d19'],['Vampiric Tutor','e/7/e7e778ce-3f1e-4626-8f55-bba03970d91a'],['Exquisite Blood','4/c/4cd54279-57f5-4cd9-b524-4f094bd2fc36']] },
-      { name:'Red', key:'r', q:'color=r', art:[['Blasphemous Act','7/d/7d4b1d44-126e-4987-9a9f-f0f9627a09cb'],['Twinflame Tyrant','1/e/1eb34f51-0bd2-43c3-af95-2ce8dabcc7bb'],["Jeska's Will",'9/9/99e0c371-1024-4432-9fd9-3bc29c8d38e4']] },
-      { name:'Green', key:'g', q:'color=g', art:[['Wild Growth','4/7/47260e7c-29bf-46f1-a029-9da7bbb418b5'],['Elvish Mystic','0/8/08b9a296-3b76-4f8f-9d71-7c9af92bb3b4'],['Worldly Tutor','f/3/f39aa2e9-e294-4ce6-bf5e-e1f579101a7a']] },
+      { name:'White', key:'w', q:'color=w', art:[['Elesh Norn, Grand Cenobite','a/4/a4f74725-44d4-4ad1-8365-b21bc67e952e'],['Farewell','1/1/114d2180-093b-4838-97ad-badbc8ee50b0'],['Mondrak, Glory Dominus','8/2/8296a455-21d5-498e-9029-2bdf0da855a8']] },
+      { name:'Blue', key:'u', q:'color=u', art:[['Wizard Class','7/1/715cf105-edf8-4d75-9279-c83431c087c6'],['Hullbreaker Horror','1/3/137acb70-a1fd-4ea9-a5d9-f4b438eb5e82'],["Narset's Reversal",'3/e/3e59024a-3d24-43ba-9016-5b5c42a9fee0']] },
+      { name:'Black', key:'b', q:'color=b', art:[['Braids, Arisen Nightmare','1/e/1ef11052-ec22-4e18-b088-490808b897dd'],['Exquisite Blood','0/e/0e8ccfa7-4178-476a-a155-0ca1c98556c9'],['Syr Konrad, the Grim','4/4/443a4eac-f972-4027-aed4-552d4edc2ce1']] },
+      { name:'Red', key:'r', q:'color=r', art:[["Jeska's Will",'9/9/99e0c371-1024-4432-9fd9-3bc29c8d38e4'],['Twinflame Tyrant','1/e/1eb34f51-0bd2-43c3-af95-2ce8dabcc7bb'],['Pyretic Ritual','a/c/ac3f40b1-fcd7-456c-afb9-759df8352e43']] },
+      { name:'Green', key:'g', q:'color=g', art:[['Azusa, Lost but Seeking','b/9/b96fc9e1-d0f0-4c91-a049-6fe685c15031'],['Branching Evolution','4/a/4a6971ad-cbb4-4f66-9bc4-b407c5805e85'],['Chord of Calling','b/1/b18fe7e0-8344-40cc-b242-83f01c6be7a6']] },
     ].map(m => ({ ...m, art: m.art.map(([n, id]) => ({ n, u: 'https://cards.scryfall.io/art_crop/front/' + id + '.jpg' })) }));
     function colSections() {
       return [
@@ -2521,9 +2522,19 @@
       loadCollectionsArt();
     }
 
-    // Modern-frame, hi-res printings only: old 1993/97 frames give small low-res crops, and
-    // full-art / borderless / showcase / Secret Lair / promo crops carry text over the art
-    const COL_ICONIC = '(frame:2003 OR frame:2015) is:hires has:illustration -is:full_art -is:borderless -is:showcase -is:extendedart -is:promo -st:funny -st:box -st:promo -st:memorabilia lang:en';
+    // Original art of each card (first printing); full-art / borderless / showcase / Secret Lair /
+    // promo crops carry text over the art, so they're excluded
+    const COL_ICONIC = 'has:illustration not:reprint -is:full_art -is:borderless -is:showcase -is:extendedart -is:promo -st:funny -st:box -st:promo -st:memorabilia lang:en';
+    const artOf = c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop;
+
+    // Same illustration, cleanest printing: modern frame > digital rescan > hi-res > newest; no promos/stamps
+    function printRank(p) {
+      const fx = p.frame_effects || [];
+      const bad = p.full_art || p.border_color === 'borderless' || p.promo || p.promo_types?.length
+        || fx.some(f => ['showcase','extendedart','inverted','etched'].includes(f));
+      return [!bad, p.frame === '2003' || p.frame === '2015', !!p.digital, p.highres_image, p.released_at];
+    }
+    const cmpRank = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] > b[i] ? 1 : -1; return 0; };
 
     async function loadCollectionsArt() {
       const cache = JSON.parse(localStorage.getItem('mc_col_art') || '{}');
@@ -2534,27 +2545,32 @@
       const cards = [...document.querySelectorAll('#collectionsPage .col-artist-card')];
       // No card art repeats across the page — hand-picked mana art is reserved first
       const used = new Set(cards.flatMap(c => (c._art || []).map(a => a.n)));
+      const upgrades = [];
 
       for (const card of cards) {
-        const key = 'v3:' + card.dataset.q;
+        const key = 'v4:' + card.dataset.q;
         if (!fresh(key)) {
           try {
             const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(card.dataset.q + ' ' + COL_ICONIC) + '&unique=art&order=edhrec&page=1');
             if (res.ok) {
               const json = await res.json();
               const seen = new Set();
-              const cand = (json.data || []).filter(c => !seen.has(c.name) && seen.add(c.name))
-                .map(c => ({ n: c.name, u: c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop })).filter(c => c.u).slice(0, 24);
+              const cand = (json.data || []).filter(c => !seen.has(c.name) && seen.add(c.name) && artOf(c))
+                .slice(0, 24).map(c => ({ n: c.name, ill: c.illustration_id, u: artOf(c), old: c.frame < '2003' }));
               cache[key] = { cand, count: json.total_cards || 0, ts: now };
             }
           } catch(e) {}
           await pause();
         }
         if (cache[key]) {
-          const pick = card._art || cache[key].cand.filter(c => !used.has(c.n)).slice(0, 3);
-          pick.forEach(c => used.add(c.n));
-          if (card._art) card.querySelector('.col-artist-count').textContent = cache[key].count.toLocaleString() + ' cards';
-          else applyArtistArt(card, pick.map(c => c.u), cache[key].count);
+          if (card._art) { card.querySelector('.col-artist-count').textContent = cache[key].count.toLocaleString() + ' cards'; }
+          else {
+            const pick = cache[key].cand.filter(c => !used.has(c.n)).slice(0, 3);
+            pick.forEach(c => used.add(c.n));
+            const p = (k) => cache['p:' + k.ill]?.u || k.u;
+            applyArtistArt(card, pick.map(p), cache[key].count);
+            pick.forEach((c, i) => { if (c.old && c.ill) upgrades.push({ card, i, c }); });
+          }
         }
 
         const code = card.dataset.set;
@@ -2571,8 +2587,26 @@
         }
       }
 
+      // Old-frame originals: swap in the cleanest printing of the same illustration
+      for (const { card, i, c } of upgrades) {
+        const pKey = 'p:' + c.ill;
+        if (!fresh(pKey)) {
+          try {
+            const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('!"' + c.n + '"') + '&unique=prints');
+            if (res.ok) {
+              const same = ((await res.json()).data || []).filter(p => p.illustration_id === c.ill && artOf(p));
+              const best = same.sort((a, b) => cmpRank(printRank(b), printRank(a)))[0];
+              cache[pKey] = { u: best ? artOf(best) : c.u, ts: now };
+            }
+          } catch(e) {}
+          await pause();
+        }
+        const img = card.querySelectorAll('.col-artist-triptych img')[i];
+        if (img && cache[pKey]) img.src = cache[pKey].u;
+      }
+
       // Drop this page's entries from older cache formats ('a:' belongs to the Artists page)
-      for (const k of Object.keys(cache)) if (/^[qic]:/.test(k)) delete cache[k];
+      for (const k of Object.keys(cache)) if (/^([qic]|v3):/.test(k)) delete cache[k];
       localStorage.setItem('mc_col_art', JSON.stringify(cache));
     }
 

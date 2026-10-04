@@ -176,11 +176,6 @@ function _initFirstScrollCollapse() {
 }
 
 function sidebarNav(mode) {
-  const items = document.querySelectorAll('.sidebar-item');
-  items.forEach(el => el.classList.remove('active'));
-  const map = { gallery: 'sideGallery', search: 'sideSearch', collections: 'sideCollections', settings: 'sideSettings', about: 'sideAbout' };
-  if (map[mode]) document.getElementById(map[mode])?.classList.add('active');
-
   if (mode === 'gallery')          setMode('gallery');
   else if (mode === 'collections') setMode('collections');
   else if (mode === 'about')       setMode('about');
@@ -189,6 +184,14 @@ function sidebarNav(mode) {
     setTimeout(() => document.getElementById('searchBar')?.focus(), 50);
   }
   else if (mode === 'settings') openSidePanel('settings');
+
+  // setMode already highlights the page; only override when this entry has its own item
+  const map = { gallery: 'sideGallery', collections: 'sideCollections', settings: 'sideSettings', about: 'sideAbout' };
+  const item = map[mode] && document.getElementById(map[mode]);
+  if (item) {
+    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+    item.classList.add('active');
+  }
 }
 
 // Prefetch art and grid data in background (setMode('home') called after inline scripts load)

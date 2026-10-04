@@ -3718,7 +3718,7 @@ input[type=range]::-moz-range-thumb {
   font-weight: 500; letter-spacing: 2px; line-height: 1.05;
   color: var(--text-primary); margin: 0;
 }
-.l2-count { font-size: 0.75rem; letter-spacing: 1px; color: var(--text-secondary); align-self: flex-end; padding-bottom: 0.35rem; }
+.l2-count { margin-left: auto; font-size: 0.78rem; letter-spacing: 1px; color: var(--text-secondary); align-self: flex-end; padding-bottom: 0.35rem; }
 
 .l2-search { margin-bottom: 1.25rem; }
 .l2-search-input {

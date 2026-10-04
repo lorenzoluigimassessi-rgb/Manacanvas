@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=71">
+  <link rel="stylesheet" href="css/style.css?v=72">
 </head>
 <body>
 
@@ -1241,7 +1241,7 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=25"></script>
+  <script src="js/welcome.js?v=26"></script>
   <script src="js/api.js?v=27"></script>
   <script src="js/grid.js?v=30"></script>
   <script src="js/artist-counts.js?v=2"></script>
@@ -1309,8 +1309,10 @@
       const siteFooter = document.querySelector('.site-footer');
       if (siteFooter) siteFooter.style.display = mode === 'home' ? 'none' : '';
 
-      // sidebar — clear active when on home (logo is the home anchor)
-      if (mode === 'home') document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+      // sidebar — highlight the current page, whatever the entry point (none on home: logo is the home anchor)
+      const sideMap = { gallery: 'sideGallery', collections: 'sideCollections', about: 'sideAbout' };
+      document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+      if (sideMap[mode]) document.getElementById(sideMap[mode])?.classList.add('active');
 
       // desktop switcher
       document.querySelectorAll('.sw-btn, .btn-advanced').forEach(b => b.classList.remove('active'));

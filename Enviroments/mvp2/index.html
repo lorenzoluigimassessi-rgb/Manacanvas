@@ -2800,7 +2800,8 @@
     function groupSets(items, oldestFirst) {
       const groups = new Map();
       items.forEach(it => {
-        const key = it.block === 'Core Set' ? 'Core sets' : it.block ? `${it.block} block` : it.date.slice(0, 4);
+        // Core sets aren't a story block: they sit in their release year (1993 = Alpha, Beta, Unlimited, Arabian Nights)
+        const key = it.block && it.block !== 'Core Set' ? `${it.block} block` : it.date.slice(0, 4);
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push(it);
       });
@@ -2808,10 +2809,10 @@
         list.sort((a, b) => a.date.localeCompare(b.date));
         const y1 = list[0].date.slice(0, 4), y2 = list[list.length - 1].date.slice(0, 4);
         const isBlock = / block$/.test(title) && list.length > 1;
-        return { title, sub: /block|sets/.test(title) ? (y1 === y2 ? y1 : `${y1}–${y2}`) : '', items: oldestFirst || isBlock ? list : [...list].reverse(), last: list[list.length - 1].date,
+        return { title, sub: / block$/.test(title) ? (y1 === y2 ? y1 : `${y1}–${y2}`) : '', items: oldestFirst || isBlock ? list : [...list].reverse(), last: list[list.length - 1].date,
           // A block can also be browsed as one collection
           all: isBlock && { name: title, q: '(' + list.map(it => 'e:' + it.code).join(' OR ') + ')', icon: list[0].icon } };
-      }).sort((a, b) => (a.title === 'Core sets') - (b.title === 'Core sets') || (oldestFirst ? a.last.localeCompare(b.last) : b.last.localeCompare(a.last))); // core sets span decades: last
+      }).sort((a, b) => oldestFirst ? a.last.localeCompare(b.last) : b.last.localeCompare(a.last));
     }
 
     // ── Generic level-2 list: search, sort, optional groups, lazy-loaded art ──

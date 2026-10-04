@@ -3702,9 +3702,13 @@ input[type=range]::-moz-range-thumb {
 /* ═══ Collections Level 2 ═══ */
 .collections-level2 { padding: 1.75rem 2rem 2rem; }
 .l2-header {
-  display: flex; align-items: center; gap: 1.1rem;
+  display: flex; align-items: flex-end; gap: 1.1rem;
   margin-bottom: 1.75rem;
 }
+.l2-title-wrap { min-width: 0; }
+/* arrow + icon sit on the title line, not the breadcrumb line */
+.l2-header > .l2-back { padding-bottom: 0.55rem; }
+.l2-header > .l2-title-icon { margin-bottom: 0.2rem; }
 /* Back = long thin arrow, sized to the title's cap height */
 .l2-back {
   display: flex; align-items: center; flex-shrink: 0;
@@ -3763,7 +3767,7 @@ input[type=range]::-moz-range-thumb {
 .l2-title-icon img, .l2-title-icon svg { width: 22px; height: 22px; }
 .l3-toolbar { display: flex; justify-content: flex-end; margin-bottom: 1.25rem; }
 /* Layer-3 breadcrumb: Categories › Section, small and grey above the title */
-.l3-crumbs { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; font-size: 0.72rem; letter-spacing: 1px; color: var(--text-secondary); }
+.l3-crumbs { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.45rem; font-size: 0.72rem; letter-spacing: 1px; color: var(--text-secondary); }
 .l3-crumbs button {
   background: none; border: none; padding: 0; cursor: pointer;
   font: inherit; letter-spacing: inherit; text-transform: uppercase; color: inherit; transition: color 150ms;
@@ -3863,7 +3867,9 @@ input[type=range]::-moz-range-thumb {
 @media (max-width: 1023px) { .l2-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 768px) {
   .collections-level2 { padding: 1rem; }
-  .l2-header { gap: 0.8rem; margin-bottom: 1.25rem; }
+  .l2-header { gap: 0.8rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .l2-title-wrap { flex: 1; }
+  .l2-header > .l2-count { flex-basis: 100%; text-align: right; padding: 0; margin: -0.4rem 0 -0.6rem; }
   .l2-grid { gap: 0.6rem; }
   .l2-artist-info { padding: 0.6rem 0.65rem; }
   .l2-artist-name { font-size: 0.82rem; }

@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=77">
+  <link rel="stylesheet" href="css/style.css?v=79">
 </head>
 <body>
 
@@ -2736,13 +2736,16 @@
     let _level2Category = null;
     let _level2ArtistList = [];
 
-    // Level-2/3 header: editorial back arrow + (icon) + title (+ optional extra on the right)
-    function l2Header(title, extra = '', onBack = 'closeCollectionsLevel2()', icon = '') {
+    // Level-2/3 header: back arrow · (icon) · breadcrumb stacked over the title (aligned to the title) · extra on the right
+    const L2_CRUMBS = [['Categories', "setMode('collections')"]];
+    function l2Header(title, extra = '', onBack = 'closeCollectionsLevel2()', icon = '', crumbs = L2_CRUMBS) {
+      const nav = crumbs.length ? `<nav class="l3-crumbs" aria-label="Breadcrumb">${crumbs.map(([label, go]) =>
+        `<button onclick="${go}">${label}</button>`).join('<span aria-hidden="true">›</span>')}</nav>` : '';
       return `
         <div class="l2-header">
           <button class="l2-back" onclick="${onBack}" aria-label="Back" title="Back"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
           ${icon ? `<span class="col-card-icon l2-title-icon">${icon}</span>` : ''}
-          <h2 class="l2-title">${title}</h2>
+          <div class="l2-title-wrap">${nav}<h2 class="l2-title">${title}</h2></div>
           ${extra}
         </div>`;
     }
@@ -2931,12 +2934,9 @@
       const l3 = document.getElementById("collectionsLevel3");
       l3.style.display = "block";
       // Breadcrumb: where this page sits (Categories › Section); the arrow still goes back one step
-      const crumbs = it.cat ? `<nav class="l3-crumbs" aria-label="Breadcrumb">
-          <button onclick="setMode('collections')">Categories</button><span aria-hidden="true">›</span>
-          <button onclick="openCollectionsLevel2('${it.cat}')">${SECTION_NAMES[it.cat]}</button></nav>` : '';
+      const crumbs = it.cat ? [...L2_CRUMBS, [SECTION_NAMES[it.cat], `openCollectionsLevel2('${it.cat}')`]] : L2_CRUMBS;
       l3.innerHTML = `
-        ${crumbs}
-        ${l2Header(it.name, '<span class="l2-count" id="l3Count"></span>', 'closeDetailPage()', it.icon || '')}
+        ${l2Header(it.name, '<span class="l2-count" id="l3Count"></span>', 'closeDetailPage()', it.icon || '', crumbs)}
         <div class="l3-toolbar">
           <div class="l2-sort" id="l3SortSwitcher">${L3_SORTS.map((o, i) => `<button class="l2-sort-btn ${i ? '' : 'active'}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>
         </div>

@@ -3664,6 +3664,8 @@ input[type=range]::-moz-range-thumb {
   color: var(--text-secondary);
 }
 .col-card-icon img, .col-card-icon svg { width: 18px; height: 18px; display: block; }
+.col-card-icon:has(img + img) { width: auto; padding: 0 0.4rem; gap: 2px; }
+.col-card-icon:has(img + img) img { width: 15px; height: 15px; }
 .col-card-icon .col-set-icon { filter: brightness(0) invert(0.7); }
 .col-card-icon .col-set-icon:not([src]) { visibility: hidden; }
 
@@ -3735,7 +3737,23 @@ input[type=range]::-moz-range-thumb {
   display: flex; align-items: center; justify-content: space-between;
   gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;
 }
-.l2-toolbar .l2-search-input { flex: 1; min-width: 200px; }
+.l2-search { position: relative; flex: 1; min-width: 200px; max-width: 400px; }
+.l2-search .l2-search-input { max-width: none; padding-right: 6.5rem; }
+.l2-search-count {
+  position: absolute; right: 1.1rem; top: 50%; transform: translateY(-50%);
+  font-size: 0.72rem; letter-spacing: 0.5px; color: var(--text-secondary); pointer-events: none;
+}
+.l2-group-title {
+  display: flex; align-items: baseline; gap: 0.75rem;
+  font-family: 'Cinzel', serif; font-size: 1.15rem; font-weight: 500; letter-spacing: 1px;
+  color: var(--text-primary); margin: 2.25rem 0 0.9rem;
+}
+.l2-group-title:first-child { margin-top: 0.5rem; }
+.l2-group-title span { font-family: 'Josefin Sans', sans-serif; font-size: 0.75rem; letter-spacing: 1px; color: var(--text-secondary); }
+.l2-empty { color: var(--text-secondary); font-size: 0.85rem; padding: 2rem 0; }
+.l2-title-icon { width: 38px; height: 38px; }
+.l2-title-icon img, .l2-title-icon svg { width: 22px; height: 22px; }
+.l3-toolbar { display: flex; justify-content: flex-end; margin-bottom: 1.25rem; }
 
 .l2-sort {
   display: flex; gap: 0.25rem;
@@ -3972,7 +3990,7 @@ input[type=range]::-moz-range-thumb {
 
 
 /* ═══ Collections Level 3: Artist Detail ═══ */
-.collections-level3 { padding: 1.5rem; }
+.collections-level3 { padding: 1.75rem 2rem 2rem; }
 
 .l3-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -4004,16 +4022,17 @@ input[type=range]::-moz-range-thumb {
   color: var(--text-secondary);
 }
 
-.l3-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-}
+/* Detail grid = gallery masonry: 5 / 4 / 3 / 2 columns */
+.l3-grid { columns: 5; column-gap: 1rem; }
+.l3-grid > .card, .l3-grid > .shimmer { break-inside: avoid; display: block; width: 100%; margin-bottom: 1rem; }
+.l3-grid > .empty-state { column-span: all; }
+@media (max-width: 1699px) { .l3-grid { columns: 4; } }
+@media (max-width: 1279px) { .l3-grid { columns: 3; } }
+@media (max-width: 1023px) { .l3-grid { columns: 2; column-gap: 0.6rem; } .l3-grid > .card, .l3-grid > .shimmer { margin-bottom: 0.6rem; } }
 
 @media (max-width: 768px) {
   .collections-level3 { padding: 1rem; }
   .l3-artist-name { font-size: 1.3rem; }
-  .l3-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; }
 }
 
 

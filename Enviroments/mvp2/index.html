@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=73">
+  <link rel="stylesheet" href="css/style.css?v=75">
 </head>
 <body>
 
@@ -1245,6 +1245,7 @@
   <script src="js/api.js?v=27"></script>
   <script src="js/grid.js?v=30"></script>
   <script src="js/artist-counts.js?v=2"></script>
+  <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=23"></script>
   <script src="js/lightbox.js?v=23"></script>
 
@@ -2502,14 +2503,28 @@
       { code:'one', name:'All Will Be One' },
     ];
     const COL_CREATURES = ['Dragon','Angel','Demon','Elf','Merfolk','Zombie','Vampire','Phoenix','Hydra','Sphinx','Wurm','Knight'];
-    const COL_TYPES = [
-      { name:'Instant', count:'4,200+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>' },
-      { name:'Sorcery', count:'3,100+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' },
-      { name:'Enchantment', count:'2,800+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>' },
-      { name:'Artifact', count:'3,500+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 12l10 10 10-10L12 2z"/><circle cx="12" cy="12" r="3"/></svg>' },
-      { name:'Planeswalker', count:'300+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' },
-      { name:'Land', count:'1,200+', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l5-8 4 5 5-7 4 10H3z"/></svg>' },
-    ];
+    // Card-type glyphs (line icons; Sorcery = sparkles, distinct from the Categories nav icon)
+    const TYPE_ICONS = {
+      Instant: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+      Sorcery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M18.5 14.5l.9 1.9 1.9.9-1.9.9-.9 1.9-.9-1.9-1.9-.9 1.9-.9z"/></svg>',
+      Enchantment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
+      Artifact: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 12l10 10 10-10L12 2z"/><circle cx="12" cy="12" r="3"/></svg>',
+      Planeswalker: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+      Land: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l5-8 4 5 5-7 4 10H3z"/></svg>',
+      Creature: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20c2-6 4-10 7-14M10 20c1.5-5 3-8 6-11M15 20c1-3 2.5-5 5-7"/></svg>',
+      Battle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4L4 20"/><path d="M4 9V4h5M20 9V4h-5"/></svg>',
+      Kindred: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c3 0 6 2 6 5"/></svg>',
+      Legendary: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18M4 8l4 4 4-7 4 7 4-4-1.5 10h-13z"/></svg>',
+      Basic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/></svg>',
+      Snow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"/></svg>',
+      World: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>',
+      Plane: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9" ry="5"/><circle cx="12" cy="12" r="1.5"/></svg>',
+      Phenomenon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 8a4 4 0 1 0 4 4"/></svg>',
+      Scheme: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+      Vanguard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>',
+      Conspiracy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/></svg>',
+    };
+    const COL_TYPES = ['Instant','Sorcery','Enchantment','Artifact','Planeswalker','Land'].map(name => ({ name, icon: TYPE_ICONS[name] }));
 
     let _collectionsRendered = false;
     const colArt = list => list && list.map(([n, id]) => ({ n, u: 'https://cards.scryfall.io/art_crop/front/' + id + '.jpg' }));
@@ -2524,19 +2539,43 @@
       { name:'Red', key:'r', q:'color=r', art:[["Jeska's Will",'9/9/99e0c371-1024-4432-9fd9-3bc29c8d38e4'],['Goblin Chieftain','3/5/35ac943e-8747-40a0-ac2a-8b88cfa32ca8'],['Pyretic Ritual','a/c/ac3f40b1-fcd7-456c-afb9-759df8352e43']] },
       { name:'Green', key:'g', q:'color=g', art:[['Azusa, Lost but Seeking','b/9/b96fc9e1-d0f0-4c91-a049-6fe685c15031'],['Branching Evolution','4/a/4a6971ad-cbb4-4f66-9bc4-b407c5805e85'],['Chord of Calling','b/1/b18fe7e0-8344-40cc-b242-83f01c6be7a6']] },
     ].map(m => ({ ...m, art: colArt(m.art) }));
+    // Lower-case Scryfall type query, quoted when the type has a space ("Time Lord")
+    const typeQ = t => 't:' + (t.includes(' ') ? `"${t.toLowerCase()}"` : t.toLowerCase());
+    const manaIcons = key => key.split('').map(k => `<img src="${MANA_SVGS[k]}" alt="">`).join('');
+
     function colSections() {
+      const n = x => x.toLocaleString();
       return [
-        { id:'artists', title:'Artists', count:Object.keys(ARTIST_ART_COUNTS).length.toLocaleString(), items: COL_ARTISTS.map(n => ({ name:n, q:`a:"${n}"`, art:colArt(COL_ARTIST_ART[n]),
-            go: () => { activeArtist = [n]; } })) },
-        { id:'creatures', title:'Creatures', count:267, items: COL_CREATURES.map(t => ({ name:t, q:`t:${t.toLowerCase()}`,
-            go: () => { activeType = [t.toLowerCase()]; } })) },
-        { id:'sets', title:'Sets', count:214, items: COL_SETS.map(st => ({ name:st.name, q:`e:${st.code}`, set:st.code, art:colArt(st.art),
-            icon:'<img alt="" class="col-set-icon">', go: () => { activeSets = [st.code]; } })) },
-        { id:'color', title:'Mana Colors', count:7, items: COL_MANA.map(m => ({ name:m.name, q:m.q, art:m.art,
-            icon:`<img src="${MANA_SVGS[m.key]}" alt="">`, go: () => { activeColour = [m.key]; } })) },
-        { id:'type', title:'Card Types', count:12, items: COL_TYPES.map(t => ({ name:t.name, q:`t:${t.name.toLowerCase()}`,
-            icon:t.icon, go: () => { activeCardType = [t.name.toLowerCase()]; } })) },
+        { id:'artists', title:'Artists', count:n(Object.keys(ARTIST_ART_COUNTS).length), items: COL_ARTISTS.map(name => ({ name, q:`a:"${name}"`, art:colArt(COL_ARTIST_ART[name]) })) },
+        { id:'creatures', title:'Creatures', count:n(Object.keys(CATEGORY_COUNTS.creature).length), items: COL_CREATURES.map(t => ({ name:t, q:typeQ(t) })) },
+        { id:'sets', title:'Sets', count:n(_setList ? _setList.length : 143), items: COL_SETS.map(st => ({ name:st.name, q:`e:${st.code}`, set:st.code, art:colArt(st.art),
+            icon:'<img alt="" class="col-set-icon">' })) },
+        { id:'color', title:'Mana Colors', count:n(COLOR_GROUPS.reduce((a, g) => a + g.items.length, 0)), items: COL_MANA.map(m => ({ name:m.name, q:m.q, art:m.art,
+            icon:manaIcons(m.key) })) },
+        { id:'type', title:'Card Types', count:n(Object.keys(CATEGORY_COUNTS.type).length), items: COL_TYPES.map(t => ({ name:t.name, q:typeQ(t.name), icon:t.icon })) },
       ];
+    }
+
+    // Preview card used on both levels: art triptych + optional icon + name + count/meta line
+    function colCardEl(it, from) {
+      const card = document.createElement('div');
+      card.className = 'col-artist-card';
+      card.dataset.q = it.q;
+      if (it.set) card.dataset.set = it.set;
+      if (it.meta) card.dataset.meta = '1';
+      card._art = it.art;
+      card.innerHTML = `
+        <div class="col-artist-triptych"><img alt=""><img alt=""><img alt=""></div>
+        <div class="col-artist-info">
+          ${it.icon ? `<span class="col-card-icon">${it.icon}</span>` : ''}
+          <div class="col-artist-text">
+            <div class="col-artist-name">${it.name}</div>
+            <div class="col-artist-count">${it.meta || '&nbsp;'}</div>
+          </div>
+        </div>`;
+      if (it.art) applyArtistArt(card, it.art.map(a => a.u), null);
+      card.addEventListener('click', () => openDetailPage(it, from));
+      return card;
     }
 
     function renderCategories() {
@@ -2559,32 +2598,10 @@
             <div class="collections-row"></div>
           </div>`);
         const row = page.lastElementChild.querySelector('.collections-row');
-        sec.items.slice(0, 5).forEach(it => {
-          const card = document.createElement('div');
-          card.className = 'col-artist-card';
-          card.dataset.q = it.q;
-          card._art = it.art;
-          if (it.set) card.dataset.set = it.set;
-          card.innerHTML = `
-            <div class="col-artist-triptych"><img alt=""><img alt=""><img alt=""></div>
-            <div class="col-artist-info">
-              ${it.icon ? `<span class="col-card-icon">${it.icon}</span>` : ''}
-              <div class="col-artist-text">
-                <div class="col-artist-name">${it.name}</div>
-                <div class="col-artist-count">&nbsp;</div>
-              </div>
-            </div>`;
-          if (it.art) applyArtistArt(card, it.art.map(a => a.u), null);
-          card.addEventListener('click', () => {
-            it.go();
-            setMode('gallery');
-            updateChips(); loadInitialGrid(); syncFilterUI();
-          });
-          row.appendChild(card);
-        });
+        sec.items.slice(0, 5).forEach(it => row.appendChild(colCardEl(it, 'l1')));
+        if (sec.id === 'sets' && !_setList) loadSetList().then(list => { if (list.length) page.querySelector(`[onclick="openCollectionsLevel2('sets')"]`).textContent = `Show (${list.length})`; });
       });
 
-      // Fetch art with localStorage cache
       loadCollectionsArt();
     }
 
@@ -2603,87 +2620,107 @@
     }
     const cmpRank = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] > b[i] ? 1 : -1; return 0; };
 
+    // ── Category art engine: iconic picks, cleanest printing, cached a week, Scryfall requests one at a time ──
+    const _artCache = (() => { try { return JSON.parse(localStorage.getItem('mc_col_art') || '{}'); } catch (e) { return {}; } })();
+    for (const k of Object.keys(_artCache)) if (/^([qic]|v3):/.test(k)) delete _artCache[k]; // older formats
+    let _artSaveT = null;
+    function _saveArt() {
+      clearTimeout(_artSaveT);
+      _artSaveT = setTimeout(() => { try { localStorage.setItem('mc_col_art', JSON.stringify(_artCache)); } catch (e) {} }, 600);
+    }
+    const _artFresh = k => _artCache[k] && (Date.now() - _artCache[k].ts < 7 * 864e5);
+
+    let _scryChain = Promise.resolve();
+    function scry(url) {
+      const run = _scryChain.then(async () => {
+        try { const r = await fetch(url); return r.ok ? await r.json() : null; }
+        catch (e) { return null; }
+        finally { await new Promise(r => setTimeout(r, 110)); }
+      });
+      _scryChain = run.catch(() => {});
+      return run;
+    }
+
+    async function artCandidates(q) {
+      const key = 'v4:' + q;
+      if (!_artFresh(key)) {
+        const json = await scry('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q + ' ' + COL_ICONIC) + '&unique=art&order=edhrec&page=1');
+        if (json) {
+          const seen = new Set();
+          const cand = (json.data || []).filter(c => !seen.has(c.name) && seen.add(c.name) && artOf(c))
+            .slice(0, 24).map(c => ({ n: c.name, ill: c.illustration_id, u: artOf(c), old: c.frame < '2003' }));
+          _artCache[key] = { cand, count: json.total_cards || 0, ts: Date.now() };
+          _saveArt();
+        }
+      }
+      return _artCache[key] || null;
+    }
+
+    // Old-frame original → cleanest printing of the same illustration
+    async function bestPrint(c) {
+      const key = 'p:' + c.ill;
+      if (!_artFresh(key)) {
+        const json = await scry('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('!"' + c.n + '"') + '&unique=prints');
+        if (json) {
+          const same = (json.data || []).filter(p => p.illustration_id === c.ill && artOf(p));
+          const best = same.sort((a, b) => cmpRank(printRank(b), printRank(a)))[0];
+          _artCache[key] = { u: best ? artOf(best) : c.u, ts: Date.now() };
+          _saveArt();
+        }
+      }
+      return _artCache[key]?.u || c.u;
+    }
+
+    async function setIcon(code) {
+      const key = 's:' + code;
+      if (!_artFresh(key)) {
+        const json = await scry('https://api.scryfall.com/sets/' + code);
+        if (json) { _artCache[key] = { icon: json.icon_svg_uri || '', ts: Date.now() }; _saveArt(); }
+      }
+      return _artCache[key]?.icon || '';
+    }
+
+    // Fill one card: hand-picked art, or 3 iconic picks not used elsewhere on the page.
+    // Returns the old-frame picks so the caller can upgrade them after the first pass.
+    async function fillArtCard(card, used) {
+      const data = await artCandidates(card.dataset.q);
+      if (!data || !card.isConnected) return [];
+      const meta = card.dataset.meta;
+      if (card._art) { if (!meta) applyArtistArt(card, [], data.count); return []; }
+      const pick = data.cand.filter(c => !used.has(c.n)).slice(0, 3);
+      pick.forEach(c => used.add(c.n));
+      applyArtistArt(card, pick.map(c => _artCache['p:' + c.ill]?.u || c.u), meta ? null : data.count);
+      return pick.map((c, i) => ({ card, i, c })).filter(x => x.c.old && x.c.ill);
+    }
+
+    async function upgradeArt(list) {
+      for (const { card, i, c } of list) {
+        const u = await bestPrint(c);
+        const img = card.querySelectorAll('.col-artist-triptych img')[i];
+        if (img && img.getAttribute('src') !== u) img.src = u;
+      }
+    }
+
     async function loadCollectionsArt() {
-      const cache = JSON.parse(localStorage.getItem('mc_col_art') || '{}');
-      const now = Date.now();
-      const WEEK = 7 * 24 * 60 * 60 * 1000;
-      const fresh = k => cache[k] && (now - cache[k].ts < WEEK);
-      const pause = () => new Promise(r => setTimeout(r, 120));
       const cards = [...document.querySelectorAll('#collectionsPage .col-artist-card')];
-      // No card art repeats across the page — hand-picked mana art is reserved first,
-      // plus cards whose art crops badly in the triptych
+      // No card art repeats across the page — hand-picked art is reserved first, plus badly-cropping cards
       const used = new Set([...COL_SKIP, ...cards.flatMap(c => (c._art || []).map(a => a.n))]);
       const upgrades = [];
-
       for (const card of cards) {
-        const key = 'v4:' + card.dataset.q;
-        if (!fresh(key)) {
-          try {
-            const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(card.dataset.q + ' ' + COL_ICONIC) + '&unique=art&order=edhrec&page=1');
-            if (res.ok) {
-              const json = await res.json();
-              const seen = new Set();
-              const cand = (json.data || []).filter(c => !seen.has(c.name) && seen.add(c.name) && artOf(c))
-                .slice(0, 24).map(c => ({ n: c.name, ill: c.illustration_id, u: artOf(c), old: c.frame < '2003' }));
-              cache[key] = { cand, count: json.total_cards || 0, ts: now };
-            }
-          } catch(e) {}
-          await pause();
-        }
-        if (cache[key]) {
-          if (card._art) { card.querySelector('.col-artist-count').textContent = cache[key].count.toLocaleString() + ' cards'; }
-          else {
-            const pick = cache[key].cand.filter(c => !used.has(c.n)).slice(0, 3);
-            pick.forEach(c => used.add(c.n));
-            const p = (k) => cache['p:' + k.ill]?.u || k.u;
-            applyArtistArt(card, pick.map(p), cache[key].count);
-            pick.forEach((c, i) => { if (c.old && c.ill) upgrades.push({ card, i, c }); });
-          }
-        }
-
-        const code = card.dataset.set;
-        if (code) {
-          const sKey = 's:' + code;
-          if (!fresh(sKey)) {
-            try {
-              const res = await fetch('https://api.scryfall.com/sets/' + code);
-              if (res.ok) cache[sKey] = { icon: (await res.json()).icon_svg_uri || '', ts: now };
-            } catch(e) {}
-            await pause();
-          }
-          if (cache[sKey]?.icon) card.querySelector('.col-set-icon').src = cache[sKey].icon;
-        }
+        upgrades.push(...await fillArtCard(card, used));
+        if (card.dataset.set) { const icon = await setIcon(card.dataset.set); if (icon) card.querySelector('.col-set-icon').src = icon; }
       }
-
-      // Old-frame originals: swap in the cleanest printing of the same illustration
-      for (const { card, i, c } of upgrades) {
-        const pKey = 'p:' + c.ill;
-        if (!fresh(pKey)) {
-          try {
-            const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('!"' + c.n + '"') + '&unique=prints');
-            if (res.ok) {
-              const same = ((await res.json()).data || []).filter(p => p.illustration_id === c.ill && artOf(p));
-              const best = same.sort((a, b) => cmpRank(printRank(b), printRank(a)))[0];
-              cache[pKey] = { u: best ? artOf(best) : c.u, ts: now };
-            }
-          } catch(e) {}
-          await pause();
-        }
-        const img = card.querySelectorAll('.col-artist-triptych img')[i];
-        if (img && cache[pKey]) img.src = cache[pKey].u;
-      }
-
-      // Drop this page's entries from older cache formats ('a:' belongs to the Artists page)
-      for (const k of Object.keys(cache)) if (/^([qic]|v3):/.test(k)) delete cache[k];
-      localStorage.setItem('mc_col_art', JSON.stringify(cache));
+      await upgradeArt(upgrades);
     }
 
     function applyArtistArt(card, imgs, count) {
       const triptych = card.querySelector('.col-artist-triptych');
-      const imgEls = triptych.querySelectorAll('img');
-      imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; });
-      triptych.classList.add('imgs-' + Math.min(imgs.length, 3));
-      triptych.classList.add('loaded');
+      if (imgs.length) {
+        const imgEls = triptych.querySelectorAll('img');
+        imgs.forEach((src, i) => { if (imgEls[i]) imgEls[i].src = src; });
+        triptych.classList.add('imgs-' + Math.min(imgs.length, 3));
+        triptych.classList.add('loaded');
+      }
       if (count != null) card.querySelector('.col-artist-count').textContent = count.toLocaleString() + ' cards';
     }
 
@@ -2691,90 +2728,219 @@
     let _level2Category = null;
     let _level2ArtistList = [];
 
-    // Level-2 header: editorial back arrow + title (+ optional count)
-    function l2Header(title, extra = '') {
+    // Level-2/3 header: editorial back arrow + (icon) + title (+ optional extra on the right)
+    function l2Header(title, extra = '', onBack = 'closeCollectionsLevel2()', icon = '') {
       return `
         <div class="l2-header">
-          <button class="l2-back" onclick="closeCollectionsLevel2()" aria-label="Back to Categories" title="Back to Categories">
-            <svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg>
-          </button>
+          <button class="l2-back" onclick="${onBack}" aria-label="Back" title="Back"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
+          ${icon ? `<span class="col-card-icon l2-title-icon">${icon}</span>` : ''}
           <h2 class="l2-title">${title}</h2>
           ${extra}
         </div>`;
     }
 
+    // Search field whose placeholder carries the total; live match count on the right while typing
+    function l2Search(id, total, noun) {
+      return `<div class="l2-search">
+          <input type="text" class="l2-search-input" id="${id}" placeholder="Search ${total.toLocaleString()} ${noun}…" autocomplete="off">
+          <span class="l2-search-count" id="${id}Count"></span>
+        </div>`;
+    }
+    function l2SearchCount(id, query, n) {
+      const el = document.getElementById(id + 'Count');
+      if (el) el.textContent = query ? (n ? n.toLocaleString() : 'No matches') : '';
+    }
+
+    // ── Colour identities: mono, colourless, guilds, shards, wedges, four- and five-colour ──
+    const COLOR_GROUPS = [
+      { title: 'Mono-colour', items: [['White','w'],['Blue','u'],['Black','b'],['Red','r'],['Green','g'],['Colorless','c']] },
+      { title: 'Two colours', sub: 'Guilds', items: [['Azorius','wu'],['Dimir','ub'],['Rakdos','br'],['Gruul','rg'],['Selesnya','gw'],['Orzhov','wb'],['Izzet','ur'],['Golgari','bg'],['Boros','rw'],['Simic','gu']] },
+      { title: 'Three colours', sub: 'Shards', items: [['Bant','gwu'],['Esper','wub'],['Grixis','ubr'],['Jund','brg'],['Naya','rgw']] },
+      { title: 'Three colours', sub: 'Wedges', items: [['Abzan','wbg'],['Jeskai','urw'],['Sultai','bgu'],['Mardu','rwb'],['Temur','gur']] },
+      { title: 'Four colours', items: [['Yore-Tiller','wubr'],['Glint-Eye','ubrg'],['Dune-Brood','brgw'],['Ink-Treader','rgwu'],['Witch-Maw','gwub']] },
+      { title: 'Five colours', items: [['WUBRG','wubrg']] },
+    ].map(g => ({ ...g, items: g.items.map(([name, key]) => {
+      const mono = COL_MANA.find(m => m.key === key);
+      return { name, key, q: key === 'c' ? 'c:c' : `color=${key}`, icon: manaIcons(key), art: mono && mono.art,
+        meta: (CATEGORY_COUNTS.color[key] || 0).toLocaleString() + ' artworks' };
+    }) }));
+
+    // ── Sets: Scryfall's core + expansion sets (paper), grouped by block, or by year once blocks ended ──
+    let _setList = null;
+    try { const c = JSON.parse(localStorage.getItem('mc_sets') || 'null'); if (c && Date.now() - c.ts < 7 * 864e5) _setList = c.sets; } catch (e) {}
+    async function loadSetList() {
+      if (_setList) return _setList;
+      const json = await scry('https://api.scryfall.com/sets');
+      if (!json) return [];
+      const today = new Date().toISOString().slice(0, 10);
+      _setList = (json.data || [])
+        .filter(st => ['core', 'expansion'].includes(st.set_type) && !st.digital && st.card_count > 0 && st.released_at <= today)
+        .map(st => ({ code: st.code, name: st.name, date: st.released_at, block: st.block || null, icon: st.icon_svg_uri, cards: st.card_count }));
+      try { localStorage.setItem('mc_sets', JSON.stringify({ ts: Date.now(), sets: _setList })); } catch (e) {}
+      return _setList;
+    }
+    function setItems(sets) {
+      return sets.map(st => {
+        const fixed = COL_SETS.find(c => c.code === st.code);
+        return { name: st.name, q: `e:${st.code}`, date: st.date, block: st.block, art: fixed && colArt(fixed.art),
+          icon: `<img src="${st.icon}" alt="" class="col-set-icon">`, meta: `${st.date.slice(0, 4)} · ${st.cards.toLocaleString()} cards` };
+      });
+    }
+    function groupSets(items) {
+      const groups = new Map();
+      items.forEach(it => {
+        const key = it.block === 'Core Set' ? 'Core sets' : it.block ? `${it.block} block` : it.date.slice(0, 4);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(it);
+      });
+      return [...groups].map(([title, list]) => {
+        list.sort((a, b) => a.date.localeCompare(b.date));
+        const y1 = list[0].date.slice(0, 4), y2 = list[list.length - 1].date.slice(0, 4);
+        return { title, sub: /block|sets/.test(title) ? (y1 === y2 ? y1 : `${y1}–${y2}`) : '', items: list, last: list[list.length - 1].date };
+      }).sort((a, b) => (a.title === 'Core sets') - (b.title === 'Core sets') || b.last.localeCompare(a.last)); // core sets span decades: last
+    }
+
+    // ── Generic level-2 list: search, sort, optional groups, lazy-loaded art ──
+    function renderListLevel2({ title, noun, items, sorts, arrange }) {
+      const l2 = document.getElementById('collectionsLevel2');
+      l2.innerHTML = `
+        ${l2Header(title)}
+        <div class="l2-toolbar">
+          ${l2Search('l2Search', items.length, noun)}
+          ${sorts ? `<div class="l2-sort">${sorts.map((o, i) => `<button class="l2-sort-btn ${i ? '' : 'active'}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>` : ''}
+        </div>
+        <div id="l2Body"></div>`;
+      let sortKey = sorts ? sorts[0].key : null, query = '', lazy = null;
+      const draw = () => {
+        const list = items.filter(it => !query || it.name.toLowerCase().split(/[\s,:'-]+/).some(w => w.startsWith(query)) || it.name.toLowerCase().startsWith(query));
+        l2SearchCount('l2Search', query, list.length);
+        const body = document.getElementById('l2Body');
+        body.innerHTML = '';
+        if (lazy) lazy.disconnect();
+        const used = new Set([...COL_SKIP, ...items.flatMap(it => (it.art || []).map(a => a.n))]);
+        lazy = new IntersectionObserver(entries => entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          lazy.unobserve(e.target);
+          fillArtCard(e.target, used).then(upgradeArt);
+        }), { rootMargin: '300px' });
+        if (!list.length) { body.innerHTML = '<p class="l2-empty">Nothing matches your search.</p>'; return; }
+        arrange(list, sortKey).forEach(g => {
+          if (g.title) body.insertAdjacentHTML('beforeend', `<h3 class="l2-group-title">${g.title}${g.sub ? `<span>${g.sub}</span>` : ''}</h3>`);
+          const grid = document.createElement('div');
+          grid.className = 'l2-grid';
+          g.items.forEach(it => { const card = colCardEl(it, 'l2'); grid.appendChild(card); lazy.observe(card); });
+          body.appendChild(grid);
+        });
+      };
+      document.getElementById('l2Search').addEventListener('input', e => { query = e.target.value.trim().toLowerCase(); draw(); });
+      l2.querySelectorAll('.l2-sort-btn').forEach(btn => btn.addEventListener('click', () => {
+        l2.querySelectorAll('.l2-sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+        sortKey = btn.dataset.sort; draw();
+      }));
+      draw();
+    }
+
+    const byName = (a, b) => a.name.localeCompare(b.name);
+    const flat = list => [{ items: list }];
+
+    function renderCreaturesLevel2() {
+      const counts = CATEGORY_COUNTS.creature;
+      const items = Object.keys(counts).map(t => ({ name: t, q: typeQ(t), count: counts[t], meta: counts[t].toLocaleString() + ' artworks' }));
+      renderListLevel2({ title: 'Creatures', noun: 'creature types', items,
+        sorts: [{ key: 'most', label: 'Most art' }, { key: 'az', label: 'A→Z' }],
+        arrange: (list, k) => flat([...list].sort(k === 'az' ? byName : (a, b) => b.count - a.count || byName(a, b))) });
+    }
+
+    function renderColorsLevel2() {
+      const all = COLOR_GROUPS.flatMap(g => g.items);
+      renderListLevel2({ title: 'Mana Colors', noun: 'colour identities', items: all,
+        arrange: list => COLOR_GROUPS.map(g => ({ title: g.title, sub: g.sub, items: g.items.filter(it => list.includes(it)) })).filter(g => g.items.length) });
+    }
+
+    function renderTypesLevel2() {
+      const counts = CATEGORY_COUNTS.type;
+      const GROUPS = [
+        { title: 'Card types', names: ['Creature','Instant','Sorcery','Enchantment','Artifact','Land','Planeswalker','Battle','Kindred'] },
+        { title: 'Supertypes', names: ['Legendary','Basic','Snow','World'] },
+        { title: 'Beyond the duel', sub: 'Planechase, Archenemy, Vanguard, Conspiracy', names: ['Plane','Phenomenon','Scheme','Vanguard','Conspiracy'] },
+      ].map(g => ({ ...g, items: g.names.filter(n => counts[n]).map(name => ({ name, q: typeQ(name), icon: TYPE_ICONS[name],
+        meta: counts[name].toLocaleString() + ' artworks' })) }));
+      renderListLevel2({ title: 'Card Types', noun: 'card types', items: GROUPS.flatMap(g => g.items),
+        arrange: list => GROUPS.map(g => ({ ...g, items: g.items.filter(it => list.includes(it)) })).filter(g => g.items.length) });
+    }
+
+    async function renderSetsLevel2() {
+      const l2 = document.getElementById('collectionsLevel2');
+      if (!_setList) l2.innerHTML = `${l2Header('Sets')}<p class="l2-empty">Loading sets…</p>`;
+      const sets = await loadSetList();
+      if (_level2Category !== 'sets') return;
+      renderListLevel2({ title: 'Sets', noun: 'sets', items: setItems(sets),
+        sorts: [{ key: 'block', label: 'By block' }, { key: 'new', label: 'Newest' }, { key: 'az', label: 'A→Z' }],
+        arrange: (list, k) => k === 'block' ? groupSets(list)
+          : flat([...list].sort(k === 'az' ? byName : (a, b) => b.date.localeCompare(a.date))) });
+    }
+
     function openCollectionsLevel2(category) {
       _level2Category = category;
       document.getElementById('collectionsPage').style.display = 'none';
-      const l2 = document.getElementById('collectionsLevel2');
-      l2.style.display = 'block';
-
-      if (category === 'artists') {
-        renderArtistsLevel2();
-      } else {
-        const TITLES = { creatures:'Creatures', sets:'Sets', color:'Mana Colors', type:'Card Types' };
-        const title = TITLES[category] || category;
-        l2.innerHTML = `
-          ${l2Header(title)}
-          <div class="l2-placeholder">
-            <div class="l2-placeholder-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4"/></svg>
-            </div>
-            <p class="l2-placeholder-label">Coming soon</p>
-            <p class="l2-placeholder-sub">This collection is being curated.</p>
-          </div>
-        `;
-      }
+      document.getElementById('collectionsLevel3').style.display = 'none';
+      document.getElementById('collectionsLevel2').style.display = 'block';
+      window.scrollTo(0, 0);
+      ({ artists: renderArtistsLevel2, creatures: renderCreaturesLevel2, sets: renderSetsLevel2,
+         color: renderColorsLevel2, type: renderTypesLevel2 })[category]();
     }
 
     function closeCollectionsLevel2() {
       document.getElementById('collectionsLevel2').style.display = 'none';
       document.getElementById('collectionsPage').style.display = '';
       _level2Category = null;
+      window.scrollTo(0, 0);
     }
 
-
-    // ── Collections Level 3: Artist Detail Page ──
+    // ── Level 3: one artist / creature type / set / colour / card type — its art, shuffled or by date ──
     let _l3Sort = "random";
     let _l3Dir = "auto";
+    let _l3From = 'l2', _l3ScrollY = 0;
 
-    function openArtistPage(name) {
-      document.getElementById("collectionsLevel2").style.display = "none";
+    function openDetailPage(it, from = 'l2') {
+      _l3From = from; _l3ScrollY = window.scrollY;
+      document.getElementById('collectionsPage').style.display = 'none';
+      document.getElementById('collectionsLevel2').style.display = 'none';
       const l3 = document.getElementById("collectionsLevel3");
       l3.style.display = "block";
       l3.innerHTML = `
-        <div class="l3-header">
-          <button class="l3-back" onclick="closeArtistPage()">← Back</button>
+        ${l2Header(it.name, '<span class="l2-count" id="l3Count"></span>', 'closeDetailPage()', it.icon || '')}
+        <div class="l3-toolbar">
           <div class="l2-sort" id="l3SortSwitcher"><button class="l2-sort-btn active" data-sort="random" data-dir="auto">Shuffle</button><button class="l2-sort-btn" data-sort="released" data-dir="desc">Newest</button><button class="l2-sort-btn" data-sort="released" data-dir="asc">Oldest</button></div>
-        </div>
-        <div class="l3-artist-hero">
-          <h1 class="l3-artist-name">${name}</h1>
-          <span class="l3-artist-count" id="l3Count">Loading...</span>
         </div>
         <div class="l3-grid" id="l3Grid"></div>
       `;
+      window.scrollTo(0, 0);
       _l3Sort = "random"; _l3Dir = "auto";
-      loadArtistFeed(name);
+      loadDetailFeed(it.q);
       document.getElementById("l3SortSwitcher").querySelectorAll(".l2-sort-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           document.getElementById("l3SortSwitcher").querySelectorAll(".l2-sort-btn").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
           _l3Sort = btn.dataset.sort; _l3Dir = btn.dataset.dir;
-          loadArtistFeed(name);
+          loadDetailFeed(it.q);
         });
       });
     }
+    function openArtistPage(name) { openDetailPage({ name, q: `a:"${name}"` }, 'l2'); }
 
-    function closeArtistPage() {
+    function closeDetailPage() {
       document.getElementById("collectionsLevel3").style.display = "none";
-      document.getElementById("collectionsLevel2").style.display = "block";
+      document.getElementById(_l3From === 'l1' ? 'collectionsPage' : 'collectionsLevel2').style.display = _l3From === 'l1' ? '' : 'block';
+      requestAnimationFrame(() => window.scrollTo(0, _l3ScrollY));
     }
+    const closeArtistPage = closeDetailPage;
 
     const _artistFeedCache = {};
 
-    async function loadArtistFeed(name) {
+    async function loadDetailFeed(q) {
       const grid = document.getElementById("l3Grid");
-      const cacheKey = name + ':' + _l3Sort + ':' + _l3Dir;
+      const cacheKey = q + ':' + _l3Sort + ':' + _l3Dir;
 
       // Instant render from cache
       if (_artistFeedCache[cacheKey]) {
@@ -2784,10 +2950,11 @@
       grid.innerHTML = Array(6).fill('<div class="shimmer" style="min-height:200px"></div>').join('');
 
       const order = _l3Sort === 'random' ? 'released' : _l3Sort;
-      const dir = _l3Sort === 'random' ? 'asc' : _l3Dir;
-      const page = _l3Sort === 'random' ? Math.floor(Math.random() * 5) + 1 : 1;
+      const dir = _l3Sort === 'random' ? (Math.random() < 0.5 ? 'asc' : 'desc') : _l3Dir;
+      const url = page => 'https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q + ' has:illustration') + '&unique=art&order=' + order + '&dir=' + dir + '&page=' + page;
       try {
-        const res = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent('a:"' + name + '" has:illustration') + '&unique=art&order=' + order + '&dir=' + dir + '&page=' + page);
+        let res = await fetch(url(_l3Sort === 'random' ? Math.floor(Math.random() * 5) + 1 : 1));
+        if (!res.ok && _l3Sort === 'random') res = await fetch(url(1)); // fewer than 5 pages
         if (!res.ok) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
         const json = await res.json();
         const cards = _l3Sort === 'random' ? shuffleArray(json.data || []) : (json.data || []);
@@ -2798,25 +2965,26 @@
 
     function renderArtistFeedCards(grid, cards, total) {
       if (!grid || !document.getElementById("l3Grid")) return;
-      document.getElementById('l3Count').textContent = total + ' cards';
+      document.getElementById('l3Count').textContent = total.toLocaleString() + ' artworks';
       grid.innerHTML = '';
       cards.forEach(card => {
         const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
         if (!art) return;
         const el = document.createElement('div');
-        el.className = 'card';
-        el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div></div>`;
+        el.className = `card ${cardHeightClass(card.id)}`;
+        el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div><div class="artist">${card.artist || ''}</div></div>`;
         el.addEventListener('click', () => openLightbox(card, 'feed'));
         grid.appendChild(el);
+        observeCardEntrance(el); // cards fade in on view, like the gallery
       });
     }
 
     async function renderArtistsLevel2() {
       const l2 = document.getElementById('collectionsLevel2');
       l2.innerHTML = `
-        ${l2Header('Artists', '<span class="l2-count" id="l2ArtistCount">Loading…</span>')}
+        ${l2Header('Artists')}
         <div class="l2-toolbar">
-          <input type="text" class="l2-search-input" id="l2ArtistSearch" placeholder="Search artists..." autocomplete="off">
+          ${l2Search('l2ArtistSearch', 0, 'artists')}
           <div class="l2-sort">
             <button class="l2-sort-btn active" data-sort="most">Most art</button>
             <button class="l2-sort-btn" data-sort="az">A→Z</button>
@@ -2839,14 +3007,14 @@
       let currentList = byMostArt([..._level2ArtistList]);
       let currentSort = 'most';
 
-      document.getElementById('l2ArtistCount').textContent = currentList.length.toLocaleString() + ' artists';
+      document.getElementById('l2ArtistSearch').placeholder = `Search ${currentList.length.toLocaleString()} artists…`;
       renderArtistGrid(currentList, "");
 
       // Search
       document.getElementById('l2ArtistSearch').addEventListener('input', (e) => {
         const q = e.target.value.toLowerCase();
         const filtered = q ? currentList.filter(a => a.toLowerCase().split(/\s+/).some(w => w.startsWith(q))) : currentList;
-        document.getElementById('l2ArtistCount').textContent = filtered.length.toLocaleString() + ' artists';
+        l2SearchCount('l2ArtistSearch', q, filtered.length);
         renderArtistGrid(filtered, q);
       });
 
@@ -2862,7 +3030,7 @@
           else currentList = shuffleArray([..._level2ArtistList]);
           const q = document.getElementById('l2ArtistSearch').value.toLowerCase();
           const filtered = q ? currentList.filter(a => a.toLowerCase().split(/\s+/).some(w => w.startsWith(q))) : currentList;
-          document.getElementById('l2ArtistCount').textContent = filtered.length.toLocaleString() + ' artists';
+          l2SearchCount('l2ArtistSearch', q, filtered.length);
           renderArtistGrid(filtered, q);
         });
       });

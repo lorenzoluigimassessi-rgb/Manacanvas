@@ -3567,7 +3567,7 @@ input[type=range]::-moz-range-thumb {
 
 
 /* ═══ Collections Tab ═══ */
-.collections-page { padding: 1.25rem 0 2rem; }
+.collections-page { padding: 1.75rem 0 2rem; }
 .collections-page-header { padding: 0 2rem 2rem; }
 .collections-page-title {
   font-family: 'Cinzel', serif;

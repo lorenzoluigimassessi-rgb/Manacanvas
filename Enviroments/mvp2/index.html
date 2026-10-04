@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=48">
+  <link rel="stylesheet" href="css/style.css?v=49">
 </head>
 <body>
 
@@ -1276,7 +1276,7 @@
 
       // header + search bar — hide entirely on home so bg reaches the top
       const headerWrap = document.querySelector('.header-wrap');
-      if (headerWrap) headerWrap.style.display = mode === 'home' ? 'none' : '';
+      if (headerWrap) headerWrap.style.display = (mode === 'home' || mode === 'collections') ? 'none' : '';
       const searchContainer = document.getElementById('searchContainer');
       const hideSearch = mode === 'home' || mode === 'about' || mode === 'collections';
       if (searchContainer) searchContainer.style.display = hideSearch ? 'none' : '';

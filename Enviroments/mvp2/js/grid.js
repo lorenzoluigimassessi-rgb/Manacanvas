@@ -152,13 +152,12 @@ function renderSearchHead() {
   if (!on) return;
   const m = _searchMeta || { label: activeSearch, tag: 'Card' };
   const active = (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[1]).key;
+  // Compact: what you searched + its kind, × to clear, count right; then the sort
   head.innerHTML = `
-    <div class="l2-header">
-      <button class="l2-back" onclick="clearSearchPill()" aria-label="Clear search" title="Clear search"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
-      <div class="l2-title-wrap">
-        <nav class="l3-crumbs"><span class="crumb">Search</span><span aria-hidden="true">›</span><span class="crumb">${SEARCH_KINDS[m.tag] || m.tag}</span></nav>
-        <h2 class="l2-title">${m.label}</h2>
-      </div>
+    <div class="search-title-row">
+      <h2 class="search-title">${m.label}</h2>
+      <span class="search-kind">${SEARCH_KINDS[m.tag] || m.tag}</span>
+      <button class="search-x" onclick="clearSearchPill()" aria-label="Clear search" title="Clear search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <span class="l2-count" id="searchCount">${_feedTotal ? _feedTotal.toLocaleString() + ' artworks' : ''}</span>
     </div>
     <div class="l3-toolbar"><div class="l2-sort">${SEARCH_SORTS.map(o =>

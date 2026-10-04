@@ -3567,16 +3567,8 @@ input[type=range]::-moz-range-thumb {
 
 
 /* ═══ Collections Tab ═══ */
-.collections-page { padding: 3rem 0 2rem; }
-.collections-page-header { padding: 0 2rem 2.5rem; }
-.collections-page-eyebrow {
-  display: block;
-  font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.68rem; font-weight: 600;
-  letter-spacing: 4px; text-transform: uppercase;
-  color: var(--text-secondary);
-  margin-bottom: 0.6rem;
-}
+.collections-page { padding: 1.25rem 0 2rem; }
+.collections-page-header { padding: 0 2rem 2rem; }
 .collections-page-title {
   font-family: 'Cinzel', serif;
   font-size: clamp(2.4rem, 5vw, 4rem);
@@ -3669,7 +3661,7 @@ input[type=range]::-moz-range-thumb {
   .col-artist-card { flex: 0 0 calc(33% - 0.5rem); scroll-snap-align: start; }
 }
 @media (max-width: 768px) {
-  .collections-page { padding-top: 1.5rem; }
+  .collections-page { padding-top: 1rem; }
   .collections-page-header, .collections-section-header { padding-left: 1rem; padding-right: 1rem; }
   .collections-page-header { padding-bottom: 1.5rem; }
   .collections-section { margin-bottom: 2rem; }

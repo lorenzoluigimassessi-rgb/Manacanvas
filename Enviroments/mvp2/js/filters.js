@@ -981,7 +981,8 @@ function initSearch() {
   });
 
   document.addEventListener("click", (e) => {
-    if (!e.target.closest(".search-container") && !e.target.closest("#searchSuggestions")) hideSearchSuggestions();
+    // Clicks on the bar itself (incl. the click that focuses it) keep the panel open
+    if (!e.target.closest(".search-container, .nav-center, #searchSuggestions")) hideSearchSuggestions();
   });
 }
 

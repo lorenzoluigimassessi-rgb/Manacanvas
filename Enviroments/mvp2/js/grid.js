@@ -147,6 +147,7 @@ function renderSearchHead() {
   if (!head) return;
   const on = !!activeSearch && typeof _currentMode !== 'undefined' && _currentMode === 'gallery';
   head.style.display = on ? '' : 'none';
+  grid.classList.toggle('grid--search', on); // tighter gap under the results chip
   const lensRow = document.getElementById('lensRow');
   if (lensRow && typeof _currentMode !== 'undefined') lensRow.style.display = _currentMode === 'gallery' && !activeSearch ? '' : 'none';
   if (!on) return;

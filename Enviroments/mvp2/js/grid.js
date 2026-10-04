@@ -82,8 +82,8 @@ function insertFeedBridge() {
   if (!after) return;
   const band = document.createElement('div');
   band.className = 'feed-bridge';
-  band.innerHTML = `<span>Looking for something specific?</span>
-    <button onclick="setMode('collections')">Browse by artist, set or colour <span aria-hidden="true">→</span></button>`;
+  band.innerHTML = `<span class="feed-bridge-q">Looking for something specific?</span>
+    <button onclick="setMode('collections')">Explore artists, sets &amp; colours <span class="feed-bridge-arrow" aria-hidden="true">→</span></button>`;
   after.after(band);
 }
 
@@ -94,7 +94,7 @@ function updateFeedHint() {
   if (!hint) return;
   let seen = false;
   try { seen = localStorage.getItem('mc_hint_mix') === '1'; } catch (e) {}
-  hint.textContent = _isTouch ? '↓  Pull down for a new mix' : '↑  Scroll up for a new mix';
+  hint.innerHTML = `<span class="feed-hint-pill"><svg class="feed-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>Pull down for a new mix</span>`;
   hint.style.display = seen ? 'none' : '';
 }
 function dismissFeedHint() {

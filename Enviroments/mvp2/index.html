@@ -867,7 +867,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=65">
+  <link rel="stylesheet" href="css/style.css?v=66">
 </head>
 <body>
 
@@ -1243,7 +1243,7 @@
 
   <script src="js/welcome.js?v=25"></script>
   <script src="js/api.js?v=27"></script>
-  <script src="js/grid.js?v=28"></script>
+  <script src="js/grid.js?v=29"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/filters.js?v=23"></script>
   <script src="js/lightbox.js?v=23"></script>
@@ -2386,9 +2386,9 @@
         pullDist = Math.max(0, e.touches[0].clientY - startY);
         if (pullDist > 0 && window.scrollY <= 0) {
           const progress = Math.min(pullDist / threshold, 1);
-          indicator.style.height = (pullDist * 0.4) + 'px';
+          indicator.style.height = Math.min(pullDist * 0.4, 56) + 'px';
           indicator.style.opacity = progress;
-          indicator.textContent = progress >= 1 ? 'Release for a new mix' : 'Pull for a new mix';
+          ptrShow(indicator, progress, progress >= 1 ? 'Release for a new mix' : 'Pull down for a new mix');
         }
       }, { passive: true });
 
@@ -2396,7 +2396,7 @@
         if (!pulling) return;
         pulling = false;
         if (pullDist >= threshold && window.scrollY <= 0) {
-          indicator.textContent = '';
+          ptrClear(indicator);
           indicator.classList.add('refreshing');
           setTimeout(() => {
             if (sortOrder !== 'random') { sortOrder = 'random'; sortDir = 'auto'; localStorage.setItem("mc_sort", JSON.stringify({ order: 'random', dir: 'auto' })); }
@@ -2406,13 +2406,23 @@
             indicator.style.opacity = '0';
           }, 400);
         } else {
-          indicator.textContent = '';
+          ptrClear(indicator);
           indicator.style.height = '0';
           indicator.style.opacity = '0';
         }
         pullDist = 0;
       });
     })();
+
+    // Pull indicator: shuffle icon that turns with progress + label
+    function ptrShow(indicator, progress, label) {
+      if (!indicator.querySelector('.ptr-icon')) indicator.innerHTML = `<span class="ptr-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></span><span class="ptr-label"></span>`;
+      indicator.querySelector('.ptr-icon').style.transform = `rotate(${progress * 180}deg)`;
+      indicator.querySelector('.ptr-label').textContent = label;
+      indicator.classList.toggle('ready', progress >= 1);
+      document.getElementById('feedHint')?.classList.add('fade'); // indicator takes over from the hint
+    }
+    function ptrClear(indicator) { indicator.innerHTML = ''; indicator.classList.remove('ready'); document.getElementById('feedHint')?.classList.remove('fade'); }
 
     // ── Desktop: keep scrolling up while already at the top → reshuffle ──
     (function initWheelReshuffle() {
@@ -2428,13 +2438,13 @@
         if (atTopSince === null || Date.now() - atTopSince < 350) return;
         acc += Math.min(-e.deltaY, 60);
         const progress = Math.min(acc / threshold, 1);
-        indicator.style.height = (progress * 40) + 'px';
+        indicator.style.height = (progress * 56) + 'px';
         indicator.style.opacity = progress;
-        indicator.textContent = 'Keep scrolling for a new mix';
+        ptrShow(indicator, progress, 'Keep pulling for a new mix');
         clearTimeout(idle);
         if (acc >= threshold) {
           busy = true; acc = 0;
-          indicator.textContent = '';
+          ptrClear(indicator);
           indicator.classList.add('refreshing');
           setTimeout(() => {
             if (sortOrder !== 'random') { sortOrder = 'random'; sortDir = 'auto'; localStorage.setItem("mc_sort", JSON.stringify({ order: 'random', dir: 'auto' })); }
@@ -2445,7 +2455,7 @@
           }, 400);
           return;
         }
-        idle = setTimeout(() => { acc = 0; indicator.textContent = ''; indicator.style.height = '0'; indicator.style.opacity = '0'; }, 400);
+        idle = setTimeout(() => { acc = 0; ptrClear(indicator); indicator.style.height = '0'; indicator.style.opacity = '0'; }, 400);
       }, { passive: true });
     })();
 

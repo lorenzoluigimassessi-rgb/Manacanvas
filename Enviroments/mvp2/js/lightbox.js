@@ -145,9 +145,12 @@ function openLightbox(card, mode = 'feed') {
       <div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>
       <div class="lb-top">
         <button class="close-btn" id="lbClose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-        <div class="toggle">
-          <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art</button>
-          <button id="toggleFrame" ${isSurprise ? 'class="active"' : ''}>Frame</button>
+        <div class="lb-actions">
+          <button class="lb-info-btn" id="lbInfoBtn" aria-label="Hide details" title="Hide details" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <div class="toggle">
+            <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art</button>
+            <button id="toggleFrame" ${isSurprise ? 'class="active"' : ''}>Frame</button>
+          </div>
         </div>
       </div>
 
@@ -447,11 +450,18 @@ function openLightbox(card, mode = 'feed') {
     resetZoom();
   });
 
-  // ── Art only: tap/click the art to hide everything else; tap anywhere to bring it back ──
+  // ── Art only: the eye button (or a tap on the art) hides everything else; tap again to bring it back ──
   const lbBody = document.getElementById('lbBody');
+  const infoBtn = document.getElementById('lbInfoBtn');
+  const setFocus = on => {
+    document.body.classList.toggle('lb-focus', on);
+    infoBtn.setAttribute('aria-pressed', on);
+    infoBtn.title = on ? 'Show details' : 'Hide details'; infoBtn.setAttribute('aria-label', infoBtn.title);
+  };
+  infoBtn.addEventListener('click', (e) => { e.stopPropagation(); setFocus(!document.body.classList.contains('lb-focus')); });
   lbBody.addEventListener('click', (e) => {
-    if (document.body.classList.contains('lb-focus')) { document.body.classList.remove('lb-focus'); return; }
-    if (e.target.closest('#artContainer') && !e.target.closest('button') && scale <= 1) { document.body.classList.add('lb-focus'); return; }
+    if (document.body.classList.contains('lb-focus')) { setFocus(false); return; }
+    if (e.target.closest('#artContainer') && !e.target.closest('button') && scale <= 1) { setFocus(true); return; }
     // Desktop: a click on the empty backdrop closes, as before
     if (!('ontouchstart' in window) && (e.target === lbBody || e.target.classList.contains('lb-col') || e.target.classList.contains('lb-stage'))) handleClose();
   });

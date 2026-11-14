@@ -4332,8 +4332,8 @@ input[type=range]::-moz-range-thumb {
 .lb-ghost-arrows.lb-ghost-hidden .lb-ghost-arrow { pointer-events: none; }
 
 /* Art only: everything but the artwork fades away; a tap brings it back */
-.lb2 .lb-top, .lb2 .lb-head, .lb2 .lb-facts, .lb2 > .zoom-hint, #lbPrev, #lbNext, .lb-surprise-next-btn { transition: opacity 250ms ease; }
-body.lb-focus .lb2 .lb-top, body.lb-focus .lb2 > .zoom-hint, body.lb-focus #lbPrev, body.lb-focus #lbNext,
+.lb2 .close-btn, .lb2 .toggle, .lb2 .lb-head, .lb2 .lb-facts, .lb2 > .zoom-hint, #lbPrev, #lbNext, .lb-surprise-next-btn { transition: opacity 250ms ease; }
+body.lb-focus .lb2 .close-btn, body.lb-focus .lb2 .toggle, body.lb-focus .lb2 > .zoom-hint, body.lb-focus #lbPrev, body.lb-focus #lbNext,
 body.lb-focus .lb-surprise-next-btn, body.lb-focus .lb2 .lb-ghost-arrows { opacity: 0 !important; pointer-events: none !important; }
 body.lb-focus .lb2 .lb-head, body.lb-focus .lb2 .lb-facts { display: none; }
 body.lb-focus .lb2 .art-container img { max-height: calc(100vh - 5rem); }
@@ -4341,3 +4341,33 @@ body.lb-focus .lb2 .art-container { box-shadow: 0 30px 90px rgba(0,0,0,0.55); }
 @media (max-width: 768px) {
   body.lb-focus .lb2 .art-container img { max-height: 78vh; }
 }
+
+/* Eye button beside Art|Frame: hides the details; stays (dimmed) while they're hidden, to bring them back */
+.lb2 .lb-actions { display: flex; align-items: center; gap: 0.5rem; }
+.lb-info-btn {
+  width: 40px; height: 40px; border-radius: 50%; padding: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(12,12,15,0.35); border: 1px solid rgba(255,255,255,0.12); color: rgba(240,240,240,0.85);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); -webkit-tap-highlight-color: transparent;
+  transition: opacity 250ms ease, background 150ms;
+}
+.lb-info-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+body.lb-focus .lb-info-btn { opacity: 0.55; background: rgba(255,255,255,0.14); }
+body.lb-focus .lb-info-btn:hover { opacity: 1; }
+@media (min-width: 769px) {
+  .lb2 .lb-actions { flex-direction: row-reverse; } /* desktop, right to left: ✕, Art|Frame, eye */
+  /* Facts on one centred line under the art (wrapping only if there's truly no room) */
+  .lb2 .lb-head { text-align: center; }
+  .lb2 .lb-facts {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 0.9rem 2.5rem;
+    width: max-content; min-width: 100%; max-width: min(960px, calc(100vw - 12rem - 64px)); align-self: center;
+  }
+  .lb2 .lb-fact { text-align: center; }
+  .lb2 .lb-fact-vals { justify-content: center; }
+}
+@media (max-width: 768px) {
+  .lb2 .art-container img.frame-mode { max-height: 52vh; } /* a framed card leaves room for its details; the rest scrolls */
+  body.lb-focus .lb2 .art-container img.frame-mode { max-height: 78vh; }
+}
+body.lb-focus .lb2 .toggle { display: none; } /* the eye slides to the corner on its own */
+@media (min-width: 769px) { body.lb-focus .lb2 .close-btn { display: none; } }

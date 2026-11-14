@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=134">
+  <link rel="stylesheet" href="css/style.css?v=136">
 </head>
 <body>
 
@@ -1257,7 +1257,7 @@
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=30"></script>
-  <script src="js/lightbox.js?v=29"></script>
+  <script src="js/lightbox.js?v=30"></script>
 
   <script>
     // ── Where you are in Categories (level + sort), per tab: a reload lands on the same page ──
@@ -2421,6 +2421,7 @@
     // ── Pull-to-refresh (mobile only) ──
     // What a pull at the top reshuffles: the gallery, or a layer-3 page set to Shuffle (else nothing)
     function pullAction() {
+      if (document.querySelector('#lightbox .lightbox')) return null; // a card is open: pulling scrolls its details, never reshuffles behind it
       if (_currentMode === 'gallery' && activeSearch) return sortOrder === 'random' ? reshuffleFeed : null;
       if (_currentMode === 'gallery') return () => {
         if (sortOrder !== 'random') { sortOrder = 'random'; sortDir = 'auto'; localStorage.setItem("mc_sort", JSON.stringify({ order: 'random', dir: 'auto' })); }

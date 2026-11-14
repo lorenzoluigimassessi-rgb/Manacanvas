@@ -19,9 +19,12 @@ function openPullStack(first, nonce) {
     <div class="draw-ritual-radial"></div>
     <div class="pull-top">
       <button class="pull-close" id="pullClose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      <div class="pull-toggle" role="group" aria-label="View">
-        <button data-v="art" class="${view === 'art' ? 'active' : ''}">Art</button>
-        <button data-v="frame" class="${view === 'frame' ? 'active' : ''}">Frame</button>
+      <div class="pull-actions">
+        <div class="pull-toggle" role="group" aria-label="View">
+          <button data-v="art" class="${view === 'art' ? 'active' : ''}">Art</button>
+          <button data-v="frame" class="${view === 'frame' ? 'active' : ''}">Frame</button>
+        </div>
+        ${cardMoreHtml()}
       </div>
     </div>
     <div class="pull-stack view-${view}" id="pullStack"><div class="pull-spacer"></div><div class="pull-spacer pull-spacer-end"></div></div>
@@ -34,9 +37,8 @@ function openPullStack(first, nonce) {
     <div class="pull-sheet-bg" id="pullSheetBg"></div>
     <div class="pull-sheet" id="pullSheet" role="dialog" aria-label="Card details">
       <div class="pull-sheet-grab" id="pullGrab"></div>
-      <h2 class="lb-title" id="lbTitle"></h2>
+      ${cardTitleHtml()}
       <button class="lb-versions" id="lbVersions" hidden></button>
-      ${cardToolsHtml()}
       <div class="lb-facts" id="lbFacts"></div>
     </div>`;
   _pull = { nonce, cards: [], idx: -1, view, loading: false, bgFront: null, sheet: false, res: null, trail: [] };
@@ -47,7 +49,7 @@ function openPullStack(first, nonce) {
   document.getElementById('pullPrev').addEventListener('click', e => { e.stopPropagation(); _pullGo(_pull.idx - 1); });
   document.getElementById('pullNext').addEventListener('click', e => { e.stopPropagation(); _pullGo(_pull.idx + 1); });
   document.getElementById('lbVersions').addEventListener('click', () => openTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
-  bindCardTools(document.getElementById('pullSheet'), () => _pull && _pull.cards[_pull.idx], () => _pull && _pull.view);
+  bindCardTools(document.getElementById('drawRitual'), () => _pull && _pull.cards[_pull.idx], () => _pull && _pull.view);
   _pullSheetDrag();
 
   const stack = document.getElementById('pullStack');

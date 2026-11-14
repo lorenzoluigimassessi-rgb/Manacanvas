@@ -109,15 +109,31 @@ const _TOOL_ICONS = {
   download: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/>',
   share: '<path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 12v8h14v-8"/>'
 };
-function cardToolsHtml() {
-  const b = (act, label) => `<button class="lb-tool" data-act="${act}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${_TOOL_ICONS[act]}</svg>${label}</button>`;
-  return `<div class="lb-tools">${b('copy', 'Copy name')}${b('download', 'Download')}${b('share', 'Share')}</div>`;
+const _toolSvg = (act, s = 16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${_TOOL_ICONS[act]}</svg>`;
+// The name, with a quiet copy icon beside it
+function cardTitleHtml() {
+  return `<div class="lb-title-row"><h2 class="lb-title" id="lbTitle"></h2><button class="lb-copy" data-act="copy" aria-label="Copy name" title="Copy name">${_toolSvg('copy', 15)}</button></div>`;
+}
+// ⋮ beside the top controls: Download, Share
+function cardMoreHtml() {
+  return `<div class="lb-more"><button class="lb-more-btn" aria-label="More" aria-haspopup="true" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button>
+    <div class="lb-more-menu" role="menu" hidden>
+      <button role="menuitem" data-act="download">${_toolSvg('download')}Download</button>
+      <button role="menuitem" data-act="share">${_toolSvg('share')}Share</button>
+    </div></div>`;
 }
 function bindCardTools(root, getCard, getView) {
-  root.querySelectorAll('.lb-tool').forEach(btn => btn.addEventListener('click', e => {
+  root.querySelectorAll('[data-act]').forEach(btn => btn.addEventListener('click', e => {
     e.stopPropagation();
     const card = getCard(); if (!card) return;
+    root.querySelectorAll('.lb-more-menu').forEach(m => { m.hidden = true; m.previousElementSibling.setAttribute('aria-expanded', 'false'); });
     ({ copy: _copyName, download: _downloadCard, share: _shareCard })[btn.dataset.act](card, getView());
+  }));
+  root.querySelectorAll('.lb-more-btn').forEach(btn => btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const menu = btn.nextElementSibling, open = menu.hidden;
+    menu.hidden = !open; btn.setAttribute('aria-expanded', open);
+    if (open) setTimeout(() => document.addEventListener('click', function off() { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); document.removeEventListener('click', off); }), 0);
   }));
 }
 function lbToast(msg) {
@@ -212,6 +228,7 @@ function openLightbox(card, mode = 'feed') {
             <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art</button>
             <button id="toggleFrame" ${isSurprise ? 'class="active"' : ''}>Frame</button>
           </div>
+          ${cardMoreHtml()}
         </div>
       </div>
 
@@ -228,9 +245,8 @@ function openLightbox(card, mode = 'feed') {
           </div>
         </div>
         <div class="lb-head">
-          <h2 class="lb-title" id="lbTitle"></h2>
+          ${cardTitleHtml()}
           <button class="lb-versions" id="lbVersions" hidden></button>
-          ${cardToolsHtml()}
         </div>
         <div class="lb-facts" id="lbFacts"></div>
        </div>

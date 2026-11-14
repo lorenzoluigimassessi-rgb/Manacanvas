@@ -4608,3 +4608,37 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 }
 .lb-toast.show { opacity: 1; transform: translate(-50%, 0); }
 @media (min-width: 769px) { .lb-toast { bottom: 2rem; } }
+
+/* Copy: a quiet icon beside the name */
+.lb-title-row { display: flex; align-items: center; gap: 0.35rem; }
+.lb-copy {
+  flex-shrink: 0; width: 32px; height: 32px; padding: 0; border: none; border-radius: 50%; cursor: pointer; background: none;
+  display: flex; align-items: center; justify-content: center; color: rgba(240,240,240,0.4); -webkit-tap-highlight-color: transparent;
+  transition: color 150ms, background 150ms;
+}
+.lb-copy:hover, .lb-copy:active { color: #fff; background: rgba(255,255,255,0.08); }
+@media (min-width: 769px) { .lb2 .lb-title-row { justify-content: center; } .lb2 .lb-title-row .lb-copy { margin-right: -32px; } } /* name stays centred */
+
+/* ⋮ menu beside the top controls: Download, Share */
+.lb-more { position: relative; }
+.lb-more-btn {
+  width: 40px; height: 40px; border-radius: 50%; padding: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(12,12,15,0.35); border: 1px solid rgba(255,255,255,0.12); color: rgba(240,240,240,0.85);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); -webkit-tap-highlight-color: transparent;
+}
+.lb-more-btn:hover, .lb-more-btn[aria-expanded="true"] { color: #fff; border-color: rgba(255,255,255,0.3); }
+.lb-more-menu {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; min-width: 168px; padding: 6px; border-radius: 14px;
+  background: rgba(22,22,28,0.94); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.lb-more-menu[hidden] { display: none; }
+.lb-more-menu button {
+  display: flex; align-items: center; gap: 0.65rem; width: 100%; padding: 0.7rem 0.8rem; border: none; border-radius: 9px; background: none; cursor: pointer;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.9rem; color: rgba(240,240,240,0.92); text-align: left;
+}
+.lb-more-menu button:hover, .lb-more-menu button:active { background: rgba(255,255,255,0.08); }
+.lb-more-menu svg { flex-shrink: 0; margin-top: -2px; opacity: 0.8; }
+.pull-actions { display: flex; align-items: center; gap: 0.5rem; }
+@media (min-width: 769px) { .lb2 .lb-actions { flex-direction: row; } } /* left to right: eye, Art|Frame, ⋮, then ✕ */

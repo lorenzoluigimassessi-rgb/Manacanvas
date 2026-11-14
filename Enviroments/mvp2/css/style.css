@@ -4254,20 +4254,17 @@ input[type=range]::-moz-range-thumb {
 .lb2 .toggle { margin: 0; border-radius: 999px; padding: 3px; background: rgba(12,12,15,0.35); border-color: rgba(255,255,255,0.12); }
 .lb2 .toggle button { border-radius: 999px; padding: 0.45rem 1.1rem; min-height: 0; font-size: 0.82rem; letter-spacing: 0.3px; }
 
-/* Desktop: art left; name + facts to its right */
+/* One centred column — name, art, facts — sized by the art, so name and facts share its edges */
 .lb2 .lb-body {
   position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box;
-  display: grid; grid-template-columns: minmax(0, 1fr) 300px; column-gap: 4rem;
-  grid-template-rows: 1fr auto auto 1fr;
-  grid-template-areas: "stage ." "stage head" "stage facts" "stage .";
-  max-width: 1280px; margin: 0 auto; padding: 5rem 5rem 3rem;
+  display: flex; flex-direction: column; padding: 5rem 6rem 2.5rem;
 }
-.lb2 .lb-stage { grid-area: stage; display: flex; align-items: center; justify-content: center; min-width: 0; }
-.lb2 .lb-head { grid-area: head; }
-.lb2 .lb-facts { grid-area: facts; }
+.lb2 .lb-col { margin: auto; display: flex; flex-direction: column; width: fit-content; max-width: 100%; }
+.lb2 .lb-head, .lb2 .lb-facts { width: 0; min-width: 100%; } /* never wider than the art */
+.lb2 .lb-head { margin-top: 1.25rem; }
+.lb2 .lb-stage { display: flex; justify-content: center; min-width: 0; }
 .lb2 .art-container { width: fit-content; max-width: 100%; max-height: none; margin: 0 auto; box-shadow: 0 20px 60px rgba(0,0,0,0.45); }
-.lb2 .art-container img { max-width: 100%; max-height: calc(100vh - 9rem); margin: 0 auto; }
-
+.lb2 .art-container img { max-width: 100%; max-height: calc(100vh - 17rem); margin: 0 auto; transition: max-height 300ms ease; }
 .lb-title { margin: 0; font-family: 'Cinzel', Georgia, serif; font-weight: 500; font-size: 1.6rem; line-height: 1.2; letter-spacing: 1px; color: var(--text-primary); text-wrap: balance; text-shadow: 0 1px 12px rgba(0,0,0,0.4); }
 .lb-versions {
   display: inline-block; margin-top: 0.35rem; padding: 0; background: none; border: none; cursor: pointer;
@@ -4277,7 +4274,7 @@ input[type=range]::-moz-range-thumb {
 .lb-versions[hidden] { display: none; }
 .lb-versions:hover { color: var(--text-primary); }
 
-.lb-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem 1.5rem; margin-top: 1.75rem; }
+.lb-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.9rem 1.5rem; margin-top: 1.1rem; }
 .lb-fact { min-width: 0; }
 .lb-fact-label {
   display: block; margin-bottom: 0.3rem;
@@ -4299,27 +4296,23 @@ input[type=range]::-moz-range-thumb {
 .lightbox.lb2 > .zoom-hint { position: absolute; left: 0; right: 0; bottom: 1rem; text-align: center; z-index: 6; pointer-events: none; }
 @media (min-width: 769px) {
   .lb2 .lb-top { flex-direction: row-reverse; justify-content: flex-start; gap: 0.75rem; } /* top-right: Art|Frame, ✕ */
-  .lb2.lb-surprise .art-container img { max-height: calc(100vh - 14rem); } /* room for Draw a Card */
+  .lb2.lb-surprise .art-container img { max-height: calc(100vh - 24rem); } /* room for Draw a Card */
+  .lb2 .art-container img.frame-mode { max-height: calc(100vh - 21rem); } /* a tall card still leaves its name + facts in view */
+  body.lb-focus .lb2 .art-container img.frame-mode { max-height: calc(100vh - 5rem); }
 }
 @media (min-width: 1024px) {
-  .lb2 .lb-body { padding-left: calc(64px + 5rem); }
+  .lb2 .lb-body { padding-left: calc(64px + 6rem); }
   #lbPrev { left: calc(64px + 1.5rem); } /* clear of the sidebar */
 }
 
 /* Phones: name above the art, art centred, facts quietly underneath */
 @media (max-width: 768px) {
   .lb2 .lb-top { padding: calc(0.75rem + env(safe-area-inset-top)) 1rem 0.5rem; }
-  .lb2 .lb-body {
-    display: flex; flex-direction: column;
-    padding: calc(4.25rem + env(safe-area-inset-top)) 1rem calc(56px + 1.75rem + env(safe-area-inset-bottom));
-  }
+  .lb2 .lb-body { padding: calc(4.25rem + env(safe-area-inset-top)) 1rem calc(56px + 1.75rem + env(safe-area-inset-bottom)); }
   .lb2.lb-surprise .lb-body { padding-bottom: calc(56px + 5.5rem + env(safe-area-inset-bottom)); }
-  .lb2 .lb-head { flex-shrink: 0; margin: auto 0 0.85rem; } /* auto margins centre the stack, yet scroll when taller */
-  .lb2 .lb-stage { flex-shrink: 0; }
   .lb2 .art-container img { max-height: 58vh; }
   .lb-title { font-size: 1.3rem; }
-  /* Facts share the art's edges and sit on a hairline, so they read as the art's caption, not a floating block */
-  .lb-facts { flex-shrink: 0; margin: 1.1rem 0 auto; padding-top: 1.1rem; border-top: 1px solid rgba(255,255,255,0.12); gap: 0.9rem 1.25rem; }
+  .lb-facts { grid-template-columns: 1fr 1fr; gap: 0.9rem 1.25rem; margin-top: 1.1rem; }
   .lb-fact-link { font-size: 0.9rem; }
   /* Browse arrows sit on the art's edges (and swipe works too) */
   .lb2 .lb-ghost-arrows { display: block !important; }
@@ -4337,3 +4330,14 @@ input[type=range]::-moz-range-thumb {
 /* Browse arrows fade out after a moment; a touch brings them back */
 .lb-ghost-arrows.lb-ghost-hidden { opacity: 0 !important; }
 .lb-ghost-arrows.lb-ghost-hidden .lb-ghost-arrow { pointer-events: none; }
+
+/* Art only: everything but the artwork fades away; a tap brings it back */
+.lb2 .lb-top, .lb2 .lb-head, .lb2 .lb-facts, .lb2 > .zoom-hint, #lbPrev, #lbNext, .lb-surprise-next-btn { transition: opacity 250ms ease; }
+body.lb-focus .lb2 .lb-top, body.lb-focus .lb2 > .zoom-hint, body.lb-focus #lbPrev, body.lb-focus #lbNext,
+body.lb-focus .lb-surprise-next-btn, body.lb-focus .lb2 .lb-ghost-arrows { opacity: 0 !important; pointer-events: none !important; }
+body.lb-focus .lb2 .lb-head, body.lb-focus .lb2 .lb-facts { display: none; }
+body.lb-focus .lb2 .art-container img { max-height: calc(100vh - 5rem); }
+body.lb-focus .lb2 .art-container { box-shadow: 0 30px 90px rgba(0,0,0,0.55); }
+@media (max-width: 768px) {
+  body.lb-focus .lb2 .art-container img { max-height: 78vh; }
+}

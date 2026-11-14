@@ -134,7 +134,7 @@ function openLightbox(card, mode = 'feed') {
     ? `<svg width="28" height="14" viewBox="0 0 28 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5h26M5 1L1 5l4 4M23 1l4 4-4 4"/></svg>
        <span>Swipe to discover</span>`
     : `<svg width="28" height="14" viewBox="0 0 28 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5h26M5 1L1 5l4 4M23 1l4 4-4 4"/></svg>
-       <span>Swipe left or right to browse</span>`;
+       <span>Swipe to browse · tap the art to hide details</span>`;
 
   localStorage.setItem('mc_lightbox', JSON.stringify({ id: card.id, mode }));
 
@@ -152,10 +152,7 @@ function openLightbox(card, mode = 'feed') {
       </div>
 
       <div class="lb-body" id="lbBody">
-        <div class="lb-head">
-          <h2 class="lb-title" id="lbTitle"></h2>
-          <button class="lb-versions" id="lbVersions" hidden></button>
-        </div>
+       <div class="lb-col">
         <div class="lb-stage">
           <div class="art-container ${isSurprise ? 'frame-active' : ''}" id="artContainer" style="overflow:hidden;">
             <img id="lbImage" src="${initialSrc}" alt="${card.name}" ${isSurprise ? 'class="frame-mode"' : ''}>
@@ -166,14 +163,20 @@ function openLightbox(card, mode = 'feed') {
             </div>` : ''}
           </div>
         </div>
+        <div class="lb-head">
+          <h2 class="lb-title" id="lbTitle"></h2>
+          <button class="lb-versions" id="lbVersions" hidden></button>
+        </div>
         <div class="lb-facts" id="lbFacts"></div>
+       </div>
       </div>
 
-      <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
+      <div class="zoom-hint" id="zoomHint">Click the art to hide details · Scroll to zoom · ← → to browse</div>
     </div>
   `;
 
   renderCardInfo(card);
+  document.body.classList.remove('lb-focus');
   document.getElementById('lbVersions').addEventListener('click', () => openTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
 
   // Mobile bottom nav — feed mode only (surprise uses the button below)
@@ -444,6 +447,15 @@ function openLightbox(card, mode = 'feed') {
     resetZoom();
   });
 
+  // ── Art only: tap/click the art to hide everything else; tap anywhere to bring it back ──
+  const lbBody = document.getElementById('lbBody');
+  lbBody.addEventListener('click', (e) => {
+    if (document.body.classList.contains('lb-focus')) { document.body.classList.remove('lb-focus'); return; }
+    if (e.target.closest('#artContainer') && !e.target.closest('button') && scale <= 1) { document.body.classList.add('lb-focus'); return; }
+    // Desktop: a click on the empty backdrop closes, as before
+    if (!('ontouchstart' in window) && (e.target === lbBody || e.target.classList.contains('lb-col') || e.target.classList.contains('lb-stage'))) handleClose();
+  });
+
   // ── Zoom (desktop only) ────────────────────────────────────────────────────
   const isTouchDevice = 'ontouchstart' in window;
   const container = document.getElementById('artContainer');
@@ -506,6 +518,7 @@ function handleLbKey(e) {
 
 function closeLightbox() {
   _transitioning = false;
+  document.body.classList.remove('lb-focus');
   localStorage.removeItem('mc_lightbox');
   document.getElementById('lightbox').innerHTML = '';
   const nav = document.getElementById('lbMobileNav');

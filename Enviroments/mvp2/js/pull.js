@@ -11,7 +11,7 @@ function _pullSrc(c, view) {
 function openPullStack(first, nonce) {
   const ov = document.getElementById('drawRitual');
   ov.removeEventListener('click', closeDrawRitual);
-  const view = localStorage.getItem('mc_pull_view') === 'art' ? 'art' : 'frame';
+  const view = localStorage.getItem('mc_pull_view') === 'frame' ? 'frame' : 'art'; // Art by default
   const touch = 'ontouchstart' in window;
   ov.classList.add('pull-mode');
   ov.innerHTML = `
@@ -24,7 +24,7 @@ function openPullStack(first, nonce) {
         <button data-v="frame" class="${view === 'frame' ? 'active' : ''}">Frame</button>
       </div>
     </div>
-    <div class="pull-stack" id="pullStack"><div class="pull-spacer"></div><div class="pull-spacer pull-spacer-end"></div></div>
+    <div class="pull-stack view-${view}" id="pullStack"><div class="pull-spacer"></div><div class="pull-spacer pull-spacer-end"></div></div>
     <div class="pull-nav">
       <button id="pullPrev" aria-label="Previous card" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button>
       <button id="pullNext" aria-label="Next card"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -66,6 +66,14 @@ function openPullStack(first, nonce) {
   }
 }
 
+// Art view only (the frame already prints it): the card's flavour text and type · set · year
+function _pullOverview(card) {
+  const f = card.card_faces?.[0] || card;
+  const flavor = card.flavor_text || f.flavor_text;
+  const line = [(f.type_line || card.type_line || '').replace(/\s+—\s+/, ' — '), card.set_name, card.released_at?.slice(0, 4)].filter(Boolean).map(_pullEsc).join(' · ');
+  return `<div class="pull-overview">${flavor ? `<p class="pull-flavor">${_pullEsc(flavor)}</p>` : ''}${line ? `<div class="pull-line">${line}</div>` : ''}</div>`;
+}
+
 function _pullAdd(card) {
   const p = _pull, i = p.cards.length;
   p.cards.push(card);
@@ -77,6 +85,7 @@ function _pullAdd(card) {
       <div class="pull-meta">
         <div class="pull-name">${_pullEsc(card.name)}</div>
         ${card.artist ? `<button class="pull-artist">${_pullEsc(card.artist)}</button>` : ''}
+        ${_pullOverview(card)}
       </div>
     </div>`;
   el.querySelector('.pull-card').addEventListener('click', e => {
@@ -148,6 +157,9 @@ function _pullSetView(v) {
   p.view = v;
   localStorage.setItem('mc_pull_view', v);
   document.querySelectorAll('.pull-toggle button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
+  const stack = document.getElementById('pullStack');
+  stack.classList.toggle('view-art', v === 'art'); stack.classList.toggle('view-frame', v === 'frame');
+  requestAnimationFrame(() => document.querySelectorAll('#pullStack .pull-slide')[p.idx]?.scrollIntoView({ block: 'center' })); // stay on this card
   document.querySelectorAll('#pullStack .pull-slide').forEach((s, i) => {
     s.querySelector('img').src = _pullSrc(p.cards[i], v);
     s.querySelector('.pull-card').classList.toggle('is-frame', v === 'frame');

@@ -4519,3 +4519,29 @@ body.lb-focus .lb-info-btn { background: rgba(255,255,255,0.16); border-color: r
 .search-glow-art.on { opacity: 0.85; }
 .search-glow::after { content: ''; position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% 35%, rgba(12,12,15,0.15), rgba(12,12,15,0.75)); }
 @media (prefers-reduced-motion: reduce) { .search-glow-art { animation: none; } }
+
+/* Pull, Art view: a short overview under the name — flavour text, then type · set · year */
+.pull-overview { display: none; max-width: min(100%, 520px); margin: 0.85rem auto 0; }
+.pull-stack.view-art .pull-overview { display: block; }
+.pull-flavor {
+  margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.02rem; line-height: 1.45;
+  color: rgba(240,240,240,0.72); white-space: pre-line;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pull-line { margin-top: 0.55rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.74rem; letter-spacing: 0.4px; color: rgba(240,240,240,0.5); }
+
+/* Discover: the "What you can search" block as frosted glass */
+@media (max-width: 1023px) {
+  .search-guide-list {
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(22px) saturate(1.5); -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 12px 40px rgba(0,0,0,0.25);
+  }
+  .search-guide-row { border-top-color: rgba(255,255,255,0.08); }
+  .search-guide-row:active { background: rgba(255,255,255,0.08); }
+}
+.pull-hint[hidden] { display: none; }
+/* Art view: shorter slides, so the next (and previous) artwork visibly peeks in */
+.pull-stack.view-art { --slide-h: 62%; }
+@media (min-width: 769px) { .pull-stack.view-art { --slide-h: 66%; } }

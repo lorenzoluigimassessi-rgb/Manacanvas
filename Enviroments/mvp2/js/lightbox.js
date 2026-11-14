@@ -226,7 +226,7 @@ function openLightbox(card, mode = 'feed') {
     <div class="lightbox lb2 ${isSurprise ? 'lb-surprise' : ''}" id="lightboxOverlay" style="background:#0c0c0f;">
       <div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>
       <div class="lb-top">
-        <button class="close-btn lb-back" id="lbClose" aria-label="Back" title="Back"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
+        <button class="close-btn lb-back" id="lbClose" aria-label="Back" title="Back"><svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M28 12H3M13 2L3 12l10 10"/></svg></button>
         <div class="lb-actions">
           <div class="toggle">
             <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art</button>

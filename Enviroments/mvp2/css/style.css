@@ -4641,4 +4641,4 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .lb-more-menu button:hover, .lb-more-menu button:active { background: rgba(255,255,255,0.08); }
 .lb-more-menu svg { flex-shrink: 0; margin-top: -2px; opacity: 0.8; }
 .pull-actions { display: flex; align-items: center; gap: 0.5rem; }
-@media (min-width: 769px) { .lb2 .lb-actions { flex-direction: row; } } /* left to right: eye, Art|Frame, ⋮, then ✕ */
+@media (min-width: 769px) { .lb2 .lb-actions { flex-direction: row; } } /* left to right: Art|Frame, eye, ⋮, then ✕ */

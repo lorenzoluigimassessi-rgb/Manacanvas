@@ -223,11 +223,11 @@ function openLightbox(card, mode = 'feed') {
       <div class="lb-top">
         <button class="close-btn" id="lbClose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         <div class="lb-actions">
-          <button class="lb-info-btn" id="lbInfoBtn" aria-label="Hide details" title="Hide details" aria-pressed="false">${LB_EYE}</button>
           <div class="toggle">
             <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art</button>
             <button id="toggleFrame" ${isSurprise ? 'class="active"' : ''}>Frame</button>
           </div>
+          <button class="lb-info-btn" id="lbInfoBtn" aria-label="Hide details" title="Hide details" aria-pressed="false">${LB_EYE}</button>
           ${cardMoreHtml()}
         </div>
       </div>

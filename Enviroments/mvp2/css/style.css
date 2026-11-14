@@ -311,6 +311,8 @@ body {
   text-shadow: 0 2px 30px rgba(0,0,0,0.55);
 }
 
+.welcome-title .br-mobile { display: none; } /* line break only on phones */
+
 .welcome-subtitle {
   font-size: 1rem;
   color: rgba(240, 240, 240, 0.92);
@@ -2573,6 +2575,7 @@ body {
   .scroll-top { bottom: 1rem; right: 1rem; width: 44px; height: 44px; }
   /* Home on phones: readable sizes and a comfortable tap target */
   .welcome-title { font-size: 2.1rem; letter-spacing: 4px; }
+  .welcome-title .br-mobile { display: inline; } /* MAGIC: / THE GALLERY */
   .welcome-subtitle { font-size: 0.88rem; line-height: 1.5; }
   .home-action--primary { font-size: 0.9rem; padding: 1.15rem 2rem; }
   .home-alt-link { font-size: 0.82rem; }

@@ -362,9 +362,9 @@ function openLightbox(card, mode = 'feed') {
   function showGhostArrows() {
     const g = document.getElementById('lbGhostArrows');
     if (!g) return;
-    g.style.opacity = '1';
+    g.classList.remove('lb-ghost-hidden');
     clearTimeout(ghostTimer);
-    ghostTimer = setTimeout(() => { if (g) g.style.opacity = '0'; }, 1500);
+    ghostTimer = setTimeout(() => g.classList.add('lb-ghost-hidden'), 2000); // fade after 2s; any touch brings them back
   }
   showGhostArrows();
   document.getElementById('lightboxOverlay').addEventListener('touchstart', showGhostArrows, { passive: true });

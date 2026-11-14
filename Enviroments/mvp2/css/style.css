@@ -1123,7 +1123,7 @@ body {
   /* Search results inside the Search tab (phones) */
   .mobile-search-panel.has-results { overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .search-results { padding: 3.6rem 0.75rem 1.5rem; }
-  .search-results .search-row { margin-bottom: 0.9rem; }
+  .search-results #msHead { margin-bottom: 0.9rem; }
   .search-hero {
     position: relative;
     display: flex; flex-direction: column;
@@ -3809,25 +3809,43 @@ input[type=range]::-moz-range-thumb {
 .search-head { padding: 0 2rem; } /* controls close to the bar (20px), a bit more air before the art (28px) */
 .grid.grid--search { padding-top: 1.75rem; }
 .search-head .l3-toolbar { margin-bottom: 0; }
-.search-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-.search-row .l2-sort { margin-left: auto; }
-.search-count { font-size: 0.78rem; letter-spacing: 1px; color: var(--text-secondary); }
-
-/* Search results: title + kind chip (tinted by kind) */
-.search-row--title .search-title {
+/* Search results header: row 1 = ← title + kind chip, row 2 = count · sort */
+.search-head-row { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.search-head-row .l2-back svg { width: clamp(2rem, 2.8vw, 2.6rem); }
+.search-title {
   font-family: 'Cinzel', serif; font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-weight: 500; letter-spacing: 1px;
-  line-height: 1.1; color: var(--text-primary); margin: 0; min-width: 0;
+  line-height: 1.15; color: var(--text-primary); margin: 0; min-width: 0;
 }
 .search-kind-chip {
   --chip: 129,212,250;
-  padding: 0.28rem 0.75rem; border-radius: 999px; white-space: nowrap;
-  font-size: 0.62rem; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase;
+  display: inline-block; vertical-align: middle; position: relative; top: -0.15em; margin-left: 0.75rem;
+  padding: 0.28rem 0.75rem; border-radius: 999px; white-space: nowrap; line-height: 1.2;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.62rem; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase;
   color: rgb(var(--chip)); background: rgba(var(--chip), 0.1); border: 1px solid rgba(var(--chip), 0.32);
 }
-.search-row--title .search-count { align-self: center; }
-.search-title-group { display: flex; align-items: center; gap: 1rem; min-width: 0; }
-.search-title-group .l2-back svg { width: clamp(2rem, 2.8vw, 2.6rem); }
-@media (max-width: 768px) { .search-title-group { flex-basis: 100%; gap: 0.75rem; } }
+.search-meta-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 0.85rem; flex-wrap: wrap; }
+.search-count { font-size: 0.78rem; letter-spacing: 1px; color: var(--text-secondary); }
+/* Desktop keeps one line: ← title + chip · count · sort on the right */
+@media (min-width: 769px) {
+  #searchHead { display: flex; align-items: center; gap: 1.25rem; }
+  #searchHead .search-meta-row { flex: 1; margin-top: 0; }
+}
+@media (max-width: 768px) {
+  .search-head-row { gap: 0.75rem; }
+  .search-title { font-size: 1.45rem; }
+  .search-kind-chip { margin-left: 0.5rem; }
+  .search-meta-row { margin-top: 0.7rem; flex-wrap: nowrap; }
+  .search-count { font-size: 0.74rem; letter-spacing: 0.5px; white-space: nowrap; }
+  .search-meta-row .l2-sort { padding: 2px; flex-shrink: 0; }
+  .search-meta-row .l2-sort-btn { font-size: 0.74rem; padding: 0.38rem 0.55rem; }
+}
+@media (max-width: 380px) {
+  .search-count { font-size: 0.7rem; letter-spacing: 0; }
+  .search-meta-row .l2-sort-btn { font-size: 0.7rem; padding: 0.36rem 0.42rem; }
+}
+@media (max-width: 340px) {
+  .search-meta-row { flex-wrap: wrap; } /* tiniest phones: sort drops under the count */
+}
 
 /* Kind hues (same as the search suggestion tags) */
 .search-chip--artist   { --chip: 179,157,219; }
@@ -3844,8 +3862,6 @@ input[type=range]::-moz-range-thumb {
 @media (max-width: 768px) {
   .search-head { padding: 0.9rem 0.75rem 0.4rem; } /* header→chip = sort→first card */
   .grid.grid--search { padding-top: 0.5rem; }
-  .search-row { gap: 0.6rem 0.75rem; }
-  .search-row .l2-sort { margin-left: 0; }
 }
 
 .l2-sort {

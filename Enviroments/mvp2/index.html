@@ -870,7 +870,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=109">
+  <link rel="stylesheet" href="css/style.css?v=114">
 </head>
 <body>
 
@@ -1252,7 +1252,7 @@
 
   <script src="js/welcome.js?v=27"></script>
   <script src="js/api.js?v=27"></script>
-  <script src="js/grid.js?v=39"></script>
+  <script src="js/grid.js?v=40"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=28"></script>
@@ -3088,16 +3088,9 @@
 
     function renderSearchResultsHead() {
       const m = _ms.meta;
-      document.getElementById('msHead').innerHTML = `
-        <div class="search-row search-row--title">
-          <div class="search-title-group">
-            <button class="l2-back" onclick="closeSearchResults()" aria-label="Back to search" title="Back to search"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
-            <h2 class="search-title">${m.label}</h2>
-          </div>
-          <span class="search-kind-chip search-chip--${m.tag.toLowerCase()}">${SEARCH_KINDS[m.tag] || m.tag}</span>
-          <span class="search-count" id="msCount"></span>
-          <div class="l2-sort">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === _ms.sort ? 'active' : ''}" onclick="setSearchResultsSort('${o.key}')">${o.label}</button>`).join('')}</div>
-        </div>`;
+      document.getElementById('msHead').innerHTML = searchHeadHtml({ back: 'closeSearchResults()', backLabel: 'Back to search',
+        label: m.label, tag: m.tag, countId: 'msCount', count: '',
+        sorts: `<div class="l2-sort">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === _ms.sort ? 'active' : ''}" onclick="setSearchResultsSort('${o.key}')">${o.label}</button>`).join('')}</div>` });
     }
 
     function setSearchResultsSort(key) {

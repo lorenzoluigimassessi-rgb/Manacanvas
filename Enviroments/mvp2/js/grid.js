@@ -143,6 +143,20 @@ function setSearchSort(key) {
   loadInitialGrid(currentQuery);
 }
 
+// Results header, shared by gallery search and phone Search:
+// row 1 — back arrow, title and its kind chip; row 2 — artwork count on the left, sort on the right
+function searchHeadHtml({ back, backLabel, label, tag, countId, count, sorts }) {
+  return `
+    <div class="search-head-row">
+      <button class="l2-back" onclick="${back}" aria-label="${backLabel}" title="${backLabel}"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
+      <h2 class="search-title">${label}<span class="search-kind-chip search-chip--${tag.toLowerCase()}">${SEARCH_KINDS[tag] || tag}</span></h2>
+    </div>
+    <div class="search-meta-row">
+      <span class="search-count" id="${countId}">${count}</span>
+      ${sorts}
+    </div>`;
+}
+
 function renderSearchHead() {
   const head = document.getElementById('searchHead');
   if (!head) return;
@@ -156,18 +170,8 @@ function renderSearchHead() {
   const active = (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
   const sortPills = `<div class="l2-sort">${SEARCH_SORTS.map(o =>
     `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div>`;
-  const count = `<span class="search-count" id="searchCount">${_feedTotal ? _feedTotal.toLocaleString() + ' artworks' : ''}</span>`;
-  // The search as a title (with the site's back arrow, which ends the search), its kind as a tinted chip, count, sort
-  head.innerHTML = `
-    <div class="search-row search-row--title">
-      <div class="search-title-group">
-        <button class="l2-back" onclick="clearSearchPill()" aria-label="Back to the gallery" title="Back to the gallery"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
-        <h2 class="search-title">${m.label}</h2>
-      </div>
-      <span class="search-kind-chip search-chip--${m.tag.toLowerCase()}">${SEARCH_KINDS[m.tag] || m.tag}</span>
-      ${count}
-      ${sortPills}
-    </div>`;
+  head.innerHTML = searchHeadHtml({ back: 'clearSearchPill()', backLabel: 'Back to the gallery', label: m.label, tag: m.tag,
+    countId: 'searchCount', count: _feedTotal ? _feedTotal.toLocaleString() + ' artworks' : '', sorts: sortPills });
 }
 
 // New random cards for the same lens/filters (↻ button, pull-to-refresh)

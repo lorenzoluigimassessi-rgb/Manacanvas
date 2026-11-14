@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=150">
+  <link rel="stylesheet" href="css/style.css?v=151">
 </head>
 <body>
 
@@ -1252,12 +1252,12 @@
   </div><!-- end appShell -->
 
   <script src="js/welcome.js?v=28"></script>
-  <script src="js/api.js?v=28"></script>
+  <script src="js/api.js?v=29"></script>
   <script src="js/grid.js?v=49"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=31"></script>
-  <script src="js/lightbox.js?v=32"></script>
+  <script src="js/lightbox.js?v=33"></script>
   <script src="js/pull.js?v=5"></script>
 
   <script>
@@ -1415,8 +1415,13 @@
     // Search's background: the Home page's current artwork, blurred down to just its colours
     function paintSearchGlow() {
       const el = document.getElementById('searchGlowArt');
-      const url = window._homeBgUrl || (typeof _bgQueue !== 'undefined' && _bgQueue[0]);
-      if (url) { el.style.backgroundImage = `url('${url}')`; el.classList.add('on'); return; }
+      let saved = null; try { saved = localStorage.getItem('mc_search_bg'); } catch (e) {}
+      const url = window._homeBgUrl || (typeof _bgQueue !== 'undefined' && _bgQueue[0]) || saved; // last one shows instantly
+      if (url) {
+        el.style.backgroundImage = `url('${url}')`; el.classList.add('on');
+        try { localStorage.setItem('mc_search_bg', url); } catch (e) {}
+        return;
+      }
       if (typeof _prefetchHomeBg === 'function') _prefetchHomeBg(2).then(() => { if (_bgQueue[0]) paintSearchGlow(); });
     }
 
@@ -1506,6 +1511,7 @@
 
     function triggerDrawRitual() {
       if (typeof pullCleanup === 'function') pullCleanup();
+      if (document.querySelector('#lightbox .lightbox')) closeLightbox(); // Pull starts its own session, not on top of a detail page
       const nonce = ++_drawNonce;
       const compact = window.innerWidth <= 768;
       const iconSize = compact ? 40 : 54;

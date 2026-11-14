@@ -4559,3 +4559,17 @@ body.lb-focus .lb-info-btn { background: rgba(255,255,255,0.16); border-color: r
   .pull-results { bottom: calc(56px + env(safe-area-inset-bottom)); padding: calc(0.9rem + env(safe-area-inset-top)) 0.75rem 1.5rem; }
 }
 @media (min-width: 1024px) { .pull-results { left: 64px; padding: 2rem 2.5rem; } }
+
+/* Pull's background matches the detail page: the card's art, blurred — no extra dark vignette */
+#drawRitual.pull-mode .draw-ritual-radial { display: none; }
+#drawRitual.pull-mode .pull-stack-bg { filter: blur(40px) brightness(0.35) saturate(1.2); transform: scale(1.1); inset: -20px; }
+
+/* Detail page, Frame: as wide as the art would be (sharp large scan); the page scrolls for the rest */
+.lb2 .art-container img.frame-mode { max-height: none !important; width: min(626px, calc(100vw - 12rem - 64px)); }
+@media (max-width: 1023px) { .lb2 .art-container img.frame-mode { width: min(626px, calc(100vw - 4rem)); } }
+@media (max-width: 768px) { .lb2 .art-container img.frame-mode { width: calc(100vw - 2rem); } }
+body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc(100vh - 8rem) !important; }
+@media (max-width: 768px) { body.lb-focus .lb2 .art-container img.frame-mode { max-height: 78vh !important; } }
+
+/* Search background: cheap to draw — a small layer blurred, then scaled up (no full-screen blur, no animation) */
+.search-glow-art { inset: auto; left: 40%; top: 40%; width: 20%; height: 20%; filter: blur(10px) saturate(1.5) brightness(0.6); transform: scale(6); animation: none; transition: opacity 400ms ease; }

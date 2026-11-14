@@ -124,15 +124,23 @@ async function _fillRandomPool(query) {
   if (window._randomPoolLoading) return;
   window._randomPoolLoading = true;
   try {
-    const page = Math.floor(Math.random() * 50) + 1; // pages 1-50
-    const res = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=released&dir=asc&page=${page}`);
-    if (res.ok) {
-      const json = await res.json();
-      if (json.data?.length) {
-        const fresh = shuffleArray(json.data.filter(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop));
-        window._randomPool.push(...fresh);
-      }
-    }
+    // A page holds 175 cards in release order — mostly one set — so take a handful from each of several
+    // random pages across the whole range (learned from the first answer), for a properly mixed Pull
+    const pagesKnown = (window._randomPoolPages ||= {})[query];
+    const pick = n => Math.floor(Math.random() * n) + 1;
+    const pages = pagesKnown ? [pick(pagesKnown), pick(pagesKnown), pick(pagesKnown), pick(pagesKnown)] : [pick(40), pick(80)];
+    const got = await Promise.all(pages.map(async page => {
+      let r = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=released&dir=asc&page=${page}`);
+      if (!r.ok && page > 1) r = await fetch(`${API_BASE}/cards/search?q=${encodeURIComponent(query)}&unique=art&order=released&dir=asc&page=1`);
+      return r.ok ? r.json() : null;
+    }));
+    const fresh = [];
+    got.forEach(json => {
+      if (!json?.data?.length) return;
+      if (json.total_cards) window._randomPoolPages[query] = Math.max(1, Math.floor(json.total_cards / 175));
+      fresh.push(...shuffleArray(json.data.filter(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop)).slice(0, 6));
+    });
+    window._randomPool.push(...shuffleArray(fresh));
   } catch(e) {}
   window._randomPoolLoading = false;
 }

@@ -102,13 +102,16 @@ function _loadArtInfo(card) {
   }, 250); // swiping fast through cards only asks for the one you stop on
 }
 
+// Frame view uses Scryfall's large scan: it's shown as big as the art, so the normal one would be soft
+const _frameSrc = c => { const iu = c.image_uris || c.card_faces?.[0]?.image_uris || {}; return iu.large || iu.normal; };
+
 function openLightbox(card, mode = 'feed') {
   currentCard = card;
   _lbMode = mode;
   scale = 1; translateX = 0; translateY = 0;
 
   const artCrop = card.image_uris?.art_crop  || card.card_faces?.[0]?.image_uris?.art_crop;
-  const normal  = card.image_uris?.normal    || card.card_faces?.[0]?.image_uris?.normal;
+  const normal  = _frameSrc(card);
   const hasArtCrop = !!artCrop;
   const setName = card.set_name || '';
   const year    = card.released_at ? card.released_at.slice(0, 4) : '';
@@ -305,7 +308,7 @@ function openLightbox(card, mode = 'feed') {
     _transitioning = true;
 
     const nArtCrop = nextCard.image_uris?.art_crop || nextCard.card_faces?.[0]?.image_uris?.art_crop;
-    const nNormal  = nextCard.image_uris?.normal   || nextCard.card_faces?.[0]?.image_uris?.normal;
+    const nNormal  = _frameSrc(nextCard);
     const nSrc = currentMode === 'frame' ? (nNormal || nArtCrop) : (nArtCrop || nNormal);
 
     img.style.transition = bg.style.transition = 'opacity 180ms ease';
@@ -448,7 +451,7 @@ function openLightbox(card, mode = 'feed') {
     resetZoom();
   });
   document.getElementById('toggleFrame').addEventListener('click', () => {
-    const n  = currentCard.image_uris?.normal  || currentCard.card_faces?.[0]?.image_uris?.normal;
+    const n  = _frameSrc(currentCard);
     const ac = currentCard.image_uris?.art_crop || currentCard.card_faces?.[0]?.image_uris?.art_crop;
     currentMode = 'frame'; img.src = n || ac;
     img.classList.add('frame-mode');

@@ -1580,6 +1580,13 @@
       overlay.addEventListener('click', closeDrawRitual);
     }
 
+    // Pull is open and another menu item is pressed: leave Pull, then that item takes you to its page
+    ['bottomBar', 'sidebar'].forEach(id => document.getElementById(id)?.addEventListener('click', e => {
+      const item = e.target.closest('button, a');
+      if (!item || item.id === 'btPull' || item.id === 'sidePull') return;
+      if (document.getElementById('drawRitual').style.display !== 'none') closeDrawRitual();
+    }, true));
+
     function closeDrawRitual() {
       if (typeof pullCleanup === 'function') pullCleanup();
       _drawNonce++;   // invalidate any in-flight draw

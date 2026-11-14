@@ -52,6 +52,8 @@ function openPullStack(first, nonce) {
   let raf = 0;
   stack.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; _pullOnScroll(); }); }, { passive: true });
   document.addEventListener('keydown', _pullKey);
+  window.addEventListener('resize', _pullLayout);
+  _pullLayout();
 
   _pullAdd(first);
   _pullOnScroll();
@@ -73,13 +75,13 @@ function _pullAdd(card) {
   const el = document.createElement('div');
   el.className = 'pull-slide';
   el.innerHTML = `
-    <div class="pull-slide-inner">
+    <div class="pull-slide-inner"><div class="pull-figure">
       <button class="pull-card ${p.view === 'frame' ? 'is-frame' : ''}" aria-label="Details of ${_pullEsc(card.name)}"><img src="${_pullSrc(card, p.view)}" alt="" draggable="false"></button>
       <div class="pull-meta">
         <div class="pull-name">${_pullEsc(card.name)}</div>
         ${card.artist ? `<button class="pull-artist">${_pullEsc(card.artist)}</button>` : ''}
       </div>
-    </div>`;
+    </div></div>`;
   el.querySelector('.pull-card').addEventListener('click', e => {
     e.stopPropagation();
     if (i === _pull.idx) _pullSheet(true); else _pullGo(i);
@@ -114,7 +116,7 @@ function _pullOnScroll() {
     const d = (s.offsetTop + s.offsetHeight / 2 - mid) / s.offsetHeight;
     const a = Math.min(Math.abs(d), 1);
     const inner = s.firstElementChild;
-    inner.style.transform = `scale(${1 - a * 0.12})`;
+    inner.style.transform = `scale(${1 - a * 0.1})`;
     inner.style.opacity = 1 - a * 0.55;
     if (Math.abs(d) < bestD) { bestD = Math.abs(d); best = i; }
   });
@@ -144,6 +146,19 @@ function _pullGo(i) {
   if (slides[i]) slides[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
 }
 
+// Every card sits centred in its slide (caption hanging below), and the slide is sized so the previous
+// and next cards show the same thin strip above and below — in Art (wide) and Frame (tall) alike
+function _pullLayout() {
+  const st = document.getElementById('pullStack'); if (!st || !_pull) return;
+  const H = st.clientHeight, W = st.clientWidth, META = 64, PEEK = 24, K = 0.05; // K: neighbours shrink 10% (5% per side)
+  const cardW = Math.min(W - 32, 560);
+  let S, cardMax;
+  if (_pull.view === 'frame') { S = (H / 2 - (1 - 2 * K) * META - PEEK) / (0.5 + K); cardMax = S - 2 * META; }
+  else { cardMax = Math.min(cardW / 1.37, H - 4 * META - 2 * PEEK); S = Math.max(cardMax + 2 * META, (H + cardMax) / 2 - PEEK - K * cardMax); }
+  st.style.setProperty('--slide-h', Math.round(S) + 'px');
+  st.style.setProperty('--card-max', Math.round(cardMax) + 'px');
+}
+
 function _pullSetView(v) {
   const p = _pull; if (!p || p.view === v) return;
   p.view = v;
@@ -151,6 +166,7 @@ function _pullSetView(v) {
   document.querySelectorAll('.pull-toggle button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   const stack = document.getElementById('pullStack');
   stack.classList.toggle('view-art', v === 'art'); stack.classList.toggle('view-frame', v === 'frame');
+  _pullLayout();
   requestAnimationFrame(() => document.querySelectorAll('#pullStack .pull-slide')[p.idx]?.scrollIntoView({ block: 'center' })); // stay on this card
   document.querySelectorAll('#pullStack .pull-slide').forEach((s, i) => {
     s.querySelector('img').src = _pullSrc(p.cards[i], v);
@@ -268,6 +284,7 @@ function pullCleanup() {
   if (!_pull) return;
   _pull = null;
   document.removeEventListener('keydown', _pullKey);
+  window.removeEventListener('resize', _pullLayout);
   const ov = document.getElementById('drawRitual');
   ov.classList.remove('pull-mode', 'sheet-open', 'results-open');
 }

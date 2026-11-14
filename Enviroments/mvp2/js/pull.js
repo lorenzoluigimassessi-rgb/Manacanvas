@@ -154,7 +154,10 @@ function _pullLayout() {
   const H = st.clientHeight, W = st.clientWidth, META = 64, PEEK = 24, K = 0.05; // K: neighbours shrink 10% (5% per side)
   const cardW = Math.min(W - 32, 560);
   let S, cardMax;
-  if (_pull.view === 'frame') { S = (H / 2 - (1 - 2 * K) * META - (PEEK + 12)) / (0.5 + K); cardMax = S - 2 * META; } // Frame peeks a touch more
+  if (_pull.view === 'frame') { // Frame peeks a touch more; on phones the card gets a little more room
+    const phone = W < 769, m = phone ? 54 : META, pk = phone ? PEEK + 4 : PEEK + 12;
+    S = (H / 2 - (1 - 2 * K) * m - pk) / (0.5 + K); cardMax = S - 2 * m;
+  }
   else { cardMax = Math.min(cardW / 1.37, H - 4 * META - 2 * PEEK); S = Math.max(cardMax + 2 * META, (H + cardMax) / 2 - PEEK - K * cardMax); }
   st.style.setProperty('--slide-h', Math.round(S) + 'px');
   st.style.setProperty('--card-max', Math.round(cardMax) + 'px');

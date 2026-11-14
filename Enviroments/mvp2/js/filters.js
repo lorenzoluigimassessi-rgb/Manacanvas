@@ -1004,6 +1004,9 @@ function runSearch(query, label, tag, how) {
   _searchStack = trail;
   loadInitialGrid();
   updateChips();
+  // A new result always starts at the top (after the lightbox has restored the page)
+  window.scrollTo(0, 0);
+  requestAnimationFrame(() => window.scrollTo(0, 0));
 }
 
 async function showSearchSuggestions(query, containerId) {

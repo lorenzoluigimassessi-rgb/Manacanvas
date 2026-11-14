@@ -4368,3 +4368,10 @@ body.lb-focus .lb-info-btn { background: rgba(255,255,255,0.16); border-color: r
   .lb2 .art-container img.frame-mode { max-height: 52vh; } /* a framed card leaves room for its details; the rest scrolls */
   body.lb-focus .lb2 .art-container img.frame-mode { max-height: 78vh; }
 }
+
+/* Desktop: finer links — hairline underline, slightly softer text; full strength on hover */
+@media (min-width: 769px) {
+  .lb-fact-link, .lb-versions { text-decoration-thickness: 1px; text-decoration-color: rgba(240,240,240,0.18); text-underline-offset: 5px; }
+  .lb-fact-link { font-size: 0.9rem; font-weight: 300; color: rgba(240,240,240,0.85); }
+  .lb-fact-link:hover, .lb-versions:hover { color: #fff; text-decoration-color: rgba(240,240,240,0.6); }
+}

@@ -1020,13 +1020,17 @@ async function showSearchSuggestions(query, containerId) {
   const q = query.toLowerCase();
   const suggestions = [];
 
-  artistList.filter(a => a.toLowerCase().includes(q)).slice(0, 3)
+  // Like Categories: match the start of words ("mck" → Seb McKinnon, not anything containing "mck"),
+  // and names that start with what you typed come first
+  const pick = (list, name, n) => list.filter(x => _wordMatch(name(x), q))
+    .sort((a, b) => (String(name(b)).toLowerCase().startsWith(q) - String(name(a)).toLowerCase().startsWith(q))).slice(0, n);
+  pick(artistList, a => a, 3)
     .forEach(a => suggestions.push({ label: a, tag: "Artist", action: () => runSearch(`a:"${a}"`, a, "Artist") }));
-  creatureTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
+  pick(creatureTypeList, t => t, 2)
     .forEach(t => suggestions.push({ label: t, tag: "Creature", action: () => runSearch(`t:"${t.toLowerCase()}"`, t, "Creature") }));
-  cardTypeList.filter(t => t.toLowerCase().includes(q)).slice(0, 2)
+  pick(cardTypeList, t => t, 2)
     .forEach(t => suggestions.push({ label: t, tag: "Type", action: () => runSearch(`t:${t.toLowerCase()}`, t, "Type") }));
-  setList.filter(s => s.name.toLowerCase().includes(q)).slice(0, 3)
+  pick(setList, s => s.name, 3)
     .forEach(s => suggestions.push({ label: s.name, tag: "Set", action: () => runSearch(`s:${s.code}`, s.name, "Set") }));
 
   suggestions.push({ label: `Search "${query}"`, tag: "Card", action: () => runSearch(query, query, "Card") });
@@ -1056,10 +1060,19 @@ async function showSearchSuggestions(query, containerId) {
   });
 }
 
+// Every typed word must begin some word of the name ("seb mc" → Seb McKinnon)
+const _nameWords = name => String(name || '').toLowerCase().split(/[\s,:'\-]+/).filter(Boolean);
+function _wordMatch(name, q) {
+  const words = _nameWords(name);
+  return q.split(/\s+/).filter(Boolean).every(qw => words.some(w => w.startsWith(qw)));
+}
+// Bold the matched start of each word
 function highlightSuggestion(text, query) {
-  const idx = text.toLowerCase().indexOf(query);
-  if (idx === -1) return text;
-  return text.slice(0, idx) + `<strong>${text.slice(idx, idx + query.length)}</strong>` + text.slice(idx + query.length);
+  const qs = query.split(/\s+/).filter(Boolean);
+  return text.split(/(\s+|[,:'\-])/).map(part => {
+    const qw = qs.find(x => part.toLowerCase().startsWith(x));
+    return qw ? `<strong>${part.slice(0, qw.length)}</strong>${part.slice(qw.length)}` : part;
+  }).join('');
 }
 
 function hideSearchSuggestions() {

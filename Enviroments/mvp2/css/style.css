@@ -4649,3 +4649,7 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
   .lb2.lb-surprise .art-container img.frame-mode { max-height: calc(100vh - 14.75rem - var(--lb-info-h, 7rem)) !important; }
   body.lb-focus .lb2 .art-container img.frame-mode { max-height: calc(100vh - 8rem) !important; }
 }
+
+/* Detail page: a back arrow on the left (phone and desktop), the view controls on the right */
+@media (min-width: 769px) { .lb2 .lb-top { flex-direction: row; justify-content: space-between; } }
+@media (min-width: 1024px) { .lb2 .lb-top { padding-left: calc(64px + 1.25rem); } } /* clear of the sidebar */

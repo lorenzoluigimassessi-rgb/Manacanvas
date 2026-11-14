@@ -3776,11 +3776,19 @@ input[type=range]::-moz-range-thumb {
 .l2-group-title:first-child { margin-top: 0.5rem; }
 .l2-group-title span { font-family: 'Josefin Sans', sans-serif; font-size: 0.75rem; letter-spacing: 1px; color: var(--text-secondary); }
 .l2-group-link {
-  margin-left: auto; background: none; border: none; cursor: pointer; padding: 0;
+  margin-left: 0.25rem; background: none; border: none; cursor: pointer; padding: 0; /* right after the years, not at the far edge */
   font-family: 'Josefin Sans', sans-serif; font-size: 0.8rem; letter-spacing: 0.3px;
   color: var(--text-secondary); transition: color 150ms;
 }
 .l2-group-link:hover { color: var(--text-primary); }
+.l2-group-link::before { content: '·'; margin-right: 0.6rem; opacity: 0.5; }
+@media (max-width: 768px) {
+  /* Phones: block name + years on one line, the link right under it */
+  .l2-group-title { flex-wrap: wrap; row-gap: 0.15rem; }
+  .l2-group-title span { white-space: nowrap; }
+  .l2-group-link { flex-basis: 100%; text-align: left; margin-left: 0; }
+  .l2-group-link::before { display: none; }
+}
 .l2-group-link span { display: inline-block; margin-left: 0.3rem; transition: transform 200ms; }
 .l2-group-link:hover span { transform: translateX(3px); }
 .l2-empty { color: var(--text-secondary); font-size: 0.85rem; padding: 2rem 0; }

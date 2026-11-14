@@ -4265,7 +4265,7 @@ input[type=range]::-moz-range-thumb {
 .lb2 .lb-stage { display: flex; justify-content: center; min-width: 0; }
 .lb2 .art-container { width: fit-content; max-width: 100%; max-height: none; margin: 0 auto; box-shadow: 0 20px 60px rgba(0,0,0,0.45); }
 /* --lb-info-h = the name + facts' real height (set in lightbox.js), so art or frame always leaves them fully in view */
-.lb2 .art-container img { max-width: 100%; max-height: calc(100vh - 9.85rem - var(--lb-info-h, 7rem)); margin: 0 auto; transition: max-height 300ms ease; }
+.lb2 .art-container img { max-width: 100%; max-height: calc(100vh - 10.6rem - var(--lb-info-h, 7rem)); margin: 0 auto; transition: max-height 300ms ease; }
 .lb-title { margin: 0; font-family: 'Cinzel', Georgia, serif; font-weight: 500; font-size: 1.6rem; line-height: 1.2; letter-spacing: 1px; color: var(--text-primary); text-wrap: balance; text-shadow: 0 1px 12px rgba(0,0,0,0.4); }
 .lb-versions {
   display: inline-block; margin-top: 0.35rem; padding: 0; background: none; border: none; cursor: pointer;
@@ -4297,7 +4297,7 @@ input[type=range]::-moz-range-thumb {
 .lightbox.lb2 > .zoom-hint { position: absolute; left: 0; right: 0; bottom: 1rem; text-align: center; z-index: 6; pointer-events: none; }
 @media (min-width: 769px) {
   .lb2 .lb-top { flex-direction: row-reverse; justify-content: flex-start; gap: 0.75rem; } /* top-right: Art|Frame, ✕ */
-  .lb2.lb-surprise .art-container img { max-height: calc(100vh - 14rem - var(--lb-info-h, 7rem)); } /* room for Draw a Card */
+  .lb2.lb-surprise .art-container img { max-height: calc(100vh - 14.75rem - var(--lb-info-h, 7rem)); } /* room for Draw a Card */
   body.lb-focus .lb2 .art-container img.frame-mode { max-height: calc(100vh - 8rem); }
 }
 @media (min-width: 1024px) {
@@ -4360,6 +4360,7 @@ body.lb-focus .lb-info-btn { background: rgba(255,255,255,0.16); border-color: r
   .lb2 .lb-facts {
     display: flex; flex-wrap: wrap; justify-content: center; gap: 0.9rem 2.5rem;
     width: max-content; min-width: 100%; max-width: min(960px, calc(100vw - 12rem - 64px)); align-self: center;
+    margin-top: 1.85rem; /* clear breathing room under the name */
   }
   .lb2 .lb-fact { text-align: center; }
   .lb2 .lb-fact-vals { justify-content: center; }

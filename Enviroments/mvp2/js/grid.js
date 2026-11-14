@@ -187,7 +187,7 @@ function searchHeadHtml({ back, backLabel, label, tag, countId, count, sorts, cr
     ${crumbs}
     <div class="results-head">
     <div class="search-head-row">
-      <button class="l2-back" onclick="${back}" aria-label="${backLabel}" title="${backLabel}"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
+      <button class="l2-back" onclick="${back}" aria-label="${backLabel}" title="${backLabel}"><svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M28 12H3M13 2L3 12l10 10"/></svg></button>
       <h2 class="search-title">${titleWithChip(label, `<span class="search-kind-chip search-chip--${tag.toLowerCase()}">${SEARCH_KINDS[tag] || tag}</span>`)}</h2>
     </div>
     <div class="search-meta-row">

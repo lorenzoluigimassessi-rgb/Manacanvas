@@ -3739,7 +3739,7 @@ input[type=range]::-moz-range-thumb {
   color: var(--text-secondary);
   transition: color 150ms, transform 200ms;
 }
-.l2-back svg { width: clamp(2.25rem, 3.2vw, 3rem); height: auto; display: block; }
+.l2-back svg { width: clamp(1.4rem, 2vw, 1.9rem); height: auto; display: block; } /* short tail, same head */
 .l2-back:hover { color: var(--text-primary); transform: translateX(-4px); }
 .l2-title {
   font-family: 'Cinzel', serif;
@@ -3813,7 +3813,7 @@ input[type=range]::-moz-range-thumb {
 .search-head .l3-toolbar { margin-bottom: 0; }
 /* Search results header: row 1 = ← title + kind chip, row 2 = count · sort */
 .search-head-row { display: flex; align-items: center; gap: 1rem; min-width: 0; }
-.search-head-row .l2-back svg { width: clamp(2rem, 2.8vw, 2.6rem); }
+.search-head-row .l2-back svg { width: clamp(1.25rem, 1.75vw, 1.625rem); } /* same arrowhead as before, shorter tail */
 .search-title {
   font-family: 'Cinzel', serif; font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-weight: 500; letter-spacing: 1px;
   line-height: 1.15; color: var(--text-primary); margin: 0; min-width: 0;

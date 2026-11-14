@@ -1120,6 +1120,10 @@ body {
   .mobile-search-panel:not([style*="none"]) {
     display: block !important;
   }
+  /* Search results inside the Search tab (phones) */
+  .mobile-search-panel.has-results { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .search-results { padding: 3.6rem 0.75rem 1.5rem; }
+  .search-results .search-row { margin-bottom: 0.9rem; }
   .search-hero {
     position: relative;
     display: flex; flex-direction: column;

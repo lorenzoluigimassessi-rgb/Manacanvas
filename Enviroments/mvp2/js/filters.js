@@ -988,6 +988,11 @@ function initSearch() {
 
 // Run a search and show its results page (label + tag drive the results header)
 function runSearch(query, label, tag) {
+  // Phones: searching from the Search page shows results there, leaving the Gallery as it was
+  if (typeof _currentMode !== 'undefined' && _currentMode === 'search' && typeof openSearchResults === 'function') {
+    openSearchResults(query, label, tag);
+    return;
+  }
   activeSearch = query;
   hideSearchSuggestions();
   if (typeof setMode === "function") setMode("gallery");

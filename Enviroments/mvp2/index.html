@@ -870,7 +870,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=108">
+  <link rel="stylesheet" href="css/style.css?v=109">
 </head>
 <body>
 
@@ -1123,6 +1123,10 @@
         </div>
         <p class="search-tip">Scryfall syntax works &mdash; <code>a:"artist"</code> &nbsp;<code>t:type</code> &nbsp;<code>year&gt;=2020</code></p>
       </div>
+      <div id="searchResults" class="search-results" style="display:none;">
+        <div id="msHead"></div>
+        <div class="l3-grid" id="msGrid"></div>
+      </div>
     </div>
 
     <div id="aboutPanel" class="mode-panel" style="display:none;">
@@ -1251,7 +1255,7 @@
   <script src="js/grid.js?v=39"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
-  <script src="js/filters.js?v=27"></script>
+  <script src="js/filters.js?v=28"></script>
   <script src="js/lightbox.js?v=23"></script>
 
   <script>
@@ -1307,7 +1311,7 @@
       const brandHeader = mode === 'gallery' || mode === 'collections' || mode === 'search';
       if (mobileGalleryHeader) {
         mobileGalleryHeader.style.display = brandHeader ? '' : 'none';
-        mobileGalleryHeader.classList.toggle('over-art', mode === 'search'); // transparent over the Search page's art
+        mobileGalleryHeader.classList.toggle('over-art', mode === 'search' && !_msOpen()); // transparent over the Search hero's art
       }
       // mobile-top-bar: hidden where the brand header shows, and on search (full hero panel) and home (full bg)
       if (mobileTopBar) mobileTopBar.style.display = (brandHeader || mode === 'home' || mode === 'search') ? 'none' : '';
@@ -1380,8 +1384,9 @@
 
     function mobileSearchFocus() {
       if (window.innerWidth < 1024) {
+        if (_currentMode === 'search' && _msOpen()) { closeSearchResults(); return; }
         setMode('search');
-        setTimeout(() => document.getElementById('heroSearchBar')?.focus(), 200);
+        if (!_msOpen()) setTimeout(() => document.getElementById('heroSearchBar')?.focus(), 200);
       } else {
         const bar = document.getElementById('searchBar');
         if (bar) { bar.scrollIntoView({ behavior: 'smooth' }); setTimeout(() => bar.focus(), 100); }
@@ -3024,28 +3029,118 @@
     const closeArtistPage = closeDetailPage;
 
     // One page of the current detail feed. Shuffle draws random pages (learned page count) and never repeats a card.
-    async function _l3Page() {
-      const opt = L3_SORTS.find(o => o.key === _l3Sort);
-      const base = 'https://api.scryfall.com/cards/search?q=' + encodeURIComponent(_l3Q + ' has:illustration') + '&unique=art';
+    function _l3Page() { return _feedPage(_l3, _l3Q, _l3Sort); }
+
+    // One page of a feed (st holds next/pages/seen). Shuffle draws random pages and never repeats a card.
+    async function _feedPage(st, q, sortKey) {
+      const opt = L3_SORTS.find(o => o.key === sortKey);
+      const base = 'https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q + ' has:illustration') + '&unique=art';
       let json;
       if (opt.key === 'random') {
         const dir = Math.random() < 0.5 ? 'asc' : 'desc';
         const page = n => fetch(`${base}&order=released&dir=${dir}&page=${n}`).then(r => r.ok ? r.json() : null).catch(() => null);
-        json = await page(Math.floor(Math.random() * (_l3.pages || 5)) + 1);
-        if (!json && !_l3.pages) json = await page(1); // fewer pages than guessed
+        json = await page(Math.floor(Math.random() * (st.pages || 5)) + 1);
+        if (!json && !st.pages) json = await page(1); // fewer pages than guessed
         if (json) {
-          _l3.pages = Math.max(1, Math.floor((json.total_cards || 0) / 175));
-          json.has_more = _l3.seen.size + (json.data || []).length < (json.total_cards || 0);
+          st.pages = Math.max(1, Math.floor((json.total_cards || 0) / 175));
+          json.has_more = st.seen.size + (json.data || []).length < (json.total_cards || 0);
         }
       } else {
-        const url = _l3.next || `${base}&order=${opt.order}&dir=${opt.dir}`;
+        const url = st.next || `${base}&order=${opt.order}&dir=${opt.dir}`;
         json = await fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
-        if (json) _l3.next = json.has_more ? json.next_page : null;
+        if (json) st.next = json.has_more ? json.next_page : null;
       }
       if (!json) return null;
-      const cards = (json.data || []).filter(c => !_l3.seen.has(c.id));
-      cards.forEach(c => _l3.seen.add(c.id));
+      const cards = (json.data || []).filter(c => !st.seen.has(c.id));
+      cards.forEach(c => st.seen.add(c.id));
       return { cards: opt.key === 'random' ? shuffleArray(cards) : cards, total: json.total_cards || 0, more: !!json.has_more };
+    }
+
+    // ── Phones: Search keeps its results inside the Search tab — the Gallery feed is left untouched ──
+    let _ms = { gen: 0, q: null, sort: 'random', meta: null, next: null, pages: 0, seen: new Set(), more: false, obs: null };
+    const _msOpen = () => document.getElementById('searchPanel').classList.contains('has-results');
+
+    function openSearchResults(query, label, tag) {
+      _ms.q = query; _ms.meta = { label, tag }; _ms.sort = 'random';
+      hideSearchSuggestions();
+      if (_currentMode !== 'search') setMode('search');
+      const panel = document.getElementById('searchPanel');
+      panel.classList.add('has-results');
+      panel.querySelector('.search-hero').style.display = 'none';
+      document.getElementById('searchResults').style.display = '';
+      document.getElementById('mobileGalleryHeader')?.classList.remove('over-art');
+      document.getElementById('heroSearchBar').value = label;
+      panel.scrollTop = 0;
+      renderSearchResultsHead();
+      loadSearchResults();
+    }
+
+    function closeSearchResults() {
+      if (_ms.obs) _ms.obs.disconnect();
+      _ms.gen++;
+      const panel = document.getElementById('searchPanel');
+      panel.classList.remove('has-results');
+      panel.querySelector('.search-hero').style.display = '';
+      document.getElementById('searchResults').style.display = 'none';
+      document.getElementById('msGrid').innerHTML = '';
+      if (_currentMode === 'search') document.getElementById('mobileGalleryHeader')?.classList.add('over-art');
+    }
+
+    function renderSearchResultsHead() {
+      const m = _ms.meta;
+      document.getElementById('msHead').innerHTML = `
+        <div class="search-row search-row--title">
+          <div class="search-title-group">
+            <button class="l2-back" onclick="closeSearchResults()" aria-label="Back to search" title="Back to search"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
+            <h2 class="search-title">${m.label}</h2>
+          </div>
+          <span class="search-kind-chip search-chip--${m.tag.toLowerCase()}">${SEARCH_KINDS[m.tag] || m.tag}</span>
+          <span class="search-count" id="msCount"></span>
+          <div class="l2-sort">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === _ms.sort ? 'active' : ''}" onclick="setSearchResultsSort('${o.key}')">${o.label}</button>`).join('')}</div>
+        </div>`;
+    }
+
+    function setSearchResultsSort(key) {
+      _ms.sort = key;
+      document.querySelectorAll('#msHead .l2-sort-btn').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes(`'${key}'`)));
+      document.getElementById('searchPanel').scrollTop = 0;
+      loadSearchResults();
+    }
+
+    async function loadSearchResults() {
+      const grid = document.getElementById('msGrid');
+      if (_ms.obs) _ms.obs.disconnect();
+      const gen = ++_ms.gen;
+      Object.assign(_ms, { next: null, pages: 0, seen: new Set(), more: false, obs: null });
+      grid.innerHTML = Array(6).fill(0).map((_, i) => `<div class="shimmer ${['card-normal','card-tall','card-short'][i % 3]}"></div>`).join('');
+      const res = await _feedPage(_ms, _ms.q, _ms.sort);
+      if (gen !== _ms.gen) return;
+      grid.innerHTML = '';
+      if (!res || !res.cards.length) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
+      document.getElementById('msCount').textContent = res.total.toLocaleString() + ' artworks';
+      _ms.more = res.more;
+      renderDetailCards(grid, res.cards);
+      _msObserveEnd(grid);
+    }
+
+    function _msObserveEnd(grid) {
+      if (!_ms.more) return;
+      const last = grid.querySelector('.card:last-of-type');
+      if (!last) return;
+      _ms.obs = new IntersectionObserver(async entries => {
+        if (!entries[0].isIntersecting) return;
+        _ms.obs.disconnect();
+        const gen = _ms.gen;
+        const holders = Array(4).fill(0).map((_, i) => { const d = document.createElement('div'); d.className = `shimmer ${['card-normal','card-tall'][i % 2]}`; grid.appendChild(d); return d; });
+        let res = null;
+        for (let t = 0; t < 3 && !(res && res.cards.length); t++) { res = await _feedPage(_ms, _ms.q, _ms.sort); if (res && !res.more) break; }
+        holders.forEach(h => h.remove());
+        if (gen !== _ms.gen || !res) return;
+        _ms.more = res.more && res.cards.length > 0;
+        renderDetailCards(grid, res.cards);
+        _msObserveEnd(grid);
+      }, { rootMargin: '600px' });
+      _ms.obs.observe(last);
     }
 
     async function loadDetailFeed(reshuffle) {

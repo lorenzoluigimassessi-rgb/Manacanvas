@@ -1253,14 +1253,18 @@
 
   <script>
     // Scryfall asks for at most ~10 requests a second; bursts get "429 Too Many Requests" and, if repeated,
-    // a temporary block (then no images load at all). Every request to the API goes through this queue:
-    // spaced ~110ms apart, and a 429 is retried after a pause instead of failing.
+    // a temporary block (then no images load at all). Every request to the API goes through this queue,
+    // and a 429 is retried after a pause instead of failing.
     (function () {
       const nativeFetch = window.fetch.bind(window);
-      let last = 0, chain = Promise.resolve();
+      // Token bucket: up to 6 requests go out at once, then ~9 a second — normal use never waits
+      let tokens = 6, stamp = Date.now(), chain = Promise.resolve();
       const slot = () => (chain = chain.then(() => new Promise(r => {
-        const wait = Math.max(0, last + 110 - Date.now());
-        setTimeout(() => { last = Date.now(); r(); }, wait);
+        const take = () => {
+          tokens = Math.min(6, tokens + (Date.now() - stamp) / 110); stamp = Date.now();
+          if (tokens >= 1) { tokens -= 1; r(); } else setTimeout(take, (1 - tokens) * 110);
+        };
+        take();
       })));
       window.fetch = async function (input, init) {
         const url = typeof input === 'string' ? input : input && input.url || '';
@@ -1274,7 +1278,7 @@
       };
     })();
   </script>
-  <script src="js/welcome.js?v=29"></script>
+  <script src="js/welcome.js?v=30"></script>
   <script src="js/api.js?v=33"></script>
   <script src="js/grid.js?v=49"></script>
   <script src="js/artist-counts.js?v=2"></script>

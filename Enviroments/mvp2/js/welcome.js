@@ -44,9 +44,14 @@ function startHomeBg() {
   const layerB = document.getElementById('homeBgB');
   if (!layerA || !layerB) return;
   if (_bgQueue.length === 0) {
-    _prefetchHomeBg(4).then(() => startHomeBg());
+    // Nothing yet: try again a few times, slower each time — never an endless burst of requests
+    // (that's what got Scryfall to block us, and then no images loaded anywhere)
+    const tries = (startHomeBg._tries = (startHomeBg._tries || 0) + 1);
+    if (tries > 3) return;
+    _prefetchHomeBg(4).then(() => setTimeout(startHomeBg, tries * 1500));
     return;
   }
+  startHomeBg._tries = 0;
 
   // Reset layers
   layerA.style.backgroundImage = `url('${_bgQueue[0]}')`;

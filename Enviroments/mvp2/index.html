@@ -1110,7 +1110,7 @@
       <div class="search-hero">
         <div class="search-glow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><b></b></div>
         <h1 class="search-hero-title">Discover</h1>
-        <p class="search-hero-sub">Over 30 years of Magic art, one search away</p>
+        <p class="search-hero-sub">Find art by card, artist, creature, set or year</p>
         <div class="search-hero-input-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" id="heroSearchBar" class="search-hero-input" placeholder="Dragon, Seb McKinnon, Mirrodin&hellip;" autocomplete="off">
@@ -2933,9 +2933,8 @@
       const counts = CATEGORY_COUNTS.creature;
       const items = Object.keys(counts).map(t => ({ name: t, q: typeQ(t), count: counts[t], meta: counts[t].toLocaleString() + ' artworks' }));
       renderListLevel2({ title: 'Creatures', noun: 'creature types', items,
-        sorts: [{ key: 'most', label: 'Most popular' }, { key: 'shuffle', label: 'Shuffle' }, { key: 'az', label: 'A→Z' }, { key: 'za', label: 'Z→A' }],
-        arrange: (list, k) => flat(k === 'shuffle' ? shuffleArray(list)
-          : [...list].sort(k === 'az' ? byName : k === 'za' ? (a, b) => byName(b, a) : (a, b) => b.count - a.count || byName(a, b))) });
+        sorts: [{ key: 'shuffle', label: 'Shuffle' }, { key: 'az', label: 'A→Z' }, { key: 'za', label: 'Z→A' }],
+        arrange: (list, k) => flat(k === 'shuffle' ? shuffleArray(list) : [...list].sort(k === 'za' ? (a, b) => byName(b, a) : byName)) });
     }
 
     function renderColorsLevel2() {

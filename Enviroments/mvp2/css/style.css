@@ -393,7 +393,7 @@ body {
 
 .home-legal {
   position: absolute;
-  bottom: 0; /* the Home panel already ends at the mobile bottom bar */
+  bottom: 16px; /* a little air above the mobile bottom bar (the panel already ends there) */
   left: 0;
   right: 0;
   text-align: center;
@@ -409,7 +409,7 @@ body {
 }
 
 @media (min-width: 1024px) {
-  .home-legal { bottom: 0; padding: 16px 24px; }
+  .home-legal { bottom: 16px; padding: 16px 24px; }
 }
 
 .home-actions {

@@ -870,7 +870,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=101">
+  <link rel="stylesheet" href="css/style.css?v=102">
 </head>
 <body>
 
@@ -1157,7 +1157,7 @@
       <p class="home-legal">Magic: The Gallery is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images &copy; Wizards of the Coast.</p>
       <div class="home-hero">
         <h1 class="welcome-title">MAGIC:<br class="br-mobile"> THE GALLERY</h1>
-        <p class="welcome-subtitle"><span class="sub-discover">Discover </span>the art of Magic: The Gathering&#174;</p>
+        <p class="welcome-subtitle">Discover the art of Magic: The Gathering&#174;</p>
         <div class="home-actions">
           <button class="home-action home-action--primary" onclick="goGallery()">
             Browse the Gallery
@@ -1292,7 +1292,6 @@
       if (panel) panel.style.display = (mode === 'gallery') ? '' : (mode === 'home') ? 'flex' : 'block';
       // start bg after panel is visible so opacity transitions fire correctly
       if (mode === 'home' && typeof startHomeBg === 'function') startHomeBg();
-      if (mode === 'home') requestAnimationFrame(() => typeof fitHomeSubtitle === 'function' && fitHomeSubtitle());
 
       // header + search bar — hide entirely on home so bg reaches the top
       const headerWrap = document.querySelector('.header-wrap');
@@ -3468,21 +3467,6 @@
         });
       }
     })();
-
-    // Phones: the Home subtitle is sized to exactly the width of the title's longer line (THE GALLERY)
-    function fitHomeSubtitle() {
-      const title = document.querySelector('.welcome-title'), sub = document.querySelector('.welcome-subtitle');
-      if (!title || !sub) return;
-      sub.style.fontSize = '';
-      if (window.innerWidth > 480 || !title.offsetWidth) return;
-      const r = document.createRange(); r.selectNodeContents(title);
-      const target = Math.max(...[...r.getClientRects()].map(x => x.width));
-      let lo = 8, hi = 20;
-      for (let i = 0; i < 14; i++) { const mid = (lo + hi) / 2; sub.style.fontSize = mid + 'px'; (sub.scrollWidth <= target ? lo = mid : hi = mid); }
-      sub.style.fontSize = lo + 'px';
-    }
-    window.addEventListener('resize', fitHomeSubtitle);
-    document.fonts?.ready.then(fitHomeSubtitle);
 
     // Skip home screen if user was already in the gallery/collections
     const _savedMode = localStorage.getItem('mc_mode');

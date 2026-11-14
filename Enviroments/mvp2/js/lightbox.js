@@ -171,12 +171,17 @@ window.addEventListener('load', () => {
   const id = new URLSearchParams(location.search).get('card');
   if (!id || !/^[0-9a-f-]{36}$/i.test(id)) return;
   history.replaceState(null, '', location.pathname);
-  fetch(`https://api.scryfall.com/cards/${id}`).then(r => r.ok ? r.json() : null).then(c => { if (c && c.object === 'card') openLightbox(c, 'feed'); }).catch(() => {});
+  fetch(`https://api.scryfall.com/cards/${id}`).then(r => r.ok ? r.json() : null).then(c => { if (c && c.object === 'card') openLightbox(c, 'shared'); }).catch(() => {});
 });
 
 const _frameSrc = c => { const iu = c.image_uris || c.card_faces?.[0]?.image_uris || {}; return iu.large || iu.normal; };
 
+// 'shared': a card opened from a shared link — shown on its own (no ‹ ›, it isn't part of a feed);
+// closing it lands in the Gallery, where there's more to see
+let _lbSingle = false;
 function openLightbox(card, mode = 'feed') {
+  _lbSingle = mode === 'shared';
+  if (_lbSingle) mode = 'feed';
   currentCard = card;
   _lbMode = mode;
   scale = 1; translateX = 0; translateY = 0;
@@ -317,13 +322,19 @@ function openLightbox(card, mode = 'feed') {
     document.body.appendChild(next);
   }
 
+  if (_lbSingle) {
+    ['lbPrev', 'lbNext', 'lbMobileNav', 'lbSwipeHint'].forEach(id => document.getElementById(id)?.remove());
+    document.getElementById('lbGhostArrows')?.remove();
+    const zh = document.getElementById('zoomHint'); if (zh) zh.textContent = 'Click the art to hide details · Scroll to zoom';
+  }
   document.body.style.overflow = 'hidden';
   setTimeout(() => { const h = document.getElementById('zoomHint'); if (h) h.style.opacity = '0'; }, 3000);
 
   // ── Close ──────────────────────────────────────────────────────────────────
   function handleClose() {
+    const toGallery = _lbMode === 'surprise' || _lbSingle;
     closeLightbox();
-    if (_lbMode === 'surprise') setMode('gallery');
+    if (toGallery) setMode('gallery');
   }
   document.getElementById('lbClose').addEventListener('click', handleClose);
   // Click-outside only on desktop — on mobile too easy to misfire near arrows
@@ -336,6 +347,7 @@ function openLightbox(card, mode = 'feed') {
 
   // ── Navigation ─────────────────────────────────────────────────────────────
   function goNext() {
+    if (_lbSingle) return;
     if (_transitioning) return;
     if (_lbMode === 'surprise') {
       if (!window._surpriseQueue) window._surpriseQueue = [];
@@ -357,6 +369,7 @@ function openLightbox(card, mode = 'feed') {
   }
 
   function goPrev() {
+    if (_lbSingle) return;
     if (_transitioning) return;
     if (_lbMode === 'surprise') {
       const prev = window._surpriseHistory.pop();
@@ -614,6 +627,7 @@ function handleLbKey(e) {
 
 function closeLightbox() {
   _transitioning = false;
+  _lbSingle = false;
   document.body.classList.remove('lb-focus');
   localStorage.removeItem('mc_lightbox');
   document.getElementById('lightbox').innerHTML = '';

@@ -1078,11 +1078,12 @@ body {
     transition: transform 280ms ease, opacity 280ms ease;
     will-change: transform;
   }
-  #lensRow.header-hidden {
+  #lensRow.header-hidden, #subRow.header-hidden {
     transform: translateY(-8px);
     opacity: 0;
     pointer-events: none;
   }
+  #subRow { transition: transform 280ms ease, opacity 280ms ease; }
 
   /* Section title in non-gallery top bar */
   .mobile-topbar-title {

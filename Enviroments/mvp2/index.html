@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=141">
+  <link rel="stylesheet" href="css/style.css?v=142">
 </head>
 <body>
 
@@ -1328,6 +1328,7 @@
       mobileGalleryHeader?.classList.remove('header-hidden');
       if (mode === 'gallery') {
         document.getElementById('lensRow')?.classList.remove('header-hidden');
+        document.getElementById('subRow')?.classList.remove('header-hidden');
       }
 
       // sidebar — highlight the current page, whatever the entry point (none on home: logo is the home anchor)
@@ -1473,12 +1474,15 @@
         const y = window.scrollY;
         const header = document.getElementById('mobileGalleryHeader');
         const lens   = document.getElementById('lensRow');
+        const sub    = document.getElementById('subRow'); // sub-tags (e.g. New → sets) hide with the tabs above them
         if (y > _lastY && y > 80) {
           header?.classList.add('header-hidden');
           lens?.classList.add('header-hidden');
+          sub?.classList.add('header-hidden');
         } else if (y < _lastY - 12 || y < 20) {
           header?.classList.remove('header-hidden');
           lens?.classList.remove('header-hidden');
+          sub?.classList.remove('header-hidden');
         }
         _lastY = y;
       }, { passive: true });

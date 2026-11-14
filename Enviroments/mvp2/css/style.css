@@ -4334,7 +4334,7 @@ input[type=range]::-moz-range-thumb {
 /* Art only: everything but the artwork fades away; a tap brings it back */
 .lb2 .close-btn, .lb2 .toggle, .lb2 .lb-head, .lb2 .lb-facts, .lb2 > .zoom-hint, #lbPrev, #lbNext, .lb-surprise-next-btn { transition: opacity 250ms ease; }
 body.lb-focus .lb2 > .zoom-hint, body.lb-focus #lbPrev, body.lb-focus #lbNext,
-body.lb-focus .lb-surprise-next-btn, body.lb-focus .lb2 .lb-ghost-arrows { opacity: 0 !important; pointer-events: none !important; }
+body.lb-focus .lb-surprise-next-btn { opacity: 0 !important; pointer-events: none !important; }
 body.lb-focus .lb2 .lb-head, body.lb-focus .lb2 .lb-facts { display: none; }
 body.lb-focus .lb2 .art-container img { max-height: calc(100vh - 8rem); }
 body.lb-focus .lb2 .art-container { box-shadow: 0 30px 90px rgba(0,0,0,0.55); }

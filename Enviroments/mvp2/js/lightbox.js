@@ -378,7 +378,7 @@ function openLightbox(card, mode = 'feed') {
     if (!g) return;
     g.classList.remove('lb-ghost-hidden');
     clearTimeout(ghostTimer);
-    ghostTimer = setTimeout(() => g.classList.add('lb-ghost-hidden'), 2000); // fade after 2s; any touch brings them back
+    ghostTimer = setTimeout(() => g.classList.add('lb-ghost-hidden'), 1200); // fade quickly; any touch brings them back
   }
   showGhostArrows();
   document.getElementById('lightboxOverlay').addEventListener('touchstart', showGhostArrows, { passive: true });
@@ -462,6 +462,7 @@ function openLightbox(card, mode = 'feed') {
   const lbBody = document.getElementById('lbBody');
   const infoBtn = document.getElementById('lbInfoBtn');
   const setFocus = on => {
+    showGhostArrows(); // arrows flash briefly in either view, then get out of the way
     document.body.classList.toggle('lb-focus', on);
     infoBtn.setAttribute('aria-pressed', on);
     infoBtn.title = on ? 'Show details' : 'Hide details'; infoBtn.setAttribute('aria-label', infoBtn.title);

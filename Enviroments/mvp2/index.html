@@ -870,7 +870,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=103">
+  <link rel="stylesheet" href="css/style.css?v=104">
 </head>
 <body>
 
@@ -1304,8 +1304,11 @@
       const mobileGalleryHeader = document.getElementById('mobileGalleryHeader');
       const mobileTopBar = document.querySelector('.mobile-top-bar');
       // Gallery and Categories share the brand header (MAGIC: THE GALLERY · ⋮)
-      const brandHeader = mode === 'gallery' || mode === 'collections';
-      if (mobileGalleryHeader) mobileGalleryHeader.style.display = brandHeader ? '' : 'none';
+      const brandHeader = mode === 'gallery' || mode === 'collections' || mode === 'search';
+      if (mobileGalleryHeader) {
+        mobileGalleryHeader.style.display = brandHeader ? '' : 'none';
+        mobileGalleryHeader.classList.toggle('over-art', mode === 'search'); // transparent over the Search page's art
+      }
       // mobile-top-bar: hidden where the brand header shows, and on search (full hero panel) and home (full bg)
       if (mobileTopBar) mobileTopBar.style.display = (brandHeader || mode === 'home' || mode === 'search') ? 'none' : '';
       // Section title in non-gallery top bar

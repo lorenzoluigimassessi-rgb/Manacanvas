@@ -1040,6 +1040,12 @@ body {
     transition: transform 280ms ease, opacity 280ms ease;
     will-change: transform;
   }
+  /* On Search the header floats over the background art */
+  .mobile-gallery-header.over-art {
+    position: fixed; left: 0; right: 0;
+    background: linear-gradient(rgba(12,12,15,0.55), rgba(12,12,15,0));
+  }
+  .mobile-gallery-header.over-art .mobile-gallery-title { text-shadow: 0 1px 10px rgba(0,0,0,0.6); }
   .mobile-gallery-header.header-hidden {
     transform: translateY(-100%);
     opacity: 0;

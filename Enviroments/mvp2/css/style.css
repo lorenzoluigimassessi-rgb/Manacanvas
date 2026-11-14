@@ -4583,3 +4583,8 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 /* Kind chips: Josefin Sans capitals sit high in their line box, and letter-spacing leaves a gap after the
    last letter — nudge the text down and balance the gap, so the label sits dead centre */
 .search-kind-chip { padding-top: calc(0.28rem + 0.14em); padding-bottom: calc(0.28rem - 0.14em); text-indent: 1.6px; }
+
+/* Menu items that aren't selected: readable at a glance (were 40%) — selected stays full white */
+.sidebar-item, .bottom-tab { color: rgba(240,240,240,0.66); }
+:root[data-theme="light"] .sidebar-item, :root[data-theme="light"] .bottom-tab { color: rgba(12,12,15,0.68); }
+.sidebar-item.active, .sidebar-item:hover, .bottom-tab.active { color: var(--text-primary); }

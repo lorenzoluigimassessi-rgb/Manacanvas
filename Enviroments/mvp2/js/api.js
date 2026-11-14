@@ -44,6 +44,7 @@ async function fetchCards(query = "t:creature") {
       // three random pages, each in a different order (name, artist, popularity, mana value), and mixes
       // a couple of dozen cards from each: every screenful spans eras, sets and artists
       const orders = shuffleArray(["name", "artist", "edhrec", "cmc"]).slice(0, 3);
+      if (!_pageCounts[query]) await _search(query, "name", "asc", 1); // learn how many pages exist first (no wasted guesses)
       const one = async order => {
         const dir = Math.random() < 0.5 ? "asc" : "desc";
         const pages = _pageCounts[query] || 200;

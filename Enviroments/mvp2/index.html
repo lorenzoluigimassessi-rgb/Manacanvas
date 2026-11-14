@@ -1251,8 +1251,31 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=28"></script>
-  <script src="js/api.js?v=32"></script>
+  <script>
+    // Scryfall asks for at most ~10 requests a second; bursts get "429 Too Many Requests" and, if repeated,
+    // a temporary block (then no images load at all). Every request to the API goes through this queue:
+    // spaced ~110ms apart, and a 429 is retried after a pause instead of failing.
+    (function () {
+      const nativeFetch = window.fetch.bind(window);
+      let last = 0, chain = Promise.resolve();
+      const slot = () => (chain = chain.then(() => new Promise(r => {
+        const wait = Math.max(0, last + 110 - Date.now());
+        setTimeout(() => { last = Date.now(); r(); }, wait);
+      })));
+      window.fetch = async function (input, init) {
+        const url = typeof input === 'string' ? input : input && input.url || '';
+        if (!url.includes('api.scryfall.com')) return nativeFetch(input, init);
+        for (let attempt = 0; ; attempt++) {
+          await slot();
+          const res = await nativeFetch(input, init);
+          if (res.status !== 429 || attempt >= 2) return res;
+          await new Promise(r => setTimeout(r, 1200 * (attempt + 1)));
+        }
+      };
+    })();
+  </script>
+  <script src="js/welcome.js?v=29"></script>
+  <script src="js/api.js?v=33"></script>
   <script src="js/grid.js?v=49"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>

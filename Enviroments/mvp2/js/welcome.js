@@ -30,9 +30,13 @@ window.addEventListener('load', () => {
 let _bgQueue = [];
 let _bgInterval = null;
 
-async function _prefetchHomeBg(count = 4) {
-  const results = await Promise.all(Array.from({ length: count }, () => fetchRandomArt()));
-  _bgQueue = [..._bgQueue, ...results.filter(Boolean)];
+let _bgPrefetch = null; // one prefetch at a time (Home used to start two at once: 8 requests in a burst)
+function _prefetchHomeBg(count = 4) {
+  if (_bgPrefetch) return _bgPrefetch;
+  _bgPrefetch = Promise.all(Array.from({ length: count }, () => fetchRandomArt()))
+    .then(results => { _bgQueue = [..._bgQueue, ...results.filter(Boolean)]; })
+    .finally(() => { _bgPrefetch = null; });
+  return _bgPrefetch;
 }
 
 function startHomeBg() {

@@ -674,7 +674,6 @@
       }
 
       .grid { padding-bottom: calc(6rem + env(safe-area-inset-bottom)) !important; }
-      footer.site-footer { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
     }
 
     /* ══ SIDE PANEL (Settings / About) ══ */
@@ -870,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=115">
+  <link rel="stylesheet" href="css/style.css?v=116">
 </head>
 <body>
 
@@ -1185,10 +1184,6 @@
     <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
     <!-- Footer -->
-    <footer class="site-footer">
-      <p>Magic: The Gallery is unofficial Fan Content, not approved/endorsed by Wizards of the Coast. Card images &copy; Wizards of the Coast.</p>
-    </footer>
-
     <!-- ── Mobile/tablet bottom bar ── -->
     <nav class="bottom-bar" id="bottomBar">
       <button class="bottom-tab" id="btHome" onclick="setMode('home')">
@@ -1328,8 +1323,6 @@
       if (mode === 'gallery') {
         document.getElementById('lensRow')?.classList.remove('header-hidden');
       }
-      const siteFooter = document.querySelector('.site-footer');
-      if (siteFooter) siteFooter.style.display = mode === 'home' ? 'none' : '';
 
       // sidebar — highlight the current page, whatever the entry point (none on home: logo is the home anchor)
       const sideMap = { gallery: 'sideGallery', collections: 'sideCollections', about: 'sideAbout' };

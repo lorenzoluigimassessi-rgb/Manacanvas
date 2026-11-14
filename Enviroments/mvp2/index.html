@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=124">
+  <link rel="stylesheet" href="css/style.css?v=125">
 </head>
 <body>
 
@@ -1111,22 +1111,29 @@
     <!-- ── Mobile search hero panel ── -->
     <div id="searchPanel" class="mode-panel mobile-search-panel" style="display:none;">
       <div class="search-hero">
+        <div class="search-glow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><b></b></div>
         <h1 class="search-hero-title">Discover</h1>
-        <p class="search-hero-sub">Search by card name, artist, creature type, set&hellip;</p>
+        <p class="search-hero-sub">Type anything: we work out what it is</p>
         <div class="search-hero-input-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" id="heroSearchBar" class="search-hero-input" placeholder="Dragon, Seb McKinnon, Mirrodin&hellip;" autocomplete="off">
         </div>
         <div id="heroSearchSuggestions" class="hero-suggestions" style="display:none;"></div>
-        <div class="search-hints">
-          <button class="search-hint-tag" onclick="applyHintSearch('t:dragon')">t:dragon</button>
-          <button class="search-hint-tag" onclick="applyHintSearch('t:angel')">t:angel</button>
-          <button class="search-hint-tag" onclick="applyHintSearch('t:land')">t:land</button>
-          <button class="search-hint-tag" onclick="applyHintSearch('is:hires')">is:hires</button>
-          <button class="search-hint-tag" onclick="applyHintSearch('a:&quot;Seb McKinnon&quot;')">a:"Seb McKinnon"</button>
-          <button class="search-hint-tag" onclick="applyHintSearch('t:eldrazi')">t:eldrazi</button>
+        <div class="search-guide">
+          <p class="search-guide-title">What you can search</p>
+          <div class="search-guide-list">
+            <button class="search-guide-row" onclick="runSearch('!&quot;Lightning Bolt&quot;', 'Lightning Bolt', 'Card')"><span class="search-kind-chip search-chip--card">Card</span><span class="search-guide-ex">Lightning Bolt</span><span class="search-guide-go" aria-hidden="true">→</span></button>
+            <button class="search-guide-row" onclick="runSearch('a:&quot;Rebecca Guay&quot;', 'Rebecca Guay', 'Artist')"><span class="search-kind-chip search-chip--artist">Artist</span><span class="search-guide-ex">Rebecca Guay</span><span class="search-guide-go" aria-hidden="true">→</span></button>
+            <button class="search-guide-row" onclick="runSearch('t:dragon', 'Dragon', 'Creature')"><span class="search-kind-chip search-chip--creature">Creature</span><span class="search-guide-ex">Dragon</span><span class="search-guide-go" aria-hidden="true">→</span></button>
+            <button class="search-guide-row" onclick="runSearch('s:dom', 'Dominaria', 'Set')"><span class="search-kind-chip search-chip--set">Set</span><span class="search-guide-ex">Dominaria</span><span class="search-guide-go" aria-hidden="true">→</span></button>
+            <button class="search-guide-row" onclick="runSearch('year:1997', '1997', 'Year')"><span class="search-kind-chip search-chip--year">Year</span><span class="search-guide-ex">1997</span><span class="search-guide-go" aria-hidden="true">→</span></button>
+            <button class="search-guide-row" onclick="runSearch('color=bg', 'Golgari', 'Colour')"><span class="search-kind-chip search-chip--colour">Colour</span><span class="search-guide-ex">Golgari</span><span class="search-guide-go" aria-hidden="true">→</span></button>
+          </div>
+          <details class="search-adv">
+            <summary>Advanced search</summary>
+            <p>Scryfall syntax works too: <code>a:"artist"</code> <code>t:type</code> <code>s:set</code> <code>year&gt;=2020</code> <code>is:hires</code></p>
+          </details>
         </div>
-        <p class="search-tip">Scryfall syntax works &mdash; <code>a:"artist"</code> &nbsp;<code>t:type</code> &nbsp;<code>year&gt;=2020</code></p>
       </div>
       <div id="searchResults" class="search-results" style="display:none;">
         <div id="msHead"></div>
@@ -1408,33 +1415,15 @@
       const chk = document.getElementById('mobileThemeChk');
       if (chk) chk.checked = !isDark;
     }
-    function applyHintSearch(query) {
-      const bar = document.getElementById('heroSearchBar');
-      if (bar) { bar.value = query; bar.focus(); }
-    }
 
-    // Search panel background
-    let _searchBgInterval = null;
-    function startSearchPanelBg() {
-      const layerA = document.getElementById('searchBgA');
-      const layerB = document.getElementById('searchBgB');
-      if (!layerA || !layerB || layerA.style.opacity === '1') return;
-      const getImg = () => (typeof _bgQueue !== 'undefined' && _bgQueue.length > 0)
-        ? _bgQueue[Math.floor(Math.random() * _bgQueue.length)]
-        : null;
-      const init = () => {
-        const url = getImg();
-        if (url) { layerA.style.backgroundImage = `url('${url}')`; layerA.style.opacity = '1'; layerB.style.opacity = '0'; }
-        let front = layerA, back = layerB;
-        clearInterval(_searchBgInterval);
-        _searchBgInterval = setInterval(() => {
-          if (_currentMode !== 'search') { clearInterval(_searchBgInterval); return; }
-          const u = getImg();
-          if (u) { back.style.backgroundImage = `url('${u}')`; back.style.opacity = '1'; front.style.opacity = '0'; [front, back] = [back, front]; }
-        }, 6000);
-      };
-      if (typeof _bgQueue !== 'undefined' && _bgQueue.length > 0) { init(); }
-      else if (typeof _prefetchHomeBg === 'function') { _prefetchHomeBg(4).then(init); }
+    // The Search glow leans towards the colour of what you're typing (artist, creature, set…)
+    function tintSearchGlow() {
+      const box = document.getElementById('heroSearchSuggestions');
+      const tag = box.style.display !== 'none' && box.querySelector('.suggestion-tag')?.textContent.toLowerCase();
+      const hues = { artist: '179,157,219', creature: '129,199,132', type: '129,199,132', set: '255,183,77' };
+      const glow = document.querySelector('.search-glow');
+      if (hues[tag]) glow.style.setProperty('--tint', hues[tag]);
+      glow.classList.toggle('tinted', !!hues[tag]);
     }
 
     // Hero search bar submit
@@ -1445,7 +1434,7 @@
         let t = null;
         bar.addEventListener('input', () => {
           clearTimeout(t);
-          t = setTimeout(() => { const v = bar.value.trim(); if (v.length >= 2) showSearchSuggestions(v, 'heroSearchSuggestions'); else hideSearchSuggestions(); }, 200);
+          t = setTimeout(async () => { const v = bar.value.trim(); if (v.length >= 2) await showSearchSuggestions(v, 'heroSearchSuggestions'); else hideSearchSuggestions(); tintSearchGlow(); }, 200);
         });
         bar.addEventListener('keydown', (e) => {
           if (e.key !== 'Enter') return;

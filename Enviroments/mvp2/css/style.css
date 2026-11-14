@@ -2578,7 +2578,8 @@ body {
   .welcome-title .br-mobile { display: inline; } /* MAGIC: / THE GALLERY */
   /* Subtitle on one line: scales with the phone's width (≈12.5px at 360, 13.5px at 390, 14px max) */
   .home-hero { padding-left: 1rem; padding-right: 1rem; }
-  .welcome-subtitle { font-size: min(0.88rem, 3.45vw); letter-spacing: 0.5px; white-space: nowrap; line-height: 1.5; }
+  .welcome-subtitle { font-size: min(0.88rem, 3.45vw); letter-spacing: 0.5px; white-space: nowrap; line-height: 1.5; margin-bottom: 0; }
+  .home-actions { margin-top: 2.5rem; } /* title + subtitle + buttons read as one group (40px gap) */
   .home-action--primary { font-size: 0.9rem; padding: 1.15rem 2rem; }
   .home-alt-link { font-size: 0.82rem; }
   .home-actions { max-width: 320px; gap: 1.4rem; }

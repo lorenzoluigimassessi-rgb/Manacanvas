@@ -987,17 +987,21 @@ function initSearch() {
 }
 
 // Run a search and show its results page (label + tag drive the results header)
-function runSearch(query, label, tag) {
+// how: 'drill' (tag tapped on a card: keep the trail), 'back' (stepping back), or fresh (new trail)
+function runSearch(query, label, tag, how) {
   // Phones: searching from the Search page shows results there, leaving the Gallery as it was
   if (typeof _currentMode !== 'undefined' && _currentMode === 'search' && typeof openSearchResults === 'function') {
-    openSearchResults(query, label, tag);
+    openSearchResults(query, label, tag, how);
     return;
   }
+  if (how === 'drill' && activeSearch && _searchMeta) _searchStack.push({ q: activeSearch, label: _searchMeta.label, tag: _searchMeta.tag, sort: currentSearchSortKey() });
+  const trail = how ? _searchStack : [];
   activeSearch = query;
   hideSearchSuggestions();
   if (typeof setMode === "function") setMode("gallery");
   setSearchMode(true);
   showSearchPill(label, tag);
+  _searchStack = trail;
   loadInitialGrid();
   updateChips();
 }

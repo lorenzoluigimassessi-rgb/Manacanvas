@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=121">
+  <link rel="stylesheet" href="css/style.css?v=122">
 </head>
 <body>
 
@@ -1247,11 +1247,11 @@
 
   <script src="js/welcome.js?v=27"></script>
   <script src="js/api.js?v=27"></script>
-  <script src="js/grid.js?v=43"></script>
+  <script src="js/grid.js?v=44"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
-  <script src="js/filters.js?v=28"></script>
-  <script src="js/lightbox.js?v=23"></script>
+  <script src="js/filters.js?v=29"></script>
+  <script src="js/lightbox.js?v=24"></script>
 
   <script>
     // ── Where you are in Categories (level + sort), per tab: a reload lands on the same page ──
@@ -2984,25 +2984,34 @@
     let _l3 = { gen: 0, next: null, pages: 0, seen: new Set(), more: false, obs: null };
     const _l3Open = () => document.getElementById('collectionsLevel3').style.display === 'block';
 
-    function openDetailPage(it, from = 'l2', sort = 'popular') {
-      _l3From = from; _l3ScrollY = window.scrollY; _l3Q = it.q; _l3Sort = sort;
+    // A Categories page looks like any result (title, kind chip, count, sort) under its breadcrumb.
+    // Tags tapped on its cards open further pages here ('drill'); the back arrow walks the trail one step at a time.
+    const CAT_KINDS = { artists: 'Artist', creatures: 'Creature', sets: 'Set', color: 'Colour', type: 'Type' };
+    let _l3Stack = [], _l3It = null, _l3RootCat = null;
+
+    function openDetailPage(it, from = 'l2', sort = 'random', step) {
+      if (from === 'drill') { step = 'drill'; from = _l3From; }
+      if (step === 'drill' && _l3It) _l3Stack.push({ it: _l3It, sort: _l3Sort });
+      if (!step) { _l3Stack = []; _l3ScrollY = window.scrollY; _l3RootCat = it.cat; }
+      _l3From = from; _l3Q = it.q; _l3Sort = sort; _l3It = it;
       const nav = from === 'l1' ? {} : catNav.get();
-      nav.l3 = { it: { name: it.name, q: it.q, icon: it.icon || '', cat: it.cat }, from, sort };
+      nav.l3 = { it: { name: it.name, q: it.q, icon: it.icon || '', cat: it.cat, kind: it.kind }, from, sort };
       catNav.set(nav);
       document.getElementById('collectionsPage').style.display = 'none';
       document.getElementById('collectionsLevel2').style.display = 'none';
       const l3 = document.getElementById("collectionsLevel3");
       l3.style.display = "block";
-      // Breadcrumb: where this page sits (Categories › Section); the arrow still goes back one step
-      const crumbs = it.cat ? [...L2_CRUMBS, [SECTION_NAMES[it.cat], `openCollectionsLevel2('${it.cat}')`]] : L2_CRUMBS;
+      const cat = it.cat || _l3RootCat;
+      const crumbs = cat ? [...L2_CRUMBS, [SECTION_NAMES[cat], `openCollectionsLevel2('${cat}')`]] : L2_CRUMBS;
+      const crumbsHtml = `<nav class="l3-crumbs" aria-label="Breadcrumb">${crumbs.map(([label, go]) => `<button onclick="${go}">${label}</button>`).join('<span aria-hidden="true">›</span>')}</nav>`;
       l3.innerHTML = `
-        ${l2Header(it.name, '<span class="l2-count" id="l3Count"></span>', 'closeDetailPage()', it.icon || '', crumbs)}
-        <div class="l3-toolbar">
-          <div class="l2-sort" id="l3SortSwitcher">${L3_SORTS.map(o => `<button class="l2-sort-btn ${o.key === sort ? 'active' : ''}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>
-        </div>
+        ${searchHeadHtml({ back: 'closeDetailPage()', backLabel: 'Back', label: it.name, tag: it.kind || CAT_KINDS[it.cat] || 'Card',
+          countId: 'l3Count', count: '', crumbs: crumbsHtml,
+          sorts: `<div class="l2-sort" id="l3SortSwitcher">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === sort ? 'active' : ''}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>` })}
         <div class="l3-grid" id="l3Grid"></div>
       `;
       window.scrollTo(0, 0);
+      requestAnimationFrame(fitSearchTitles);
       loadDetailFeed();
       l3.querySelectorAll('#l3SortSwitcher .l2-sort-btn').forEach(btn => btn.addEventListener('click', () => {
         l3.querySelectorAll('#l3SortSwitcher .l2-sort-btn').forEach(b => b.classList.toggle('active', b === btn));
@@ -3013,6 +3022,9 @@
     function openArtistPage(name) { openDetailPage({ name, q: `a:"${name}"`, cat: 'artists' }, 'l2'); }
 
     function closeDetailPage() {
+      const prev = _l3Stack.pop();
+      if (prev) { openDetailPage(prev.it, _l3From, prev.sort, 'back'); return; }
+      _l3It = null;
       const nav = catNav.get(); delete nav.l3; catNav.set(nav);
       if (_l3.obs) _l3.obs.disconnect();
       _l3.gen++;
@@ -3054,8 +3066,11 @@
     let _ms = { gen: 0, q: null, sort: 'random', meta: null, next: null, pages: 0, seen: new Set(), more: false, obs: null };
     const _msOpen = () => document.getElementById('searchPanel').classList.contains('has-results');
 
-    function openSearchResults(query, label, tag) {
-      _ms.q = query; _ms.meta = { label, tag }; _ms.sort = 'random';
+    let _msStack = [];
+    function openSearchResults(query, label, tag, how, sort) {
+      if (how === 'drill' && _msOpen() && _ms.meta) _msStack.push({ q: _ms.q, meta: _ms.meta, sort: _ms.sort });
+      else if (!how) _msStack = [];
+      _ms.q = query; _ms.meta = { label, tag }; _ms.sort = sort || 'random';
       hideSearchSuggestions();
       if (_currentMode !== 'search') setMode('search');
       const panel = document.getElementById('searchPanel');
@@ -3069,7 +3084,14 @@
       loadSearchResults();
     }
 
+    function msBack() {
+      const prev = _msStack.pop();
+      if (prev) openSearchResults(prev.q, prev.meta.label, prev.meta.tag, 'back', prev.sort);
+      else closeSearchResults();
+    }
+
     function closeSearchResults() {
+      _msStack = [];
       if (_ms.obs) _ms.obs.disconnect();
       _ms.gen++;
       const panel = document.getElementById('searchPanel');
@@ -3082,7 +3104,7 @@
 
     function renderSearchResultsHead() {
       const m = _ms.meta;
-      document.getElementById('msHead').innerHTML = searchHeadHtml({ back: 'closeSearchResults()', backLabel: 'Back to search',
+      document.getElementById('msHead').innerHTML = searchHeadHtml({ back: 'msBack()', backLabel: 'Back',
         label: m.label, tag: m.tag, countId: 'msCount', count: '',
         sorts: `<div class="l2-sort">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === _ms.sort ? 'active' : ''}" onclick="setSearchResultsSort('${o.key}')">${o.label}</button>`).join('')}</div>` });
       requestAnimationFrame(fitSearchTitles);
@@ -3143,7 +3165,7 @@
       if (gen !== _l3.gen) return;
       grid.innerHTML = '';
       if (!res || !res.cards.length) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
-      document.getElementById('l3Count').textContent = res.total.toLocaleString() + ' artworks';
+      const l3c = document.getElementById('l3Count'); if (l3c) l3c.textContent = res.total.toLocaleString() + ' artworks';
       _l3.more = res.more;
       renderDetailCards(grid, res.cards);
       _l3ObserveEnd(grid);

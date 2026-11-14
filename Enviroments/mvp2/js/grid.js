@@ -120,18 +120,33 @@ const SEARCH_SORTS = [
   { key: 'newest',  label: 'Newest',  order: 'released', dir: 'desc' },
   { key: 'oldest',  label: 'Oldest',  order: 'released', dir: 'asc'  },
 ];
-const SEARCH_KINDS = { Card: 'Cards', Artist: 'Artist', Creature: 'Creature type', Type: 'Card type', Set: 'Set' };
+const SEARCH_KINDS = { Card: 'Cards', Artist: 'Artist', Creature: 'Creature type', Type: 'Card type', Set: 'Set', Year: 'Year', Colour: 'Colour' };
 let _searchMeta = null, _preSearchSort = null;
 
 
-// A search opens on Shuffle; the gallery's own order comes back when the search ends
+// Drill-down trail for gallery results: tags tapped on a card stack up; the back arrow pops one step
+let _searchStack = [], _searchRestoreSort = null;
+
+// A search opens on Shuffle (or the sort it had, when going back); the gallery's own order returns when the search ends
 function startSearchSort(label, tag) {
   _searchMeta = { label, tag };
   if (!_preSearchSort) _preSearchSort = { order: sortOrder, dir: sortDir };
-  sortOrder = 'random'; sortDir = 'auto';
+  const o = _searchRestoreSort ? SEARCH_SORTS.find(x => x.key === _searchRestoreSort) : SEARCH_SORTS[0];
+  _searchRestoreSort = null;
+  sortOrder = o.order; sortDir = o.dir;
   renderSearchHead();
 }
+function currentSearchSortKey() {
+  return (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
+}
+function searchBack() {
+  const prev = _searchStack.pop();
+  if (!prev) { clearSearchPill(); return; }
+  _searchRestoreSort = prev.sort;
+  runSearch(prev.q, prev.label, prev.tag, 'back');
+}
 function endSearchSort() {
+  _searchStack = [];
   _searchMeta = null;
   if (_preSearchSort) { sortOrder = _preSearchSort.order; sortDir = _preSearchSort.dir; _preSearchSort = null; }
 }
@@ -164,8 +179,10 @@ document.fonts?.ready.then(fitSearchTitles);
 
 // Results header, shared by gallery search and phone Search:
 // row 1 — back arrow, title and its kind chip; row 2 — artwork count on the left, sort on the right
-function searchHeadHtml({ back, backLabel, label, tag, countId, count, sorts }) {
+function searchHeadHtml({ back, backLabel, label, tag, countId, count, sorts, crumbs = '' }) {
   return `
+    ${crumbs}
+    <div class="results-head">
     <div class="search-head-row">
       <button class="l2-back" onclick="${back}" aria-label="${backLabel}" title="${backLabel}"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
       <h2 class="search-title">${titleWithChip(label, `<span class="search-kind-chip search-chip--${tag.toLowerCase()}">${SEARCH_KINDS[tag] || tag}</span>`)}</h2>
@@ -173,7 +190,15 @@ function searchHeadHtml({ back, backLabel, label, tag, countId, count, sorts }) 
     <div class="search-meta-row">
       <span class="search-count" id="${countId}">${count}</span>
       ${sorts}
+    </div>
     </div>`;
+}
+
+// A tag tapped on a card (artist, set, creature, year…) opens its result in the tab you're in, as one more step back can undo
+function openTag(q, label, tag) {
+  if (typeof closeLightbox === 'function') closeLightbox();
+  if (typeof _currentMode !== 'undefined' && _currentMode === 'collections') { openDetailPage({ name: label, q, kind: tag }, 'drill'); return; }
+  runSearch(q, label, tag, 'drill');
 }
 
 function renderSearchHead() {
@@ -189,7 +214,7 @@ function renderSearchHead() {
   const active = (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
   const sortPills = `<div class="l2-sort">${SEARCH_SORTS.map(o =>
     `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div>`;
-  head.innerHTML = searchHeadHtml({ back: 'clearSearchPill()', backLabel: 'Back to the gallery', label: m.label, tag: m.tag,
+  head.innerHTML = searchHeadHtml({ back: 'searchBack()', backLabel: 'Back to the gallery', label: m.label, tag: m.tag,
     countId: 'searchCount', count: _feedTotal ? _feedTotal.toLocaleString() + ' artworks' : '', sorts: sortPills });
   requestAnimationFrame(fitSearchTitles);
 }

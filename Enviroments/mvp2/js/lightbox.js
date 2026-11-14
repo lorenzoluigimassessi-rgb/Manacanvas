@@ -375,51 +375,17 @@ function openLightbox(card, mode = 'feed') {
   });
 
   // ── Meta links ─────────────────────────────────────────────────────────────
-  document.getElementById('lbName').addEventListener('click', () => {
-    const name = currentCard.name;
-    closeLightbox();
-    activeSearch = name;
-    if (typeof setMode === 'function') setMode('gallery');
-    setSearchMode(true);
-    showSearchPill(name, 'Card');
-    loadInitialGrid(); updateChips();
-  });
-  document.getElementById('lbArtist').addEventListener('click', () => {
-    const artist = currentCard.artist;
-    closeLightbox();
-    activeSearch = `a:"${artist}"`;
-    if (typeof setMode === 'function') setMode('gallery');
-    setSearchMode(true);
-    showSearchPill(artist, 'Artist');
-    loadInitialGrid(); updateChips();
-  });
+  // Card tags drill down in the current tab (Gallery, Search or Categories); back returns one step
+  document.getElementById('lbName').addEventListener('click', () => openTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
+  document.getElementById('lbArtist').addEventListener('click', () => openTag(`a:"${currentCard.artist}"`, currentCard.artist, 'Artist'));
   document.getElementById('lbType')?.addEventListener('click', () => {
-    const typeLine = currentCard.type_line || '';
-    const creatureType = typeLine.split('—').pop().trim().split(' ')[0];
-    if (!creatureType) return;
-    closeLightbox();
-    activeSearch = `t:${creatureType.toLowerCase()}`;
-    if (typeof setMode === 'function') setMode('gallery');
-    setSearchMode(true);
-    showSearchPill(creatureType, 'Creature');
-    loadInitialGrid(); updateChips();
+    const creatureType = (currentCard.type_line || '').split('—').pop().trim().split(' ')[0];
+    if (creatureType) openTag(`t:"${creatureType.toLowerCase()}"`, creatureType, 'Creature');
   });
-  document.getElementById('lbSet')?.addEventListener('click', () => {
-    closeLightbox();
-    activeSearch = `s:${currentCard.set}`;
-    if (typeof setMode === 'function') setMode('gallery');
-    setSearchMode(true);
-    showSearchPill(currentCard.set_name || currentCard.set, 'Set');
-    loadInitialGrid(); updateChips();
-  });
+  document.getElementById('lbSet')?.addEventListener('click', () => openTag(`s:${currentCard.set}`, currentCard.set_name || currentCard.set, 'Set'));
   document.getElementById('lbYear')?.addEventListener('click', () => {
-    const y = currentCard.released_at?.slice(0,4); if (!y) return;
-    closeLightbox();
-    activeSearch = `year:${y}`;
-    if (typeof setMode === 'function') setMode('gallery');
-    setSearchMode(true);
-    showSearchPill(y, 'Card');
-    loadInitialGrid(); updateChips();
+    const y = currentCard.released_at?.slice(0, 4);
+    if (y) openTag(`year:${y}`, y, 'Year');
   });
 
   // ── Zoom (desktop only) ────────────────────────────────────────────────────

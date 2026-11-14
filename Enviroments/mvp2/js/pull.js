@@ -118,6 +118,7 @@ function _pullOnScroll() {
     const inner = s.firstElementChild;
     inner.style.transform = `scale(${1 - a * 0.1})`;
     inner.style.opacity = 1 - a * 0.55;
+    inner.style.filter = a > 0.02 ? `blur(${(a * 3).toFixed(1)}px)` : ''; // cards coming and going are softly out of focus
     if (Math.abs(d) < bestD) { bestD = Math.abs(d); best = i; }
   });
   if (best !== p.idx) {

@@ -4429,7 +4429,7 @@ body.lb-focus .lb-info-btn { background: rgba(255,255,255,0.16); border-color: r
 }
 .pull-slide-inner {
   height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  transform-origin: center; transition: transform 120ms linear, opacity 120ms linear; will-change: transform, opacity;
+  transform-origin: center; transition: transform 120ms linear, opacity 120ms linear, filter 120ms linear; will-change: transform, opacity, filter;
 }
 .pull-card {
   flex: 0 1 auto; min-height: 0; max-width: min(100%, 560px); padding: 0; border: none; background: none; cursor: pointer;

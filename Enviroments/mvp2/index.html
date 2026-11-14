@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=122">
+  <link rel="stylesheet" href="css/style.css?v=123">
 </head>
 <body>
 
@@ -998,6 +998,12 @@
       <button class="mobile-more-btn" onclick="openMobileSettings()" aria-label="More options">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
       </button>
+    </div>
+
+    <!-- Phones, inner pages: back + title pinned once the page's own header scrolls away -->
+    <div id="subBar" class="sub-bar" aria-hidden="true">
+      <button class="l2-back" aria-label="Back" title="Back"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
+      <span class="sub-bar-title"></span>
     </div>
 
     <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
@@ -1181,7 +1187,7 @@
     <div id="lightbox"></div>
 
     <!-- Scroll to top -->
-    <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+    <button class="scroll-top" id="scrollTop" onclick="scrollerEl().scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
 
     <!-- Footer -->
     <!-- ── Mobile/tablet bottom bar ── -->
@@ -1247,7 +1253,7 @@
 
   <script src="js/welcome.js?v=27"></script>
   <script src="js/api.js?v=28"></script>
-  <script src="js/grid.js?v=45"></script>
+  <script src="js/grid.js?v=46"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=30"></script>
@@ -1450,6 +1456,37 @@
         });
       }
     })();
+
+    // Inner pages (a tag/search result, Categories levels 2–3) drop the brand header on phones:
+    // their own back arrow + title lead, and pin to the top once scrolled away
+    const scrollerEl = () => _currentMode === 'search' && _msOpen() ? document.getElementById('searchPanel') : window;
+    function _activeHead() {
+      if (_currentMode === 'gallery') return activeSearch ? document.querySelector('#searchHead .search-head-row') : null;
+      if (_currentMode === 'search') return _msOpen() ? document.querySelector('#msHead .search-head-row') : null;
+      if (_currentMode === 'collections') return _l3Open() ? document.querySelector('#collectionsLevel3 .search-head-row')
+        : document.getElementById('collectionsLevel2').style.display === 'block' ? document.querySelector('#collectionsLevel2 .l2-header') : null;
+      return null;
+    }
+    function updateSubpage() {
+      const head = _activeHead();
+      document.body.classList.toggle('subpage', !!head);
+      const bar = document.getElementById('subBar');
+      const sc = scrollerEl(), y = sc === window ? scrollY : sc.scrollTop;
+      const show = !!head && innerWidth < 1024 && head.getBoundingClientRect().bottom < 0;
+      if (show) {
+        const t = head.querySelector('.search-title, .l2-title').cloneNode(true);
+        t.querySelectorAll('.search-kind-chip').forEach(c => c.remove());
+        bar.querySelector('.sub-bar-title').textContent = t.textContent.trim();
+        bar.querySelector('.l2-back').onclick = () => head.querySelector('.l2-back').click();
+      }
+      bar.classList.toggle('visible', show);
+      document.getElementById('scrollTop').classList.toggle('visible', _currentMode !== 'home' && y > 800);
+    }
+    window.addEventListener('scroll', updateSubpage, { passive: true });
+    document.getElementById('searchPanel').addEventListener('scroll', updateSubpage, { passive: true });
+    let _subQueued = false;
+    new MutationObserver(() => { if (_subQueued) return; _subQueued = true; requestAnimationFrame(() => { _subQueued = false; updateSubpage(); }); }).observe(document.body,
+      { subtree: true, childList: true, attributes: true, attributeFilter: ['style', 'class'] });
 
     // Gallery header collapse on scroll (mobile only)
     (function() {

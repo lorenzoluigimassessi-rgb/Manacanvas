@@ -480,9 +480,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Scroll to top button
-window.addEventListener("scroll", () => {
-  scrollTopBtn.classList.toggle("visible", window.scrollY > 800);
-});
+// (visibility is set in index.html with the inner-page bar, so it also follows the phone Search panel)
 
 // Feed random button
 const randomFeedBtn = document.getElementById("randomFeedBtn");

@@ -14,6 +14,90 @@ function getManaGradient(colors) {
   return G[colors[0]] || G.C;
 }
 
+// ── Card info: title, "N artworks of this card", and fact rows that each open a result ──
+// Rows look like Discover's "What you can search": a kind chip, the value, an arrow — tap to drill down.
+const _NOT_TYPES = ['Legendary', 'Basic', 'Snow', 'World', 'Ongoing', 'Host', 'Elite', 'Tribal', 'Kindred'];
+const _illOf = c => c.illustration_id || c.card_faces?.[0]?.illustration_id || c.id;
+const _esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+let _artInfo = {};
+try { _artInfo = JSON.parse(localStorage.getItem('mc_artinfo') || '{}'); } catch (e) {}
+
+function _lbColour(card) {
+  if (typeof COLOR_GROUPS === 'undefined') return null;
+  const cols = (card.colors || card.card_faces?.[0]?.colors || []).map(c => c.toLowerCase());
+  const want = cols.length ? [...cols].sort().join('') : 'c';
+  for (const g of COLOR_GROUPS) for (const it of g.items) if ([...it.key].sort().join('') === want) return it;
+  return null;
+}
+
+function cardFacts(card, info) {
+  const face = card.card_faces?.[0] || card;
+  const [main = '', sub = ''] = (face.type_line || card.type_line || '').split('—').map(x => x.trim());
+  const rows = [];
+  if (card.artist) rows.push({ kind: 'Artist', vals: [{ label: card.artist, q: `a:"${card.artist}"` }] });
+  if (/\bCreature\b/.test(main) && sub) rows.push({ kind: 'Creature', vals: sub.split(/\s+/).map(t => ({ label: t, q: `t:"${t.toLowerCase()}"` })) });
+  else {
+    const types = main.split(/\s+/).filter(t => t && !_NOT_TYPES.includes(t));
+    if (types.length) rows.push({ kind: 'Type', vals: types.map(t => ({ label: t, q: `t:${t.toLowerCase()}` })) });
+  }
+  const col = _lbColour(card);
+  if (col) rows.push({ kind: 'Colour', icon: col.icon, vals: [{ label: col.name, q: col.q }] });
+  // Where this artwork first appeared (once known), else the printing we're showing
+  const set = info?.set || card.set, year = info?.year || card.released_at?.slice(0, 4);
+  if (set) rows.push({ kind: 'Set', icon: `<img class="lb-set-icon" src="https://svgs.scryfall.io/sets/${set}.svg" alt="" onerror="this.remove()">`,
+    vals: [{ label: info?.set_name || card.set_name || set.toUpperCase(), q: `s:${set}` }] });
+  if (year) rows.push({ kind: 'Year', vals: [{ label: year, q: `year:${year}` }] });
+  return rows;
+}
+
+function renderCardInfo(card) {
+  const info = _artInfo[_illOf(card)];
+  const title = document.getElementById('lbTitle');
+  if (!title) return;
+  title.textContent = card.name;
+  const v = document.getElementById('lbVersions');
+  v.hidden = !(info && info.n > 1);
+  if (info && info.n > 1) v.innerHTML = `${info.n}${info.more ? '+' : ''} artworks of this card <span aria-hidden="true">→</span>`;
+  const rows = cardFacts(card, info);
+  const chip = r => `<span class="search-kind-chip search-chip--${r.kind.toLowerCase()}">${r.kind}</span>`;
+  const icon = r => r.icon ? `<span class="lb-fact-icon">${r.icon}</span>` : '';
+  const box = document.getElementById('lbFacts');
+  box.innerHTML = rows.map((r, i) => r.vals.length === 1
+    ? `<button class="lb-fact" data-r="${i}" data-v="0">${chip(r)}<span class="lb-fact-val">${icon(r)}<span>${_esc(r.vals[0].label)}</span></span><span class="lb-fact-go" aria-hidden="true">→</span></button>`
+    : `<div class="lb-fact lb-fact--multi">${chip(r)}<span class="lb-fact-val">${r.vals.map((x, j) => `<button class="lb-fact-link" data-r="${i}" data-v="${j}">${_esc(x.label)}</button>`).join('')}</span></div>`
+  ).join('');
+  box.querySelectorAll('[data-r]').forEach(el => el.addEventListener('click', e => {
+    e.stopPropagation();
+    const r = rows[el.dataset.r], x = r.vals[el.dataset.v];
+    openTag(x.q, x.label, r.kind);
+  }));
+  if (!info) _loadArtInfo(card);
+}
+
+// One request per artwork (cached): every paper printing of the card, oldest first →
+// how many distinct artworks it has, and the set + year this artwork first appeared in
+let _artInfoTimer = null;
+function _loadArtInfo(card) {
+  clearTimeout(_artInfoTimer);
+  _artInfoTimer = setTimeout(async () => {
+    const key = _illOf(card);
+    try {
+      const q = `!"${card.name.replace(/"/g, '')}" game:paper`;
+      const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}&unique=prints&order=released&dir=asc`);
+      if (!res.ok) return;
+      const json = await res.json();
+      const prints = json.data || [];
+      const first = prints.find(p => _illOf(p) === key);
+      _artInfo[key] = { n: new Set(prints.map(_illOf)).size, more: !!json.has_more,
+        set: first?.set, set_name: first?.set_name, year: first?.released_at?.slice(0, 4) };
+      const keys = Object.keys(_artInfo);
+      if (keys.length > 500) keys.slice(0, keys.length - 500).forEach(k => delete _artInfo[k]);
+      try { localStorage.setItem('mc_artinfo', JSON.stringify(_artInfo)); } catch (e) {}
+      if (currentCard && _illOf(currentCard) === key) renderCardInfo(currentCard);
+    } catch (e) {}
+  }, 250); // swiping fast through cards only asks for the one you stop on
+}
+
 function openLightbox(card, mode = 'feed') {
   currentCard = card;
   _lbMode = mode;
@@ -56,45 +140,40 @@ function openLightbox(card, mode = 'feed') {
   const lightbox = document.getElementById('lightbox');
   lightbox.style.background = '#0c0c0f';
   lightbox.innerHTML = `
-    <div class="lightbox" id="lightboxOverlay" style="background:#0c0c0f;">
+    <div class="lightbox lb2 ${isSurprise ? 'lb-surprise' : ''}" id="lightboxOverlay" style="background:#0c0c0f;">
       <div class="lb-blur-bg" id="lbBlurBg" style="background-image:url('${artCrop || normal}')"></div>
-      <button class="close-btn" id="lbClose">✕</button>
-
-      <!-- Art -->
-      <div class="art-container ${isSurprise ? 'frame-active' : ''}" id="artContainer" style="overflow:hidden;">
-        <img id="lbImage" src="${initialSrc}" alt="${card.name}" ${isSurprise ? 'class="frame-mode"' : ''}>
-        <!-- Desktop ghost arrows — feed only -->
-        ${!isSurprise ? `
-        <div class="lb-ghost-arrows" id="lbGhostArrows">
-          <button class="lb-ghost-arrow lb-ghost-prev ${noHistory ? 'hidden' : disabledPrev ? 'lb-arrow-disabled' : ''}" id="lbGhostPrev">‹</button>
-          <button class="lb-ghost-arrow lb-ghost-next ${disabledNext ? 'lb-arrow-disabled' : ''}" id="lbGhostNext">›</button>
-        </div>` : ''}
-      </div>
-      <!-- Swipe hint pill — outside art-container so overflow:hidden doesn't clip it -->
-      ${showSwipeHint ? '' : ''}
-
-      <!-- Toggle -->
-      <div class="lightbox-actions">
+      <div class="lb-top">
+        <button class="close-btn" id="lbClose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         <div class="toggle">
-          <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art Only</button>
-          <button id="toggleFrame" ${isSurprise ? 'class="active"' : ''}>With Frame</button>
+          <button id="toggleArt" ${isSurprise ? '' : 'class="active"'} ${disabledAttr} ${disabledTitle}>Art</button>
+          <button id="toggleFrame" ${isSurprise ? 'class="active"' : ''}>Frame</button>
         </div>
       </div>
 
-      <!-- Meta -->
-      <div class="meta">
-        <div class="name meta-link" id="lbName" title="See all versions">${card.name}</div>
-        <div class="details">
-          <span class="meta-link" id="lbArtist">${card.artist || 'Unknown'}</span>
-          ${card.type_line ? ` · <span class="meta-link" id="lbType">${card.type_line.split('—').pop().trim().split(' ')[0]}</span>` : ''}
-          ${setName ? ` · <span class="meta-link" id="lbSet">${setName}</span>` : ''}
-          ${year    ? ` · <span class="meta-link" id="lbYear">${year}</span>`    : ''}
+      <div class="lb-body" id="lbBody">
+        <div class="lb-stage">
+          <div class="art-container ${isSurprise ? 'frame-active' : ''}" id="artContainer" style="overflow:hidden;">
+            <img id="lbImage" src="${initialSrc}" alt="${card.name}" ${isSurprise ? 'class="frame-mode"' : ''}>
+            ${!isSurprise ? `
+            <div class="lb-ghost-arrows" id="lbGhostArrows">
+              <button class="lb-ghost-arrow lb-ghost-prev ${noHistory ? 'hidden' : disabledPrev ? 'lb-arrow-disabled' : ''}" id="lbGhostPrev" aria-label="Previous">‹</button>
+              <button class="lb-ghost-arrow lb-ghost-next ${disabledNext ? 'lb-arrow-disabled' : ''}" id="lbGhostNext" aria-label="Next">›</button>
+            </div>` : ''}
+          </div>
+        </div>
+        <div class="lb-info">
+          <h2 class="lb-title" id="lbTitle"></h2>
+          <button class="lb-versions" id="lbVersions" hidden></button>
+          <div class="lb-facts" id="lbFacts"></div>
         </div>
       </div>
 
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>
     </div>
   `;
+
+  renderCardInfo(card);
+  document.getElementById('lbVersions').addEventListener('click', () => openTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
 
   // Mobile bottom nav — feed mode only (surprise uses the button below)
   let mobileNav = document.getElementById('lbMobileNav');
@@ -223,20 +302,10 @@ function openLightbox(card, mode = 'feed') {
       else img.classList.remove('frame-mode');
       bg.style.backgroundImage = `url('${nArtCrop || nNormal}')`;
 
-      const nameEl   = document.getElementById('lbName');
-      const artistEl = document.getElementById('lbArtist');
-      const setEl    = document.getElementById('lbSet');
-      const yearEl   = document.getElementById('lbYear');
-      if (nameEl)   nameEl.textContent   = nextCard.name;
-      if (artistEl) artistEl.textContent = nextCard.artist || 'Unknown';
-      const typeEl = document.getElementById('lbType');
-      if (typeEl && nextCard.type_line) typeEl.textContent = nextCard.type_line.split('—').pop().trim().split(' ')[0];
-      else if (typeEl) typeEl.textContent = '';
-      if (setEl)    setEl.textContent    = nextCard.set_name || '';
-      if (yearEl)   yearEl.textContent   = nextCard.released_at ? nextCard.released_at.slice(0,4) : '';
-
       currentCard = nextCard;
       _lbMode = nextMode;
+      renderCardInfo(nextCard);
+      const body = document.getElementById('lbBody'); if (body) body.scrollTop = 0;
       localStorage.setItem('mc_lightbox', JSON.stringify({ id: nextCard.id, mode: nextMode }));
 
       img.style.transition = bg.style.transition = 'opacity 220ms ease';
@@ -326,7 +395,7 @@ function openLightbox(card, mode = 'feed') {
 
   document.getElementById('lightboxOverlay').addEventListener('touchstart', (e) => {
     if (e.touches.length > 1) { swiping = false; return; }
-    if (e.target.closest('button, a, .toggle, .meta-link')) return;
+    if (e.target.closest('button, a, .toggle')) return;
     swX = e.touches[0].clientX; swY = e.touches[0].clientY;
     scX = swX; swiping = true; swDir = null;
   }, { passive: true });
@@ -372,20 +441,6 @@ function openLightbox(card, mode = 'feed') {
     document.getElementById('toggleFrame').classList.add('active');
     document.getElementById('toggleArt').classList.remove('active');
     resetZoom();
-  });
-
-  // ── Meta links ─────────────────────────────────────────────────────────────
-  // Card tags drill down in the current tab (Gallery, Search or Categories); back returns one step
-  document.getElementById('lbName').addEventListener('click', () => openTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
-  document.getElementById('lbArtist').addEventListener('click', () => openTag(`a:"${currentCard.artist}"`, currentCard.artist, 'Artist'));
-  document.getElementById('lbType')?.addEventListener('click', () => {
-    const creatureType = (currentCard.type_line || '').split('—').pop().trim().split(' ')[0];
-    if (creatureType) openTag(`t:"${creatureType.toLowerCase()}"`, creatureType, 'Creature');
-  });
-  document.getElementById('lbSet')?.addEventListener('click', () => openTag(`s:${currentCard.set}`, currentCard.set_name || currentCard.set, 'Set'));
-  document.getElementById('lbYear')?.addEventListener('click', () => {
-    const y = currentCard.released_at?.slice(0, 4);
-    if (y) openTag(`year:${y}`, y, 'Year');
   });
 
   // ── Zoom (desktop only) ────────────────────────────────────────────────────

@@ -1586,17 +1586,33 @@
       overlay.addEventListener('click', closeDrawRitual);
     }
 
-    // A menu item pressed while a card's detail page (or Pull) is open: close it, then the item opens its page
+    // A menu item pressed while a card's detail page (or Pull) is open: the card steps aside, the item opens its page.
+    // Each section remembers the card left open in it, and reopens it when you come back.
+    const _sectionCard = {};
+    const _ITEM_MODE = { btHome: 'home', btGallery: 'gallery', sideGallery: 'gallery', btSearch: 'search',
+      btCollections: 'collections', sideCollections: 'collections', sideAbout: 'about', btPull: 'pull', sidePull: 'pull' };
+    function restoreSectionCard() {
+      if (document.querySelector('#lightbox .lightbox') || document.getElementById('drawRitual').style.display !== 'none') return;
+      const saved = _sectionCard[_currentMode];
+      if (!saved) return;
+      delete _sectionCard[_currentMode];
+      openLightbox(saved.card, saved.mode);
+    }
     ['bottomBar', 'sidebar'].forEach(id => document.getElementById(id)?.addEventListener('click', e => {
       const item = e.target.closest('button, a');
       if (!item) return;
-      if (document.querySelector('#lightbox .lightbox')) closeLightbox();
-      if (item.id === 'btPull' || item.id === 'sidePull') return;
-      if (document.getElementById('drawRitual').style.display !== 'none') closeDrawRitual();
+      const target = _ITEM_MODE[item.id];
+      if (document.querySelector('#lightbox .lightbox')) {
+        if (target && target !== _currentMode) _sectionCard[_currentMode] = { card: currentCard, mode: _lbMode };
+        closeLightbox();
+      }
+      if (target !== 'pull' && document.getElementById('drawRitual').style.display !== 'none') closeDrawRitual();
+      setTimeout(restoreSectionCard, 60); // back in a section that had a card open
     }, true));
 
     function closeDrawRitual() {
       if (typeof pullCleanup === 'function') pullCleanup();
+      setTimeout(() => typeof restoreSectionCard === 'function' && restoreSectionCard(), 60); // leaving Pull: the card you had open comes back
       _drawNonce++;   // invalidate any in-flight draw
       const overlay = document.getElementById('drawRitual');
       overlay.style.display = 'none';

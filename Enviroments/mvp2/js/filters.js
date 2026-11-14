@@ -994,14 +994,17 @@ function runSearch(query, label, tag, how) {
     openSearchResults(query, label, tag, how);
     return;
   }
-  if (how === 'drill' && activeSearch && _searchMeta) _searchStack.push({ q: activeSearch, label: _searchMeta.label, tag: _searchMeta.tag, sort: currentSearchSortKey() });
+  if (how === 'drill' && activeSearch && _searchMeta) _searchStack.push({ q: activeSearch, label: _searchMeta.label, tag: _searchMeta.tag, sort: currentSearchSortKey(), card: _searchCard });
   const trail = how ? _searchStack : [];
+  const fromCard = how === 'drill' ? _tagCard : how === 'back' ? _searchBackCard : null;
+  _tagCard = _searchBackCard = null;
   activeSearch = query;
   hideSearchSuggestions();
   if (typeof setMode === "function") setMode("gallery");
   setSearchMode(true);
   showSearchPill(label, tag);
   _searchStack = trail;
+  _searchCard = fromCard;
   loadInitialGrid();
   updateChips();
   // A new result always starts at the top (after the lightbox has restored the page)

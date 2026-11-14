@@ -125,6 +125,9 @@ let _searchMeta = null, _preSearchSort = null;
 
 // Drill-down trail for gallery results: tags tapped on a card stack up; the back arrow pops one step
 let _searchStack = [], _searchRestoreSort = null;
+// The card whose detail page a tag was tapped on: going back from that result reopens it
+let _tagCard = null, _searchCard = null, _searchBackCard = null;
+const reopenCard = card => { if (card && typeof openLightbox === 'function') requestAnimationFrame(() => openLightbox(card, 'feed')); };
 
 // A search opens on Shuffle (or the sort it had, when going back); the gallery's own order returns when the search ends
 function startSearchSort(label, tag) {
@@ -139,13 +142,14 @@ function currentSearchSortKey() {
   return (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
 }
 function searchBack() {
+  const ret = _searchCard;
   const prev = _searchStack.pop();
-  if (!prev) { clearSearchPill(); return; }
-  _searchRestoreSort = prev.sort;
-  runSearch(prev.q, prev.label, prev.tag, 'back');
+  if (!prev) clearSearchPill();
+  else { _searchRestoreSort = prev.sort; _searchBackCard = prev.card; runSearch(prev.q, prev.label, prev.tag, 'back'); }
+  reopenCard(ret);
 }
 function endSearchSort() {
-  _searchStack = [];
+  _searchStack = []; _searchCard = null;
   _searchMeta = null;
   if (_preSearchSort) { sortOrder = _preSearchSort.order; sortDir = _preSearchSort.dir; _preSearchSort = null; }
 }
@@ -195,6 +199,7 @@ function searchHeadHtml({ back, backLabel, label, tag, countId, count, sorts, cr
 
 // A tag tapped on a card (artist, set, creature, year…) opens its result in the tab you're in, as one more step back can undo
 function openTag(q, label, tag) {
+  _tagCard = document.querySelector('#lightbox .lightbox') && typeof currentCard !== 'undefined' ? currentCard : null;
   if (typeof closeLightbox === 'function') closeLightbox();
   if (typeof _currentMode !== 'undefined' && _currentMode === 'collections') { openDetailPage({ name: label, q, kind: tag }, 'drill'); return; }
   runSearch(q, label, tag, 'drill');

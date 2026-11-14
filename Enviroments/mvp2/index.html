@@ -1253,10 +1253,10 @@
 
   <script src="js/welcome.js?v=27"></script>
   <script src="js/api.js?v=28"></script>
-  <script src="js/grid.js?v=46"></script>
+  <script src="js/grid.js?v=47"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
-  <script src="js/filters.js?v=30"></script>
+  <script src="js/filters.js?v=31"></script>
   <script src="js/lightbox.js?v=32"></script>
 
   <script>
@@ -3000,13 +3000,15 @@
     // A Categories page looks like any result (title, kind chip, count, sort) under its breadcrumb.
     // Tags tapped on its cards open further pages here ('drill'); the back arrow walks the trail one step at a time.
     const CAT_KINDS = { artists: 'Artist', creatures: 'Creature', sets: 'Set', color: 'Colour', type: 'Type' };
-    let _l3Stack = [], _l3It = null;
+    let _l3Stack = [], _l3It = null, _l3Card = null, _l3BackCard = null;
 
     function openDetailPage(it, from = 'l2', sort = 'random', step) {
       if (!L3_SORTS.some(o => o.key === sort)) sort = 'random';
       if (from === 'drill') { step = 'drill'; from = _l3From; }
-      if (step === 'drill' && _l3It) _l3Stack.push({ it: _l3It, sort: _l3Sort });
+      if (step === 'drill' && _l3It) _l3Stack.push({ it: _l3It, sort: _l3Sort, card: _l3Card });
       if (!step) { _l3Stack = []; _l3ScrollY = window.scrollY; }
+      _l3Card = step === 'drill' ? _tagCard : step === 'back' ? _l3BackCard : null; // reopened when you come back from here
+      _tagCard = _l3BackCard = null;
       _l3From = from; _l3Q = it.q; _l3Sort = sort; _l3It = it;
       const nav = from === 'l1' ? {} : catNav.get();
       nav.l3 = { it: { name: it.name, q: it.q, icon: it.icon || '', cat: it.cat, kind: it.kind }, from, sort };
@@ -3036,8 +3038,11 @@
     function openArtistPage(name) { openDetailPage({ name, q: `a:"${name}"`, cat: 'artists' }, 'l2'); }
 
     function closeDetailPage() {
+      const ret = _l3Card;
+      reopenCard(ret);
       const prev = _l3Stack.pop();
-      if (prev) { openDetailPage(prev.it, _l3From, prev.sort, 'back'); return; }
+      if (prev) { _l3BackCard = prev.card; openDetailPage(prev.it, _l3From, prev.sort, 'back'); return; }
+      _l3Card = null;
       _l3It = null;
       const nav = catNav.get(); delete nav.l3; catNav.set(nav);
       if (_l3.obs) _l3.obs.disconnect();
@@ -3082,8 +3087,10 @@
 
     let _msStack = [];
     function openSearchResults(query, label, tag, how, sort) {
-      if (how === 'drill' && _msOpen() && _ms.meta) _msStack.push({ q: _ms.q, meta: _ms.meta, sort: _ms.sort });
+      if (how === 'drill' && _msOpen() && _ms.meta) _msStack.push({ q: _ms.q, meta: _ms.meta, sort: _ms.sort, card: _ms.card });
       else if (!how) _msStack = [];
+      _ms.card = how === 'drill' ? _tagCard : how === 'back' ? _ms.backCard : null; // reopened when you come back from here
+      _tagCard = _ms.backCard = null;
       _ms.q = query; _ms.meta = { label, tag }; _ms.sort = sort || 'random';
       hideSearchSuggestions();
       if (_currentMode !== 'search') setMode('search');
@@ -3101,9 +3108,11 @@
     }
 
     function msBack() {
+      const ret = _ms.card;
       const prev = _msStack.pop();
-      if (prev) openSearchResults(prev.q, prev.meta.label, prev.meta.tag, 'back', prev.sort);
-      else closeSearchResults();
+      if (prev) { _ms.backCard = prev.card; openSearchResults(prev.q, prev.meta.label, prev.meta.tag, 'back', prev.sort); }
+      else { _ms.card = null; closeSearchResults(); }
+      reopenCard(ret);
     }
 
     // A quick pick from "What you can search": opens the result but leaves the search box empty for when you come back

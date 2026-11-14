@@ -78,12 +78,17 @@ function _pullAdd(card) {
       <div class="pull-meta">
         <div class="pull-name">${_pullEsc(card.name)}</div>
         ${card.artist ? `<button class="pull-artist">${_pullEsc(card.artist)}</button>` : ''}
+        <div class="pull-tags">${cardFacts(card, _artInfo[_illOf(card)]).filter(r => r.kind !== 'Artist')
+          .flatMap((r, i) => r.vals.map((x, j) => `<button class="pull-tag" data-q="${_pullEsc(x.q)}" data-label="${_pullEsc(x.label)}" data-kind="${r.kind}">${_pullEsc(x.label)}</button>`))
+          .join('<span class="pull-dot" aria-hidden="true">·</span>')}</div>
       </div>
     </div>`;
   el.querySelector('.pull-card').addEventListener('click', e => {
     e.stopPropagation();
     if (i === _pull.idx) _pullSheet(true); else _pullGo(i);
   });
+  // Type / creature, colour, set, year: each opens its result (inside Pull)
+  el.querySelectorAll('.pull-tag').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); openTag(b.dataset.q, b.dataset.label, b.dataset.kind); }));
   el.querySelector('.pull-artist')?.addEventListener('click', e => { e.stopPropagation(); openTag(`a:"${card.artist}"`, card.artist, 'Artist'); });
   const stack = document.getElementById('pullStack');
   stack.insertBefore(el, stack.querySelector('.pull-spacer-end'));

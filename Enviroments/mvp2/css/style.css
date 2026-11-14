@@ -4573,3 +4573,13 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 
 /* Search background: cheap to draw — a small layer blurred, then scaled up (no full-screen blur, no animation) */
 .search-glow-art { inset: auto; left: 40%; top: 40%; width: 20%; height: 20%; filter: blur(10px) saturate(1.5) brightness(0.6); transform: scale(6); animation: none; transition: opacity 400ms ease; }
+
+/* Pull: the other facts under name + artist — quiet, but each one tappable */
+.pull-tags { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.1rem 0.45rem; margin-top: 0.55rem; }
+.pull-tag {
+  padding: 0.2rem 0; background: none; border: none; cursor: pointer;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.78rem; letter-spacing: 0.3px; color: rgba(240,240,240,0.55);
+  text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: rgba(240,240,240,0.2); text-underline-offset: 4px;
+}
+.pull-tag:hover, .pull-tag:active { color: #fff; text-decoration-color: rgba(240,240,240,0.6); }
+.pull-dot { color: rgba(240,240,240,0.3); font-size: 0.78rem; }

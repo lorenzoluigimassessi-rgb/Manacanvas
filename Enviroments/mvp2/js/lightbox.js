@@ -15,7 +15,7 @@ function getManaGradient(colors) {
 }
 
 // ── Card info: title, "N artworks of this card", and fact rows that each open a result ──
-// Rows look like Discover's "What you can search": a kind chip, the value, an arrow — tap to drill down.
+// Each fact is a small coloured label (same hues as the search chips) over a tappable value — quiet, so the art leads.
 const _NOT_TYPES = ['Legendary', 'Basic', 'Snow', 'World', 'Ongoing', 'Host', 'Elite', 'Tribal', 'Kindred'];
 const _illOf = c => c.illustration_id || c.card_faces?.[0]?.illustration_id || c.id;
 const _esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -59,13 +59,14 @@ function renderCardInfo(card) {
   v.hidden = !(info && info.n > 1);
   if (info && info.n > 1) v.innerHTML = `${info.n}${info.more ? '+' : ''} artworks of this card <span aria-hidden="true">→</span>`;
   const rows = cardFacts(card, info);
-  const chip = r => `<span class="search-kind-chip search-chip--${r.kind.toLowerCase()}">${r.kind}</span>`;
   const icon = r => r.icon ? `<span class="lb-fact-icon">${r.icon}</span>` : '';
   const box = document.getElementById('lbFacts');
-  box.innerHTML = rows.map((r, i) => r.vals.length === 1
-    ? `<button class="lb-fact" data-r="${i}" data-v="0">${chip(r)}<span class="lb-fact-val">${icon(r)}<span>${_esc(r.vals[0].label)}</span></span><span class="lb-fact-go" aria-hidden="true">→</span></button>`
-    : `<div class="lb-fact lb-fact--multi">${chip(r)}<span class="lb-fact-val">${r.vals.map((x, j) => `<button class="lb-fact-link" data-r="${i}" data-v="${j}">${_esc(x.label)}</button>`).join('')}</span></div>`
-  ).join('');
+  box.innerHTML = rows.map((r, i) => `
+    <div class="lb-fact">
+      <span class="lb-fact-label search-chip--${r.kind.toLowerCase()}">${r.kind}</span>
+      <span class="lb-fact-vals">${r.vals.map((x, j) =>
+        `<button class="lb-fact-link" data-r="${i}" data-v="${j}">${j ? '' : icon(r)}${_esc(x.label)}</button>`).join('')}</span>
+    </div>`).join('');
   box.querySelectorAll('[data-r]').forEach(el => el.addEventListener('click', e => {
     e.stopPropagation();
     const r = rows[el.dataset.r], x = r.vals[el.dataset.v];
@@ -151,6 +152,10 @@ function openLightbox(card, mode = 'feed') {
       </div>
 
       <div class="lb-body" id="lbBody">
+        <div class="lb-head">
+          <h2 class="lb-title" id="lbTitle"></h2>
+          <button class="lb-versions" id="lbVersions" hidden></button>
+        </div>
         <div class="lb-stage">
           <div class="art-container ${isSurprise ? 'frame-active' : ''}" id="artContainer" style="overflow:hidden;">
             <img id="lbImage" src="${initialSrc}" alt="${card.name}" ${isSurprise ? 'class="frame-mode"' : ''}>
@@ -161,11 +166,7 @@ function openLightbox(card, mode = 'feed') {
             </div>` : ''}
           </div>
         </div>
-        <div class="lb-info">
-          <h2 class="lb-title" id="lbTitle"></h2>
-          <button class="lb-versions" id="lbVersions" hidden></button>
-          <div class="lb-facts" id="lbFacts"></div>
-        </div>
+        <div class="lb-facts" id="lbFacts"></div>
       </div>
 
       <div class="zoom-hint" id="zoomHint">Scroll to zoom · Drag to pan · ← → to browse</div>

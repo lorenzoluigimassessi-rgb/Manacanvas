@@ -143,13 +143,32 @@ function setSearchSort(key) {
   loadInitialGrid(currentQuery);
 }
 
+// The chip is glued to the title's last word, so if the title wraps the chip never sits alone on a line
+function titleWithChip(label, chip) {
+  const i = label.lastIndexOf(' ');
+  return i < 0 ? `<span class="title-tail">${label}${chip}</span>` : `${label.slice(0, i + 1)}<span class="title-tail">${label.slice(i + 1)}${chip}</span>`;
+}
+
+// Long titles shrink to stay on one line, down to a readable floor (18px); past that they wrap
+function fitSearchTitles() {
+  document.querySelectorAll('.search-title').forEach(el => {
+    if (!el.offsetParent) return;
+    el.style.fontSize = '';
+    let size = parseFloat(getComputedStyle(el).fontSize);
+    const oneLine = () => el.getBoundingClientRect().height <= parseFloat(getComputedStyle(el).lineHeight) * 1.4;
+    while (!oneLine() && size > 18) { size = Math.max(18, size - 1); el.style.fontSize = size + 'px'; }
+  });
+}
+window.addEventListener('resize', () => requestAnimationFrame(fitSearchTitles));
+document.fonts?.ready.then(fitSearchTitles);
+
 // Results header, shared by gallery search and phone Search:
 // row 1 — back arrow, title and its kind chip; row 2 — artwork count on the left, sort on the right
 function searchHeadHtml({ back, backLabel, label, tag, countId, count, sorts }) {
   return `
     <div class="search-head-row">
       <button class="l2-back" onclick="${back}" aria-label="${backLabel}" title="${backLabel}"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
-      <h2 class="search-title">${label}<span class="search-kind-chip search-chip--${tag.toLowerCase()}">${SEARCH_KINDS[tag] || tag}</span></h2>
+      <h2 class="search-title">${titleWithChip(label, `<span class="search-kind-chip search-chip--${tag.toLowerCase()}">${SEARCH_KINDS[tag] || tag}</span>`)}</h2>
     </div>
     <div class="search-meta-row">
       <span class="search-count" id="${countId}">${count}</span>
@@ -172,6 +191,7 @@ function renderSearchHead() {
     `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div>`;
   head.innerHTML = searchHeadHtml({ back: 'clearSearchPill()', backLabel: 'Back to the gallery', label: m.label, tag: m.tag,
     countId: 'searchCount', count: _feedTotal ? _feedTotal.toLocaleString() + ' artworks' : '', sorts: sortPills });
+  requestAnimationFrame(fitSearchTitles);
 }
 
 // New random cards for the same lens/filters (↻ button, pull-to-refresh)

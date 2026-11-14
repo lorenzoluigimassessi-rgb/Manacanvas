@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=116">
+  <link rel="stylesheet" href="css/style.css?v=119">
 </head>
 <body>
 
@@ -1247,7 +1247,7 @@
 
   <script src="js/welcome.js?v=27"></script>
   <script src="js/api.js?v=27"></script>
-  <script src="js/grid.js?v=40"></script>
+  <script src="js/grid.js?v=42"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=28"></script>
@@ -3085,6 +3085,7 @@
       document.getElementById('msHead').innerHTML = searchHeadHtml({ back: 'closeSearchResults()', backLabel: 'Back to search',
         label: m.label, tag: m.tag, countId: 'msCount', count: '',
         sorts: `<div class="l2-sort">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === _ms.sort ? 'active' : ''}" onclick="setSearchResultsSort('${o.key}')">${o.label}</button>`).join('')}</div>` });
+      requestAnimationFrame(fitSearchTitles);
     }
 
     function setSearchResultsSort(key) {

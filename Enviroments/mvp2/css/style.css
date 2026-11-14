@@ -3815,6 +3815,7 @@ input[type=range]::-moz-range-thumb {
   font-family: 'Josefin Sans', sans-serif; font-size: 0.62rem; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase;
   color: rgb(var(--chip)); background: rgba(var(--chip), 0.1); border: 1px solid rgba(var(--chip), 0.32);
 }
+.search-title .title-tail { white-space: nowrap; }
 .search-meta-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
 .search-count { font-size: 0.78rem; letter-spacing: 1px; color: var(--text-secondary); }
 /* Desktop keeps one line: ← title + chip · count · sort on the right */
@@ -3829,11 +3830,11 @@ input[type=range]::-moz-range-thumb {
   .search-meta-row { margin-top: 1.1rem; flex-wrap: nowrap; }
   .search-count { font-size: 0.74rem; letter-spacing: 0.5px; white-space: nowrap; }
   .search-meta-row .l2-sort { padding: 2px; flex-shrink: 0; }
-  .search-meta-row .l2-sort-btn { font-size: 0.74rem; padding: 0.38rem 0.55rem; }
+  /* As big as fits beside the count: scales with the phone (≈12.5px at 390, 14px on large phones), taller tap area */
+  .search-meta-row .l2-sort-btn { font-size: clamp(11px, 3.1vw, 14px); padding: 0.62em 0.72em; }
 }
 @media (max-width: 380px) {
   .search-count { font-size: 0.7rem; letter-spacing: 0; }
-  .search-meta-row .l2-sort-btn { font-size: 0.7rem; padding: 0.36rem 0.42rem; }
 }
 @media (max-width: 340px) {
   .search-meta-row { flex-wrap: wrap; } /* tiniest phones: sort drops under the count */

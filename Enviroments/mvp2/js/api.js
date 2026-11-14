@@ -40,16 +40,26 @@ async function fetchCards(query = "t:creature") {
     const isRandom = sortOrder === "random";
     let json;
     if (isRandom) {
-      // Random page (and direction) of the query; learn the page count on first miss
-      const dir = Math.random() < 0.5 ? "asc" : "desc";
-      const pages = _pageCounts[query] || 200;
-      json = await _search(query, "released", dir, Math.floor(Math.random() * pages) + 1);
-      if (!json) {
-        // Page out of range (count unknown or off by one): learn it from page 1, then try a page inside it
-        json = await _search(query, "released", dir, 1);
-        const known = _pageCounts[query] || 1;
-        if (json && known > 1) json = await _search(query, "released", dir, Math.floor(Math.random() * known) + 1) || json;
-      }
+      // One page is 175 cards in some order — by release that's one or two sets — so each load samples
+      // three random pages, each in a different order (name, artist, popularity, mana value), and mixes
+      // a couple of dozen cards from each: every screenful spans eras, sets and artists
+      const orders = shuffleArray(["name", "artist", "edhrec", "cmc"]).slice(0, 3);
+      const one = async order => {
+        const dir = Math.random() < 0.5 ? "asc" : "desc";
+        const pages = _pageCounts[query] || 200;
+        let j = await _search(query, order, dir, Math.floor(Math.random() * pages) + 1);
+        if (!j) {
+          // Page out of range (count unknown or off by one): learn it from page 1, then try a page inside it
+          j = await _search(query, order, dir, 1);
+          const known = _pageCounts[query] || 1;
+          if (j && known > 1) j = await _search(query, order, dir, Math.floor(Math.random() * known) + 1) || j;
+        }
+        return j;
+      };
+      const all = await Promise.all(orders.map(one));
+      const got = all.filter(j => j && !j.rateLimited);
+      if (got.length) json = { total_cards: got[0].total_cards, data: got.flatMap(j => shuffleArray(j.data || []).slice(0, 24)) };
+      else json = all.find(j => j && j.rateLimited) || null;
     } else {
       json = nextPageUrl ? await (await fetch(nextPageUrl)).json() : await _search(query, sortOrder, sortDir, 1);
       if (json && json.object === 'error') json = null;

@@ -2987,12 +2987,12 @@
     // A Categories page looks like any result (title, kind chip, count, sort) under its breadcrumb.
     // Tags tapped on its cards open further pages here ('drill'); the back arrow walks the trail one step at a time.
     const CAT_KINDS = { artists: 'Artist', creatures: 'Creature', sets: 'Set', color: 'Colour', type: 'Type' };
-    let _l3Stack = [], _l3It = null, _l3RootCat = null;
+    let _l3Stack = [], _l3It = null;
 
     function openDetailPage(it, from = 'l2', sort = 'random', step) {
       if (from === 'drill') { step = 'drill'; from = _l3From; }
       if (step === 'drill' && _l3It) _l3Stack.push({ it: _l3It, sort: _l3Sort });
-      if (!step) { _l3Stack = []; _l3ScrollY = window.scrollY; _l3RootCat = it.cat; }
+      if (!step) { _l3Stack = []; _l3ScrollY = window.scrollY; }
       _l3From = from; _l3Q = it.q; _l3Sort = sort; _l3It = it;
       const nav = from === 'l1' ? {} : catNav.get();
       nav.l3 = { it: { name: it.name, q: it.q, icon: it.icon || '', cat: it.cat, kind: it.kind }, from, sort };
@@ -3001,9 +3001,9 @@
       document.getElementById('collectionsLevel2').style.display = 'none';
       const l3 = document.getElementById("collectionsLevel3");
       l3.style.display = "block";
-      const cat = it.cat || _l3RootCat;
-      const crumbs = cat ? [...L2_CRUMBS, [SECTION_NAMES[cat], `openCollectionsLevel2('${cat}')`]] : L2_CRUMBS;
-      const crumbsHtml = `<nav class="l3-crumbs" aria-label="Breadcrumb">${crumbs.map(([label, go]) => `<button onclick="${go}">${label}</button>`).join('<span aria-hidden="true">›</span>')}</nav>`;
+      // Only the Categories page itself carries the breadcrumb; results drilled from its cards are plain results
+      const crumbs = it.cat ? [...L2_CRUMBS, [SECTION_NAMES[it.cat], `openCollectionsLevel2('${it.cat}')`]] : null;
+      const crumbsHtml = crumbs ? `<nav class="l3-crumbs" aria-label="Breadcrumb">${crumbs.map(([label, go]) => `<button onclick="${go}">${label}</button>`).join('<span aria-hidden="true">›</span>')}</nav>` : '';
       l3.innerHTML = `
         ${searchHeadHtml({ back: 'closeDetailPage()', backLabel: 'Back', label: it.name, tag: it.kind || CAT_KINDS[it.cat] || 'Card',
           countId: 'l3Count', count: '', crumbs: crumbsHtml,

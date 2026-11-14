@@ -4579,3 +4579,7 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .pull-figure .pull-meta { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 2rem); margin-top: 0.8rem; }
 .pull-card { max-width: min(100%, 560px); }
 .pull-card img { max-height: var(--card-max, 60vh); }
+
+/* Kind chips: Josefin Sans capitals sit high in their line box, and letter-spacing leaves a gap after the
+   last letter — nudge the text down and balance the gap, so the label sits dead centre */
+.search-kind-chip { padding-top: calc(0.28rem + 0.14em); padding-bottom: calc(0.28rem - 0.14em); text-indent: 1.6px; }

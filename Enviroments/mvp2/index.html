@@ -870,7 +870,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=114">
+  <link rel="stylesheet" href="css/style.css?v=115">
 </head>
 <body>
 
@@ -1737,6 +1737,7 @@
       window._activeSubPill = null;
       window.scrollTo({ top: 0, behavior: 'smooth' });
       renderSubPills(_activeLens);
+      document.getElementById('subRow').scrollLeft = 0; // a new tab's chips start from the beginning
     }
 
     function renderSubPills(lens) {

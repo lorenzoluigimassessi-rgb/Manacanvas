@@ -4642,3 +4642,10 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .lb-more-menu svg { flex-shrink: 0; margin-top: -2px; opacity: 0.8; }
 .pull-actions { display: flex; align-items: center; gap: 0.5rem; }
 @media (min-width: 769px) { .lb2 .lb-actions { flex-direction: row; } } /* left to right: Art|Frame, eye, ⋮, then ✕ */
+
+/* Desktop, Frame: fit the screen again — the card shrinks a little so name + facts show without scrolling */
+@media (min-width: 769px) {
+  .lb2 .art-container img.frame-mode { width: auto; max-height: calc(100vh - 10.6rem - var(--lb-info-h, 7rem)) !important; }
+  .lb2.lb-surprise .art-container img.frame-mode { max-height: calc(100vh - 14.75rem - var(--lb-info-h, 7rem)) !important; }
+  body.lb-focus .lb2 .art-container img.frame-mode { max-height: calc(100vh - 8rem) !important; }
+}

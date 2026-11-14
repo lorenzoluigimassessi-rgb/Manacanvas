@@ -393,22 +393,23 @@ body {
 
 .home-legal {
   position: absolute;
-  bottom: 60px; /* above mobile bottom bar */
+  bottom: 0; /* the Home panel already ends at the mobile bottom bar */
   left: 0;
   right: 0;
   text-align: center;
-  font-size: 0.58rem;
+  font-size: 0.64rem;
   letter-spacing: 0.3px;
   line-height: 1.5;
-  color: rgba(240,240,240,0.25);
+  color: rgba(240,240,240,0.55); /* readable over the art, still quiet */
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
   z-index: 2;
-  padding: 16px 24px;
+  padding: 8px 16px;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
 
 @media (min-width: 1024px) {
-  .home-legal { bottom: 0; }
+  .home-legal { bottom: 0; padding: 16px 24px; }
 }
 
 .home-actions {

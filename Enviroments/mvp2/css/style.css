@@ -1066,7 +1066,7 @@ body {
     width: 32px; height: 32px;
     display: flex; align-items: center; justify-content: center;
     background: transparent; border: none;
-    color: var(--text-secondary); cursor: pointer;
+    color: rgba(240,240,240,0.8); cursor: pointer;
     border-radius: 8px; flex-shrink: 0;
     transition: background 150ms, color 150ms;
     -webkit-tap-highlight-color: transparent;
@@ -4179,4 +4179,10 @@ input[type=range]::-moz-range-thumb {
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
   }
   .scroll-top { bottom: calc(56px + env(safe-area-inset-bottom) + 1rem); z-index: 240; }
+}
+
+/* Phones: page titles share one size (Home's wordmark is 33.6px) — Categories and Discover read as siblings */
+@media (max-width: 768px) {
+  .collections-page-title, .search-hero-title { font-size: 2.1rem; font-weight: 500; letter-spacing: 2px; line-height: 1.05; }
+  .mobile-more-btn svg { width: 20px; height: 20px; }
 }

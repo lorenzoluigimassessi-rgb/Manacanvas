@@ -1044,11 +1044,13 @@ body {
   }
   .mobile-gallery-title {
     font-family: 'Cinzel', 'Georgia', serif;
-    font-size: 0.72rem;
+    font-size: 0.86rem;
     letter-spacing: 0.18em;
     color: var(--text-primary);
     text-transform: uppercase;
   }
+  /* Lens tabs a step larger on phones */
+  .lens-btn { font-size: 0.92rem; padding: 0.42rem 0.7rem; }
   .mobile-more-btn {
     width: 32px; height: 32px;
     display: flex; align-items: center; justify-content: center;

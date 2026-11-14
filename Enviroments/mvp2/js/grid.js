@@ -103,7 +103,7 @@ function updateFeedHint() {
   if (!hint) return;
   let seen = false;
   try { seen = localStorage.getItem('mc_hint_mix') === '1'; } catch (e) {}
-  hint.innerHTML = `<span class="feed-hint-pill"><svg class="feed-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>Pull down for a new mix</span>`;
+  hint.innerHTML = `<span class="feed-hint-pill"><svg class="feed-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5l5 5 5-5"/><path d="M7 12l5 5 5-5"/></svg>Pull down for a new mix</span>`;
   hint.style.display = seen || activeSearch ? 'none' : '';
 }
 function dismissFeedHint() {

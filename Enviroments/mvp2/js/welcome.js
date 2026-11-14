@@ -46,6 +46,7 @@ function startHomeBg() {
 
   // Reset layers
   layerA.style.backgroundImage = `url('${_bgQueue[0]}')`;
+  window._homeBgUrl = _bgQueue[0]; // Search borrows the Home artwork's colours
   layerA.style.opacity = '1';
   layerB.style.opacity = '0';
 
@@ -55,6 +56,7 @@ function startHomeBg() {
   _bgInterval = setInterval(() => {
     imgIdx = (imgIdx + 1) % _bgQueue.length;
     back.style.backgroundImage = `url('${_bgQueue[imgIdx]}')`;
+    window._homeBgUrl = _bgQueue[imgIdx];
     back.style.opacity = '1';
     front.style.opacity = '0';
     [front, back] = [back, front];

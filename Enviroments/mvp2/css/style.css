@@ -4507,3 +4507,15 @@ body.lb-focus .lb-info-btn { background: rgba(255,255,255,0.16); border-color: r
   .pull-nav button:hover { color: #fff; border-color: rgba(255,255,255,0.32); }
   .pull-nav button:disabled { opacity: 0.3; cursor: default; }
 }
+
+/* Discover (phones): neutral kind chips; background = Home's artwork, blurred to pure colour */
+.search-guide-row .search-kind-chip { --chip: 225,225,232; color: rgba(240,240,240,0.78); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.18); }
+.search-glow i, .search-glow b { display: none; }
+.search-glow-art {
+  position: absolute; inset: -15%; background-size: cover; background-position: center;
+  filter: blur(80px) saturate(1.5) brightness(0.6); transform: scale(1.15); opacity: 0; transition: opacity 900ms ease;
+  animation: glowDrift 28s ease-in-out infinite alternate;
+}
+.search-glow-art.on { opacity: 0.85; }
+.search-glow::after { content: ''; position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% 35%, rgba(12,12,15,0.15), rgba(12,12,15,0.75)); }
+@media (prefers-reduced-motion: reduce) { .search-glow-art { animation: none; } }

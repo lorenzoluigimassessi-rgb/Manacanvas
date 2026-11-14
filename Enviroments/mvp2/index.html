@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=145">
+  <link rel="stylesheet" href="css/style.css?v=146">
 </head>
 <body>
 
@@ -1108,7 +1108,7 @@
     <!-- ── Mobile search hero panel ── -->
     <div id="searchPanel" class="mode-panel mobile-search-panel" style="display:none;">
       <div class="search-hero">
-        <div class="search-glow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><b></b></div>
+        <div class="search-glow" aria-hidden="true"><span class="search-glow-art" id="searchGlowArt"></span></div>
         <h1 class="search-hero-title">Discover</h1>
         <p class="search-hero-sub">Find art by card, artist, creature, set or year</p>
         <div class="search-hero-input-wrap">
@@ -1251,7 +1251,7 @@
 
   </div><!-- end appShell -->
 
-  <script src="js/welcome.js?v=27"></script>
+  <script src="js/welcome.js?v=28"></script>
   <script src="js/api.js?v=28"></script>
   <script src="js/grid.js?v=48"></script>
   <script src="js/artist-counts.js?v=2"></script>
@@ -1315,6 +1315,7 @@
         mobileGalleryHeader.style.display = brandHeader ? '' : 'none';
         mobileGalleryHeader.classList.toggle('over-art', mode === 'search' && !_msOpen()); // transparent over the Search hero's art
       }
+      if (mode === 'search') paintSearchGlow();
       // mobile-top-bar: hidden where the brand header shows, and on search (full hero panel) and home (full bg)
       if (mobileTopBar) mobileTopBar.style.display = (brandHeader || mode === 'home' || mode === 'search') ? 'none' : '';
       // Section title in non-gallery top bar
@@ -1411,14 +1412,12 @@
       if (chk) chk.checked = !isDark;
     }
 
-    // The Search glow leans towards the colour of what you're typing (artist, creature, set…)
-    function tintSearchGlow() {
-      const box = document.getElementById('heroSearchSuggestions');
-      const tag = box.style.display !== 'none' && box.querySelector('.suggestion-tag')?.textContent.toLowerCase();
-      const hues = { artist: '179,157,219', creature: '129,199,132', type: '129,199,132', set: '255,183,77' };
-      const glow = document.querySelector('.search-glow');
-      if (hues[tag]) glow.style.setProperty('--tint', hues[tag]);
-      glow.classList.toggle('tinted', !!hues[tag]);
+    // Search's background: the Home page's current artwork, blurred down to just its colours
+    function paintSearchGlow() {
+      const el = document.getElementById('searchGlowArt');
+      const url = window._homeBgUrl || (typeof _bgQueue !== 'undefined' && _bgQueue[0]);
+      if (url) { el.style.backgroundImage = `url('${url}')`; el.classList.add('on'); return; }
+      if (typeof _prefetchHomeBg === 'function') _prefetchHomeBg(2).then(() => { if (_bgQueue[0]) paintSearchGlow(); });
     }
 
     // Hero search bar submit
@@ -1429,7 +1428,7 @@
         let t = null;
         bar.addEventListener('input', () => {
           clearTimeout(t);
-          t = setTimeout(async () => { const v = bar.value.trim(); if (v.length >= 2) await showSearchSuggestions(v, 'heroSearchSuggestions'); else hideSearchSuggestions(); tintSearchGlow(); }, 200);
+          t = setTimeout(async () => { const v = bar.value.trim(); if (v.length >= 2) await showSearchSuggestions(v, 'heroSearchSuggestions'); else hideSearchSuggestions(); }, 200);
         });
         bar.addEventListener('keydown', (e) => {
           if (e.key !== 'Enter') return;

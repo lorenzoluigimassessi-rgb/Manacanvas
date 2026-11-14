@@ -4164,20 +4164,21 @@ input[type=range]::-moz-range-thumb {
   body.subpage .mobile-gallery-header { display: none !important; }
   body.subpage .search-results { padding-top: 1rem; }
   .sub-bar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 60;
-    display: flex; align-items: center; gap: 0.75rem;
-    padding: calc(0.6rem + env(safe-area-inset-top)) 0.75rem 0.6rem;
-    background: rgba(12,12,15,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    transform: translateY(-100%); opacity: 0; pointer-events: none;
-    transition: transform 220ms ease, opacity 220ms ease;
+    position: fixed; z-index: 60;
+    top: calc(0.75rem + env(safe-area-inset-top)); left: 0.75rem;
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; padding: 0;
+    background: rgba(22,22,28,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border); color: var(--text-primary);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    -webkit-tap-highlight-color: transparent; cursor: pointer;
+    transform: translateY(-8px); opacity: 0; pointer-events: none;
+    transition: transform 200ms ease, opacity 200ms ease;
   }
+  .sub-bar svg { width: 20px; height: 20px; }
   .sub-bar.visible { transform: none; opacity: 1; pointer-events: auto; }
-  .sub-bar .l2-back { flex-shrink: 0; }
-  .sub-bar-title {
-    font-family: 'Cinzel', 'Georgia', serif; font-size: 1rem; color: var(--text-primary);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
-  }
+  /* Floating buttons: a forgiving square tap area, so a near-miss never opens the card underneath */
+  .sub-bar::before, .scroll-top::before { content: ''; position: absolute; inset: -12px; border-radius: 12px; }
   .scroll-top { bottom: calc(56px + env(safe-area-inset-bottom) + 1rem); z-index: 240; }
 }
 

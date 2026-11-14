@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=125">
+  <link rel="stylesheet" href="css/style.css?v=126">
 </head>
 <body>
 
@@ -1000,11 +1000,8 @@
       </button>
     </div>
 
-    <!-- Phones, inner pages: back + title pinned once the page's own header scrolls away -->
-    <div id="subBar" class="sub-bar" aria-hidden="true">
-      <button class="l2-back" aria-label="Back" title="Back"><svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M46 12H3M13 2L3 12l10 10"/></svg></button>
-      <span class="sub-bar-title"></span>
-    </div>
+    <!-- Phones, inner pages: a floating back button once the page's own header scrolls away -->
+    <button id="subBar" class="sub-bar" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
 
     <!-- Lens row + sub-pills — outside header-wrap so visible on mobile too -->
     <div class="lens-row" id="lensRow">
@@ -1194,7 +1191,7 @@
     <div id="lightbox"></div>
 
     <!-- Scroll to top -->
-    <button class="scroll-top" id="scrollTop" onclick="scrollerEl().scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+    <button class="scroll-top" id="scrollTop" onclick="scrollerEl().scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
 
     <!-- Footer -->
     <!-- ── Mobile/tablet bottom bar ── -->
@@ -1447,7 +1444,7 @@
     })();
 
     // Inner pages (a tag/search result, Categories levels 2–3) drop the brand header on phones:
-    // their own back arrow + title lead, and pin to the top once scrolled away
+    // their own back arrow + title lead; once scrolled away, a floating back button stays
     const scrollerEl = () => _currentMode === 'search' && _msOpen() ? document.getElementById('searchPanel') : window;
     function _activeHead() {
       if (_currentMode === 'gallery') return activeSearch ? document.querySelector('#searchHead .search-head-row') : null;
@@ -1462,12 +1459,7 @@
       const bar = document.getElementById('subBar');
       const sc = scrollerEl(), y = sc === window ? scrollY : sc.scrollTop;
       const show = !!head && innerWidth < 1024 && head.getBoundingClientRect().bottom < 0;
-      if (show) {
-        const t = head.querySelector('.search-title, .l2-title').cloneNode(true);
-        t.querySelectorAll('.search-kind-chip').forEach(c => c.remove());
-        bar.querySelector('.sub-bar-title').textContent = t.textContent.trim();
-        bar.querySelector('.l2-back').onclick = () => head.querySelector('.l2-back').click();
-      }
+      if (show) bar.onclick = () => head.querySelector('.l2-back').click();
       bar.classList.toggle('visible', show);
       document.getElementById('scrollTop').classList.toggle('visible', _currentMode !== 'home' && y > 800);
     }

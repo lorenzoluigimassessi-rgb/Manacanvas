@@ -103,6 +103,61 @@ function _loadArtInfo(card) {
 }
 
 // Frame view uses Scryfall's large scan: it's shown as big as the art, so the normal one would be soft
+// ── Card tools: copy the name, download the image, share a link that opens this card ──
+const _TOOL_ICONS = {
+  copy: '<path d="M9 9h10v12H9z"/><path d="M5 15V3h10"/>',
+  download: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/>',
+  share: '<path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 12v8h14v-8"/>'
+};
+function cardToolsHtml() {
+  const b = (act, label) => `<button class="lb-tool" data-act="${act}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${_TOOL_ICONS[act]}</svg>${label}</button>`;
+  return `<div class="lb-tools">${b('copy', 'Copy name')}${b('download', 'Download')}${b('share', 'Share')}</div>`;
+}
+function bindCardTools(root, getCard, getView) {
+  root.querySelectorAll('.lb-tool').forEach(btn => btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const card = getCard(); if (!card) return;
+    ({ copy: _copyName, download: _downloadCard, share: _shareCard })[btn.dataset.act](card, getView());
+  }));
+}
+function lbToast(msg) {
+  let t = document.getElementById('lbToast');
+  if (!t) { t = document.createElement('div'); t.id = 'lbToast'; t.className = 'lb-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1800);
+}
+function _copyText(text, done) {
+  (navigator.clipboard?.writeText(text) || Promise.reject()).then(() => lbToast(done)).catch(() => {
+    const ta = Object.assign(document.createElement('textarea'), { value: text }); document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); lbToast(done); } catch (e) {} ta.remove();
+  });
+}
+function _copyName(card) { _copyText(card.name, 'Name copied'); }
+async function _downloadCard(card, view) {
+  const iu = card.image_uris || card.card_faces?.[0]?.image_uris || {};
+  const src = view === 'frame' ? (iu.png || iu.large || iu.normal) : (iu.art_crop || iu.large);
+  const name = `${card.name} - ${card.artist || 'Unknown'}${view === 'frame' ? '' : ' (art)'}`.replace(/[\\/:*?"<>|]/g, '');
+  lbToast('Downloading…');
+  try {
+    const blob = await (await fetch(src, { mode: 'cors' })).blob();
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${name}.${blob.type.includes('png') ? 'png' : 'jpg'}` });
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(a.href); }, 5000);
+  } catch (e) { window.open(src, '_blank', 'noopener'); } // the image host refused: open it to save from there
+}
+function _shareCard(card) {
+  const url = `${location.origin}${location.pathname}?card=${card.id}`;
+  if (navigator.share) navigator.share({ title: card.name, text: `${card.name} — art by ${card.artist || 'Unknown'}`, url }).catch(() => {});
+  else _copyText(url, 'Link copied');
+}
+// A shared link (?card=<id>) opens that card's detail page
+window.addEventListener('load', () => {
+  const id = new URLSearchParams(location.search).get('card');
+  if (!id || !/^[0-9a-f-]{36}$/i.test(id)) return;
+  history.replaceState(null, '', location.pathname);
+  fetch(`https://api.scryfall.com/cards/${id}`).then(r => r.ok ? r.json() : null).then(c => { if (c && c.object === 'card') openLightbox(c, 'feed'); }).catch(() => {});
+});
+
 const _frameSrc = c => { const iu = c.image_uris || c.card_faces?.[0]?.image_uris || {}; return iu.large || iu.normal; };
 
 function openLightbox(card, mode = 'feed') {
@@ -175,6 +230,7 @@ function openLightbox(card, mode = 'feed') {
         <div class="lb-head">
           <h2 class="lb-title" id="lbTitle"></h2>
           <button class="lb-versions" id="lbVersions" hidden></button>
+          ${cardToolsHtml()}
         </div>
         <div class="lb-facts" id="lbFacts"></div>
        </div>
@@ -192,6 +248,7 @@ function openLightbox(card, mode = 'feed') {
   if (window.ResizeObserver) { const ro = new ResizeObserver(_measure); ro.observe(_ov.querySelector('.lb-head')); ro.observe(_ov.querySelector('.lb-facts')); }
   _measure();
   document.getElementById('lbVersions').addEventListener('click', () => openTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
+  bindCardTools(document.getElementById('lightboxOverlay'), () => currentCard, () => currentMode);
 
   // Mobile bottom nav — feed mode only (surprise uses the button below)
   let mobileNav = document.getElementById('lbMobileNav');

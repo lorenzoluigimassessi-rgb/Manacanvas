@@ -36,6 +36,7 @@ function openPullStack(first, nonce) {
       <div class="pull-sheet-grab" id="pullGrab"></div>
       <h2 class="lb-title" id="lbTitle"></h2>
       <button class="lb-versions" id="lbVersions" hidden></button>
+      ${cardToolsHtml()}
       <div class="lb-facts" id="lbFacts"></div>
     </div>`;
   _pull = { nonce, cards: [], idx: -1, view, loading: false, bgFront: null, sheet: false, res: null, trail: [] };
@@ -46,6 +47,7 @@ function openPullStack(first, nonce) {
   document.getElementById('pullPrev').addEventListener('click', e => { e.stopPropagation(); _pullGo(_pull.idx - 1); });
   document.getElementById('pullNext').addEventListener('click', e => { e.stopPropagation(); _pullGo(_pull.idx + 1); });
   document.getElementById('lbVersions').addEventListener('click', () => openTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
+  bindCardTools(document.getElementById('pullSheet'), () => _pull && _pull.cards[_pull.idx], () => _pull && _pull.view);
   _pullSheetDrag();
 
   const stack = document.getElementById('pullStack');

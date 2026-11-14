@@ -4588,3 +4588,23 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .sidebar-item, .bottom-tab { color: rgba(240,240,240,0.66); }
 :root[data-theme="light"] .sidebar-item, :root[data-theme="light"] .bottom-tab { color: rgba(12,12,15,0.68); }
 .sidebar-item.active, .sidebar-item:hover, .bottom-tab.active { color: var(--text-primary); }
+
+/* Card tools under the name: Copy name · Download · Share */
+.lb-tools { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
+.lb-tool {
+  display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem 0.4rem; border-radius: 999px; cursor: pointer;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: rgba(240,240,240,0.85);
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.8rem; letter-spacing: 0.2px; -webkit-tap-highlight-color: transparent;
+  transition: background 150ms, border-color 150ms, color 150ms;
+}
+.lb-tool svg { flex-shrink: 0; margin-top: -2px; }
+.lb-tool:hover, .lb-tool:active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); color: #fff; }
+@media (min-width: 769px) { .lb2 .lb-tools { justify-content: center; } }
+.lb-toast {
+  position: fixed; left: 50%; bottom: calc(56px + 1.5rem + env(safe-area-inset-bottom)); z-index: 600; transform: translate(-50%, 8px);
+  padding: 0.6rem 1.1rem; border-radius: 999px; pointer-events: none; opacity: 0; transition: opacity 200ms ease, transform 200ms ease;
+  background: rgba(20,20,26,0.92); border: 1px solid rgba(255,255,255,0.14); color: rgba(240,240,240,0.95);
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.82rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.lb-toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (min-width: 769px) { .lb-toast { bottom: 2rem; } }

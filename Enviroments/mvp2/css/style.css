@@ -4543,5 +4543,5 @@ body.lb-focus .lb-info-btn { background: rgba(255,255,255,0.16); border-color: r
 }
 .pull-hint[hidden] { display: none; }
 /* Art view: shorter slides, so the next (and previous) artwork visibly peeks in */
-.pull-stack.view-art { --slide-h: 62%; }
-@media (min-width: 769px) { .pull-stack.view-art { --slide-h: 66%; } }
+.pull-stack.view-art { --slide-h: 68%; }
+@media (min-width: 769px) { .pull-stack.view-art { --slide-h: 72%; } }

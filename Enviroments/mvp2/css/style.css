@@ -4545,3 +4545,17 @@ body.lb-focus .lb-info-btn { background: rgba(255,255,255,0.16); border-color: r
 /* Art view: shorter slides, so the next (and previous) artwork visibly peeks in */
 .pull-stack.view-art { --slide-h: 68%; }
 @media (min-width: 769px) { .pull-stack.view-art { --slide-h: 72%; } }
+
+/* Pull: results opened from a tag stay inside Pull; a card's detail page opens above them */
+#drawRitual.pull-mode { z-index: 199; }
+.pull-results {
+  display: none; position: absolute; inset: 0; z-index: 9; overflow-y: auto; overscroll-behavior: contain; background: var(--bg);
+  padding: calc(1rem + env(safe-area-inset-top)) 1.5rem 2rem; box-sizing: border-box;
+}
+#drawRitual.results-open .pull-results { display: block; }
+#drawRitual.results-open .pull-top, #drawRitual.results-open .pull-nav, #drawRitual.results-open .pull-hint { visibility: hidden; }
+.pull-results .results-head { margin-bottom: 1.25rem; }
+@media (max-width: 768px) {
+  .pull-results { bottom: calc(56px + env(safe-area-inset-bottom)); padding: calc(0.9rem + env(safe-area-inset-top)) 0.75rem 1.5rem; }
+}
+@media (min-width: 1024px) { .pull-results { left: 64px; padding: 2rem 2.5rem; } }

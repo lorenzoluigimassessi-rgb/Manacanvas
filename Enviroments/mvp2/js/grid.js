@@ -199,10 +199,16 @@ function searchHeadHtml({ back, backLabel, label, tag, countId, count, sorts, cr
 
 // A tag tapped on a card (artist, set, creature, year…) opens its result in the tab you're in, as one more step back can undo
 function openTag(q, label, tag) {
-  const fromPull = typeof _pull !== 'undefined' && _pull;
-  _tagCard = (document.querySelector('#lightbox .lightbox') || fromPull) && typeof currentCard !== 'undefined' ? currentCard : null;
+  // Inside Pull: the result opens in Pull, and back returns to where the tag was pressed
+  if (typeof _pull !== 'undefined' && _pull) {
+    const lb = document.querySelector('#lightbox .lightbox');
+    const from = lb ? { card: currentCard, via: 'lightbox' } : _pull.sheet ? { card: currentCard, via: 'sheet' } : null;
+    closeLightbox();
+    pullOpenResult(q, label, tag, from);
+    return;
+  }
+  _tagCard = document.querySelector('#lightbox .lightbox') && typeof currentCard !== 'undefined' ? currentCard : null;
   if (typeof closeLightbox === 'function') closeLightbox();
-  if (fromPull) closeDrawRitual(); // a tag from Pull's stack opens the result; back reopens that card
   if (typeof _currentMode !== 'undefined' && _currentMode === 'collections') { openDetailPage({ name: label, q, kind: tag }, 'drill'); return; }
   runSearch(q, label, tag, 'drill');
 }

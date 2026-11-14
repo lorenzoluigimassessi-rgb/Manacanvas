@@ -30,6 +30,7 @@ function openPullStack(first, nonce) {
       <button id="pullNext" aria-label="Next card"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
     </div>
     <div class="pull-hint" id="pullHint" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>${touch ? 'Swipe up for the next card' : 'Scroll for the next card'}</div>
+    <div class="pull-results" id="pullResults"><div id="pullResHead"></div><div class="l3-grid" id="pullGrid"></div></div>
     <div class="pull-sheet-bg" id="pullSheetBg"></div>
     <div class="pull-sheet" id="pullSheet" role="dialog" aria-label="Card details">
       <div class="pull-sheet-grab" id="pullGrab"></div>
@@ -37,14 +38,14 @@ function openPullStack(first, nonce) {
       <button class="lb-versions" id="lbVersions" hidden></button>
       <div class="lb-facts" id="lbFacts"></div>
     </div>`;
-  _pull = { nonce, cards: [], idx: -1, view, loading: false, bgFront: null, sheet: false };
+  _pull = { nonce, cards: [], idx: -1, view, loading: false, bgFront: null, sheet: false, res: null, trail: [] };
 
   document.getElementById('pullClose').addEventListener('click', e => { e.stopPropagation(); closeDrawRitual(); });
   ov.querySelectorAll('.pull-toggle button').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); _pullSetView(b.dataset.v); }));
   document.getElementById('pullSheetBg').addEventListener('click', () => _pullSheet(false));
   document.getElementById('pullPrev').addEventListener('click', e => { e.stopPropagation(); _pullGo(_pull.idx - 1); });
   document.getElementById('pullNext').addEventListener('click', e => { e.stopPropagation(); _pullGo(_pull.idx + 1); });
-  document.getElementById('lbVersions').addEventListener('click', () => _pullTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
+  document.getElementById('lbVersions').addEventListener('click', () => openTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
   _pullSheetDrag();
 
   const stack = document.getElementById('pullStack');
@@ -66,14 +67,6 @@ function openPullStack(first, nonce) {
   }
 }
 
-// Art view only (the frame already prints it): the card's flavour text and type · set · year
-function _pullOverview(card) {
-  const f = card.card_faces?.[0] || card;
-  const flavor = card.flavor_text || f.flavor_text;
-  const line = [(f.type_line || card.type_line || '').replace(/\s+—\s+/, ' — '), card.set_name, card.released_at?.slice(0, 4)].filter(Boolean).map(_pullEsc).join(' · ');
-  return `<div class="pull-overview">${flavor ? `<p class="pull-flavor">${_pullEsc(flavor)}</p>` : ''}${line ? `<div class="pull-line">${line}</div>` : ''}</div>`;
-}
-
 function _pullAdd(card) {
   const p = _pull, i = p.cards.length;
   p.cards.push(card);
@@ -85,14 +78,13 @@ function _pullAdd(card) {
       <div class="pull-meta">
         <div class="pull-name">${_pullEsc(card.name)}</div>
         ${card.artist ? `<button class="pull-artist">${_pullEsc(card.artist)}</button>` : ''}
-        ${_pullOverview(card)}
       </div>
     </div>`;
   el.querySelector('.pull-card').addEventListener('click', e => {
     e.stopPropagation();
     if (i === _pull.idx) _pullSheet(true); else _pullGo(i);
   });
-  el.querySelector('.pull-artist')?.addEventListener('click', e => { e.stopPropagation(); _pullTag(`a:"${card.artist}"`, card.artist, 'Artist', card); });
+  el.querySelector('.pull-artist')?.addEventListener('click', e => { e.stopPropagation(); openTag(`a:"${card.artist}"`, card.artist, 'Artist'); });
   const stack = document.getElementById('pullStack');
   stack.insertBefore(el, stack.querySelector('.pull-spacer-end'));
   // Warm the other view's image too, so Art|Frame switches instantly
@@ -191,16 +183,82 @@ function _pullSheetDrag() {
   });
 }
 
-// A tag from the stack opens its result where you are; back from it reopens that card
-function _pullTag(q, label, tag, card) {
-  if (card) currentCard = card;
-  openTag(q, label, tag);
+// ── Drilling down inside Pull: a tag opens its result here; back walks the trail, then returns to the stack ──
+// from = where the tag was pressed: the details sheet of a stack card, or a card's detail page (opened from a result)
+function pullOpenResult(q, label, tag, from) {
+  const p = _pull;
+  if (p.res) { p.res.st.gen++; p.res.st.obs?.disconnect(); p.trail.push(p.res); }
+  p.res = { q, label, tag, sort: 'random', from, st: null };
+  _pullSheet(false);
+  _pullShowResults();
+}
+
+function _pullShowResults() {
+  const r = _pull.res;
+  document.getElementById('drawRitual').classList.add('results-open');
+  document.getElementById('pullResults').scrollTop = 0;
+  document.getElementById('pullResHead').innerHTML = searchHeadHtml({ back: 'pullBack()', backLabel: 'Back',
+    label: r.label, tag: r.tag, countId: 'pullCount', count: '',
+    sorts: `<div class="l2-sort">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === r.sort ? 'active' : ''}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>` });
+  document.querySelectorAll('#pullResHead .l2-sort-btn').forEach(b => b.addEventListener('click', () => {
+    r.sort = b.dataset.sort;
+    document.querySelectorAll('#pullResHead .l2-sort-btn').forEach(x => x.classList.toggle('active', x === b));
+    document.getElementById('pullResults').scrollTop = 0;
+    _pullLoad();
+  }));
+  requestAnimationFrame(fitSearchTitles);
+  _pullLoad();
+}
+
+async function _pullLoad() {
+  const r = _pull.res, grid = document.getElementById('pullGrid');
+  if (r.st) { r.st.gen++; r.st.obs?.disconnect(); }
+  const st = r.st = { gen: (r.st?.gen || 0) + 1, next: null, pages: 0, seen: new Set(), more: false, obs: null };
+  const gen = st.gen;
+  grid.innerHTML = Array(6).fill(0).map((_, i) => `<div class="shimmer ${['card-normal', 'card-tall', 'card-short'][i % 3]}"></div>`).join('');
+  const res = await _feedPage(st, r.q, r.sort);
+  if (!_pull || _pull.res !== r || gen !== st.gen) return;
+  grid.innerHTML = '';
+  if (!res || !res.cards.length) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
+  document.getElementById('pullCount').textContent = res.total.toLocaleString() + ' artworks';
+  st.more = res.more;
+  renderDetailCards(grid, res.cards);
+  _pullObserveEnd(r, st, grid);
+}
+
+function _pullObserveEnd(r, st, grid) {
+  if (!st.more) return;
+  const last = grid.querySelector('.card:last-of-type');
+  if (!last) return;
+  st.obs = new IntersectionObserver(async entries => {
+    if (!entries[0].isIntersecting) return;
+    st.obs.disconnect();
+    const gen = st.gen;
+    const res = await _feedPage(st, r.q, r.sort);
+    if (!_pull || _pull.res !== r || gen !== st.gen || !res) return;
+    st.more = res.more && res.cards.length > 0;
+    renderDetailCards(grid, res.cards);
+    _pullObserveEnd(r, st, grid);
+  }, { root: document.getElementById('pullResults'), rootMargin: '600px' });
+  st.obs.observe(last);
+}
+
+function pullBack() {
+  const p = _pull; if (!p || !p.res) return;
+  const from = p.res.from;
+  p.res.st && (p.res.st.gen++, p.res.st.obs?.disconnect());
+  p.res = p.trail.pop() || null;
+  if (p.res) _pullShowResults();
+  else document.getElementById('drawRitual').classList.remove('results-open');
+  // Back where the tag was pressed: the stack card's sheet, or that card's detail page
+  if (from?.via === 'sheet') _pullSheet(true);
+  else if (from?.via === 'lightbox') openLightbox(from.card, 'feed');
 }
 
 function _pullKey(e) {
-  const p = _pull; if (!p) return;
-  if (e.key === 'Escape') { e.preventDefault(); if (p.sheet) _pullSheet(false); else closeDrawRitual(); return; }
-  if (p.sheet) return;
+  const p = _pull; if (!p || document.querySelector('#lightbox .lightbox')) return; // a card's detail page has the keys
+  if (e.key === 'Escape') { e.preventDefault(); if (p.sheet) _pullSheet(false); else if (p.res) pullBack(); else closeDrawRitual(); return; }
+  if (p.sheet || p.res) return;
   if (['ArrowDown', 'ArrowRight', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); _pullGo(p.idx + 1); }
   else if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); _pullGo(p.idx - 1); }
   else if (e.key === 'Enter') { e.preventDefault(); _pullSheet(true); }
@@ -211,5 +269,5 @@ function pullCleanup() {
   _pull = null;
   document.removeEventListener('keydown', _pullKey);
   const ov = document.getElementById('drawRitual');
-  ov.classList.remove('pull-mode', 'sheet-open');
+  ov.classList.remove('pull-mode', 'sheet-open', 'results-open');
 }

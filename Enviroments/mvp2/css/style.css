@@ -2570,7 +2570,12 @@ body {
   .lightbox .art-container { max-width: 98vw; max-height: 45vh; }
   .lightbox .art-container img { max-height: 45vh; }
   .scroll-top { bottom: 1rem; right: 1rem; width: 44px; height: 44px; }
-  .welcome-title { font-size: 1.6rem; }
+  /* Home on phones: readable sizes and a comfortable tap target */
+  .welcome-title { font-size: 2.1rem; letter-spacing: 4px; }
+  .welcome-subtitle { font-size: 0.88rem; line-height: 1.5; }
+  .home-action--primary { font-size: 0.9rem; padding: 1.15rem 2rem; }
+  .home-alt-link { font-size: 0.82rem; }
+  .home-actions { max-width: 320px; gap: 1.4rem; }
   .welcome-page { padding: 1.5rem; padding-bottom: 3rem; }
 }
 

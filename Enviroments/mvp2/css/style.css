@@ -4234,11 +4234,4 @@ input[type=range]::-moz-range-thumb {
   .search-guide-ex { flex: 1; min-width: 0; }
   .search-guide-go { color: var(--text-secondary); }
 
-  .search-adv { margin-top: 1.25rem; font-size: 0.78rem; color: var(--text-secondary); }
-  .search-adv summary { cursor: pointer; list-style: none; padding: 0.4rem 0.25rem; letter-spacing: 0.05em; }
-  .search-adv summary::-webkit-details-marker { display: none; }
-  .search-adv summary::after { content: '›'; display: inline-block; margin-left: 0.4em; transition: transform 150ms; }
-  .search-adv[open] summary::after { transform: rotate(90deg); }
-  .search-adv p { margin: 0.4rem 0.25rem 0; line-height: 2; }
-  .search-adv code { font-family: 'Courier New', monospace; background: rgba(255,255,255,0.07); padding: 0.1em 0.4em; border-radius: 4px; white-space: nowrap; }
 }

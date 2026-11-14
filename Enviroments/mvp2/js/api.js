@@ -138,7 +138,7 @@ async function _fillRandomPool(query) {
     got.forEach(json => {
       if (!json?.data?.length) return;
       if (json.total_cards) window._randomPoolPages[query] = Math.max(1, Math.floor(json.total_cards / 175));
-      fresh.push(...shuffleArray(json.data.filter(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop)).slice(0, 6));
+      fresh.push(...shuffleArray(json.data.filter(c => (c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop) && !/\bSaga\b/.test(c.type_line || ''))).slice(0, 6));
     });
     window._randomPool.push(...shuffleArray(fresh));
   } catch(e) {}
@@ -146,7 +146,8 @@ async function _fillRandomPool(query) {
 }
 
 async function fetchRandomCard() {
-  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch);
+  // Pulls never draw Sagas: their tall, sideways chapter layout doesn't read as a card's artwork
+  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch) + ' -t:saga';
 
   // Reset pool if query changed
   if (window._randomPoolQuery !== query) {

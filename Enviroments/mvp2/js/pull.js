@@ -117,8 +117,12 @@ function _pullOnScroll() {
     const a = Math.min(Math.abs(d), 1);
     const inner = s.firstElementChild;
     inner.style.transform = `scale(${1 - a * 0.1})`;
-    inner.style.opacity = 1 - a * 0.55;
-    inner.style.filter = a > 0.02 ? `blur(${(a * 3).toFixed(1)}px)` : ''; // cards coming and going are softly out of focus
+    inner.style.opacity = 1 - a * 0.3;
+    // Cards coming and going lose colour and light, and fade into the dark towards the screen edge
+    inner.style.filter = a > 0.02 ? `grayscale(${(a * 0.85).toFixed(2)}) brightness(${(1 - a * 0.6).toFixed(2)})` : '';
+    const img = inner.querySelector('img'), edge = ((1 - a) * 100).toFixed(1);
+    const mask = a > 0.02 ? `linear-gradient(${d > 0 ? 'to bottom' : 'to top'}, #000 ${edge}%, transparent ${(+edge + 28).toFixed(1)}%)` : '';
+    img.style.maskImage = img.style.webkitMaskImage = mask;
     if (Math.abs(d) < bestD) { bestD = Math.abs(d); best = i; }
   });
   if (best !== p.idx) {

@@ -1303,9 +1303,11 @@
       // Mobile-specific headers
       const mobileGalleryHeader = document.getElementById('mobileGalleryHeader');
       const mobileTopBar = document.querySelector('.mobile-top-bar');
-      if (mobileGalleryHeader) mobileGalleryHeader.style.display = (mode === 'gallery') ? '' : 'none';
-      // mobile-top-bar: hide in gallery (replaced by gallery header) and search (full hero panel), home (full bg)
-      if (mobileTopBar) mobileTopBar.style.display = (mode === 'home' || mode === 'gallery' || mode === 'search') ? 'none' : '';
+      // Gallery and Categories share the brand header (MAGIC: THE GALLERY · ⋮)
+      const brandHeader = mode === 'gallery' || mode === 'collections';
+      if (mobileGalleryHeader) mobileGalleryHeader.style.display = brandHeader ? '' : 'none';
+      // mobile-top-bar: hidden where the brand header shows, and on search (full hero panel) and home (full bg)
+      if (mobileTopBar) mobileTopBar.style.display = (brandHeader || mode === 'home' || mode === 'search') ? 'none' : '';
       // Section title in non-gallery top bar
       const mobileTitle = document.getElementById('mobileTopBarTitle');
       const titleMap = { collections: 'Categories', about: 'About', advanced: 'Search' };
@@ -1314,9 +1316,9 @@
         mobileTitle.textContent = t;
         mobileTitle.style.display = t ? '' : 'none';
       }
-      // Gallery header scroll state — reset hidden state on mode enter
+      // Brand header scroll state — reset hidden state on mode enter
+      mobileGalleryHeader?.classList.remove('header-hidden');
       if (mode === 'gallery') {
-        mobileGalleryHeader?.classList.remove('header-hidden');
         document.getElementById('lensRow')?.classList.remove('header-hidden');
       }
       const siteFooter = document.querySelector('.site-footer');

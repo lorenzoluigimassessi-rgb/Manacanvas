@@ -200,12 +200,12 @@ function openLightbox(card, mode = 'feed') {
   // Arrow visibility state
   const noHistory  = isSurprise && window._surpriseHistory.length === 0;
   // For feed: only hide prev if genuinely at index 0; -1 (not found) means don't hide
-  const feedIdx    = !isSurprise ? filteredCards.findIndex(c => c.id === card.id) : -1;
-  const hidePrev   = noHistory || (!isSurprise && feedIdx === 0);
-  const hideNext   = !isSurprise && feedIdx !== -1 && feedIdx >= filteredCards.length - 1;
-  // disabled = at edge but still visible; hidden = surprise prev with no history
-  const disabledPrev = !isSurprise && feedIdx === 0;
-  const disabledNext = !isSurprise && feedIdx !== -1 && feedIdx >= filteredCards.length - 1;
+  // ‹ › walk the list the card was opened from (gallery, a result page, Pull's results…), not the gallery
+  const feedList   = !isSurprise ? cardListOf(card) : [];
+  const feedIdx    = !isSurprise ? feedList.findIndex(c => c.id === card.id) : -1;
+  // disabled = at edge (or no longer in its list) but still visible; hidden = surprise prev with no history
+  const disabledPrev = !isSurprise && feedIdx <= 0;
+  const disabledNext = !isSurprise && (feedIdx === -1 || feedIdx >= feedList.length - 1);
 
   const IMG_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
 
@@ -363,8 +363,8 @@ function openLightbox(card, mode = 'feed') {
         fetchRandomCard().then(c => { if (c) transitionTo(c, 'next', 'surprise'); });
       }
     } else {
-      const idx = filteredCards.findIndex(c => c.id === currentCard.id);
-      if (idx < filteredCards.length - 1) transitionTo(filteredCards[idx + 1], 'next', 'feed');
+      const list = cardListOf(currentCard), idx = list.findIndex(c => c.id === currentCard.id);
+      if (idx !== -1 && idx < list.length - 1) transitionTo(list[idx + 1], 'next', 'feed');
     }
   }
 
@@ -381,8 +381,8 @@ function openLightbox(card, mode = 'feed') {
         setMode('gallery');
       }
     } else {
-      const idx = filteredCards.findIndex(c => c.id === currentCard.id);
-      if (idx > 0) transitionTo(filteredCards[idx - 1], 'prev', 'feed');
+      const list = cardListOf(currentCard), idx = list.findIndex(c => c.id === currentCard.id);
+      if (idx > 0) transitionTo(list[idx - 1], 'prev', 'feed');
     }
   }
 
@@ -418,10 +418,11 @@ function openLightbox(card, mode = 'feed') {
 
       // Sync all arrow visibility
       const hasHistory = window._surpriseHistory.length > 0;
-      const nFeedIdx   = nextMode !== 'surprise' ? filteredCards.findIndex(c => c.id === nextCard.id) : -1;
+      const nList      = nextMode !== 'surprise' ? cardListOf(nextCard) : [];
+      const nFeedIdx   = nList.findIndex(c => c.id === nextCard.id);
       const nHidePrev  = nextMode === 'surprise' && !hasHistory;
-      const nDisPrev   = nextMode !== 'surprise' && nFeedIdx === 0;
-      const nDisNext   = nextMode !== 'surprise' && nFeedIdx !== -1 && nFeedIdx >= filteredCards.length - 1;
+      const nDisPrev   = nextMode !== 'surprise' && nFeedIdx <= 0;
+      const nDisNext   = nextMode !== 'surprise' && (nFeedIdx === -1 || nFeedIdx >= nList.length - 1);
 
       ['lbPrev','lbGhostPrev','lbMobileNavPrev'].forEach(id => {
         const el = document.getElementById(id);

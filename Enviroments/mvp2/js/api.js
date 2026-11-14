@@ -157,8 +157,9 @@ async function _fillRandomPool(query) {
 }
 
 async function fetchRandomCard() {
-  // Pulls never draw Sagas: their tall, sideways chapter layout doesn't read as a card's artwork
-  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch) + ' -t:saga';
+  // Pulls draw from the whole collection, whatever the gallery's filters, search or open card are
+  // (and never Sagas: their tall, sideways chapter layout doesn't read as a card's artwork)
+  const query = 't:creature has:illustration -t:saga';
 
   // Reset pool if query changed
   if (window._randomPoolQuery !== query) {

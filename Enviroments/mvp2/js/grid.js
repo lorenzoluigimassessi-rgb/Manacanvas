@@ -15,6 +15,10 @@ let activeSearch = null;
 
 // Track cards currently in the feed for lightbox prev/next
 let filteredCards = [];
+// Each card remembers the list it was shown in, so its detail page's ‹ › walk that same list
+const _cardLists = new WeakMap();
+function setCardList(cards, getList) { cards.forEach(c => _cardLists.set(c, getList)); }
+function cardListOf(card) { return (_cardLists.get(card) || (() => filteredCards))(); }
 
 // Query behind the current feed — reused by infinite scroll, reshuffle and sort changes
 let currentQuery = null;
@@ -28,8 +32,6 @@ function currentFiltersQuery() {
 async function loadInitialGrid(query) {
   // Reset all fetch state immediately to prevent stale data from previous queries
   isLoading = false;
-  window._randomPool = [];
-  window._randomPoolQuery = null;
   // Only persist filters in prod (staging uses lens system)
   if (typeof initLens !== 'function') {
     localStorage.setItem("mc_filters", JSON.stringify({
@@ -270,6 +272,7 @@ function observeCardEntrance(el) {
 }
 
 function renderCards(cards) {
+  setCardList(cards, () => filteredCards);
   cards.forEach(card => {
     const artCrop = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
     if (!artCrop) return;

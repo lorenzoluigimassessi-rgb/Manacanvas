@@ -4659,3 +4659,8 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
   backdrop-filter: none; -webkit-backdrop-filter: none; color: rgba(240,240,240,0.8); transition: color 150ms, transform 200ms; }
 .lb2 .close-btn.lb-back svg { width: 1.65rem; height: auto; display: block; filter: drop-shadow(0 1px 6px rgba(0,0,0,0.5)); }
 .lb2 .close-btn.lb-back:hover { color: #fff; transform: translateX(-4px); }
+
+/* A card's detail page (or Pull) is open: scrolling up past the top never triggers the phone browser's
+   own pull-to-refresh, which reloaded the page and dropped you out of the card */
+html:has(#lightbox .lightbox), html:has(#lightbox .lightbox) body,
+html:has(#drawRitual.pull-mode), html:has(#drawRitual.pull-mode) body { overscroll-behavior-y: none; }

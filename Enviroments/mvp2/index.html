@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=165">
+  <link rel="stylesheet" href="css/style.css?v=166">
 </head>
 <body>
 
@@ -1279,12 +1279,12 @@
     })();
   </script>
   <script src="js/welcome.js?v=30"></script>
-  <script src="js/api.js?v=33"></script>
-  <script src="js/grid.js?v=50"></script>
+  <script src="js/api.js?v=34"></script>
+  <script src="js/grid.js?v=51"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=33"></script>
-  <script src="js/lightbox.js?v=41"></script>
+  <script src="js/lightbox.js?v=42"></script>
   <script src="js/pull.js?v=13"></script>
 
   <script>
@@ -3290,6 +3290,10 @@
     }
 
     function renderDetailCards(grid, cards) {
+      if (!grid.querySelector('.card')) grid._cards = []; // a fresh page: its own list for the detail page's ‹ ›
+      const list = grid._cards || (grid._cards = []);
+      list.push(...cards.filter(c => c.image_uris?.art_crop || c.card_faces?.[0]?.image_uris?.art_crop));
+      setCardList(cards, () => list);
       cards.forEach(card => {
         const art = card.image_uris?.art_crop || card.card_faces?.[0]?.image_uris?.art_crop;
         if (!art) return;

@@ -116,7 +116,6 @@ window.addEventListener('scroll', () => { if (window.scrollY > 1500 && _currentM
 // ── Search results: an editorial header (what you searched, count, sort) replaces the lens tabs ──
 const SEARCH_SORTS = [
   { key: 'random',  label: 'Shuffle', order: 'random',   dir: 'auto' },
-  { key: 'popular', label: 'Popular', order: 'edhrec',   dir: 'auto' },
   { key: 'newest',  label: 'Newest',  order: 'released', dir: 'desc' },
   { key: 'oldest',  label: 'Oldest',  order: 'released', dir: 'asc'  },
 ];
@@ -131,7 +130,7 @@ let _searchStack = [], _searchRestoreSort = null;
 function startSearchSort(label, tag) {
   _searchMeta = { label, tag };
   if (!_preSearchSort) _preSearchSort = { order: sortOrder, dir: sortDir };
-  const o = _searchRestoreSort ? SEARCH_SORTS.find(x => x.key === _searchRestoreSort) : SEARCH_SORTS[0];
+  const o = _searchRestoreSort ? SEARCH_SORTS.find(x => x.key === _searchRestoreSort) || SEARCH_SORTS[0] : SEARCH_SORTS[0];
   _searchRestoreSort = null;
   sortOrder = o.order; sortDir = o.dir;
   renderSearchHead();

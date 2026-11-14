@@ -8,7 +8,6 @@ let sortDir = "auto";
 
 const SORT_OPTIONS = [
   { label: "Shuffle", order: "random",   dir: "auto" },
-  { label: "Popular", order: "edhrec",   dir: "auto" },
   { label: "Newest",  order: "released", dir: "desc" },
   { label: "Oldest",  order: "released", dir: "asc"  },
 ];

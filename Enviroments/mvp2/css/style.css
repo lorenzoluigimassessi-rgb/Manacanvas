@@ -978,25 +978,6 @@ body {
 .bottom-tab.active { color: var(--text-primary); }
 .bottom-tab:active { opacity: 0.65; }
 
-/* Pull tab — pill bg for center emphasis */
-.pull-bg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 28px;
-  border-radius: 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  transition: background 150ms, border-color 150ms;
-}
-.bottom-tab-pull:hover .pull-bg,
-.bottom-tab-pull:active .pull-bg,
-.bottom-tab-pull.active .pull-bg {
-  background: var(--surface-2);
-  border-color: var(--border-hover);
-}
-
 @media (max-width: 1023px) {
   .bottom-bar { display: flex; }
   .header-wrap { display: none; }

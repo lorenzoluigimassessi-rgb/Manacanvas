@@ -4585,8 +4585,10 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .search-kind-chip { padding-top: calc(0.28rem + 0.14em); padding-bottom: calc(0.28rem - 0.14em); text-indent: 1.6px; }
 
 /* Menu items that aren't selected: readable at a glance (were 40%) — selected stays full white */
-.sidebar-item, .bottom-tab { color: rgba(240,240,240,0.66); }
-:root[data-theme="light"] .sidebar-item, :root[data-theme="light"] .bottom-tab { color: rgba(12,12,15,0.68); }
+.sidebar-item, .bottom-tab, .sidebar-sub-item { color: rgba(240,240,240,0.66); }
+:root[data-theme="light"] .sidebar-item, :root[data-theme="light"] .bottom-tab, :root[data-theme="light"] .sidebar-sub-item { color: rgba(12,12,15,0.68); }
+.sidebar-sub-item svg { opacity: 1; } /* sub-items differ from main items by size and indent only, not by being dimmer */
+.sidebar-sub-item:hover { color: var(--text-primary); }
 .sidebar-item.active, .sidebar-item:hover, .bottom-tab.active { color: var(--text-primary); }
 
 /* Card tools under the name: Copy name · Download · Share */

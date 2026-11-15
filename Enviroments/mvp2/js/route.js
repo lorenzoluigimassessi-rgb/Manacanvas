@@ -30,6 +30,9 @@
       p.set('p', 'discover');
       if (_msOpen() && _ms.meta) put(_ms.q, _ms.meta.label, _ms.meta.tag, _ms.sort);
     } else if (m === 'about') p.set('p', 'about');
+    // Sidebar: the Categories section you're in is marked, like the main items
+    const sec = m === 'collections' && !pullOpen() ? (_l3Open() ? _l3It && _l3It.cat : _level2Category) : null;
+    document.querySelectorAll('.sidebar-sub-item').forEach(b => b.classList.toggle('active', !!sec && b.getAttribute('onclick').includes(`'${sec}'`)));
     if (lbOpen() && currentCard) p.set('card', currentCard.id);
     const url = location.pathname + (p.toString() ? '?' + p : '');
     if (url !== location.pathname + location.search) history.replaceState(null, '', url);

@@ -4733,3 +4733,6 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .pull-sheet .lb-title { cursor: pointer; }
 .pull-sheet .lb-title::after { content: '›'; display: inline-block; margin-left: 0.45em; color: rgba(240,240,240,0.45); transition: transform 150ms, color 150ms; }
 .pull-sheet .lb-title:hover::after, .pull-sheet .lb-title:active::after { color: #fff; transform: translateX(3px); }
+
+/* Sidebar: the Categories section you're in */
+.sidebar-sub-item.active { background: var(--surface); color: var(--text-primary); }

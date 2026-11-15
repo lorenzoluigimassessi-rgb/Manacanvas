@@ -311,6 +311,33 @@ function pullCleanup() {
   ov.classList.remove('pull-mode', 'sheet-open', 'results-open');
 }
 
+// Leaving Pull for another tab keeps the stack (cards, position, view, results drilled into) to come back to.
+// Only ✕ or tapping Pull while in Pull starts a fresh shuffle.
+function pullSuspend() {
+  const ov = document.getElementById('drawRitual');
+  if (!_pull || ov.style.display === 'none') return false;
+  if (_pull.sheet) _pullSheet(false); // the details sheet comes back closed
+  _pull.suspended = { y: document.getElementById('pullStack').scrollTop, ry: document.getElementById('pullResults').scrollTop };
+  document.removeEventListener('keydown', _pullKey);
+  ov.style.display = 'none';
+  document.body.style.overflow = '';
+  ['sidePull', 'btPull'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+  return true;
+}
+function pullResume() {
+  const p = _pull; if (!p || !p.suspended) return false;
+  const { y, ry } = p.suspended; delete p.suspended;
+  const ov = document.getElementById('drawRitual');
+  ov.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  document.addEventListener('keydown', _pullKey);
+  _pullLayout();
+  document.getElementById('pullStack').scrollTop = y;
+  document.getElementById('pullResults').scrollTop = ry;
+  requestAnimationFrame(() => { document.getElementById('pullStack').scrollTop = y; document.getElementById('pullResults').scrollTop = ry; });
+  return true;
+}
+
 // The Pull icon draws its top card when tapped (bottom bar and sidebar)
 ['btPull', 'sidePull'].forEach(id => document.getElementById(id)?.addEventListener('click', e => {
   const b = e.currentTarget;

@@ -1284,7 +1284,7 @@
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=33"></script>
   <script src="js/lightbox.js?v=46"></script>
-  <script src="js/pull.js?v=17"></script>
+  <script src="js/pull.js?v=18"></script>
 
   <script>
     // ── Where you are in Categories (level + sort), per tab: a reload lands on the same page ──
@@ -1323,7 +1323,7 @@
       if (mode === 'gallery' || mode === 'collections' || mode === 'home') localStorage.setItem('mc_mode', mode);
       // Dismiss pull overlay when navigating away
       const _dr = document.getElementById('drawRitual');
-      if (_dr && _dr.style.display !== 'none') { _drawNonce++; _dr.style.display = 'none'; document.body.style.overflow = ''; document.getElementById('sidePull')?.classList.remove('active'); document.getElementById('btPull')?.classList.remove('active'); }
+      if (_dr && _dr.style.display !== 'none' && !(typeof pullSuspend === 'function' && pullSuspend())) { _drawNonce++; _dr.style.display = 'none'; document.body.style.overflow = ''; document.getElementById('sidePull')?.classList.remove('active'); document.getElementById('btPull')?.classList.remove('active'); }
 
       // panels
       ['homePanel','grid','collectionsPanel','advancedPanel','aboutPanel','searchPanel'].forEach(id => {
@@ -1557,7 +1557,8 @@
     let _drawNonce = 0;
 
     function triggerDrawRitual() {
-      if (typeof pullCleanup === 'function') pullCleanup();
+      const _resume = document.getElementById('drawRitual').style.display === 'none' && typeof _pull !== 'undefined' && _pull && _pull.suspended;
+      if (typeof pullCleanup === 'function' && !_resume) pullCleanup();
       if (document.querySelector('#lightbox .lightbox')) closeLightbox(); // Pull starts its own session, not on top of a detail page
       const nonce = ++_drawNonce;
       const compact = window.innerWidth <= 768;
@@ -1569,6 +1570,7 @@
       document.querySelectorAll('.sw-btn, .btn-advanced').forEach(b => b.classList.remove('active'));
       document.getElementById('sidePull')?.classList.add('active');
       document.getElementById('btPull')?.classList.add('active');
+      if (_resume) { pullResume(); return; } // back from another tab: the stack as you left it
 
       const overlay  = document.getElementById('drawRitual');
 
@@ -1649,11 +1651,12 @@
       const item = e.target.closest('button, a');
       if (!item) return;
       const target = _ITEM_MODE[item.id];
+      const inPull = document.getElementById('drawRitual').style.display !== 'none';
       if (document.querySelector('#lightbox .lightbox')) {
-        if (target && target !== _currentMode) _sectionCard[_currentMode] = { card: currentCard, mode: _lbMode };
+        if (target && target !== _currentMode && !inPull) _sectionCard[_currentMode] = { card: currentCard, mode: _lbMode }; // a card opened from Pull isn't the section's
         closeLightbox();
       }
-      if (target !== 'pull' && document.getElementById('drawRitual').style.display !== 'none') closeDrawRitual();
+      if (target !== 'pull' && inPull && !pullSuspend()) closeDrawRitual(); // Pull steps aside, kept for when you come back
       setTimeout(restoreSectionCard, 60); // back in a section that had a card open
     }, true));
 

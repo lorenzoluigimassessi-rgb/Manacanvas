@@ -4745,8 +4745,10 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 #btCollections.active svg path:first-child, #sideCollections.active svg path:first-child,
 #sidePull.active svg rect:last-child, #sideAbout.active svg circle,
 .sidebar-sub-item.active svg path, .sidebar-sub-item.active svg rect, .sidebar-sub-item.active svg circle { fill: currentColor; }
-#btHome.active svg polyline { stroke: var(--cut); fill: var(--cut); stroke-linecap: square; transform-origin: 12px 12px; transform: scaleY(1.2); } /* reaches past the floor line so none of it shows */ /* the door is an empty opening */
+#btHome.active svg polyline { stroke: var(--cut); fill: var(--cut); stroke-linecap: square; } /* the doorway is open in both states: no floor under it */ /* the door is an empty opening */
 #sideAbout.active svg path, #sideAbout.active svg line { stroke: var(--cut); }
 .sidebar-sub-item.active svg circle[r="1"] { fill: var(--cut); stroke: var(--cut); }
 #btSearch.active svg { stroke-width: 2.6; }
 .sidebar-sub-item.active svg path[d^="M4 6h16"] { fill: none; stroke-width: 3; } /* lines can't fill: bolder instead */
+
+#btPull.active svg rect:last-child { fill: currentColor; } /* Pull: the front card fills, as in the sidebar */

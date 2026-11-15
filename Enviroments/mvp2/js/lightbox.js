@@ -396,6 +396,7 @@ function openLightbox(card, mode = 'feed') {
     const img = document.getElementById('lbImage');
     const bg  = document.getElementById('lbBlurBg');
     if (!img || !bg) { openLightbox(nextCard, nextMode); return; }
+    resetZoom();
     _transitioning = true;
 
     const nArtCrop = nextCard.image_uris?.art_crop || nextCard.card_faces?.[0]?.image_uris?.art_crop;
@@ -503,7 +504,7 @@ function openLightbox(card, mode = 'feed') {
   let swX = 0, swY = 0, scX = 0, swiping = false, swDir = null;
 
   document.getElementById('lightboxOverlay').addEventListener('touchstart', (e) => {
-    if (e.touches.length > 1) { swiping = false; return; }
+    if (e.touches.length > 1 || scale > 1) { swiping = false; return; } // zoomed: one finger pans the art instead
     if (e.target.closest('button, a, .toggle')) return;
     swX = e.touches[0].clientX; swY = e.touches[0].clientY;
     scX = swX; swiping = true; swDir = null;
@@ -521,7 +522,7 @@ function openLightbox(card, mode = 'feed') {
   }, { passive: false });
 
   document.getElementById('lightboxOverlay').addEventListener('touchend', () => {
-    if (!swiping) return;
+    if (!swiping || scale > 1) return;
     swiping = false;
     const dx = scX - swX;
     if (swDir !== 'h' || Math.abs(dx) < window.innerWidth * 0.2) return;
@@ -564,18 +565,63 @@ function openLightbox(card, mode = 'feed') {
   };
   infoBtn.addEventListener('click', (e) => { e.stopPropagation(); setFocus(!document.body.classList.contains('lb-focus')); });
   lbBody.addEventListener('click', (e) => {
+    if (e.target.closest('#artContainer')) return; // the art handles its own taps (see Zoom below)
+    if (Date.now() - panEndAt < 350) return; // letting go after dragging the zoomed art isn't a click
     if (document.body.classList.contains('lb-focus')) { setFocus(false); return; }
-    if (e.target.closest('#artContainer') && !e.target.closest('button') && scale <= 1) { setFocus(true); return; }
     // Desktop: a click on the empty backdrop closes, as before
     if (!('ontouchstart' in window) && (e.target === lbBody || e.target.classList.contains('lb-col') || e.target.classList.contains('lb-stage'))) handleClose();
   });
 
-  // ── Zoom (desktop only) ────────────────────────────────────────────────────
+  // ── Zoom ── touch: pinch, or double-tap at a spot; one finger pans while zoomed.
+  // Desktop: scroll wheel, or double-click; drag to pan. A single tap/click still shows/hides the details,
+  // but waits ~¼s so the first tap of a double-tap never toggles them. Only the image zooms, inside its frame.
   const isTouchDevice = 'ontouchstart' in window;
   const container = document.getElementById('artContainer');
-  if (!isTouchDevice) {
+  let tapTimer = null, panEndAt = 0;
+  const zoomAt = (x, y) => {
+    const r = container.getBoundingClientRect();
+    scale = 2.5;
+    translateX = (x - (r.left + r.width / 2)) * (1 - scale);
+    translateY = (y - (r.top + r.height / 2)) * (1 - scale);
+    applyTransform();
+  };
+  container.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    e.stopPropagation();
+    if (Date.now() - panEndAt < 350) return; // the end of a pinch or drag isn't a tap
+    if (tapTimer) { // second tap: zoom in there, or back out
+      clearTimeout(tapTimer); tapTimer = null;
+      if (scale > 1) resetZoom(); else zoomAt(e.clientX, e.clientY);
+      return;
+    }
+    tapTimer = setTimeout(() => { tapTimer = null; setFocus(!document.body.classList.contains('lb-focus')); }, 260);
+  });
+  if (isTouchDevice) {
+    let pinch = null, pan = null;
+    const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    container.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) { pinch = { d: dist(e.touches), s: scale }; pan = null; }
+      else if (e.touches.length === 1 && scale > 1) pan = { x: e.touches[0].clientX, y: e.touches[0].clientY, tx: translateX, ty: translateY, moved: false };
+    }, { passive: true });
+    container.addEventListener('touchmove', (e) => {
+      if (pinch && e.touches.length === 2) {
+        e.preventDefault();
+        scale = Math.min(LB_MAX_ZOOM, Math.max(1, pinch.s * dist(e.touches) / pinch.d));
+        applyTransform();
+      } else if (pan && e.touches.length === 1) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - pan.x, dy = e.touches[0].clientY - pan.y;
+        if (Math.abs(dx) + Math.abs(dy) > 4) pan.moved = true;
+        translateX = pan.tx + dx; translateY = pan.ty + dy;
+        applyTransform();
+      }
+    }, { passive: false });
+    container.addEventListener('touchend', (e) => {
+      if (pinch && e.touches.length < 2) { pinch = null; panEndAt = Date.now(); if (scale < 1.08) resetZoom(); }
+      if (pan && !e.touches.length) { if (pan.moved) panEndAt = Date.now(); pan = null; }
+    });
+  } else {
     container.addEventListener('wheel', (e) => { e.preventDefault(); applyZoom(e.deltaY > 0 ? -0.15 : 0.15); }, { passive: false });
-    container.addEventListener('dblclick', () => { if (scale > 1) resetZoom(); else { scale = 2.5; applyTransform(); } });
     container.addEventListener('mousedown', (e) => {
       if (scale <= 1) return;
       isDragging = true; dragStartX = e.clientX; dragStartY = e.clientY;
@@ -583,7 +629,7 @@ function openLightbox(card, mode = 'feed') {
       container.classList.add('grabbing'); e.preventDefault();
     });
     document.addEventListener('mousemove', handleDrag);
-    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('mouseup', () => { if (isDragging && Math.abs(translateX - lastTx) + Math.abs(translateY - lastTy) > 4) panEndAt = Date.now(); stopDrag(); });
   }
 }
 
@@ -600,21 +646,29 @@ function stopDrag() {
   if (c) c.classList.remove('grabbing');
 }
 
+const LB_MAX_ZOOM = 3; // Scryfall's art is ~626px wide: past 3× it only gets soft
 function applyZoom(delta) {
-  scale = Math.min(5, Math.max(1, scale + delta));
+  scale = Math.min(LB_MAX_ZOOM, Math.max(1, scale + delta));
   if (scale === 1) { translateX = 0; translateY = 0; }
   applyTransform();
 }
 
 function applyTransform() {
-  const c = document.getElementById('artContainer');
-  if (c) c.style.transform = `scale(${scale}) translate(${translateX / scale}px, ${translateY / scale}px)`;
+  const img = document.getElementById('lbImage'), c = document.getElementById('artContainer');
+  if (!img) return;
+  // Keep the zoomed image covering its frame: no panning past its edges
+  const mx = (scale - 1) * img.offsetWidth / 2, my = (scale - 1) * img.offsetHeight / 2;
+  translateX = Math.max(-mx, Math.min(mx, translateX));
+  translateY = Math.max(-my, Math.min(my, translateY));
+  img.style.transform = scale > 1 ? `translate(${translateX}px, ${translateY}px) scale(${scale})` : '';
+  c?.classList.toggle('zoomed', scale > 1);
 }
 
 function resetZoom() {
   scale = 1; translateX = 0; translateY = 0;
-  const c = document.getElementById('artContainer');
-  if (c) c.style.transform = '';
+  const img = document.getElementById('lbImage'), c = document.getElementById('artContainer');
+  if (img) img.style.transform = '';
+  if (c) { c.style.transform = ''; c.classList.remove('zoomed'); }
 }
 
 function flashArrow(id) {

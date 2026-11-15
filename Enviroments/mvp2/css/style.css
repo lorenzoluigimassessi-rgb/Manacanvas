@@ -4708,3 +4708,8 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 :root[data-theme="light"] .search-guide-row .search-kind-chip { color: rgba(12,12,15,0.7); background: rgba(12,12,15,0.04); border-color: rgba(12,12,15,0.16); }
 :root[data-theme="light"] .mobile-gallery-header.over-art { background: linear-gradient(rgba(245,244,240,0.7), rgba(245,244,240,0)); }
 :root[data-theme="light"] .mobile-gallery-header.over-art .mobile-gallery-title { text-shadow: none; }
+
+/* Detail page zoom: the browser leaves pinches and double-taps on the art to us; zoomed, one finger pans */
+.lb2 .art-container { touch-action: pan-y; }
+.lb2 .art-container.zoomed { touch-action: none; cursor: grab; }
+.lb2 .art-container img { transform-origin: center; will-change: transform; }

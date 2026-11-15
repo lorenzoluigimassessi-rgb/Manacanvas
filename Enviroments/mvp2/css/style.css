@@ -4744,3 +4744,6 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 @keyframes pullDraw { 40% { transform: translate(1px, -1.8px) rotate(6deg); } }
 #btPull svg, #sidePull svg { overflow: visible; } /* the lifted card may pass the icon box */
 @media (prefers-reduced-motion: reduce) { .pull-drawing .pull-top { animation: none; } }
+
+/* Pull kept in the background while you visit another tab */
+#drawRitual.pull-mode.pull-away { display: none !important; }

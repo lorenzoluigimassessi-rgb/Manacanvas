@@ -308,7 +308,7 @@ function pullCleanup() {
   document.removeEventListener('keydown', _pullKey);
   window.removeEventListener('resize', _pullLayout);
   const ov = document.getElementById('drawRitual');
-  ov.classList.remove('pull-mode', 'sheet-open', 'results-open');
+  ov.classList.remove('pull-mode', 'sheet-open', 'results-open', 'pull-away');
 }
 
 // Leaving Pull for another tab keeps the stack (cards, position, view, results drilled into) to come back to.
@@ -319,7 +319,7 @@ function pullSuspend() {
   if (_pull.sheet) _pullSheet(false); // the details sheet comes back closed
   _pull.suspended = { y: document.getElementById('pullStack').scrollTop, ry: document.getElementById('pullResults').scrollTop };
   document.removeEventListener('keydown', _pullKey);
-  ov.style.display = 'none';
+  ov.style.display = 'none'; ov.classList.add('pull-away'); // the class: pull-mode forces display with !important
   document.body.style.overflow = '';
   ['sidePull', 'btPull'].forEach(id => document.getElementById(id)?.classList.remove('active'));
   return true;
@@ -328,7 +328,7 @@ function pullResume() {
   const p = _pull; if (!p || !p.suspended) return false;
   const { y, ry } = p.suspended; delete p.suspended;
   const ov = document.getElementById('drawRitual');
-  ov.style.display = 'flex';
+  ov.style.display = 'flex'; ov.classList.remove('pull-away');
   document.body.style.overflow = 'hidden';
   document.addEventListener('keydown', _pullKey);
   _pullLayout();

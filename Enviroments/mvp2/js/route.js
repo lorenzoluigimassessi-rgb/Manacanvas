@@ -17,7 +17,7 @@
     if (pullOpen()) p.set('p', 'pull');
     else if (m === 'gallery') {
       p.set('p', 'gallery');
-      if (activeSearch && _searchMeta) put(activeSearch, _searchMeta.label, _searchMeta.tag);
+      if (activeSearch && _searchMeta) put(activeSearch, _searchMeta.label, _searchMeta.tag, currentSearchSortKey());
       else {
         let l = {}; try { l = JSON.parse(localStorage.getItem('mc_lens')) || {}; } catch (e) {}
         const sub = l.sub && typeof l.sub === 'object' ? l.sub.code : l.sub;
@@ -43,7 +43,7 @@
 
   // Every navigation goes through one of these: after each, the address bar catches up
   ['setMode', 'applyLensQuery', 'runSearch', 'clearSearchPill', 'openCollectionsLevel2', 'closeCollectionsLevel2',
-   'openDetailPage', 'closeDetailPage', 'loadDetailFeed', 'openSearchResults', 'closeSearchResults', 'setSearchResultsSort',
+   'openDetailPage', 'closeDetailPage', 'loadDetailFeed', 'openSearchResults', 'closeSearchResults', 'setSearchResultsSort', 'setSearchSort',
    'openLightbox', 'closeLightbox', 'renderCardInfo', 'triggerDrawRitual', 'closeDrawRitual'].forEach(n => {
     const f = window[n];
     if (typeof f !== 'function') return;
@@ -63,7 +63,7 @@
       else localStorage.setItem('mc_lens', JSON.stringify({ lens: 'picks', sub: null })); // a search link stands alone: no tab narrows it
       localStorage.setItem('mc_mode', 'gallery');
       setMode('gallery');
-      if (q) { window._lensRawQuery = null; runSearch(q, t, k); }
+      if (q) { window._lensRawQuery = null; _searchRestoreSort = sort; runSearch(q, t, k); }
     } else if (page === 'categories') {
       localStorage.setItem('mc_mode', 'collections');
       const nav = {};
@@ -76,7 +76,7 @@
       if (q) openSearchResults(q, t, k, undefined, sort);
     } else if (page === 'discover' && q) { // Discover is a phone page: on a computer the search shows in the Gallery
       localStorage.setItem('mc_lens', JSON.stringify({ lens: 'picks', sub: null })); localStorage.setItem('mc_mode', 'gallery');
-      setMode('gallery'); window._lensRawQuery = null; runSearch(q, t, k);
+      setMode('gallery'); window._lensRawQuery = null; _searchRestoreSort = sort; runSearch(q, t, k);
     } else if (page === 'about') setMode('about');
     else if (page === 'pull') { setMode(saved === 'collections' ? 'collections' : 'gallery'); triggerDrawRitual(); }
     else setMode(saved === 'gallery' || saved === 'collections' ? saved : 'home');

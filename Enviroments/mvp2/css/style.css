@@ -4736,3 +4736,17 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 
 /* Sidebar: the Categories section you're in */
 .sidebar-sub-item.active { background: var(--surface); color: var(--text-primary); }
+
+/* Selected section: the icon fills (bottom bar, sidebar and its Categories sections), the colour change alone is too faint.
+   Lines that sit inside a filled shape (door, ?, palette dots) take the colour behind the icon, so they read as cut-outs. */
+.bottom-tab.active, .sidebar-item.active, .sidebar-sub-item.active { --cut: var(--bg); }
+.sidebar-item.active, .sidebar-sub-item.active { --cut: var(--surface); }
+#btHome.active svg path, #btGallery.active svg rect, #sideGallery.active svg rect,
+#btCollections.active svg path:first-child, #sideCollections.active svg path:first-child,
+#sidePull.active svg rect:last-child, #sideAbout.active svg circle,
+.sidebar-sub-item.active svg path, .sidebar-sub-item.active svg rect, .sidebar-sub-item.active svg circle { fill: currentColor; }
+#btHome.active svg polyline { stroke: var(--cut); }
+#sideAbout.active svg path, #sideAbout.active svg line { stroke: var(--cut); }
+.sidebar-sub-item.active svg circle[r="1"] { fill: var(--cut); stroke: var(--cut); }
+#btSearch.active svg { stroke-width: 2.6; }
+.sidebar-sub-item.active svg path[d^="M4 6h16"] { fill: none; stroke-width: 3; } /* lines can't fill: bolder instead */

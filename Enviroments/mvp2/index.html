@@ -1281,12 +1281,12 @@
   <script src="js/welcome.js?v=30"></script>
   <script src="js/api.js?v=35"></script>
   <script src="js/masonry.js?v=1"></script>
-  <script src="js/grid.js?v=51"></script>
+  <script src="js/grid.js?v=52"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=33"></script>
   <script src="js/lightbox.js?v=42"></script>
-  <script src="js/pull.js?v=13"></script>
+  <script src="js/pull.js?v=14"></script>
 
   <script>
     // ── Where you are in Categories (level + sort), per tab: a reload lands on the same page ──
@@ -3010,7 +3010,7 @@
 
     function renderCreaturesLevel2() {
       const counts = CATEGORY_COUNTS.creature;
-      const items = Object.keys(counts).map(t => ({ name: t, q: typeQ(t), count: counts[t], meta: counts[t].toLocaleString() + ' artworks' }));
+      const items = Object.keys(counts).map(t => ({ name: t, q: typeQ(t), count: counts[t], meta: artworksLabel(counts[t]) }));
       renderListLevel2({ title: 'Creatures', noun: 'creature types', items,
         sorts: [{ key: 'shuffle', label: 'Shuffle' }, { key: 'az', label: 'A→Z' }, { key: 'za', label: 'Z→A' }],
         arrange: (list, k) => flat(k === 'shuffle' ? shuffleArray(list) : [...list].sort(k === 'za' ? (a, b) => byName(b, a) : byName)) });
@@ -3029,7 +3029,7 @@
         { title: 'Supertypes', names: ['Legendary','Basic','Snow','World'] },
         { title: 'Special game modes', names: ['Plane','Phenomenon','Scheme','Vanguard','Conspiracy'] },
       ].map(g => ({ ...g, items: g.names.filter(n => counts[n]).map(name => ({ name, q: typeQ(name), icon: TYPE_ICONS[name],
-        meta: counts[name].toLocaleString() + ' artworks' })) }));
+        meta: artworksLabel(counts[name]) })) }));
       renderListLevel2({ title: 'Card Types', noun: 'card types', items: GROUPS.flatMap(g => g.items),
         arrange: list => GROUPS.map(g => ({ ...g, items: g.items.filter(it => list.includes(it)) })).filter(g => g.items.length) });
     }
@@ -3238,7 +3238,7 @@
       if (gen !== _ms.gen) return;
       grid.innerHTML = '';
       if (!res || !res.cards.length) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
-      document.getElementById('msCount').textContent = res.total.toLocaleString() + ' artworks';
+      document.getElementById('msCount').textContent = artworksLabel(res.total);
       _ms.more = res.more;
       renderDetailCards(grid, res.cards);
       _msObserveEnd(grid);
@@ -3276,7 +3276,7 @@
       if (gen !== _l3.gen) return;
       grid.innerHTML = '';
       if (!res || !res.cards.length) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
-      const l3c = document.getElementById('l3Count'); if (l3c) l3c.textContent = res.total.toLocaleString() + ' artworks';
+      const l3c = document.getElementById('l3Count'); if (l3c) l3c.textContent = artworksLabel(res.total);
       _l3.more = res.more;
       renderDetailCards(grid, res.cards);
       _l3ObserveEnd(grid);

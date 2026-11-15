@@ -73,7 +73,7 @@ function showFeed(cards, hasMore, query, fromNetwork) {
   renderCards(cards);
   insertFeedBridge();
   const sc = document.getElementById('searchCount');
-  if (sc) sc.textContent = activeSearch && _feedTotal ? _feedTotal.toLocaleString() + ' artworks' : '';
+  if (sc) sc.textContent = activeSearch && _feedTotal ? artworksLabel(_feedTotal) : '';
   if (hasMore) observeLastCard();
 }
 
@@ -123,6 +123,7 @@ let _searchMeta = null, _preSearchSort = null;
 
 
 // Drill-down trail for gallery results: tags tapped on a card stack up; the back arrow pops one step
+const artworksLabel = n => `${(n || 0).toLocaleString()} artwork${n === 1 ? '' : 's'}`; // "1 artwork", "723 artworks"
 let _searchStack = [], _searchRestoreSort = null;
 // The card whose detail page a tag was tapped on: going back from that result reopens it
 let _tagCard = null, _searchCard = null, _searchBackCard = null;
@@ -226,7 +227,7 @@ function renderSearchHead() {
   const sortPills = `<div class="l2-sort">${SEARCH_SORTS.map(o =>
     `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div>`;
   head.innerHTML = searchHeadHtml({ back: 'searchBack()', backLabel: 'Back to the gallery', label: m.label, tag: m.tag,
-    countId: 'searchCount', count: _feedTotal ? _feedTotal.toLocaleString() + ' artworks' : '', sorts: sortPills });
+    countId: 'searchCount', count: _feedTotal ? artworksLabel(_feedTotal) : '', sorts: sortPills });
   requestAnimationFrame(fitSearchTitles);
 }
 

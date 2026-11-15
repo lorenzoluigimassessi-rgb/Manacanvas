@@ -248,7 +248,7 @@ async function _pullLoad() {
   if (!_pull || _pull.res !== r || gen !== st.gen) return;
   grid.innerHTML = '';
   if (!res || !res.cards.length) { grid.innerHTML = '<div class="empty-state">No artwork found</div>'; return; }
-  document.getElementById('pullCount').textContent = res.total.toLocaleString() + ' artworks';
+  document.getElementById('pullCount').textContent = artworksLabel(res.total);
   st.more = res.more;
   renderDetailCards(grid, res.cards);
   _pullObserveEnd(r, st, grid);

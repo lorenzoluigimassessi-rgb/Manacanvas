@@ -4733,3 +4733,7 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .sidebar-sub-item.active svg path[d^="M4 6h16"] { fill: none; stroke-width: 3; } /* lines can't fill: bolder instead */
 
 #btPull.active svg rect:last-child { fill: currentColor; } /* Pull: the front card fills, as in the sidebar */
+
+/* Pull icon: a card being drawn off the stack. Each card hides the lines of the one beneath it (filled with the colour behind) */
+.bottom-tab, .sidebar-item { --cut: var(--bg); }
+.sidebar-item:hover { --cut: var(--surface); }

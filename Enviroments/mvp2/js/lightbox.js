@@ -179,12 +179,17 @@ const _frameSrc = c => { const iu = c.image_uris || c.card_faces?.[0]?.image_uri
 // 'shared': a card opened from a shared link — shown on its own (no ‹ ›, it isn't part of a feed);
 // closing it lands in the Gallery, where there's more to see
 let _lbSingle = false;
+const _pageZoomed = () => !!(window.visualViewport && window.visualViewport.scale > 1.02);
+// Pinch-zoom is allowed while a card is open (the rest of the app stays at its normal size)
+const _vp = document.querySelector('meta[name=viewport]');
+const _setPageZoom = on => _vp && _vp.setAttribute('content', on ? 'width=device-width, initial-scale=1.0' : 'width=device-width, initial-scale=1.0, maximum-scale=1.0');
 // ‹ › walk the cards of the grid the card was opened from (Gallery, a result, Categories, Pull results),
 // in reading order; callers hand that list over in window._lbNextFeed just before opening
 let _lbFeed = null;
 const _lbList = () => _lbFeed || filteredCards;
 function openLightbox(card, mode = 'feed') {
   _lbFeed = window._lbNextFeed || null; window._lbNextFeed = null;
+  _setPageZoom(true);
   _lbSingle = mode === 'shared';
   if (_lbSingle) mode = 'feed';
   currentCard = card;
@@ -262,7 +267,7 @@ function openLightbox(card, mode = 'feed') {
        </div>
       </div>
 
-      <div class="zoom-hint" id="zoomHint">Click the art to hide details · Scroll to zoom · ← → to browse</div>
+      <div class="zoom-hint" id="zoomHint">Click the art to hide details · ← → to browse</div>
     </div>
   `;
 
@@ -330,7 +335,7 @@ function openLightbox(card, mode = 'feed') {
   if (_lbSingle) {
     ['lbPrev', 'lbNext', 'lbMobileNav', 'lbSwipeHint'].forEach(id => document.getElementById(id)?.remove());
     document.getElementById('lbGhostArrows')?.remove();
-    const zh = document.getElementById('zoomHint'); if (zh) zh.textContent = 'Click the art to hide details · Scroll to zoom';
+    const zh = document.getElementById('zoomHint'); if (zh) zh.textContent = 'Click the art to hide details';
   }
   document.body.style.overflow = 'hidden';
   setTimeout(() => { const h = document.getElementById('zoomHint'); if (h) h.style.opacity = '0'; }, 3000);
@@ -504,14 +509,14 @@ function openLightbox(card, mode = 'feed') {
   let swX = 0, swY = 0, scX = 0, swiping = false, swDir = null;
 
   document.getElementById('lightboxOverlay').addEventListener('touchstart', (e) => {
-    if (e.touches.length > 1 || scale > 1) { swiping = false; return; } // zoomed: one finger pans the art instead
+    if (e.touches.length > 1 || _pageZoomed()) { swiping = false; return; } // pinch-zoomed: one finger moves around the page
     if (e.target.closest('button, a, .toggle')) return;
     swX = e.touches[0].clientX; swY = e.touches[0].clientY;
     scX = swX; swiping = true; swDir = null;
   }, { passive: true });
 
   document.getElementById('lightboxOverlay').addEventListener('touchmove', (e) => {
-    if (e.touches.length > 1) { e.preventDefault(); swiping = false; return; }
+    if (e.touches.length > 1) { swiping = false; return; } // a pinch: the browser zooms the page
     if (!swiping) return;
     const dx = e.touches[0].clientX - swX;
     const dy = e.touches[0].clientY - swY;
@@ -522,7 +527,7 @@ function openLightbox(card, mode = 'feed') {
   }, { passive: false });
 
   document.getElementById('lightboxOverlay').addEventListener('touchend', () => {
-    if (!swiping || scale > 1) return;
+    if (!swiping || _pageZoomed()) return;
     swiping = false;
     const dx = scX - swX;
     if (swDir !== 'h' || Math.abs(dx) < window.innerWidth * 0.2) return;
@@ -566,71 +571,21 @@ function openLightbox(card, mode = 'feed') {
   infoBtn.addEventListener('click', (e) => { e.stopPropagation(); setFocus(!document.body.classList.contains('lb-focus')); });
   lbBody.addEventListener('click', (e) => {
     if (e.target.closest('#artContainer')) return; // the art handles its own taps (see Zoom below)
-    if (Date.now() - panEndAt < 350) return; // letting go after dragging the zoomed art isn't a click
     if (document.body.classList.contains('lb-focus')) { setFocus(false); return; }
     // Desktop: a click on the empty backdrop closes, as before
     if (!('ontouchstart' in window) && (e.target === lbBody || e.target.classList.contains('lb-col') || e.target.classList.contains('lb-stage'))) handleClose();
   });
 
-  // ── Zoom ── touch: pinch, or double-tap at a spot; one finger pans while zoomed.
-  // Desktop: scroll wheel, or double-click; drag to pan. A single tap/click still shows/hides the details,
-  // but waits ~¼s so the first tap of a double-tap never toggles them. Only the image zooms, inside its frame.
-  const isTouchDevice = 'ontouchstart' in window;
+  // ── Taps on the art: one tap shows/hides the details. Zooming is the browser's own: pinch (phones,
+  // trackpads) or ⌘/Ctrl +/– zoom the whole page. A double-tap is left to the browser and never toggles twice.
   const container = document.getElementById('artContainer');
-  let tapTimer = null, panEndAt = 0;
-  const zoomAt = (x, y) => {
-    const r = container.getBoundingClientRect();
-    scale = 2.5;
-    translateX = (x - (r.left + r.width / 2)) * (1 - scale);
-    translateY = (y - (r.top + r.height / 2)) * (1 - scale);
-    applyTransform();
-  };
+  let tapTimer = null;
   container.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
     e.stopPropagation();
-    if (Date.now() - panEndAt < 350) return; // the end of a pinch or drag isn't a tap
-    if (tapTimer) { // second tap: zoom in there, or back out
-      clearTimeout(tapTimer); tapTimer = null;
-      if (scale > 1) resetZoom(); else zoomAt(e.clientX, e.clientY);
-      return;
-    }
+    if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; return; }
     tapTimer = setTimeout(() => { tapTimer = null; setFocus(!document.body.classList.contains('lb-focus')); }, 260);
   });
-  if (isTouchDevice) {
-    let pinch = null, pan = null;
-    const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-    container.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 2) { pinch = { d: dist(e.touches), s: scale }; pan = null; }
-      else if (e.touches.length === 1 && scale > 1) pan = { x: e.touches[0].clientX, y: e.touches[0].clientY, tx: translateX, ty: translateY, moved: false };
-    }, { passive: true });
-    container.addEventListener('touchmove', (e) => {
-      if (pinch && e.touches.length === 2) {
-        e.preventDefault();
-        scale = Math.min(LB_MAX_ZOOM, Math.max(1, pinch.s * dist(e.touches) / pinch.d));
-        applyTransform();
-      } else if (pan && e.touches.length === 1) {
-        e.preventDefault();
-        const dx = e.touches[0].clientX - pan.x, dy = e.touches[0].clientY - pan.y;
-        if (Math.abs(dx) + Math.abs(dy) > 4) pan.moved = true;
-        translateX = pan.tx + dx; translateY = pan.ty + dy;
-        applyTransform();
-      }
-    }, { passive: false });
-    container.addEventListener('touchend', (e) => {
-      if (pinch && e.touches.length < 2) { pinch = null; panEndAt = Date.now(); if (scale < 1.08) resetZoom(); }
-      if (pan && !e.touches.length) { if (pan.moved) panEndAt = Date.now(); pan = null; }
-    });
-  } else {
-    container.addEventListener('wheel', (e) => { e.preventDefault(); applyZoom(e.deltaY > 0 ? -0.15 : 0.15); }, { passive: false });
-    container.addEventListener('mousedown', (e) => {
-      if (scale <= 1) return;
-      isDragging = true; dragStartX = e.clientX; dragStartY = e.clientY;
-      lastTx = translateX; lastTy = translateY;
-      container.classList.add('grabbing'); e.preventDefault();
-    });
-    document.addEventListener('mousemove', handleDrag);
-    document.addEventListener('mouseup', () => { if (isDragging && Math.abs(translateX - lastTx) + Math.abs(translateY - lastTy) > 4) panEndAt = Date.now(); stopDrag(); });
-  }
 }
 
 function handleDrag(e) {
@@ -686,6 +641,7 @@ function handleLbKey(e) {
 
 function closeLightbox() {
   _transitioning = false;
+  _setPageZoom(false); // back to normal size
   setTimeout(() => typeof updateScrollTop === 'function' && updateScrollTop(), 0);
   _lbSingle = false;
   document.body.classList.remove('lb-focus');

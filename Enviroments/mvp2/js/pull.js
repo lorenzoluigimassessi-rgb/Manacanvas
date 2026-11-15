@@ -50,6 +50,16 @@ function openPullStack(first, nonce) {
   document.getElementById('pullNext').addEventListener('click', e => { e.stopPropagation(); _pullGo(_pull.idx + 1); });
   document.getElementById('lbVersions').addEventListener('click', () => openTag(`!"${currentCard.name}"`, currentCard.name, 'Card'));
   bindCardTools(document.getElementById('drawRitual'), () => _pull && _pull.cards[_pull.idx], () => _pull && _pull.view);
+  // The name in the sheet opens the card's full detail page (above Pull; ‹ › walk the cards pulled so far)
+  const sheetTitle = document.querySelector('#pullSheet .lb-title');
+  sheetTitle.setAttribute('role', 'link'); sheetTitle.tabIndex = 0;
+  const openFull = () => {
+    const p = _pull; if (!p) return;
+    window._lbNextFeed = p.cards.slice();
+    openLightbox(p.cards[p.idx], 'feed');
+  };
+  sheetTitle.addEventListener('click', openFull);
+  sheetTitle.addEventListener('keydown', e => { if (e.key === 'Enter') openFull(); });
   _pullSheetDrag();
 
   const stack = document.getElementById('pullStack');

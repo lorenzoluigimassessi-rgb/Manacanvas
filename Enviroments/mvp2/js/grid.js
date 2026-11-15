@@ -118,6 +118,23 @@ const SEARCH_SORTS = [
   { key: 'newest',  label: 'Newest',  order: 'released', dir: 'desc' },
   { key: 'oldest',  label: 'Oldest',  order: 'released', dir: 'asc'  },
 ];
+// A set's own sorts (every card in a set shares a date, so Newest / Oldest mean nothing there)
+const SET_SORTS = [
+  { key: 'random', label: 'Shuffle', order: 'random',     dir: 'auto' },
+  { key: 'az',     label: 'A–Z',     order: 'set:az',     dir: 'auto' },
+  { key: 'za',     label: 'Z–A',     order: 'set:za',     dir: 'auto' },
+  { key: 'colour', label: 'Colour',  order: 'set:colour', dir: 'auto' },
+  { key: 'type',   label: 'Type',    order: 'set:type',   dir: 'auto' },
+];
+const sortsFor = tag => tag === 'Set' ? SET_SORTS : SEARCH_SORTS;
+const ALL_SORTS = [...SEARCH_SORTS, ...SET_SORTS.slice(1)];
+// A heading that starts a group (Colour / Type sorts), spanning the grid
+function sortGroupHead(card) {
+  const h = document.createElement('div');
+  h.className = 'sort-group-head';
+  h.innerHTML = `<span class="sg-label">${card._group}</span><span class="sg-count">${card._groupN}</span>`;
+  return h;
+}
 const SEARCH_KINDS = { Card: 'Cards', Artist: 'Artist', Creature: 'Creature type', Type: 'Card type', Set: 'Set', Year: 'Year', Colour: 'Colour' };
 let _searchMeta = null, _preSearchSort = null;
 
@@ -133,13 +150,14 @@ const reopenCard = card => { if (card && typeof openLightbox === 'function') req
 function startSearchSort(label, tag) {
   _searchMeta = { label, tag };
   if (!_preSearchSort) _preSearchSort = { order: sortOrder, dir: sortDir };
-  const o = _searchRestoreSort ? SEARCH_SORTS.find(x => x.key === _searchRestoreSort) || SEARCH_SORTS[0] : SEARCH_SORTS[0];
+  const list = sortsFor(tag);
+  const o = _searchRestoreSort ? list.find(x => x.key === _searchRestoreSort) || list[0] : list[0];
   _searchRestoreSort = null;
   sortOrder = o.order; sortDir = o.dir;
   renderSearchHead();
 }
 function currentSearchSortKey() {
-  return (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
+  return (ALL_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
 }
 function searchBack() {
   const ret = _searchCard;
@@ -154,7 +172,7 @@ function endSearchSort() {
   if (_preSearchSort) { sortOrder = _preSearchSort.order; sortDir = _preSearchSort.dir; _preSearchSort = null; }
 }
 function setSearchSort(key) {
-  const o = SEARCH_SORTS.find(x => x.key === key);
+  const o = ALL_SORTS.find(x => x.key === key);
   sortOrder = o.order; sortDir = o.dir;
   window.scrollTo({ top: 0, behavior: 'smooth' });
   renderSearchHead();
@@ -223,8 +241,8 @@ function renderSearchHead() {
   if (lensRow && typeof _currentMode !== 'undefined') lensRow.style.display = _currentMode === 'gallery' && !activeSearch ? '' : 'none';
   if (!on) return;
   const m = _searchMeta || { label: activeSearch, tag: 'Card' };
-  const active = (SEARCH_SORTS.find(o => o.order === sortOrder && o.dir === sortDir) || SEARCH_SORTS[0]).key;
-  const sortPills = `<div class="l2-sort">${SEARCH_SORTS.map(o =>
+  const active = currentSearchSortKey();
+  const sortPills = `<div class="l2-sort">${sortsFor(m.tag).map(o =>
     `<button class="l2-sort-btn ${o.key === active ? 'active' : ''}" onclick="setSearchSort('${o.key}')">${o.label}</button>`).join('')}</div>`;
   head.innerHTML = searchHeadHtml({ back: 'searchBack()', backLabel: 'Back to the gallery', label: m.label, tag: m.tag,
     countId: 'searchCount', count: _feedTotal ? artworksLabel(_feedTotal) : '', sorts: sortPills });
@@ -284,6 +302,7 @@ function renderCards(cards) {
       </div>
     `;
     el.addEventListener("click", () => openLightbox(card, 'feed'));
+    if (card._group) grid.appendChild(sortGroupHead(card));
     grid.appendChild(el);
     observeCardEntrance(el);
   });

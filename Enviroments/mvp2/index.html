@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=168">
+  <link rel="stylesheet" href="css/style.css?v=169">
 </head>
 <body>
 
@@ -1279,14 +1279,14 @@
     })();
   </script>
   <script src="js/welcome.js?v=30"></script>
-  <script src="js/api.js?v=35"></script>
+  <script src="js/api.js?v=36"></script>
   <script src="js/masonry.js?v=1"></script>
-  <script src="js/grid.js?v=52"></script>
+  <script src="js/grid.js?v=53"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=33"></script>
   <script src="js/lightbox.js?v=42"></script>
-  <script src="js/pull.js?v=14"></script>
+  <script src="js/pull.js?v=15"></script>
 
   <script>
     // ── Where you are in Categories (level + sort), per tab: a reload lands on the same page ──
@@ -3081,7 +3081,7 @@
     let _l3Stack = [], _l3It = null, _l3Card = null, _l3BackCard = null;
 
     function openDetailPage(it, from = 'l2', sort = 'random', step) {
-      if (!L3_SORTS.some(o => o.key === sort)) sort = 'random';
+      if (!ALL_SORTS.some(o => o.key === sort)) sort = 'random';
       if (from === 'drill') { step = 'drill'; from = _l3From; }
       if (step === 'drill' && _l3It) _l3Stack.push({ it: _l3It, sort: _l3Sort, card: _l3Card });
       if (!step) { _l3Stack = []; _l3ScrollY = window.scrollY; }
@@ -3101,7 +3101,7 @@
       l3.innerHTML = `
         ${searchHeadHtml({ back: 'closeDetailPage()', backLabel: 'Back', label: it.name, tag: it.kind || CAT_KINDS[it.cat] || 'Card',
           countId: 'l3Count', count: '', crumbs: crumbsHtml,
-          sorts: `<div class="l2-sort" id="l3SortSwitcher">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === sort ? 'active' : ''}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>` })}
+          sorts: `<div class="l2-sort" id="l3SortSwitcher">${sortsFor(it.kind || CAT_KINDS[it.cat]).map(o => `<button class="l2-sort-btn ${o.key === sort ? 'active' : ''}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>` })}
         <div class="l3-grid" id="l3Grid"></div>
       `;
       window.scrollTo(0, 0);
@@ -3136,6 +3136,12 @@
 
     // One page of a feed (st holds next/pages/seen). Shuffle draws random pages and never repeats a card.
     async function _feedPage(st, q, sortKey) {
+      if (SET_SORT_KEYS.includes(sortKey)) { // a set by name / colour / type: the whole set, sorted here
+        if (st.whole) return { cards: [], total: st.total || 0, more: false };
+        const all = await loadWholeQuery(q + ' has:illustration');
+        st.whole = true; st.total = all.length;
+        return { cards: sortSetCards(all, sortKey), total: all.length, more: false };
+      }
       const opt = L3_SORTS.find(o => o.key === sortKey) || L3_SORTS[0];
       const base = 'https://api.scryfall.com/cards/search?q=' + encodeURIComponent(q + ' has:illustration') + '&unique=art';
       let json;
@@ -3217,7 +3223,7 @@
       const m = _ms.meta;
       document.getElementById('msHead').innerHTML = searchHeadHtml({ back: 'msBack()', backLabel: 'Back',
         label: m.label, tag: m.tag, countId: 'msCount', count: '',
-        sorts: `<div class="l2-sort">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === _ms.sort ? 'active' : ''}" onclick="setSearchResultsSort('${o.key}')">${o.label}</button>`).join('')}</div>` });
+        sorts: `<div class="l2-sort">${sortsFor(m.tag).map(o => `<button class="l2-sort-btn ${o.key === _ms.sort ? 'active' : ''}" onclick="setSearchResultsSort('${o.key}')">${o.label}</button>`).join('')}</div>` });
       requestAnimationFrame(fitSearchTitles);
     }
 
@@ -3232,7 +3238,7 @@
       const grid = document.getElementById('msGrid');
       if (_ms.obs) _ms.obs.disconnect();
       const gen = ++_ms.gen;
-      Object.assign(_ms, { next: null, pages: 0, seen: new Set(), more: false, obs: null });
+      Object.assign(_ms, { next: null, pages: 0, seen: new Set(), more: false, obs: null, whole: false });
       grid.innerHTML = Array(6).fill(0).map((_, i) => `<div class="shimmer ${['card-normal','card-tall','card-short'][i % 3]}"></div>`).join('');
       const res = await _feedPage(_ms, _ms.q, _ms.sort);
       if (gen !== _ms.gen) return;
@@ -3310,6 +3316,7 @@
         const el = document.createElement('div');
         el.className = `card ${cardHeightClass(card.id)}`;
         el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '&quot;')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div><div class="artist">${card.artist || ''}</div></div>`;
+        if (card._group) grid.appendChild(sortGroupHead(card));
         el._card = card;
         el.addEventListener('click', () => { window._lbNextFeed = masonryCards(grid).map(e => e._card); openLightbox(card, 'feed'); });
         grid.appendChild(el);

@@ -4679,3 +4679,9 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .scroll-top { z-index: 240; } /* above Pull and its results (desktop too) */
 
 .l3-crumbs { margin-bottom: 0.85rem; } /* a little air between the breadcrumb and the title */
+
+/* Group headings in a set sorted by Colour or Type */
+.sort-group-head { display: flex; align-items: baseline; gap: 0.6rem; margin: 1.75rem 0 0.9rem; font-family: 'Josefin Sans', sans-serif; }
+.grid > .sort-group-head:first-child, .l3-grid > .sort-group-head:first-child { margin-top: 0.25rem; }
+.sort-group-head .sg-label { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-primary); }
+.sort-group-head .sg-count { font-size: 0.74rem; letter-spacing: 0.5px; color: var(--text-secondary); }

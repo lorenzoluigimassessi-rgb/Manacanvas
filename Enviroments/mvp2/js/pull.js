@@ -227,7 +227,7 @@ function _pullShowResults() {
   document.getElementById('pullResults').scrollTop = 0;
   document.getElementById('pullResHead').innerHTML = searchHeadHtml({ back: 'pullBack()', backLabel: 'Back',
     label: r.label, tag: r.tag, countId: 'pullCount', count: '',
-    sorts: `<div class="l2-sort">${SEARCH_SORTS.map(o => `<button class="l2-sort-btn ${o.key === r.sort ? 'active' : ''}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>` });
+    sorts: `<div class="l2-sort">${sortsFor(r.tag).map(o => `<button class="l2-sort-btn ${o.key === r.sort ? 'active' : ''}" data-sort="${o.key}">${o.label}</button>`).join('')}</div>` });
   document.querySelectorAll('#pullResHead .l2-sort-btn').forEach(b => b.addEventListener('click', () => {
     r.sort = b.dataset.sort;
     document.querySelectorAll('#pullResHead .l2-sort-btn').forEach(x => x.classList.toggle('active', x === b));

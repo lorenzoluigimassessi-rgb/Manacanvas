@@ -38,6 +38,13 @@ async function fetchCards(query = "t:creature") {
   const epoch = _feedEpoch;
   try {
     const isRandom = sortOrder === "random";
+    if (sortOrder.startsWith('set:')) { // A–Z / Z–A / Colour / Type inside a set: the whole set, sorted here
+      const all = await loadWholeQuery(query);
+      if (epoch !== _feedEpoch) return { data: [], hasMore: false, stale: true };
+      _feedTotal = all.length;
+      const data = sortSetCards(all, sortOrder.slice(4)).filter(c => !_seenIds.has(c.id) && _seenIds.add(c.id));
+      return { data, hasMore: false };
+    }
     let json;
     if (isRandom) {
       // One page is 175 cards in some order — by release that's one or two sets — so each load samples
@@ -218,4 +225,55 @@ function buildQuery(artists, creatureTypes, cardTypes, colours, sets, styles, ye
     sets?.length || styles?.length || yearMin || yearMax || searchText || q !== 'has:illustration');
   if (!hasFilters) q = "t:creature has:illustration";
   return q;
+}
+
+
+// ── Inside one set every card shares a date, so a set sorts by name, colour or card type instead ──
+// Those orders need the whole set at once (Scryfall can't sort by type): at most ~450 artworks, 1–3 requests,
+// kept in memory for the visit. Each group's first card carries _group / _groupN for a heading.
+const _wholeCache = {};
+async function loadWholeQuery(q) {
+  if (_wholeCache[q]) return _wholeCache[q];
+  let url = `${API_BASE}/cards/search?q=${encodeURIComponent(q)}&unique=art&order=name`, all = [];
+  for (let i = 0; url && i < 8; i++) {
+    const r = await fetch(url).catch(() => null);
+    if (!r || !r.ok) break;
+    const j = await r.json();
+    all.push(...(j.data || []));
+    url = j.has_more ? j.next_page : null;
+  }
+  if (all.length) _wholeCache[q] = all;
+  return all;
+}
+const SET_SORT_KEYS = ['az', 'za', 'colour', 'type'];
+// Same order as Categories → Card Types
+const _TYPE_ORDER = ['Creature', 'Instant', 'Sorcery', 'Enchantment', 'Artifact', 'Land', 'Planeswalker', 'Battle'];
+const _TYPE_PLURAL = { Creature: 'Creatures', Instant: 'Instants', Sorcery: 'Sorceries', Enchantment: 'Enchantments', Artifact: 'Artifacts',
+  Land: 'Lands', Planeswalker: 'Planeswalkers', Battle: 'Battles', Other: 'Other' };
+const _COLOURS = ['W', 'U', 'B', 'R', 'G'], _COLOUR_NAMES = ['White', 'Blue', 'Black', 'Red', 'Green'];
+function _setGroup(c, key) {
+  const f = c.card_faces?.[0] || c;
+  const [main = '', sub = ''] = (f.type_line || c.type_line || '').split('—').map(x => x.trim());
+  if (key === 'type') {
+    if (/\bCreature\b/.test(main)) return { label: 'Creatures', rank: 0, sub };  // creatures by creature type
+    const i = _TYPE_ORDER.findIndex(t => main.split(/\s+/).includes(t));
+    return i < 0 ? { label: 'Other', rank: 99 } : { label: _TYPE_PLURAL[_TYPE_ORDER[i]], rank: i };
+  }
+  // Colour, in the order Magic numbers a set: W U B R G, multicolour, colourless, then lands
+  if (/\bLand\b/.test(main) && !/\bCreature\b/.test(main)) return { label: 'Lands', rank: 8 };
+  const cols = (c.colors || f.colors || []).filter(x => _COLOURS.includes(x));
+  if (!cols.length) return { label: 'Colourless', rank: 7 };
+  if (cols.length > 1) return { label: 'Multicolour', rank: 6, sub: String(cols.length) + cols.map(x => _COLOURS.indexOf(x)).sort().join('') };
+  const i = _COLOURS.indexOf(cols[0]);
+  return { label: _COLOUR_NAMES[i], rank: i };
+}
+function sortSetCards(cards, key) {
+  const byName = (a, b) => a.name.localeCompare(b.name);
+  if (key === 'az') return [...cards].sort(byName);
+  if (key === 'za') return [...cards].sort((a, b) => byName(b, a));
+  const keyed = cards.map(c => ({ c, g: _setGroup(c, key) }))
+    .sort((x, y) => x.g.rank - y.g.rank || (x.g.sub || '').localeCompare(y.g.sub || '') || byName(x.c, y.c));
+  const counts = {};
+  keyed.forEach(k => { counts[k.g.label] = (counts[k.g.label] || 0) + 1; });
+  return keyed.map((k, i) => (i === 0 || keyed[i - 1].g.label !== k.g.label) ? { ...k.c, _group: k.g.label, _groupN: counts[k.g.label] } : k.c);
 }

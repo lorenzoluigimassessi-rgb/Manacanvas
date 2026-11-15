@@ -4713,3 +4713,7 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .lb2 .art-container { touch-action: pan-y; }
 .lb2 .art-container.zoomed { touch-action: none; cursor: grab; }
 .lb2 .art-container img { transform-origin: center; will-change: transform; }
+
+/* Home title: always MAGIC: / THE GALLERY (never "MAGIC: THE / GALLERY" or three lines), sized so line 2 fits */
+.welcome-title .br-mobile { display: inline; }
+@media (min-width: 769px) { .welcome-title { font-size: min(6.5rem, 10vw); } }

@@ -1302,10 +1302,23 @@
     let _currentMode = 'gallery';
 
     let _galleryScrollY = 0, _galleryShown = false;
+    const _modeScroll = {};
+    // Categories' overview: sub-pages closed
+    function collectionsRoot() {
+      if (!_bootCatNav) catNav.set({});
+      if (typeof _l3 !== 'undefined') { if (_l3.obs) _l3.obs.disconnect(); _l3.gen++; }
+      if (typeof _level2Category !== 'undefined' && !_bootCatNav) _level2Category = null;
+      ['collectionsLevel2', 'collectionsLevel3'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+      const main = document.getElementById('collectionsPage');
+      if (main) main.style.display = '';
+      _modeScroll.collections = 0;
+    }
 
     function setMode(mode) {
       const prevMode = _currentMode;
       if (prevMode === 'gallery' && mode !== 'gallery') _galleryScrollY = window.scrollY;
+      // Each section keeps where you were in it (page and scroll) while you visit another tab
+      if (prevMode !== mode) _modeScroll[prevMode] = prevMode === 'search' ? document.getElementById('searchPanel').scrollTop : window.scrollY;
       _currentMode = mode;
       if (mode === 'gallery' || mode === 'collections' || mode === 'home') localStorage.setItem('mc_mode', mode);
       // Dismiss pull overlay when navigating away
@@ -1389,20 +1402,15 @@
         }
       }
 
-      // collections — always return to main overview, hide sub-pages
-      if (mode === 'collections') {
-        if (!_bootCatNav) catNav.set({});
-        const l2 = document.getElementById('collectionsLevel2');
-        const l3 = document.getElementById('collectionsLevel3');
-        const main = document.getElementById('collectionsPage');
-        if (l2) l2.style.display = 'none';
-        if (l3) l3.style.display = 'none';
-        if (main) main.style.display = '';
-      }
+      // Categories: back from another tab, it's as you left it; tapped again while in it, it goes back to its overview
+      if (mode === 'collections' && (prevMode === 'collections' || !_collectionsRendered)) { collectionsRoot(); if (prevMode === 'collections') window.scrollTo(0, 0); }
 
-      // Gallery keeps its feed and scroll position when you come back; other pages start at the top
-      if (mode === 'gallery' && prevMode !== 'gallery') requestAnimationFrame(() => window.scrollTo(0, _galleryScrollY));
-      else if (prevMode === 'gallery' && mode !== 'gallery') window.scrollTo(0, 0);
+      // Gallery, Categories and Search keep their scroll when you come back; other pages start at the top
+      if (mode !== prevMode) {
+        const y = mode === 'gallery' ? _galleryScrollY : (mode === 'collections' || mode === 'search') ? (_modeScroll[mode] || 0) : 0;
+        if (mode === 'search') { const sp = document.getElementById('searchPanel'); requestAnimationFrame(() => { sp.scrollTop = y; }); window.scrollTo(0, 0); }
+        else { window.scrollTo(0, y); requestAnimationFrame(() => window.scrollTo(0, y)); }
+      }
       if (mode === 'gallery') _galleryShown = true;
 
       // load content

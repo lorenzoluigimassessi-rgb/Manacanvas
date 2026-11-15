@@ -93,6 +93,7 @@ function useFeedBridge() {
   try { localStorage.setItem('mc_bridge_used', '1'); } catch (e) {}
   document.querySelectorAll('.feed-bridge').forEach(el => el.remove());
   setMode('collections');
+  collectionsRoot(); window.scrollTo(0, 0); // "Explore by categories" always opens the overview
 }
 
 // One-time hint that the feed can be reshuffled; gone once used or after scrolling into the feed

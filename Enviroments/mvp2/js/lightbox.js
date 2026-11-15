@@ -166,14 +166,6 @@ function _shareCard(card) {
   if (navigator.share) navigator.share({ title: card.name, text: `${card.name} — art by ${card.artist || 'Unknown'}`, url }).catch(() => {});
   else _copyText(url, 'Link copied');
 }
-// A shared link (?card=<id>) opens that card's detail page
-window.addEventListener('load', () => {
-  const id = new URLSearchParams(location.search).get('card');
-  if (!id || !/^[0-9a-f-]{36}$/i.test(id)) return;
-  history.replaceState(null, '', location.pathname);
-  fetch(`https://api.scryfall.com/cards/${id}`).then(r => r.ok ? r.json() : null).then(c => { if (c && c.object === 'card') openLightbox(c, 'shared'); }).catch(() => {});
-});
-
 const _frameSrc = c => { const iu = c.image_uris || c.card_faces?.[0]?.image_uris || {}; return iu.large || iu.normal; };
 
 // 'shared': a card opened from a shared link — shown on its own (no ‹ ›, it isn't part of a feed);
@@ -342,7 +334,7 @@ function openLightbox(card, mode = 'feed') {
 
   // ── Close ──────────────────────────────────────────────────────────────────
   function handleClose() {
-    const toGallery = _lbMode === 'surprise' || _lbSingle;
+    const toGallery = _lbMode === 'surprise' || (_lbSingle && _currentMode === 'home'); // a bare shared card closes into the Gallery
     closeLightbox();
     if (toGallery) setMode('gallery');
   }

@@ -1285,7 +1285,7 @@
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=33"></script>
-  <script src="js/lightbox.js?v=45"></script>
+  <script src="js/lightbox.js?v=46"></script>
   <script src="js/pull.js?v=16"></script>
 
   <script>
@@ -3695,9 +3695,7 @@
       }
     })();
 
-    // Skip home screen if user was already in the gallery/collections
-    const _savedMode = localStorage.getItem('mc_mode');
-    setMode((_savedMode === 'gallery' || _savedMode === 'collections') ? _savedMode : 'home');
   </script>
+  <script src="js/route.js?v=1"></script>
 </body>
 </html>

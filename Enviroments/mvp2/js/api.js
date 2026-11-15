@@ -45,6 +45,7 @@ async function fetchCards(query = "t:creature") {
       // a couple of dozen cards from each: every screenful spans eras, sets and artists
       const orders = shuffleArray(["name", "artist", "edhrec", "cmc"]).slice(0, 3);
       if (!_pageCounts[query]) await _search(query, "name", "asc", 1); // learn how many pages exist first (no wasted guesses)
+      if ((_pageCounts[query] || 1) <= 1) orders.length = 1; // a single page: one request is everything
       const one = async order => {
         const dir = Math.random() < 0.5 ? "asc" : "desc";
         const pages = _pageCounts[query] || 200;
@@ -69,8 +70,8 @@ async function fetchCards(query = "t:creature") {
     if (!json || json.rateLimited) return { data: [], hasMore: false, rateLimited: !!(json && json.rateLimited) };
     nextPageUrl = !isRandom && json.has_more ? json.next_page : null;
     _feedTotal = json.total_cards || 0;
-    const data = (json.data || []).filter(c => !_seenIds.has(c.id));
-    data.forEach(c => _seenIds.add(c.id));
+    // Never the same card twice (the mixed pages can overlap, e.g. a one-card search)
+    const data = (json.data || []).filter(c => !_seenIds.has(c.id) && _seenIds.add(c.id));
     const hasMore = isRandom ? _seenIds.size < _feedTotal : !!json.has_more;
     return { data: isRandom ? shuffleArray(data) : data, hasMore };
   } catch (e) {

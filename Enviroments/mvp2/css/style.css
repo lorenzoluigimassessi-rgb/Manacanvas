@@ -4685,3 +4685,26 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 .grid > .sort-group-head:first-child, .l3-grid > .sort-group-head:first-child { margin-top: 0.25rem; }
 .sort-group-head .sg-label { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-primary); }
 .sort-group-head .sg-count { font-size: 0.74rem; letter-spacing: 0.5px; color: var(--text-secondary); }
+
+/* Light theme: the Gallery tabs and the header ⋮ were hard-coded light-on-dark — invisible on a light page */
+:root[data-theme="light"] .lens-btn { color: rgba(12,12,15,0.55); }
+:root[data-theme="light"] .lens-btn:hover { color: rgba(12,12,15,0.85); }
+:root[data-theme="light"] .lens-btn.active { color: rgba(12,12,15,0.95); }
+:root[data-theme="light"] .mobile-more-btn { color: rgba(12,12,15,0.75); }
+
+/* Light theme: Discover — airy glow, dark text, frosted white glass */
+:root[data-theme="light"] .search-glow-art { filter: blur(10px) saturate(1.4) brightness(1.15); }
+:root[data-theme="light"] .search-glow-art.on { opacity: 0.55; }
+:root[data-theme="light"] .search-glow::after { background: radial-gradient(120% 80% at 50% 35%, rgba(245,244,240,0.35), rgba(245,244,240,0.85)); }
+:root[data-theme="light"] .search-hero-sub { color: rgba(12,12,15,0.6); }
+:root[data-theme="light"] .search-hero-input-wrap { background: rgba(255,255,255,0.8); border-color: rgba(12,12,15,0.14); }
+:root[data-theme="light"] .search-hero-input { color: rgba(12,12,15,0.9); }
+:root[data-theme="light"] .search-guide-title { color: rgba(12,12,15,0.5); }
+:root[data-theme="light"] .search-guide-list {
+  background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.5));
+  border-color: rgba(12,12,15,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 40px rgba(0,0,0,0.08);
+}
+:root[data-theme="light"] .search-guide-row { border-top-color: rgba(12,12,15,0.06); }
+:root[data-theme="light"] .search-guide-row .search-kind-chip { color: rgba(12,12,15,0.7); background: rgba(12,12,15,0.04); border-color: rgba(12,12,15,0.16); }
+:root[data-theme="light"] .mobile-gallery-header.over-art { background: linear-gradient(rgba(245,244,240,0.7), rgba(245,244,240,0)); }
+:root[data-theme="light"] .mobile-gallery-header.over-art .mobile-gallery-title { text-shadow: none; }

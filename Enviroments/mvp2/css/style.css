@@ -4745,7 +4745,7 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
 #btCollections.active svg path:first-child, #sideCollections.active svg path:first-child,
 #sidePull.active svg rect:last-child, #sideAbout.active svg circle,
 .sidebar-sub-item.active svg path, .sidebar-sub-item.active svg rect, .sidebar-sub-item.active svg circle { fill: currentColor; }
-#btHome.active svg polyline { stroke: var(--cut); }
+#btHome.active svg polyline { stroke: var(--cut); fill: var(--cut); } /* the door is an empty opening */
 #sideAbout.active svg path, #sideAbout.active svg line { stroke: var(--cut); }
 .sidebar-sub-item.active svg circle[r="1"] { fill: var(--cut); stroke: var(--cut); }
 #btSearch.active svg { stroke-width: 2.6; }

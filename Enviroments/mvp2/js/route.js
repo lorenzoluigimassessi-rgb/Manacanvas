@@ -7,6 +7,7 @@
 (function () {
   const $ = id => document.getElementById(id);
   const pullOpen = () => $('drawRitual') && $('drawRitual').style.display !== 'none';
+  const l2On = () => $('collectionsLevel2') && $('collectionsLevel2').style.display === 'block' && _level2Category;
   const lbOpen = () => !!document.querySelector('#lightbox .lightbox');
 
   function routeNow() {
@@ -25,13 +26,13 @@
     } else if (m === 'collections') {
       p.set('p', 'categories');
       if (_l3Open() && _l3It) { if (_l3It.cat) p.set('cat', _l3It.cat); put(_l3It.q, _l3It.name, _l3It.kind, _l3Sort); }
-      else if (_level2Category) p.set('cat', _level2Category);
+      else if (l2On()) p.set('cat', _level2Category);
     } else if (m === 'search') {
       p.set('p', 'discover');
       if (_msOpen() && _ms.meta) put(_ms.q, _ms.meta.label, _ms.meta.tag, _ms.sort);
     } else if (m === 'about') p.set('p', 'about');
     // Sidebar: the Categories section you're in is marked, like the main items
-    const sec = m === 'collections' && !pullOpen() ? (_l3Open() ? _l3It && _l3It.cat : _level2Category) : null;
+    const sec = m === 'collections' && !pullOpen() ? (_l3Open() ? _l3It && _l3It.cat : l2On()) : null;
     document.querySelectorAll('.sidebar-sub-item').forEach(b => b.classList.toggle('active', !!sec && b.getAttribute('onclick').includes(`'${sec}'`)));
     if (lbOpen() && currentCard) p.set('card', currentCard.id);
     const url = location.pathname + (p.toString() ? '?' + p : '');

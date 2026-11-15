@@ -179,7 +179,12 @@ const _frameSrc = c => { const iu = c.image_uris || c.card_faces?.[0]?.image_uri
 // 'shared': a card opened from a shared link — shown on its own (no ‹ ›, it isn't part of a feed);
 // closing it lands in the Gallery, where there's more to see
 let _lbSingle = false;
+// ‹ › walk the cards of the grid the card was opened from (Gallery, a result, Categories, Pull results),
+// in reading order; callers hand that list over in window._lbNextFeed just before opening
+let _lbFeed = null;
+const _lbList = () => _lbFeed || filteredCards;
 function openLightbox(card, mode = 'feed') {
+  _lbFeed = window._lbNextFeed || null; window._lbNextFeed = null;
   _lbSingle = mode === 'shared';
   if (_lbSingle) mode = 'feed';
   currentCard = card;
@@ -200,12 +205,12 @@ function openLightbox(card, mode = 'feed') {
   // Arrow visibility state
   const noHistory  = isSurprise && window._surpriseHistory.length === 0;
   // For feed: only hide prev if genuinely at index 0; -1 (not found) means don't hide
-  const feedIdx    = !isSurprise ? filteredCards.findIndex(c => c.id === card.id) : -1;
+  const feedIdx    = !isSurprise ? _lbList().findIndex(c => c.id === card.id) : -1;
   const hidePrev   = noHistory || (!isSurprise && feedIdx === 0);
-  const hideNext   = !isSurprise && feedIdx !== -1 && feedIdx >= filteredCards.length - 1;
+  const hideNext   = !isSurprise && feedIdx !== -1 && feedIdx >= _lbList().length - 1;
   // disabled = at edge but still visible; hidden = surprise prev with no history
   const disabledPrev = !isSurprise && feedIdx === 0;
-  const disabledNext = !isSurprise && feedIdx !== -1 && feedIdx >= filteredCards.length - 1;
+  const disabledNext = !isSurprise && feedIdx !== -1 && feedIdx >= _lbList().length - 1;
 
   const IMG_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
 
@@ -363,8 +368,8 @@ function openLightbox(card, mode = 'feed') {
         fetchRandomCard().then(c => { if (c) transitionTo(c, 'next', 'surprise'); });
       }
     } else {
-      const idx = filteredCards.findIndex(c => c.id === currentCard.id);
-      if (idx < filteredCards.length - 1) transitionTo(filteredCards[idx + 1], 'next', 'feed');
+      const idx = _lbList().findIndex(c => c.id === currentCard.id);
+      if (idx < _lbList().length - 1) transitionTo(_lbList()[idx + 1], 'next', 'feed');
     }
   }
 
@@ -381,8 +386,8 @@ function openLightbox(card, mode = 'feed') {
         setMode('gallery');
       }
     } else {
-      const idx = filteredCards.findIndex(c => c.id === currentCard.id);
-      if (idx > 0) transitionTo(filteredCards[idx - 1], 'prev', 'feed');
+      const idx = _lbList().findIndex(c => c.id === currentCard.id);
+      if (idx > 0) transitionTo(_lbList()[idx - 1], 'prev', 'feed');
     }
   }
 
@@ -418,10 +423,10 @@ function openLightbox(card, mode = 'feed') {
 
       // Sync all arrow visibility
       const hasHistory = window._surpriseHistory.length > 0;
-      const nFeedIdx   = nextMode !== 'surprise' ? filteredCards.findIndex(c => c.id === nextCard.id) : -1;
+      const nFeedIdx   = nextMode !== 'surprise' ? _lbList().findIndex(c => c.id === nextCard.id) : -1;
       const nHidePrev  = nextMode === 'surprise' && !hasHistory;
       const nDisPrev   = nextMode !== 'surprise' && nFeedIdx === 0;
-      const nDisNext   = nextMode !== 'surprise' && nFeedIdx !== -1 && nFeedIdx >= filteredCards.length - 1;
+      const nDisNext   = nextMode !== 'surprise' && nFeedIdx !== -1 && nFeedIdx >= _lbList().length - 1;
 
       ['lbPrev','lbGhostPrev','lbMobileNavPrev'].forEach(id => {
         const el = document.getElementById(id);
@@ -627,6 +632,7 @@ function handleLbKey(e) {
 
 function closeLightbox() {
   _transitioning = false;
+  setTimeout(() => typeof updateScrollTop === 'function' && updateScrollTop(), 0);
   _lbSingle = false;
   document.body.classList.remove('lb-focus');
   localStorage.removeItem('mc_lightbox');

@@ -869,7 +869,7 @@
     }
     .about-page-legal a:hover { color: var(--text-1); }
   </style>
-  <link rel="stylesheet" href="css/style.css?v=165">
+  <link rel="stylesheet" href="css/style.css?v=167">
 </head>
 <body>
 
@@ -1279,12 +1279,13 @@
     })();
   </script>
   <script src="js/welcome.js?v=30"></script>
-  <script src="js/api.js?v=33"></script>
-  <script src="js/grid.js?v=50"></script>
+  <script src="js/api.js?v=34"></script>
+  <script src="js/masonry.js?v=1"></script>
+  <script src="js/grid.js?v=51"></script>
   <script src="js/artist-counts.js?v=2"></script>
   <script src="js/category-counts.js?v=1"></script>
   <script src="js/filters.js?v=33"></script>
-  <script src="js/lightbox.js?v=41"></script>
+  <script src="js/lightbox.js?v=42"></script>
   <script src="js/pull.js?v=13"></script>
 
   <script>
@@ -1474,7 +1475,20 @@
 
     // Inner pages (a tag/search result, Categories levels 2–3) drop the brand header on phones:
     // their own back arrow + title lead; once scrolled away, a floating back button stays
-    const scrollerEl = () => _currentMode === 'search' && _msOpen() ? document.getElementById('searchPanel') : window;
+    // Whatever is scrolling right now: Pull's results, the phone Search results, or the page
+    const scrollerEl = () => {
+      const pr = document.getElementById('pullResults');
+      if (pr && typeof _pull !== 'undefined' && _pull && _pull.res) return pr;
+      return _currentMode === 'search' && _msOpen() ? document.getElementById('searchPanel') : window;
+    };
+    // ↑ appears once you're well down whatever you're scrolling — never over a card's detail page or Pull's stack
+    function updateScrollTop() {
+      const sc = scrollerEl(), y = sc === window ? scrollY : sc.scrollTop;
+      const pullStack = typeof _pull !== 'undefined' && _pull && !_pull.res;
+      const hide = _currentMode === 'home' || document.querySelector('#lightbox .lightbox') || pullStack;
+      document.getElementById('scrollTop').classList.toggle('visible', !hide && y > 800);
+    }
+    document.addEventListener('scroll', updateScrollTop, { capture: true, passive: true });
     function _activeHead() {
       if (_currentMode === 'gallery') return activeSearch ? document.querySelector('#searchHead .search-head-row') : null;
       if (_currentMode === 'search') return _msOpen() ? document.querySelector('#msHead .search-head-row') : null;
@@ -1490,7 +1504,7 @@
       const show = !!head && innerWidth < 1024 && head.getBoundingClientRect().bottom < 0;
       if (show) bar.onclick = () => head.querySelector('.l2-back').click();
       bar.classList.toggle('visible', show);
-      document.getElementById('scrollTop').classList.toggle('visible', _currentMode !== 'home' && y > 800);
+      updateScrollTop();
     }
     window.addEventListener('scroll', updateSubpage, { passive: true });
     document.getElementById('searchPanel').addEventListener('scroll', updateSubpage, { passive: true });
@@ -3296,7 +3310,8 @@
         const el = document.createElement('div');
         el.className = `card ${cardHeightClass(card.id)}`;
         el.innerHTML = `<img src="${art}" alt="${(card.name || '').replace(/"/g, '&quot;')}" loading="lazy"><div class="overlay"><div class="name">${card.name}</div><div class="artist">${card.artist || ''}</div></div>`;
-        el.addEventListener('click', () => openLightbox(card, 'feed'));
+        el._card = card;
+        el.addEventListener('click', () => { window._lbNextFeed = masonryCards(grid).map(e => e._card); openLightbox(card, 'feed'); });
         grid.appendChild(el);
         observeCardEntrance(el); // cards fade in on view, like the gallery
       });

@@ -81,13 +81,12 @@ function showFeed(cards, hasMore, query, fromNetwork) {
 function insertFeedBridge() {
   if (typeof _activeLens === 'undefined' || _activeLens !== 'picks' || activeSearch) return;
   try { if (localStorage.getItem('mc_bridge_used') === '1') return; } catch (e) {}
-  const after = grid.querySelectorAll('.card')[19];
-  if (!after) return;
+  if (grid.querySelectorAll('.card').length < 20) return;
   const band = document.createElement('div');
   band.className = 'feed-bridge';
   band.innerHTML = `<span class="feed-bridge-q">Looking for something specific?</span>
     <button onclick="useFeedBridge()">Explore by categories <span class="feed-bridge-arrow" aria-hidden="true">→</span></button>`;
-  after.after(band);
+  masonryBreakAfter(grid, 20, band);
 }
 
 function useFeedBridge() {

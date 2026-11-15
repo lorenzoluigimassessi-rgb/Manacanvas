@@ -4659,3 +4659,21 @@ body.lb-focus .lb2 .art-container img.frame-mode { width: auto; max-height: calc
   backdrop-filter: none; -webkit-backdrop-filter: none; color: rgba(240,240,240,0.8); transition: color 150ms, transform 200ms; }
 .lb2 .close-btn.lb-back svg { width: 1.65rem; height: auto; display: block; filter: drop-shadow(0 1px 6px rgba(0,0,0,0.5)); }
 .lb2 .close-btn.lb-back:hover { color: #fff; transform: translateX(-4px); }
+
+/* Masonry in reading order (js/masonry.js): rows of columns, cards fill the shortest column */
+.grid { --mcols: 4; }
+.grid.grid-sm { --mcols: 5; }
+.grid.grid-lg { --mcols: 3; }
+@media (min-width: 1024px) and (max-width: 1279px) { .grid { --mcols: 3; } }
+@media (min-width: 1700px) { .grid { --mcols: 5; } .grid.grid-sm { --mcols: 6; } .grid.grid-lg { --mcols: 4; } }
+@media (max-width: 1023px) { .grid, .grid.grid-sm, .grid.grid-lg { --mcols: 2; } }
+.l3-grid { --mcols: 5; }
+@media (max-width: 1699px) { .l3-grid { --mcols: 4; } }
+@media (max-width: 1279px) { .l3-grid { --mcols: 3; } }
+@media (max-width: 1023px) { .l3-grid { --mcols: 2; } }
+.masonry { columns: auto !important; column-count: auto !important; }
+.mrow { display: flex; align-items: flex-start; }
+.mcol { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+.mcol > .card, .mcol > .shimmer { width: 100%; margin: 0 !important; display: block; }
+
+.scroll-top { z-index: 240; } /* above Pull and its results (desktop too) */

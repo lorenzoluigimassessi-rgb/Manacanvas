@@ -157,8 +157,9 @@ async function _fillRandomPool(query) {
 }
 
 async function fetchRandomCard() {
-  // Pulls never draw Sagas: their tall, sideways chapter layout doesn't read as a card's artwork
-  const query = buildQuery(activeArtist, activeType, activeCardType, activeColour, activeSets, activeStyles.map(i => ART_STYLES[i]), activeYearMin, activeYearMax, activeSearch) + ' -t:saga';
+  // Pull draws from all of Magic, whatever the Gallery is showing (its tabs and filters don't apply),
+  // and never Sagas: their tall, sideways chapter layout doesn't read as a card's artwork
+  const query = 'has:illustration -t:saga';
 
   // Reset pool if query changed
   if (window._randomPoolQuery !== query) {

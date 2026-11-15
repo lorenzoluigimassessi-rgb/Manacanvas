@@ -60,10 +60,10 @@
     if (page === 'gallery') {
       const lens = u.get('lens');
       if (lens && !q) { const sub = u.get('sub'); localStorage.setItem('mc_lens', JSON.stringify({ lens, sub: lens === 'new' && sub ? { code: sub } : sub })); }
-      else if (!q) localStorage.setItem('mc_lens', JSON.stringify({ lens: 'picks', sub: null }));
+      else localStorage.setItem('mc_lens', JSON.stringify({ lens: 'picks', sub: null })); // a search link stands alone: no tab narrows it
       localStorage.setItem('mc_mode', 'gallery');
       setMode('gallery');
-      if (q) runSearch(q, t, k);
+      if (q) { window._lensRawQuery = null; runSearch(q, t, k); }
     } else if (page === 'categories') {
       localStorage.setItem('mc_mode', 'collections');
       const nav = {};
@@ -75,7 +75,8 @@
       setMode('search');
       if (q) openSearchResults(q, t, k, undefined, sort);
     } else if (page === 'discover' && q) { // Discover is a phone page: on a computer the search shows in the Gallery
-      setMode('gallery'); runSearch(q, t, k);
+      localStorage.setItem('mc_lens', JSON.stringify({ lens: 'picks', sub: null })); localStorage.setItem('mc_mode', 'gallery');
+      setMode('gallery'); window._lensRawQuery = null; runSearch(q, t, k);
     } else if (page === 'about') setMode('about');
     else if (page === 'pull') { setMode(saved === 'collections' ? 'collections' : 'gallery'); triggerDrawRitual(); }
     else setMode(saved === 'gallery' || saved === 'collections' ? saved : 'home');

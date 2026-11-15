@@ -310,3 +310,10 @@ function pullCleanup() {
   const ov = document.getElementById('drawRitual');
   ov.classList.remove('pull-mode', 'sheet-open', 'results-open');
 }
+
+// The Pull icon draws its top card when tapped (bottom bar and sidebar)
+['btPull', 'sidePull'].forEach(id => document.getElementById(id)?.addEventListener('click', e => {
+  const b = e.currentTarget;
+  b.classList.remove('pull-drawing'); void b.offsetWidth; b.classList.add('pull-drawing');
+  setTimeout(() => b.classList.remove('pull-drawing'), 500);
+}));

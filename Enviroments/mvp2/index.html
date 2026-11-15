@@ -1876,6 +1876,7 @@
 
 
     async function renderNewPills(row, savedSub) {
+      const restoring = !!window._suppressLensApply; // read now: the sets arrive after the restore has moved on
       row.style.display = '';
       row.innerHTML = '<span style="font-size:0.75rem;color:var(--text-2);padding:0 0.5rem;">Loading...</span>';
       try {
@@ -1918,10 +1919,10 @@
           });
         });
 
-        if (!window._suppressLensApply) {
-          window._activeSubPill = pills[0];
-          applyLensQuery('new', pills[0]);
-        }
+        const pick = (activeSub && pills.find(p => p.code === activeSub)) || pills[0];
+        window._activeSubPill = pick;
+        // A restore (link or reload) already applied the saved set; a fresh tap on New shows the latest
+        if (!restoring) applyLensQuery('new', pick);
       } catch(e) { row.style.display = 'none'; applyLensQuery('new', null); }
     }
 

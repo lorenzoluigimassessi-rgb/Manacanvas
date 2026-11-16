@@ -15,27 +15,49 @@
     subHead()?.querySelector('.l2-back')?.click();
   }
 
-  // One extra history entry stands in for "inside something"; back consumes it and we step back in-app.
-  // Browsers skip (on back) entries added without a tap or key press, so the entry is only ever added
-  // right after one: added later, the back button would jump straight out of the site.
-  let guard = false, skip = null, queued = false, here = location.pathname + location.search;
-  function sync(gesture) {
-    queued = false;
-    here = location.pathname + location.search;
-    const want = inside();
-    if (want && !guard && gesture) { history.pushState({ mcBack: 1 }, ''); guard = true; }
-    else if (!want && guard) { guard = false; skip = here; history.back(); } // closed in-app: drop the spare entry, keep the address
+  // Where you are, as far as back is concerned: the card, the result / Categories page, Pull's layer
+  function key() {
+    if (!inside()) return 'root';
+    try {
+      return [lbOpen(), pullOpen() && ['pull', _pull?.sheet, _pull?.res?.q, _pull?.trail?.length].join(),
+        _currentMode, activeSearch, _l3Open() && _l3It?.q, document.getElementById('collectionsLevel2')?.style.display === 'block' && _level2Category,
+        _msOpen() && _ms.q].join('|');
+    } catch (e) { return 'inside'; }
   }
-  const onGesture = () => { sync(true); setTimeout(() => sync(true), 300); }; // now, and once the page it opened is up
+
+  // One history entry per step in: each back takes one step out, however deep you went
+  // (card → tag → card → …). Browsers skip entries added without a tap or key press, so a step is
+  // only added right after one; changes that happen on their own just update the current step.
+  let rootTimer = null, tapped = 0, stack = [key()], skip = 0, here = location.pathname + location.search;
+  function reconcile() {
+    const gesture = Date.now() - tapped < 1000; // a step in made within a second of a tap or key press
+    here = location.pathname + location.search;
+    const k = key(), n = stack.length;
+    if (k === stack[n - 1]) return;
+    if (n > 1 && k === stack[n - 2]) { stack.pop(); skip++; history.back(); return; } // stepped back in the app
+    if (k === 'root') { // all the way out, once it holds (a tag tapped on a card passes through "nothing open" on its way)
+      clearTimeout(rootTimer);
+      rootTimer = setTimeout(() => { if (key() === 'root' && stack.length > 1) { const m = stack.length - 1; stack = ['root']; skip++; history.go(-m); } }, 500);
+      return;
+    }
+    if (gesture) { history.pushState({ mcBack: stack.length }, ''); stack.push(k); }
+    else stack[n - 1] = k;
+  }
+  const onGesture = () => { tapped = Date.now(); reconcile(); setTimeout(reconcile, 300); }; // now, and once the page it opened is up
   window.addEventListener('click', onGesture);
   window.addEventListener('keydown', onGesture);
   window.addEventListener('popstate', () => {
-    if (skip !== null) { history.replaceState(null, '', skip); skip = null; return; }
-    guard = false;
     history.replaceState(null, '', here); // the address stays on this page; the step back updates it if it moves
+    if (skip) { skip--; return; }
+    if (stack.length > 1) stack.pop();
     if (inside()) appBack();
-    // Still inside something (the result page under a card): armed again by the next tap
+    setTimeout(() => { // settle: line the steps up with where the step back landed
+      const k = key();
+      if (k === 'root' && stack.length > 1) { const n = stack.length - 1; stack = ['root']; skip++; history.go(-n); }
+      else stack[stack.length - 1] = k;
+    }, 250);
   });
-  new MutationObserver(() => { if (!queued) { queued = true; setTimeout(() => sync(false), 120); } })
+  let queued = false;
+  new MutationObserver(() => { if (!queued) { queued = true; setTimeout(() => { queued = false; reconcile(); }, 120); } })
     .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['style', 'class'] });
 })();

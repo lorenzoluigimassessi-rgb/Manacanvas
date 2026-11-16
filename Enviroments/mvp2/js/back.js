@@ -43,9 +43,9 @@
     if (gesture) { history.pushState({ mcBack: stack.length }, ''); stack.push(k); }
     else stack[n - 1] = k;
   }
-  const onGesture = () => { tapped = Date.now(); reconcile(); setTimeout(reconcile, 300); }; // now, and once the page it opened is up
-  window.addEventListener('click', onGesture);
-  window.addEventListener('keydown', onGesture);
+  // Listened to on the way down (capture): many buttons stop their clicks from reaching the window
+  const onGesture = () => { tapped = Date.now(); setTimeout(reconcile, 0); setTimeout(reconcile, 300); }; // once the tap has acted, and once its page is up
+  ['click', 'keydown'].forEach(t => window.addEventListener(t, onGesture, true));
   window.addEventListener('popstate', () => {
     history.replaceState(null, '', here); // the address stays on this page; the step back updates it if it moves
     if (skip) { skip--; return; }
